@@ -728,7 +728,7 @@ void StateZero()
 	gGT->levelID = NAUGHTY_DOG_CRATE;
 
 	#ifdef USE_ONLINE
-	gGT->levelID = 0x26;
+	gGT->levelID = 0x26; //lobby level 3
 	#endif
 
 	#ifdef FastBoot

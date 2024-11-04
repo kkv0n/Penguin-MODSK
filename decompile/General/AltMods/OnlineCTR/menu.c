@@ -65,7 +65,7 @@ int MenuFinished()
 {
 	return *OnPressX_SetLock;
 }
-
+//server names can be changed without problems
 char* countryNames[8] =
 {
 	"Europe",
@@ -92,7 +92,9 @@ void NewPage_ServerCountry()
 		menuRows[i].stringIndex = 0x9a+i;
 		sdata->lngStrings[0x9a+i] = countryNames[i];
 	}
-
+//i think this is something for enabling beta mode
+//if thats the case it disables every server except for beta server
+//look in global.h #define ONLINE_BETA_MODE
 	#ifdef ONLINE_BETA_MODE
 	for(i = 0; i < 6; i++)
 	#else
@@ -141,48 +143,28 @@ void NewPage_ServerRoom()
 {
 	int i;
 
+	// override "LAPS" "3/5/7"
+	//room names, the names can be translated or rewrite
+	sdata->lngStrings[0x9a] = "ROOM 1 - x/8";
+	sdata->lngStrings[0x9b] = "ROOM 2 - x/8";
+	sdata->lngStrings[0x9c] = "ROOM 3 - x/8";
+	sdata->lngStrings[0x9d] = "ROOM 4 - x/8";
+	sdata->lngStrings[0x9e] = "ROOM 5 - x/8";
+	sdata->lngStrings[0x9f] = "ROOM 6 - x/8";
+	sdata->lngStrings[0xa0] = "ROOM 7 - x/8";
+	sdata->lngStrings[0xa1] = "ROOM 8 - x/8";
+
 	int pn = octr->PageNumber;
-
-	const char* itemless = "ITEMLESS";
-	const char* items    = "ITEMS   ";
-	const char* retro    = "RETRO   ";
-	const char* itmretro = "ITEM+RET";
-
-	sdata->lngStrings[0x9a] = "ROOM     1 - x/8";
-	sdata->lngStrings[0x9b] = "ROOM     2 - x/8";
-	sdata->lngStrings[0x9c] = "ROOM     3 - x/8";
-	sdata->lngStrings[0x9d] = "ROOM     4 - x/8";
-	sdata->lngStrings[0x9e] = "ROOM     5 - x/8";
-	sdata->lngStrings[0x9f] = "ROOM     6 - x/8";
-	sdata->lngStrings[0xa0] = "ROOM     7 - x/8";
-	sdata->lngStrings[0xa1] = "ROOM     8 - x/8";
-	for (i = 0; i < 8; i++)
-	{
-		int rn = i + (pn * 8);
-		const char* type;
-		if (rn >= ROOM_ITEMLESSSTART  && rn < (ROOM_ITEMLESSSTART + ROOM_ITEMLESSLENGTH))
-			type = itemless;
-		if (rn >= ROOM_ITEMSTART      && rn < (ROOM_ITEMSTART + ROOM_ITEMLENGTH))
-			type = items;
-		if (rn >= ROOM_RETROSTART     && rn < (ROOM_RETROSTART + ROOM_RETROLENGTH))
-			type = retro;
-		if (rn >= ROOM_ITEMRETROSTART && rn < (ROOM_ITEMRETROSTART + ROOM_ITEMRETROLENGTH))
-			type = itmretro;
-		for (int name = 0; name < 8; name++)
-		{
-			sdata->lngStrings[0x9a+i][name] = type[name]; //replace "ROOM" with the roomtype
-		}
-	}
 
 	for(i = 0; i < 8; i++)
 	{
 		menuRows[i].stringIndex = 0x809a+i;
-		sdata->lngStrings[0x9a+i][9] = GetRoomChar(8*pn + i+1);
-		sdata->lngStrings[0x9a+i][13] = '0' + (octr->clientCount[8*pn+i]);
+		sdata->lngStrings[0x9a+i][5] = GetRoomChar(8*pn + i+1);
+		sdata->lngStrings[0x9a+i][9] = '0' + (octr->clientCount[8*pn+i]);
 
 		// handle locked rows
 		if(octr->clientCount[8*pn+i] > 8)
-			sdata->lngStrings[0x9a+i][13] = '0' + (octr->clientCount[8*pn+i]) - 8;
+			sdata->lngStrings[0x9a+i][9] = '0' + (octr->clientCount[8*pn+i]) - 8;
 	}
 
 	int numRooms = GetNumRoom();
@@ -227,7 +209,9 @@ void MenuWrites_Tracks()
 	OnPressX_SetPtr = &octr->levelID;
 	OnPressX_SetLock = &octr->boolLockedInLevel;
 }
-
+//these are the laps available in the menu
+//only visual text, if you want to change the real number
+//search int numLaps in CL_main.c
 void NewPage_Laps()
 {
 	int i;
@@ -238,16 +222,18 @@ void NewPage_Laps()
 	sdata->lngStrings[0x9b] = "3";
 	sdata->lngStrings[0x9c] = "5";
 	sdata->lngStrings[0x9d] = "7";
-	sdata->lngStrings[0x9e] = "-";
-	sdata->lngStrings[0x9f] = "-";
-	sdata->lngStrings[0xa0] = "-";
-	sdata->lngStrings[0xa1] = "-";
+	sdata->lngStrings[0x9e] = "15";
+	sdata->lngStrings[0x9f] = "30";
+	sdata->lngStrings[0xa0] = "69";
+	sdata->lngStrings[0xa1] = "120";
 
 	#if 0
-	// Monday event
-	sdata->lngStrings[0x9e] = "30";
-	sdata->lngStrings[0x9f] = "60";
-	sdata->lngStrings[0xa0] = "90";
+	// Extra Laps
+	//delete #if 0 to use this in all rooms
+	//also obviously you should delete #endif too
+	sdata->lngStrings[0x9e] = "15";
+	sdata->lngStrings[0x9f] = "30";
+	sdata->lngStrings[0xa0] = "69";
 	sdata->lngStrings[0xa1] = "120";
 	#endif
 
@@ -358,8 +344,9 @@ void PrintCharacterStats()
 	int i;
 	int color;
 
+//special events text when you are in a room, to enable this delete #if 0 and #endif
+//for the special events logic search octr special in cl_main.c
 
-	#if 0
 	char* title = "Classic Gameplay Mode";
 
 	if(octr->special == 1)
@@ -378,7 +365,7 @@ void PrintCharacterStats()
 	}
 
 	DecalFont_DrawLine(title,0x100,0x18,FONT_SMALL,JUSTIFY_CENTER|WHITE);
-	#endif
+
 
 
 
@@ -386,7 +373,7 @@ void PrintCharacterStats()
 	DecalFont_DrawLine(
 		countryNames[octr->serverCountry],
 		0x10, 0x10, FONT_SMALL, 0);
-
+//i think this is the room name in the top left of the screen
 	char* roomName = "ROOM x";
 	roomName[5] = GetRoomChar(octr->serverRoom+1);
 

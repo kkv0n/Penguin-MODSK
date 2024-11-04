@@ -126,21 +126,18 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			// default, disable cheats
 			//ps1ptr<int> cheats = pBuf.at<int>(0x80096b28);
 			int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
-			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x400000 | 0x10000);
-
-			int rn = octr->serverRoom;
-			if (ROOM_IS_RETRO(rn))
-				*cheats |= 0x100000;
-			else
-				*cheats &= ~(0x100000);
+			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x400000 | 0x8000000);
+//turbo counter cheat 0x8000000
+//pbuf= duckstation shared memory
+				*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;
 
 			// odd-numbered index == even-number room
 			// Index 1, 3, 5 -> Room 2, 4, 6
-#if 0 // don't forget to delete this #if when enabling events.
+
 			if (octr->serverRoom & 1)
 				r->special = 0;
-#endif
-			r->special = 0; // don't forget to delete this when enabling events.
+
+
 			octr->special = r->special;
 
 #if 0
@@ -226,9 +223,9 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			// 1,3,5,7
 			int numLaps = (r->lapID * 2) + 1;
 
-			if (r->lapID == 4) numLaps = 30;
-			if (r->lapID == 5) numLaps = 60;
-			if (r->lapID == 6) numLaps = 90;
+			if (r->lapID == 4) numLaps = 15;
+			if (r->lapID == 5) numLaps = 30;
+			if (r->lapID == 6) numLaps = 69;
 			if (r->lapID == 7) numLaps = 120;
 
 			// set sdata->gGT->numLaps

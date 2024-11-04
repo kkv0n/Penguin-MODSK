@@ -52,10 +52,8 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 		{
 			// Choose Itemset based on number of Drivers
 			int mode = gGT->numPlyrCurrGame + gGT->numBotsNextGame;
-
-			#if /*0 &&*/ defined(USE_ONLINE)
-			int rn = octr->serverRoom;
-			if (ROOM_IS_ITEMS(rn)) //if in item lobby.
+//enabled items in all rooms
+	#ifdef USE_ONLINE
 			{
 				mode = octr->NumDrivers;
 				if (octr->NumDrivers == 1) mode = 2; //why does this matter?
@@ -65,6 +63,7 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 
 			switch(mode)
 			{
+				//all the itemsets asigned to the players
 				// if boss race
 				case 2:
 
@@ -143,6 +142,7 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 						itemSet = ITEMSET_Race2;
 					}
 			}
+			//end of the players itemsets asignation
 		}
 
 		// if you have 4th-place itemset on first lap,

@@ -355,7 +355,7 @@ void OnlineMirrorMode(u_long* startOT)
 
 	SwapDirection(0);
 
-	// Mirror Mode Disabled
+//apparently mirror mode crashed the game when EndOfRaceUI shows
 	#if 0
 	// no special event
 	if (octr->special == 0)

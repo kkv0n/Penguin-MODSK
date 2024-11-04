@@ -5,6 +5,7 @@ extern struct RectMenu menu;
 
 void StatePS1_Launch_EnterPID()
 {
+	//client closed text message
 	DECOMP_DecalFont_DrawLine(
 		"Attach Windows Client To Continue",
 		0x100,0xA8,FONT_SMALL,JUSTIFY_CENTER|ORANGE);
@@ -17,6 +18,7 @@ void StatePS1_Launch_PickServer()
 {
 	if (initString)
 	{
+		//probably the text above the server list
 		strcpy(sdata->lngStrings[0x4e], "OnlineCTR");
 		initString = false;
 	}
@@ -63,9 +65,11 @@ void ResetPsxGlobals()
 // should rename to EnterRoom
 void StatePS1_Launch_PickRoom()
 {
+	//lobby special events text
+	//to enable this just delete #if 0 and #endif
 	#if 0
-	DecalFont_DrawLine("Itemless games on first page",0x100,0x14,FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
-	DecalFont_DrawLine("Items games on second page",0x100,0x1c,FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
+	DecalFont_DrawLine("Special Events in odd rooms: 1,3,5...",0x100,0x14,FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
+	DecalFont_DrawLine("Classic Games in even rooms: 2,4,6...",0x100,0x1c,FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
 	#endif
 
 	MenuWrites_ServerRoom();
@@ -87,7 +91,7 @@ void StatePS1_Launch_PickRoom()
 		if(curr > 8) curr -= 8;
 		serverTotal += curr;
 	}
-
+//players online counter
 	char* text = "Server Total: 000";
 	text[14] = '0' + ((serverTotal / 100) % 10);
 	text[15] = '0' + ((serverTotal / 10) % 10);
@@ -102,7 +106,7 @@ void StatePS1_Launch_PickRoom()
 void StatePS1_Launch_Error()
 {
 	char str[32];
-
+//text displayed when your game is outdated
 	sprintf(str, "XDELTA: %d", octr->ver_psx);
 	DECOMP_DecalFont_DrawLine(str,0x100,0x98-2,FONT_SMALL,JUSTIFY_CENTER);
 
@@ -179,7 +183,7 @@ void StatePS1_Lobby_GuestTrackWait()
 
 	// close menu
 	sdata->ptrActiveMenu = 0;
-
+//ready to start the race text
 	DECOMP_DecalFont_DrawLine(
 		"waiting for host",
 		menu.posX_curr,0xA8,FONT_SMALL,JUSTIFY_CENTER|ORANGE);
@@ -233,7 +237,7 @@ void StatePS1_Lobby_StartLoading()
 	endRace = true;
 	PrintCharacterStats();
 	PrintRecvTrack();
-
+//i think this is the loading track text in the online menu
 	DECOMP_DecalFont_DrawLine(
 		"LOADING...",
 		menu.posX_curr,menu.posY_curr,
@@ -297,7 +301,7 @@ static void Instance_Ghostify(struct Instance *inst, unsigned driverID, unsigned
 		inst->alphaScale = 0x600;
 	}
 }
-
+//the ghost players from time trial
 static void Ghostify()
 {
 	struct Turbo *turboObj;
@@ -343,8 +347,6 @@ void StatePS1_Game_WaitForRace()
 	}
 
 	gGT->trafficLightsTimer = 0xf40;
-	int rn = octr->serverRoom;
-	if (!ROOM_IS_ITEMS(rn)) //itemless only
 		Ghostify();
 
 	if((gGT->gameMode1 & START_OF_RACE) != 0)
@@ -356,7 +358,7 @@ void StatePS1_Game_WaitForRace()
 
 	posY = 0x46;
 	drawTimeRECT.h = 0;
-
+//more ui text for rooms
 	DECOMP_DecalFont_DrawLine(
 		"WAITING FOR PLAYERS...",
 		0x100, posY + drawTimeRECT.h,
@@ -383,8 +385,6 @@ void StatePS1_Game_StartRace()
 {
 	int i;
 
-	int rn = octr->serverRoom;
-	if (!ROOM_IS_ITEMS(rn)) //itemless only
 		Ghostify();
 
 	for(i = 1; i < 8; i++)

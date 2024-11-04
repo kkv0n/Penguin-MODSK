@@ -199,7 +199,7 @@ void DrawOverheadNames()
 		int len = GetOverheadLen(gGT->drivers[i]);
 		if(len == 0) continue;
 
-		// Mirror Mode Disabled
+//apparently mirror mode crashed the game when EndOfRaceUI shows
 		#if 0
 
 		// if mirror mode

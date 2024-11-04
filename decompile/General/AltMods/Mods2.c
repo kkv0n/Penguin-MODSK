@@ -14,9 +14,6 @@ void FixReservesIncrement(struct Driver * driver, int reserves)
 
 void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
 {
-	int rn = octr->serverRoom;
-	if (!ROOM_IS_ITEMS(rn)) //itemless rooms have no collision.
-		return;
 	while (th != 0)
 	{
 		DECOMP_PROC_CollidePointWithSelf(th, vec3_pos);
