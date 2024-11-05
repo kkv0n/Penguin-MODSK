@@ -1777,8 +1777,8 @@ void RenderSubmit(struct GameTracker* gGT)
 	gGT->bool_DrawOTag_InProgress = 1;
 
 	void* ot = &gGT->pushBuffer[0].ptrOT[0x3ff];
-//apparently mirror mode crashed the game when EndOfRaceUI shows
-#if 0 && defined(USE_ONLINE)
+//mirror mode enabled
+#ifdef USE_ONLINE
 	void OnlineMirrorMode(u_long* ot);
 	OnlineMirrorMode(ot);
 #endif

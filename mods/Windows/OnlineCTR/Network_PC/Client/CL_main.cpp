@@ -126,37 +126,52 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			// default, disable cheats
 			//ps1ptr<int> cheats = pBuf.at<int>(0x80096b28);
 			int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
-			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x400000 | 0x8000000);
+			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000);
 //turbo counter cheat 0x8000000
 //pbuf= duckstation shared memory
 				*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;
 
+
 			// odd-numbered index == even-number room
 			// Index 1, 3, 5 -> Room 2, 4, 6
 
-			if (octr->serverRoom & 1)
-				r->special = 0;
-
-
+// room events logic
+if (octr->serverRoom >= 0 && octr->serverRoom <= 2)
+{
+    // special 3 for rooms 1-3
+    r->special = 3;
+}
+if (octr->serverRoom >= 3 && octr->serverRoom <= 5)
+{
+    // special 1 for rooms 4-6
+    r->special = 1;
+}
+if (octr->serverRoom >= 6 && octr->serverRoom <= 7)
+{
+    // special 2 for rooms 7-8
+    r->special = 2;
+}
 			octr->special = r->special;
 
-#if 0
-			// given the PINE changes, the below comment may no longer be accurate.
-			// need to print, or compiler optimization throws this all away
-			printf("\nSpecial:%d\n", octr->special);
-
-			// Inf Masks
-			if (octr->special == 2)
+#if 1
+			// MIRROR MODE
+			if (octr->special == 1)
 			{
-				int* infMasks = (int*)&pBuf[0x80096b28 & 0xffffff];
-				*infMasks = 0x400;
+				printf("\n EVENT: MIRROR MODE \n");
 			}
 
-			// Inf Bombs
-			if (octr.get()->special == 3)
+			// ICY TRACKS
+			if (octr->special == 2)
 			{
-				int* infBombs = (int*)&pBuf[0x80096b28 & 0xffffff];
-				*infBombs = 0x400000;
+				printf("\n EVENT: ICY TRACKS \n");
+				//icy tracks cheat enabled in special 2
+				*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
+			}
+
+			// NO COLLISION
+			if (octr->special == 3)
+			{
+				printf("\n ONLINE: CLASSIC MODE \n");
 			}
 #endif
 

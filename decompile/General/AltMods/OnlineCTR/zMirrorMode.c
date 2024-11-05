@@ -346,7 +346,7 @@ void SwapDirection(u_int toggle)
 	for (char i = 0; i < 2; i++)
 		data.gamepadMapBtn[i + 2].output = (toggle) ? swap[i] : normal[i];
 }
-
+//mirror mode enabled
 void OnlineMirrorMode(u_long* startOT)
 {
 	// restore default
@@ -355,14 +355,13 @@ void OnlineMirrorMode(u_long* startOT)
 
 	SwapDirection(0);
 
-//apparently mirror mode crashed the game when EndOfRaceUI shows
-	#if 0
 	// no special event
-	if (octr->special == 0)
-	#endif	
+	//if the room is special 1 then mirror mode will be enabled
 	
+	if (octr->special != 1)
+	{
 		return;
-
+	}
 	// no mirroring on this track
 	if (sdata->gGT->levelID >= INTRO_RACE_TODAY)
 		return;

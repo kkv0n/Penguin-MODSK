@@ -351,20 +351,20 @@ void PrintCharacterStats()
 
 	if(octr->special == 1)
 	{
-		title = "Monday Extra Laps";
+		title = "MIRROR MODE";
 	}
 
 	if(octr->special == 2)
 	{
-		title = "Wednesday Inf Masks";
+		title = "ICY TRACKS";
 	}
 
 	if(octr->special == 3)
 	{
-		title = "Friday Inf Bombs";
+		title = "NO COLLISION";
 	}
 
-	DecalFont_DrawLine(title,0x100,0x18,FONT_SMALL,JUSTIFY_CENTER|WHITE);
+	DecalFont_DrawLine(title,0x100,0x18,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 
 
 

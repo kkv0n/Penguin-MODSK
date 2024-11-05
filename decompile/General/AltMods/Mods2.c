@@ -3,7 +3,7 @@
 #include <common.h>
 
 #ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+
 Color HsvToRgb(int h, int s, int v);
 
 void FixReservesIncrement(struct Driver * driver, int reserves)
@@ -12,15 +12,6 @@ void FixReservesIncrement(struct Driver * driver, int reserves)
 	else { driver->reserves += reserves; }
 }
 
-void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
-{
-	while (th != 0)
-	{
-		DECOMP_PROC_CollidePointWithSelf(th, vec3_pos);
-		// next
-		th = th->siblingThread;
-	}
-}
 #endif
 
 #ifdef USE_BOOSTBAR

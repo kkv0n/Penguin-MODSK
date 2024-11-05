@@ -5,7 +5,8 @@
 #include "OnlineCTR/menu.c"
 #include "OnlineCTR/states.c"
 #include "OnlineCTR/thread.c"
-#include "OnlineCTR/endOfRaceUI.c"
+#include "OnlineCTR/endOfRaceUI1.c"
+#include "OnlineCTR/zMirrorMode.c"
 
 void AssignMeterGrade(struct Driver * driver, int meterLeft)
 {

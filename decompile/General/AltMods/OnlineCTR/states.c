@@ -67,11 +67,11 @@ void StatePS1_Launch_PickRoom()
 {
 	//lobby special events text
 	//to enable this just delete #if 0 and #endif
-	#if 0
-	DecalFont_DrawLine("Special Events in odd rooms: 1,3,5...",0x100,0x14,FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
-	DecalFont_DrawLine("Classic Games in even rooms: 2,4,6...",0x100,0x1c,FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
-	#endif
-
+//#if 0
+	DecalFont_DrawLine("Mirror Mode in rooms: 1,3,...",0x100,0x14,FONT_SMALL,JUSTIFY_CENTER|TROPY_LIGHT_BLUE);
+	DecalFont_DrawLine("No collisions in rooms: 4,6...",0x100,0x1c,FONT_SMALL,JUSTIFY_CENTER|CORTEX_RED);
+    DecalFont_DrawLine("Icy Tracks in rooms 7,8...", 0x100, 0x24, FONT_SMALL, JUSTIFY_CENTER |POLAR_CYAN);
+//#endif
 	MenuWrites_ServerRoom();
 
 	// If already picked
@@ -347,7 +347,7 @@ void StatePS1_Game_WaitForRace()
 	}
 
 	gGT->trafficLightsTimer = 0xf40;
-		Ghostify();
+
 
 	if((gGT->gameMode1 & START_OF_RACE) != 0)
 		return;
@@ -385,7 +385,7 @@ void StatePS1_Game_StartRace()
 {
 	int i;
 
-		Ghostify();
+
 
 	for(i = 1; i < 8; i++)
 	{

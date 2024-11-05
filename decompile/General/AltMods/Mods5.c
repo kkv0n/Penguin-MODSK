@@ -1,5 +1,5 @@
 #include <common.h>
-
+#include "OnlineCTR/endOfRaceUI4.c"
 #ifdef USE_BOOSTBAR
 void uibb_entryHook()
 {
