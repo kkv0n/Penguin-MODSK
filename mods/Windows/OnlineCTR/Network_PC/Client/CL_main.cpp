@@ -88,6 +88,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 				return;
 			}
 
+
 			// reopen the room menu,
 			// either first time getting rooms,
 			// or refresh after joining refused
@@ -111,7 +112,6 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			octr->clientCount[0xd] = r->numClients14;
 			octr->clientCount[0xe] = r->numClients15;
 			octr->clientCount[0xf] = r->numClients16;
-
 			break;
 		}
 
@@ -123,64 +123,14 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			octr->DriverID = r->clientID;
 			octr->NumDrivers = r->numClientsTotal;
 
-			// default, disable cheats
-			//ps1ptr<int> cheats = pBuf.at<int>(0x80096b28);
-			int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
-			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000);
-//turbo counter cheat 0x8000000
-//pbuf= duckstation shared memory
-				*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;
-
-
-			// odd-numbered index == even-number room
-			// Index 1, 3, 5 -> Room 2, 4, 6
-
-// room events logic
-if (octr->serverRoom >= 0 && octr->serverRoom <= 2)
-{
-    // special 3 for rooms 1-3
-    r->special = 3;
-}
-if (octr->serverRoom >= 3 && octr->serverRoom <= 5)
-{
-    // special 1 for rooms 4-6
-    r->special = 1;
-}
-if (octr->serverRoom >= 6 && octr->serverRoom <= 7)
-{
-    // special 2 for rooms 7-8
-    r->special = 2;
-}
-			octr->special = r->special;
-
-#if 1
-			// MIRROR MODE
-			if (octr->special == 1)
-			{
-				printf("\n EVENT: MIRROR MODE \n");
-			}
-
-			// ICY TRACKS
-			if (octr->special == 2)
-			{
-				printf("\n EVENT: ICY TRACKS \n");
-				//icy tracks cheat enabled in special 2
-				*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
-			}
-
-			// NO COLLISION
-			if (octr->special == 3)
-			{
-				printf("\n ONLINE: CLASSIC MODE \n");
-			}
-#endif
-
 			// offset 0x8
 			octr->boolLockedInLap = 0;
 			octr->boolLockedInLevel = 0;
+			octr->boolLockedInSpecial = 0;
+			octr->boolLockedInEngine = 0;
+			octr->enginetype = 0;
 			octr->lapID = 0;
 			octr->levelID = 0;
-
 			octr->boolLockedInCharacter = 0;
 			octr->numDriversEnded = 0;
 
@@ -248,10 +198,20 @@ if (octr->serverRoom >= 6 && octr->serverRoom <= 7)
 			*numLapsV = numLaps;
 
 			octr->levelID = r->trackID;
+			octr->CurrState = LOBBY_SPECIALPICK;
+			break;
+		}
+		case SG_SPECIAL:
+		{
+			SG_MessageSpecial* r = reinterpret_cast<SG_MessageSpecial*>(recvBuf);
+
+
+			r->special = octr->special;
+
+
 			octr->CurrState = LOBBY_CHARACTER_PICK;
 			break;
 		}
-
 		case SG_CHARACTER:
 		{
 			SG_MessageCharacter* r = reinterpret_cast<SG_MessageCharacter*>(recvBuf);
@@ -465,15 +425,22 @@ void ProcessNewMessages()
 
 void PrintBanner(char show_name)
 {
-	printf("    ____        ___            ________________ \n");
-	printf("   / __ \\____  / (_)___  ___  / ____/_  __/ __ \\\n");
-	printf("  / / / / __ \\/ / / __ \\/ _ \\/ /     / / / /_/ /\n");
-	printf(" / /_/ / / / / / / / / /  __/ /___  / / / _, _/ \n");
-	printf(" \\____/_/ /_/_/_/_/ /_/\\___/\\____/ /_/ /_/ |_|  \n\n");
+	printf("\033[0;32m");
 
-	printf(" OnlineCTR Client (press CTRL + C to quit)\n Build %s (%s)\n\n", __DATE__, __TIME__);
+	// Arte ASCII para "GASMOXIAN"
+	printf("   ____    _    ____  __  __  _____  _____    _    _   _ \n");
+	printf("  / ___|  / \\  / ___||  \\/  |/ _ \\ \\/ /_ _|  / \\  | \\ | |\n");
+	printf(" | |  _  / _ \\ \\___ \\| |\\/| | | | \\  / | |  / _ \\ |  \\| |\n");
+	printf(" | |_| |/ ___ \\ ___) | |  | | |_| /  \\ | | / ___ \\| |\\  |\n");
+	printf("  \\____/_/   \\_\\____/|_|  |_|\\___/_/\\_\\___/_/   \\_\\_| \\_|\n");
+	printf("                                                          \n");
 
-	if (show_name == true) printf(" Welcome to OnlineCTR %s!\n", name);
+	// Restablecer el color del texto
+	printf("\033[0m");
+
+	printf(" Gasmoxian Client (press CTRL + C to quit)\n Build %s (%s)\n\n", __DATE__, __TIME__);
+
+	if (show_name == true) printf(" Welcome to OnlineCTR Gasmoxian: %s!\n", name);
 }
 
 void StartAnimation()
@@ -595,140 +562,84 @@ void StatePC_Launch_PickServer()
 
 	switch (octr->serverCountry)
 	{
-		// EUROPE (Unknown Location)
+		// MEDNAFEN PERU
 		case 0:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "eur1.online-ctr.net");
+			strcpy_s(dns_string, sizeof(dns_string), "mednafen-peru2.ddns.net");
 			enet_address_set_host(&addr, dns_string);
 			addr.port = 64001;
 
 			break;
 		}
-
-		// USA (New York City)
+		// BETAMX)
 		case 1:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "usa3.online-ctr.net");
+			strcpy_s(dns_string, sizeof(dns_string), "22.ip.gl.ply.gg");
 			enet_address_set_host(&addr, dns_string);
-			addr.port = 64001;
+			addr.port = 21776;
 
 			break;
 		}
+   // PRIVATE SERVER
+    case 2:
+    {
+        StopAnimation();
 
-		// Mexico (USA West)
-		case 2:
-		{
-			strcpy_s(dns_string, sizeof(dns_string), "usa2.online-ctr.net");
-			enet_address_set_host(&addr, dns_string);
-			addr.port = 64001;
+        // IP and Port should be inside the .txt
+        const char* filePath = ".\\data\\host\\host.txt";
+        FILE* file;
+        errno_t err = fopen_s(&file, filePath, "r");
 
-			break;
-		}
+        if (err != 0)
+        {
+            printf("\nError: Could not open private server file /data/host/host.txt %s\n", filePath);
+            break; // exit if the file doesnt exist
+        }
 
-		// BRAZIL (Unknown Location)
-		case 3:
-		{
-			strcpy_s(dns_string, sizeof(dns_string), "brz1.online-ctr.net");
-			enet_address_set_host(&addr, dns_string);
-			addr.port = 64001;
+        // read the ip from the file
+        if (fgets(ip, sizeof(ip), file) == NULL)
+        {
+            printf("\nError: Could not read IP from host.txt!\n");
+            fclose(file);
+            break;
+        }
 
-			break;
-		}
+        // 
+        ip[strcspn(ip, "\n")] = '\0';
 
-		// AUSTRALIA (Sydney)
-		case 4:
-		{
-			strcpy_s(dns_string, sizeof(dns_string), "aus1.online-ctr.net");
-			enet_address_set_host(&addr, dns_string);
-			addr.port = 2096;
+        // read the port from the file in the second line
+        if (fgets(portStr, sizeof(portStr), file) == NULL)
+        {
+            printf("\nError: Could not read port from host.txt!\n");
+            fclose(file);
+            break;
+        }
 
-			break;
-		}
 
-		// SINGAPORE (Unknown Location)
-		case 5:
-		{
-			strcpy_s(dns_string, sizeof(dns_string), "sgp1.online-ctr.net");
-			enet_address_set_host(&addr, dns_string);
-			addr.port = 64001;
+        portStr[strcspn(portStr, "\n")] = '\0';
 
-			break;
-		}
 
-		// BETA (New Jersey)
-		case 6:
-		{
-			strcpy_s(dns_string, sizeof(dns_string), "usa1.online-ctr.net"); 
-			enet_address_set_host(&addr, dns_string);
-			addr.port = 64001;
+        port = atoi(portStr);
 
-			break;
-		}
+        if (port < 0 || port > 65535)
+        {
+            printf("\nError: Port value out of range, try an smaller number!\n");
+            fclose(file);
+            break;
+        }
 
-		// PRIVATE SERVER
-		case 7:
-		{
-			StopAnimation();
+        // close the file after reading
+        fclose(file);
 
-		private_server_ip:
-			ClearInputBuffer(); // clear any extra input in the buffer
 
-			// IP address
-			printf("\nEnter Server IPV4 Address: ");
+        enet_address_set_host(&addr, ip);
+        addr.port = port;
 
-			if (fgets(ip, sizeof(ip), stdin) == NULL)
-			{
-				printf("\nError: Invalid IPV4 address!\n");
+        localServer = true;
 
-				goto private_server_ip;
-			}
-
-			// remove the newline character (if present)
-			ip[strcspn(ip, "\n")] = '\0';
-
-			// check if the input is empty and set it to the default IP if so
-			if (strlen(ip) == 0) strcpy_s(ip, IP_ADDRESS_SIZE, DEFAULT_IP);
-
-		private_server_port:
-			// port number
-			printf("Server Port (0-65535): ");
-
-			if (fgets(portStr, sizeof(portStr), stdin) == NULL)
-			{
-				printf("\nError: Invalid port input!\n");
-
-				goto private_server_port;
-			}
-
-			// remove the newline character (if present)
-			portStr[strcspn(portStr, "\n")] = '\0';
-
-			// check if the port input is empty
-			if (strlen(portStr) == 0)
-			{
-				printf("\nError: The port value cannot be empty!\n");
-
-				goto private_server_port;
-			}
-
-			// convert the string to an integer and validate the range
-			port = atoi(portStr);
-
-			if (port < 0 || port > 65535)
-			{
-				printf("\nError: Port value out of range!\n");
-
-				goto private_server_port;
-			}
-
-			enet_address_set_host(&addr, ip);
-			addr.port = port;
-
-			localServer = true;
-
-			break;
-		}
-	}
+        break;
+    }
+} 
 
 	StopAnimation();
 	printf("Client: Attempting to connect to \"");
@@ -874,9 +785,9 @@ void StatePC_Lobby_HostTrackPick()
 	// 1,3,5,7
 	char numLaps = (mt.lapID * 2) + 1;
 
-	if (mt.lapID == 4) numLaps = 30;
-	if (mt.lapID == 5) numLaps = 60;
-	if (mt.lapID == 6) numLaps = 90;
+	if (mt.lapID == 4) numLaps = 15;
+	if (mt.lapID == 5) numLaps = 30;
+	if (mt.lapID == 6) numLaps = 69;
 	if (mt.lapID == 7) numLaps = 120;
 
 	// sdata->gGT->numLaps
@@ -885,11 +796,81 @@ void StatePC_Lobby_HostTrackPick()
 
 	sendToHostReliable(&mt, sizeof(CG_MessageTrack));
 
-	octr->CurrState = LOBBY_CHARACTER_PICK;
+	octr->CurrState = LOBBY_SPECIALPICK;
 }
+void StatePC_Lobby_SpecialPick()
+{
 
+	StopAnimation();
+	printf("Client: Sending special...  ");
+
+
+	CG_MessageSpecial mt = { 0 };
+	mt.type = CG_SPECIAL;
+
+
+	mt.special = octr->special;
+
+
+	printf("special: %d\n", mt.special);
+
+
+	sendToHostReliable(&mt, sizeof(CG_MessageSpecial));
+	printf("Sent special message to host\n");
+
+	// default, disable cheats
+//ps1ptr<int> cheats = pBuf.at<int>(0x80096b28);
+	int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
+	*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000);
+	//turbo counter cheat 0x8000000
+	//pbuf= duckstation shared memory
+	*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;
+
+
+	// odd-numbered index == even-number room
+	// Index 1, 3, 5 -> Room 2, 4, 6
+
+	if (octr->serverRoom >= 0 && octr->serverRoom <= 16)
+	{
+		octr->special;
+	}
+
+
+	if (octr->special == 0) {
+		octr->special = mt.special;
+	}
+
+
+#if 1
+	// MIRROR MODE
+	if (octr->special == 1)
+	{
+		printf("\n EVENT: MIRROR MODE \n");
+	}
+
+	// ICY TRACKS
+	if (octr->special == 2)
+	{
+		printf("\n EVENT: ICY TRACKS \n");
+		//icy tracks cheat enabled in special 2
+		*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
+	}
+
+	// NO COLLISION
+	if (octr->special == 3)
+	{
+		printf("\n ONLINE: CLASSIC MODE \n");
+	}
+#endif
+
+
+	// Cambiamos el estado actual
+	octr->CurrState = LOBBY_CHARACTER_PICK;
+	printf("Updated CurrState to LOBBY_CHARACTER_PICK\n");
+}
 int prev_characterID = -1;
 int prev_boolLockedIn = -1;
+
 
 void StatePC_Lobby_GuestTrackWait()
 {
@@ -921,10 +902,13 @@ void StatePC_Lobby_CharacterPick()
 
 	if (mc.boolLockedIn == 1)
 	{
-		octr->CurrState = LOBBY_WAIT_FOR_LOADING;
+		octr->CurrState = LOBBY_ENGINEPICK;
 	}
 }
-
+void StatePC_Lobby_EnginePick()
+{
+	octr->CurrState = LOBBY_WAIT_FOR_LOADING;
+}
 void StatePC_Lobby_WaitForLoading()
 {
 	// if recv message to start loading,
@@ -1103,13 +1087,15 @@ void (*ClientState[]) () = {
 	StatePC_Launch_Error,			// 3
 	StatePC_Lobby_AssignRole,		// 4
 	StatePC_Lobby_HostTrackPick,	// 5
-	StatePC_Lobby_GuestTrackWait,	// 6
-	StatePC_Lobby_CharacterPick,	// 7
-	StatePC_Lobby_WaitForLoading,	// 8
-	StatePC_Lobby_StartLoading,		// 9
-	StatePC_Game_WaitForRace,		// 10
-	StatePC_Game_StartRace,			// 11
-	StatePC_Game_EndRace			// 12
+	StatePC_Lobby_SpecialPick,	// 6
+	StatePC_Lobby_GuestTrackWait,	// 7
+    StatePC_Lobby_CharacterPick,	// 8
+	 StatePC_Lobby_EnginePick,	// 8
+	StatePC_Lobby_WaitForLoading,	// 9
+	StatePC_Lobby_StartLoading,		// 10
+	StatePC_Game_WaitForRace,		// 11
+	StatePC_Game_StartRace,			// 12
+	StatePC_Game_EndRace			// 13
 };
 
 // for EnumProcessModules

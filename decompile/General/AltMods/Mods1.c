@@ -1,53 +1,39 @@
 // OnlineCTR (part 1)
-#ifndef REBUILD_PC
-#ifdef USE_ONLINE
 #include "OnlineCTR/hooks.c"
 #include "OnlineCTR/menu.c"
 #include "OnlineCTR/states.c"
 #include "OnlineCTR/thread.c"
-#include "OnlineCTR/endOfRaceUI1.c"
+#include "OnlineCTR/setnextcamera.c"
 #include "OnlineCTR/zMirrorMode.c"
 
-void AssignMeterGrade(struct Driver * driver, int meterLeft)
-{
-	const int gradeTreshold[] = {SECONDS(1) * FP(0.50), SECONDS(1) * FP(0.65),
-						SECONDS(1) * FP(0.80), SECONDS(1) * FP(0.90),
-						SECONDS(1) * FP(0.95)};
-	const int gradeColors[] = {TROPY_LIGHT_BLUE, TINY_GREEN, PAPU_YELLOW, ROO_ORANGE, ORANGE_RED};
 
-	driver->meterGradeTimer = SECONDS(0.5);
-	driver->meterGrade[1] = '\0';
+extern const char spec_mode[]; 
 
-	char grades[] = "FDCBA";
-	for (int i = 0; i < len(gradeTreshold); i++)
-	{
-		if (meterLeft > SECONDS(1) - FP_INT(gradeTreshold[i]))
-		{
-			driver->meterGrade[0] = grades[i];
-			driver->gradeColor = gradeColors[i];
-			return;
-		}
-	}
-	driver->meterGrade[0] = 'S';
-	driver->gradeColor = COCO_MAGENTA;
+int shouldExecuteSpecText = 0;
+
+void spec_text() {
+    if (shouldExecuteSpecText) {  
+        static unsigned frameCounter = 0;
+        int spec_color = frameCounter++ & FPS_DOUBLE(1) ? ORANGE : WHITE;
+        DECOMP_DecalFont_DrawLine(spec_mode, 0x100, 0x74, FONT_SMALL, JUSTIFY_CENTER | spec_color);
+    }
 }
 
-void StatsUpgrade()
+#ifdef USE_ONLINE
+#include "../AltMods/OnlineCTR/global.h"
+void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
 {
-	/*
-		Stat 9 is acceleration,
-		Stats 11 and 12 speed related
-	*/
-	for (int i = 9; i < 13; i++)
+    // disable collisions in special 3 
+    if (octr->special != 1 && octr->special != 2) { 
+        return;
+    }
+	while (th != 0)
 	{
-		for (int j = 0; j < 4; j++)
-		{
-			data.metaPhys[i].value[j] = data.metaPhys[i].value[4]; // copy MAX
-		}
+		DECOMP_PROC_CollidePointWithSelf(th, vec3_pos);
+		// next
+		th = th->siblingThread;
 	}
 }
-
-#endif
 #endif
 
 // original ps1 with fragmented memory,

@@ -31,8 +31,6 @@
 #define DEFAULT_IP			            "127.0.0.1" // the default IP address we want to use for private lobbies
 #define IP_ADDRESS_SIZE		            16 // assuming IPv4 (which is "xxx.xxx.xxx.xxx" + '\0')
 #define PORT_SIZE			            6 // the port number as a string (0-65535 + '\0')
-
-
  // 2 seconds to be very tolerant on client
 #ifdef USE_60FPS
 #define DISCONNECT_AT_UNSYNCED_FRAMES   120
@@ -48,8 +46,10 @@ enum ClientState
 	LAUNCH_ERROR,
 	LOBBY_ASSIGN_ROLE,
 	LOBBY_HOST_TRACK_PICK,
+	LOBBY_SPECIALPICK,
 	LOBBY_GUEST_TRACK_WAIT,
 	LOBBY_CHARACTER_PICK,
+	LOBBY_ENGINEPICK,
 	LOBBY_WAIT_FOR_LOADING,
 	LOBBY_START_LOADING,
 	GAME_WAIT_FOR_RACE,
@@ -90,6 +90,8 @@ struct OnlineCTR
 	// 0xC
 	unsigned char IsBootedPS1;
 	unsigned char boolLockedInCharacter;
+	unsigned char enginetype;
+	unsigned char boolLockedInEngine;
 	unsigned char numRooms;
 	unsigned char numDriversEnded;
 
@@ -102,6 +104,7 @@ struct OnlineCTR
 	// 0x14
 	unsigned char boolPlanetLEV;
 	unsigned char boolClientBusy;
+	unsigned char boolLockedInSpecial;
 	unsigned char special;
 	char padding;
 
@@ -195,6 +198,7 @@ enum ServerGiveMessageType
 	// lobby
 	SG_NAME,
 	SG_TRACK,
+	SG_SPECIAL,
 	SG_CHARACTER,
 	SG_STARTLOADING,
 
@@ -284,11 +288,19 @@ struct SG_MessageName
 struct SG_MessageTrack
 {
 	// 15 types, 15 bytes max
-	unsigned char type : 4;
+	unsigned char type : 4; 
 	unsigned char padding : 4;
 
 	unsigned char trackID : 5;
 	unsigned char lapID : 3;
+};
+
+struct SG_MessageSpecial
+{
+	// 15 types, 15 bytes max
+	unsigned char type : 4;
+	unsigned char padding : 4;
+	unsigned char special : 4;
 };
 
 // assign character,
@@ -370,6 +382,7 @@ STATIC_ASSERT2(sizeof(struct SG_MessageClientStatus) == 2, "Size of SG_MessageCl
 STATIC_ASSERT2(sizeof(struct SG_MessageName) == 12, "Size of SG_MessageName must be 12 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageCharacter) == 2, "Size of SG_MessageCharacter must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageTrack) == 2, "Size of SG_MessageTrack must be 2 bytes");
+STATIC_ASSERT2(sizeof(struct SG_MessageSpecial) == 2, "Size of SG_MessageSpecial must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct SG_EverythingKart) == 10, "Size of SG_EverythingKart must be 10 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageWeapon) == 2, "Size of SG_MessageWeapon must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageEndRace) == 12, "Size of SG_MessageEndRace must be 12 bytes");
@@ -381,6 +394,7 @@ enum ClientGiveMessageType
 	// lobby
 	CG_NAME,
 	CG_TRACK,
+	CG_SPECIAL,
 	CG_CHARACTER,
 
 	CG_STARTRACE,
@@ -426,9 +440,15 @@ struct CG_MessageTrack
 	// 15 types, 15 bytes max
 	unsigned char type : 4;
 	unsigned char padding : 4;
-
 	unsigned char trackID : 5;
 	unsigned char lapID : 3;
+};
+struct CG_MessageSpecial
+{
+	// 15 types, 15 bytes max
+	unsigned char type : 4;
+	unsigned char padding : 4;
+	unsigned char special : 4;
 };
 
 // character message
@@ -506,6 +526,7 @@ STATIC_ASSERT2(sizeof(struct CG_Header) == 1, "Size of CG_Header must be 1 byte"
 STATIC_ASSERT2(sizeof(struct CG_MessageName) == 11, "Size of CG_MessageName must be 11 bytes");
 STATIC_ASSERT2(sizeof(struct CG_MessageCharacter) == 2, "Size of CG_MessageCharacter must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct CG_MessageTrack) == 2, "Size of CG_MessageTrack must be 2 bytes");
+STATIC_ASSERT2(sizeof(struct CG_MessageSpecial) == 2, "Size of CG_MessageSpecial must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct CG_EverythingKart) == 10, "Size of CG_EverythingKart must be 10 bytes");
 STATIC_ASSERT2(sizeof(struct CG_MessageWeapon) == 2, "Size of CG_MessageWeapon must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct CG_MessageEndRace) == 12, "Size of CG_MessageEndRace must be 12 bytes");
@@ -516,8 +537,10 @@ void StatePC_Launch_PickServer();
 void StatePC_Launch_PickRoom();
 void StatePC_Launch_Error();
 void StatePC_Lobby_HostTrackPick();
+void StatePC_Lobby_SpecialPick();
 void StatePC_Lobby_GuestTrackWait();
 void StatePC_Lobby_CharacterPick();
+void StatePC_Lobby_EnginePick();
 void StatePC_Lobby_WaitForLoading();
 void StatePC_Lobby_StartLoading();
 void StatePC_Game_WaitForRace();
@@ -549,8 +572,10 @@ void StopAnimation();
 	void StatePS1_Launch_PickRoom();
 	void StatePS1_Lobby_AssignRole();
 	void StatePS1_Lobby_HostTrackPick();
+	void StatePC_Lobby_SpecialPick();
 	void StatePS1_Lobby_GuestTrackWait();
 	void StatePS1_Lobby_CharacterPick();
+	void StatePC_Lobby_EnginePick();
 	void StatePS1_Lobby_WaitForLoading();
 	void StatePS1_Lobby_StartLoading();
 	void StatePS1_Game_WaitForRace();

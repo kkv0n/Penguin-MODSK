@@ -1,5 +1,6 @@
 #include <common.h>
 #include "global.h"
+extern int shouldExecuteSpecText;
 
 int OnlineGetNumDrivers()
 {
@@ -204,14 +205,11 @@ void OnlineEndOfRace()
 	//}
 
 	octr->CurrState = GAME_END_RACE;
-
-	static unsigned frameCounter = 0;
 	EndOfRace_Camera();
 	EndOfRace_Icons();
-	int color = frameCounter++ & FPS_DOUBLE(1) ? RED : WHITE;
 	if (HasRaceEnded())
 	{
-		DecalFont_DrawLine("RACE COMPLETE", 256, 108, FONT_BIG, JUSTIFY_CENTER | color);
+shouldExecuteSpecText = 0;
 	}
 }
 

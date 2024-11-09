@@ -199,11 +199,11 @@ void DrawOverheadNames()
 		int len = GetOverheadLen(gGT->drivers[i]);
 		if(len == 0) continue;
 
-//mirror mode enabled in special 1
+//mirror mode enabled
 
 
 		// if mirror mode
-		if(octr->special = 1)
+		if(octr->special == 1)
 		{
 			ptrDest->Screen_posX =
 			0x200 - ptrDest->Screen_posX;

@@ -145,23 +145,23 @@ void SendRoomData(ENetPeer* peer)
 			if (roomInfos[i].peerInfos[j].peer != 0)
 				roomCount[i]++;
 
-	// required for bit packing :4
-	SETUP(mr.numClients01, 0x0);
-	SETUP(mr.numClients02, 0x1);
-	SETUP(mr.numClients03, 0x2);
-	SETUP(mr.numClients04, 0x3);
-	SETUP(mr.numClients05, 0x4);
-	SETUP(mr.numClients06, 0x5);
-	SETUP(mr.numClients07, 0x6);
-	SETUP(mr.numClients08, 0x7);
-	SETUP(mr.numClients09, 0x8);
-	SETUP(mr.numClients10, 0x9);
-	SETUP(mr.numClients11, 0xa);
-	SETUP(mr.numClients12, 0xb);
-	SETUP(mr.numClients13, 0xc);
-	SETUP(mr.numClients14, 0xd);
-	SETUP(mr.numClients15, 0xe);
-	SETUP(mr.numClients16, 0xf);
+
+SETUP(mr.numClients01, 0x0);
+SETUP(mr.numClients02, 0x1);
+SETUP(mr.numClients03, 0x2);
+SETUP(mr.numClients04, 0x3);
+SETUP(mr.numClients05, 0x4);
+SETUP(mr.numClients06, 0x5);
+SETUP(mr.numClients07, 0x6);
+SETUP(mr.numClients08, 0x7);
+SETUP(mr.numClients09, 0x8);
+SETUP(mr.numClients10, 0x9);
+SETUP(mr.numClients11, 0xa);
+SETUP(mr.numClients12, 0xb);
+SETUP(mr.numClients13, 0xc);
+SETUP(mr.numClients14, 0xd);
+SETUP(mr.numClients15, 0xe);
+SETUP(mr.numClients16, 0xf);
 
 	sendToPeerReliable(peer, &mr, sizeof(struct SG_MessageRooms));
 }
@@ -366,32 +366,62 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 		case CG_TRACK:
 		{
-			// clients can only connect during track selection,
-			// once the Client Gives CG_TRACK to server, close it
+			// Los clientes solo pueden conectar durante la selección de pista
+			// Una vez que el cliente da CG_TRACK al servidor, cerramos la sala
 			ri->boolRoomLocked = 1;
+			printf("Room locked. boolRoomLocked set to 1\n");
 
+			// Creamos las estructuras para el mensaje del servidor y el mensaje recibido
 			struct SG_MessageTrack* s = &sgBuffer[0];
 			struct CG_MessageTrack* r = recvBuf;
 
+			// Copiamos los valores del mensaje recibido al mensaje del servidor
 			s->type = SG_TRACK;
 			s->trackID = r->trackID;
 			s->lapID = r->lapID;
-
 			ri->levelPlayed = s->trackID;
 
-			PrintPrefix((((unsigned int)ri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1);
-			printf("Track #%d and %d laps were selected\n",
-					s->trackID,
-					(2*s->lapID)+1);
+			printf("Received trackID: %d, lapID: %d\n", r->trackID, r->lapID);
+			printf("Assigning to server message: type = SG_TRACK, trackID = %d, lapID = %d\n", s->trackID, s->lapID);
 
+			// Imprimimos el prefijo para verificar qué sala estamos procesando
+			PrintPrefix((((unsigned int)ri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1);
+			printf("Track #%d and %d laps were selected\n", s->trackID, (2 * s->lapID) + 1);
+
+			// Enviamos el mensaje a los peers
+			printf("Broadcasting to peers with trackID: %d and lapID: %d\n", s->trackID, (2 * s->lapID) + 1);
 			broadcastToPeersReliable(ri, s, sizeof(struct CG_MessageTrack));
+			printf("Message broadcasted to peers\n");
+
 			break;
 		}
+		case CG_SPECIAL:
+		{
+			// Creamos las estructuras para el mensaje del servidor y el mensaje recibido
+			struct SG_MessageSpecial* s = &sgBuffer[0];
+			struct CG_MessageSpecial* r = recvBuf;
 
+			// Copiamos los valores del mensaje recibido al mensaje del servidor
+			s->type = SG_SPECIAL;
+			s->special = r->special;
+
+			printf("Received special: %d\n", r->special);
+			printf("Assigning to server message: type = SG_SPECIAL, special = %d\n", s->special);
+
+			// Enviamos el mensaje a los peers
+			printf("Broadcasting to peers with special: %d \n", s->special);
+			broadcastToPeersReliable(ri, s, sizeof(struct CG_MessageSpecial));
+			printf("Special broadcasted to peers\n");
+
+			break;
+		}
 		case CG_CHARACTER:
 		{
 			struct SG_MessageCharacter* s = &sgBuffer[0];
 			struct CG_MessageCharacter* r = recvBuf;
+
+			printf("Debug: Procesando CG_CHARACTER\n");
+			printf("Debug: peerID = %d, characterID = %d, boolLockedIn = %d\n", peerID, r->characterID, r->boolLockedIn);
 
 			s->type = SG_CHARACTER;
 			s->clientID = peerID;
@@ -401,17 +431,22 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 			ri->peerInfos[peerID].characterID = s->characterID;
 			ri->peerInfos[peerID].boolLoadSelf = s->boolLockedIn;
 
+			printf("Debug: Actualizando peerInfos: characterID = %d, boolLoadSelf = %d\n", s->characterID, s->boolLockedIn);
+
 			broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageCharacter));
+			printf("Debug: Mensaje de CG_CHARACTER enviado a los peers\n");
 			break;
 		}
 
 		case CG_STARTRACE:
 		{
-			#if 0
+#if 0
 			printf("Ready to Race: %d\n", peerID);
-			#endif
+#endif
 
+			printf("Debug: Procesando CG_STARTRACE\n");
 			ri->peerInfos[peerID].boolRaceSelf = 1;
+			printf("Debug: peerInfos[peerID].boolRaceSelf establecido a 1\n");
 			break;
 		}
 

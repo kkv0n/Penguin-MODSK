@@ -68,14 +68,9 @@ int MenuFinished()
 //server names can be changed without problems
 char* countryNames[8] =
 {
-	"Europe",
-	"USA NYC",
-	"Mexico",
-	"Brazil",
-	"Australia",
-	"Singapore",
-	"Beta",
-	"Private Room",
+	"MEDNAFEN PERU",
+	"BETAMX",
+	"Private server",
 };
 
 void NewPage_ServerCountry()
@@ -92,15 +87,26 @@ void NewPage_ServerCountry()
 		menuRows[i].stringIndex = 0x9a+i;
 		sdata->lngStrings[0x9a+i] = countryNames[i];
 	}
-//i think this is something for enabling beta mode
-//if thats the case it disables every server except for beta server
-//look in global.h #define ONLINE_BETA_MODE
-	#ifdef ONLINE_BETA_MODE
-	for(i = 0; i < 6; i++)
-	#else
-	i = 6;
-	#endif
+	// disable servers
+	for(i = 3; i < 8; i++)
+	{
+		menuRows[i].stringIndex = -1;
+	}
+//this disables every server except for beta server
+//look in global.h for #define ONLINE_BETA_MODE
+//#ifdef ONLINE_BETA_MODE
+//for(i = 0; i < 6; i++)
+//#else
+//i = 6;
+//#endif
 
+//disable servers from 3 to 7
+//i deleted other servers so this is unused
+//#if 0
+	//for(i = 2; i < 7; i++)
+		
+	//#endif
+	
 		menuRows[i].stringIndex |= 0x8000;
 }
 
@@ -124,20 +130,19 @@ int GetNumRoom()
 
 	return 16;
 }
-
+//room letters//number
 int GetRoomChar(int pn)
 {
-	if(pn <= 9)
-	{
-		return '0' + pn;
-	}
-
-	// 10 or more
-	else
-	{
-		return 'A' + (pn-10);
-	}
+    if (pn <= 9)
+    {
+        return '0' + pn;
+    }
+    else
+    {
+        return 'A' + (pn - 10);
+    }
 }
+
 
 void NewPage_ServerRoom()
 {
@@ -209,6 +214,39 @@ void MenuWrites_Tracks()
 	OnPressX_SetPtr = &octr->levelID;
 	OnPressX_SetLock = &octr->boolLockedInLevel;
 }
+void NewPage_Events()
+{
+    int i;
+
+    // OCTR SPECIAL MENU BY PENTA3
+    sdata->lngStrings[0x9a] = "NORMAL";
+    sdata->lngStrings[0x9b] = "MIRROR MODE";
+    sdata->lngStrings[0x9c] = "ICY TRACK";
+    sdata->lngStrings[0x9d] = "NO COLLISION";
+    sdata->lngStrings[0x9e] = "-";
+    sdata->lngStrings[0x9f] = "-";
+    sdata->lngStrings[0xa0] = "-";
+    sdata->lngStrings[0xa1] = "-";
+
+    // ONLY ENABLE 4 EVENTS
+    for (i = 0; i < 4; i++)
+    {
+		menuRows[i].stringIndex = 0x9a + i;     
+        menuRows[4 + i].stringIndex = 0x809a + 4 + i;
+    }
+	//SET SPECIAL BASED IN MENU SELECTION 0-8
+	octr->special = menuRows[menu.rowSelected].stringIndex;
+}
+
+
+void MenuWrites_Events()
+{
+	//1 PAGE
+	pageMax= 1;
+    OnPressX_SetPtr = &octr->special;
+    OnPressX_SetLock = &octr->boolLockedInSpecial;
+}
+
 //these are the laps available in the menu
 //only visual text, if you want to change the real number
 //search int numLaps in CL_main.c
@@ -222,10 +260,10 @@ void NewPage_Laps()
 	sdata->lngStrings[0x9b] = "3";
 	sdata->lngStrings[0x9c] = "5";
 	sdata->lngStrings[0x9d] = "7";
-	sdata->lngStrings[0x9e] = "15";
-	sdata->lngStrings[0x9f] = "30";
-	sdata->lngStrings[0xa0] = "69";
-	sdata->lngStrings[0xa1] = "120";
+	sdata->lngStrings[0x9e] = "-";
+	sdata->lngStrings[0x9f] = "-";
+	sdata->lngStrings[0xa0] = "-";
+	sdata->lngStrings[0xa1] = "-";
 
 	#if 0
 	// Extra Laps
@@ -281,7 +319,38 @@ void MenuWrites_Characters()
 	OnPressX_SetPtr = &data.characterIDs[0];
 	OnPressX_SetLock = &octr->boolLockedInCharacters[octr->DriverID];
 }
+// ENGINE MENU BY PENTA3
+void NewPage_Engine()
+{
+    int i;
 
+    // Configura las opciones de la página para "penta3"
+    sdata->lngStrings[0x9a] = "ONLINE STATS";
+    sdata->lngStrings[0x9b] = "SPEED";
+    sdata->lngStrings[0x9c] = "ACCEL";
+    sdata->lngStrings[0x9d] = "TURNING";
+    sdata->lngStrings[0x9e] = "UNLIMITED";
+    sdata->lngStrings[0x9f] = "BALANCED";
+    sdata->lngStrings[0xa0] = "-";
+    sdata->lngStrings[0xa1] = "-";
+
+    for (i = 0; i < 8; i++)
+    {
+        menuRows[i].stringIndex = 0x9a + i;
+    }
+
+    octr->enginetype = menuRows[menu.rowSelected].stringIndex;
+}
+
+void MenuWrites_Engine()
+{
+
+    pageMax = 1;
+
+
+    OnPressX_SetPtr = &octr->enginetype;          
+    OnPressX_SetLock = &octr->boolLockedInEngine;  
+}
 int pressedX = 0;
 void UpdateMenu()
 {
@@ -333,8 +402,8 @@ void PrintTimeStamp()
 
 	int posX = 56 + 0xC*boolEndOfRace;
 	int posY = 198 - 0xC*boolEndOfRace;
-	DECOMP_DecalFont_DrawLine(__TIME__, posX, posY, FONT_SMALL, DARK_RED);
-	DECOMP_DecalFont_DrawLine(__DATE__, posX, posY+8, FONT_SMALL, DARK_RED);
+	DECOMP_DecalFont_DrawLine(__TIME__, posX, posY, FONT_SMALL, PAPU_YELLOW);
+	DECOMP_DecalFont_DrawLine(__DATE__, posX, posY+8, FONT_SMALL, PAPU_YELLOW);
 }
 
 void PrintCharacterStats()
@@ -417,8 +486,7 @@ void PrintCharacterStats()
 		// 0x19 - red
 		// 0x1A - green
 		int color =
-			octr->boolLockedInCharacters[i] ?
-			PLAYER_GREEN : PLAYER_RED;
+	(octr->boolLockedInEngine == 1) ? PLAYER_GREEN : PLAYER_RED;
 
 		int posY = 0x60+h;
 		h += 8;
@@ -444,7 +512,7 @@ void PrintCharacterStats()
 	int posY = 0xb8 - 0xC*boolEndOfRace;
 	DecalFont_DrawLine("Return to main menu",posX,posY,FONT_SMALL,0);
 	DecalFont_DrawLine("During Race or Lobby",posX-0x8,posY+0x8,FONT_SMALL,0);
-	DecalFont_DrawLine("With the Select Button",posX-0x18,posY+0x10,FONT_SMALL,RED);
+	DecalFont_DrawLine("With the Select Button",posX-0x18,posY+0x10,FONT_SMALL,PAPU_YELLOW);
 }
 
 char* onlineLapString = "Laps: 000\0";

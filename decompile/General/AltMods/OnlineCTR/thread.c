@@ -10,8 +10,10 @@ void (*funcs[NUM_STATES]) () =
 	StatePS1_Launch_Error,
 	StatePS1_Lobby_AssignRole,
 	StatePS1_Lobby_HostTrackPick,
+	StatePS1_Lobby_SpecialPick,
 	StatePS1_Lobby_GuestTrackWait,
 	StatePS1_Lobby_CharacterPick,
+	StatePS1_Lobby_EnginePick,
 	StatePS1_Lobby_WaitForLoading,
 	StatePS1_Lobby_StartLoading,
 	StatePS1_Game_WaitForRace,
@@ -160,6 +162,7 @@ void ThreadFunc(struct Thread* t)
 		void PrintTimeStamp();
 		PrintTimeStamp();
 
+//delete this before penta3
 		// if not viewing planet
 		if(!octr->boolPlanetLEV)
 		{
