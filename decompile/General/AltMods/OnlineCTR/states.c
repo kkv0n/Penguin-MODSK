@@ -2,6 +2,8 @@
 #include "global.h"
 
 extern struct RectMenu menu;
+ struct Driver* driver;
+extern void VehBirth_SetConsts(driver);
 
 void StatePS1_Launch_EnterPID()
 {
@@ -248,12 +250,15 @@ void StatePS1_Lobby_CharacterPick()
 	}
 
 }
+
+
 void StatePS1_Lobby_EnginePick()
 {
     MenuWrites_Engine();
 
     if (MenuFinished() == 1) 
 	{
+		VehBirth_SetConsts(driver);
 		return;
 	}
 		

@@ -206,8 +206,7 @@ void WelcomeNewClient(RoomInfo* ri, int id)
 	mw.clientID = id;
 	mw.numClientsTotal = ri->clientCount;
 
-	// ordinary day
-	mw.special = 0;
+
 #if 0
 	if (GetWeekDay() == 1) mw.special = 1; // Monday
 	if (GetWeekDay() == 3) mw.special = 2; // Wednesday
@@ -397,22 +396,21 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 		}
 		case CG_SPECIAL:
 		{
-			// Creamos las estructuras para el mensaje del servidor y el mensaje recibido
-			struct SG_MessageSpecial* s = &sgBuffer[0];
-			struct CG_MessageSpecial* r = recvBuf;
+			struct SG_MessageSpecial* s = &sgBuffer[0]; // Mensaje del servidor
+			struct CG_MessageSpecial* r = recvBuf;  // Mensaje recibido del cliente
 
-			// Copiamos los valores del mensaje recibido al mensaje del servidor
+			// Copiar el valor de special del cliente al servidor
 			s->type = SG_SPECIAL;
 			s->special = r->special;
 
-			printf("Received special: %d\n", r->special);
+			printf("Received rspecial: %d\n", r->special);
 			printf("Assigning to server message: type = SG_SPECIAL, special = %d\n", s->special);
 
-			// Enviamos el mensaje a los peers
-			printf("Broadcasting to peers with special: %d \n", s->special);
-			broadcastToPeersReliable(ri, s, sizeof(struct CG_MessageSpecial));
-			printf("Special broadcasted to peers\n");
+			// Broadcasting to peers
+			printf("Broadcasting to peers with special: %d\n", s->special);
+			broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageSpecial));
 
+			printf("Special broadcasted to peers\n");
 			break;
 		}
 		case CG_CHARACTER:

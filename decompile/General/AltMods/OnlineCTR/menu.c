@@ -325,12 +325,12 @@ void NewPage_Engine()
     int i;
 
     // Configura las opciones de la página para "penta3"
-    sdata->lngStrings[0x9a] = "ONLINE STATS";
+    sdata->lngStrings[0x9a] = "BALANCED";
     sdata->lngStrings[0x9b] = "SPEED";
     sdata->lngStrings[0x9c] = "ACCEL";
     sdata->lngStrings[0x9d] = "TURNING";
     sdata->lngStrings[0x9e] = "UNLIMITED";
-    sdata->lngStrings[0x9f] = "BALANCED";
+    sdata->lngStrings[0x9f] = "-";
     sdata->lngStrings[0xa0] = "-";
     sdata->lngStrings[0xa1] = "-";
 

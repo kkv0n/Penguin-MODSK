@@ -126,9 +126,8 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			// offset 0x8
 			octr->boolLockedInLap = 0;
 			octr->boolLockedInLevel = 0;
-			octr->boolLockedInSpecial = 0;
 			octr->boolLockedInEngine = 0;
-			octr->enginetype = 0;
+			octr->boolLockedInSpecial = 0;
 			octr->lapID = 0;
 			octr->levelID = 0;
 			octr->boolLockedInCharacter = 0;
@@ -188,10 +187,18 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			// 1,3,5,7
 			int numLaps = (r->lapID * 2) + 1;
 
-			if (r->lapID == 4) numLaps = 15;
-			if (r->lapID == 5) numLaps = 30;
-			if (r->lapID == 6) numLaps = 69;
-			if (r->lapID == 7) numLaps = 120;
+			if (r->lapID == 4) numLaps = 10;
+			if (r->lapID == 5) numLaps = 15;
+			if (r->lapID == 6) numLaps = 20;
+			if (r->lapID == 7) numLaps = 25;
+			if (r->lapID == 8) numLaps = 30;
+			if (r->lapID == 9) numLaps = 35;
+			if (r->lapID == 10) numLaps = 40;
+			if (r->lapID == 11) numLaps = 50;
+			if (r->lapID == 12) numLaps = 70;
+			if (r->lapID == 13) numLaps = 80;
+			if (r->lapID == 14) numLaps = 120;
+			if (r->lapID == 15) numLaps = 240;
 
 			// set sdata->gGT->numLaps
 			char* numLapsV = (char*)&pBuf[(0x80096b20 + 0x1d33) & 0xffffff];
@@ -206,8 +213,38 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			SG_MessageSpecial* r = reinterpret_cast<SG_MessageSpecial*>(recvBuf);
 
 
-			r->special = octr->special;
+			// default, disable cheats
+//ps1ptr<int> cheats = pBuf.at<int>(0x80096b28);
+			int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
+			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000);
 
+			//pbuf= duckstation shared memory
+			*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;                  //turbo counter cheat 0x8000000
+
+			// update the value in the client
+			octr->special = r->special;
+
+			printf("Client received special: %d\n", octr->special);
+
+			if (octr->special == 0) {
+
+			}
+			// special 1
+			if (octr->special == 1) {
+				printf("\n EVENT: MIRROR MODE \n");
+
+			}  
+			else if (octr->special == 2) {           //special 2
+				printf("\n EVENT: ICY TRACKS \n");
+				// icy tracks cheat
+				*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
+
+			}
+			else if (octr->special == 3) {      //special 3
+				printf("\n ONLINE: CLASSIC MODE \n");
+
+			}
+			r->special = octr->special;
 
 			octr->CurrState = LOBBY_CHARACTER_PICK;
 			break;
@@ -785,10 +822,18 @@ void StatePC_Lobby_HostTrackPick()
 	// 1,3,5,7
 	char numLaps = (mt.lapID * 2) + 1;
 
-	if (mt.lapID == 4) numLaps = 15;
-	if (mt.lapID == 5) numLaps = 30;
-	if (mt.lapID == 6) numLaps = 69;
-	if (mt.lapID == 7) numLaps = 120;
+	if (mt.lapID == 4) numLaps = 10;
+	if (mt.lapID == 5) numLaps = 15;
+	if (mt.lapID == 6) numLaps = 20;
+	if (mt.lapID == 7) numLaps = 25;
+	if (mt.lapID == 8) numLaps = 30;
+	if (mt.lapID == 9) numLaps = 35;
+	if (mt.lapID == 10) numLaps = 40;
+	if (mt.lapID == 11) numLaps = 50;
+	if (mt.lapID == 12) numLaps = 70;
+	if (mt.lapID == 13) numLaps = 80;
+	if (mt.lapID == 14) numLaps = 120;
+	if (mt.lapID == 15) numLaps = 240;
 
 	// sdata->gGT->numLaps
 	char* numLapsV = (char*)&pBuf[(0x80096b20 + 0x1d33) & 0xffffff];
@@ -800,74 +845,23 @@ void StatePC_Lobby_HostTrackPick()
 }
 void StatePC_Lobby_SpecialPick()
 {
-
 	StopAnimation();
 	printf("Client: Sending special...  ");
 
-
+	// Prepare the message to send to the server
 	CG_MessageSpecial mt = { 0 };
 	mt.type = CG_SPECIAL;
-
-
 	mt.special = octr->special;
-
 
 	printf("special: %d\n", mt.special);
 
-
+	// Send the special to the host (server)
 	sendToHostReliable(&mt, sizeof(CG_MessageSpecial));
 	printf("Sent special message to host\n");
 
-	// default, disable cheats
-//ps1ptr<int> cheats = pBuf.at<int>(0x80096b28);
-	int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
-	*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000);
-	//turbo counter cheat 0x8000000
-	//pbuf= duckstation shared memory
-	*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;
-
-
-	// odd-numbered index == even-number room
-	// Index 1, 3, 5 -> Room 2, 4, 6
-
-	if (octr->serverRoom >= 0 && octr->serverRoom <= 16)
-	{
-		octr->special;
-	}
-
-
-	if (octr->special == 0) {
-		octr->special = mt.special;
-	}
-
-
-#if 1
-	// MIRROR MODE
-	if (octr->special == 1)
-	{
-		printf("\n EVENT: MIRROR MODE \n");
-	}
-
-	// ICY TRACKS
-	if (octr->special == 2)
-	{
-		printf("\n EVENT: ICY TRACKS \n");
-		//icy tracks cheat enabled in special 2
-		*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
-	}
-
-	// NO COLLISION
-	if (octr->special == 3)
-	{
-		printf("\n ONLINE: CLASSIC MODE \n");
-	}
-#endif
-
-
-	// Cambiamos el estado actual
 	octr->CurrState = LOBBY_CHARACTER_PICK;
-	printf("Updated CurrState to LOBBY_CHARACTER_PICK\n");
 }
+
 int prev_characterID = -1;
 int prev_boolLockedIn = -1;
 
