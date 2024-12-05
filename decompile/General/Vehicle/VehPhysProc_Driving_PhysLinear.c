@@ -88,6 +88,15 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 	{
 		short* val = (short*)((int)driver + (int)PhysLinear_DriverOffsets[i]);
 		#ifdef USE_ONLINE
+		if (octr->serverRoom == 15) {
+		if(*val > 0)
+		{
+			*val -= msPerFrame;
+			if(*val < 0) *val = 0;
+		}
+		}
+		else 
+		{
 		if (i == 0)
 		{
 			if (driver->reserves == 0) { driver->uncappedReserves = 0; }
@@ -99,6 +108,7 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 		{
 			*val -= msPerFrame;
 			if(*val < 0) *val = 0;
+		}
 		}
 		#else
 		if(*val > 0)
@@ -239,6 +249,7 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 					// if time on the clock is zero
 					driverTimer = gGT->elapsedEventTime,
 					driverTimer == 0
+					
 				)
 			)
 		)
@@ -500,9 +511,11 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 	if
 	(
 		(
-			((buttonsTapped & BTN_CIRCLE) != 0) &&
-
-			(
+		(
+	((buttonsTapped & BTN_CIRCLE) != 0)
+		) &&
+		
+		(
 				(kartState == KS_NORMAL) ||
 				(kartState == KS_DRIFTING) ||
 				(kartState == KS_ANTIVSHIFT)
@@ -510,7 +523,7 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 		) &&
 
 		// if there is no tnt on your head
-		(driver->instTntRecv == 0)
+		(driver->instTntRecv == 0) 
 	)
 	{
 		// If there is a Bomb Pointer
@@ -519,7 +532,10 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 			// Detonate the bomb
 			bomb = (struct TrackerWeapon*)driver->instBombThrow->thread->object;
 			bomb->flags |= 2;
-			driver->instBombThrow = 0;
+			driver->instBombThrow = NULL;
+			#ifdef USE_ONLINE
+			if (driver->driverID == 0) octr->Shoot[0].boolNow = 1;
+			#endif
 			goto CheckJumpButtons;
 		}
 
@@ -529,7 +545,10 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 			// Shoot the bubble
 			shield = (struct Shield*)driver->instBubbleHold->thread->object;
 			shield->flags |= 2;
-			driver->instBubbleHold = 0;
+			driver->instBubbleHold = NULL;
+			#ifdef USE_ONLINE
+			if (driver->driverID == 0) octr->Shoot[0].boolNow = 1;
+			#endif
 			goto CheckJumpButtons;
 		}
 
@@ -581,6 +600,7 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 					// only reduce numHeldItem if not using item cheats
 					if ((gameMode2 & (CHEAT_BOMBS | CHEAT_TURBO | CHEAT_MASK)) == 0) driver->numHeldItems--;
 				}
+
 
 				// no spring in final game
 				#if 0
@@ -681,9 +701,9 @@ CheckJumpButtons:
 	if (square != 0)
 	{
 		#if defined(USE_ONLINE)
-		int rn = octr->serverRoom;
-		if (!ROOM_IS_RETRO(rn)) //if not retro mode
+		if (octr->special != 5)  //if not retro mode
 			goto SKIP_RF;
+		
 		#endif
 
 		// held DOWN or have landing boost

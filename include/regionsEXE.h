@@ -2513,7 +2513,7 @@ struct Data
 	char RNG_itemSetRace1[0x14];
 
 	// 80089b80, Itemset 2 for Races
-	char RNG_itemSetRace2[0x34];
+	char RNG_itemSetRace2[0x14];
 
 	// 80089bb4, Itemset 3 for Races
 	char RNG_itemSetRace3[0x14];

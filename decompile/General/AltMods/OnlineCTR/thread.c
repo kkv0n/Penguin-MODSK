@@ -1,7 +1,6 @@
 //these make it not compile?
 //#include <common.h>
 //#include "global.h"
-
 void (*funcs[NUM_STATES]) () =
 {
 	StatePS1_Launch_EnterPID,
@@ -34,33 +33,31 @@ void ThreadFunc(struct Thread* t)
 	int isIdle = 0;
 
 	struct GameTracker* gGT = sdata->gGT;
-	octr->boolPlanetLEV = gGT->levelID == 0x26; //lobby level1
+	octr->boolPlanetLEV = gGT->levelID == 33; //lobby level1
 
 	if(octr->boolPlanetLEV)
 	{
-		        //erase driving function
-        for (int loop = 0; loop < 0xd; loop++)
-        {
-            gGT->drivers[0]->funcPtrs[loop] = 0;
-        }
-		//idk
-		*(int*)0x800ae54c = 0x3e00008;
-		*(int*)0x800ae550 = 0;
+		//idk what this do
+		//but apparently this is responsible of load screen crashes
+		//*(int*)0x800ae54c = 0x3e00008;
+		//*(int*)0x800ae550 = 0;
 
         // freecam mode
         gGT->cameraDC[0].cameraMode = 3;
 
-        // disable all HUD flags
-        gGT->hudFlags = 0;
 //pushbuffer
 		struct PushBuffer* pb = &gGT->pushBuffer[0];
 
-		pb->pos[0] = 0x3D;
-		pb->pos[1] = 0xF8;
+//cam position to right or left
+		pb->pos[0] = 0x96C;
+// cam position to up or down
+		pb->pos[1] = 0xA64;
+//zoom in or zoom out the camera		
 		pb->pos[2] = 0xF879;
-
-		pb->rot[0] = 0x841;
-		pb->rot[1] = 0x77c;
+//same thing but with rotation "0 = left or right" "1 = up or down"
+// "2 = zoom in or zoom out btw probably im wrong about the order"
+		pb->rot[0] = 0x841 + 300;
+		pb->rot[1] = 0x77c + 400;
 		pb->rot[2] = 0xff5;
 	}
 
@@ -118,18 +115,12 @@ void ThreadFunc(struct Thread* t)
 		// if closed==0, go to 1 (server select)
 		octr->CurrState = !boolCloseClient;
 
-		// stop music,
-		// stop "most FX", let menu FX ring
-		Music_Stop();
-		howl_StopAudio(1,1,0);
-		sdata->unkAudioState = 0;
-
 		// load next level
 		//sdata->gGT->gameMode1 = LOADING;
 		//sdata->Loading.stage = 0;
 
 		// load with flag animation
-		DECOMP_MainRaceTrack_RequestLoad(0x26);
+		DECOMP_MainRaceTrack_RequestLoad(33);
 
 		// kill thread,
 		// dont execute again until game loads
@@ -153,20 +144,54 @@ void ThreadFunc(struct Thread* t)
 	{
 		DecalFont_DrawLine(
 			"SEE CLIENT WINDOW",
-			0x100,0x80,FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
+			0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 	}
 
 	// not gameplay, must draw LAST
 	if (octr->CurrState <= LOBBY_WAIT_FOR_LOADING)
 	{
+		//for now mute sounds in lobby to avoid sound bugs
+		//in the future move this to (HOST_TRACK_PICK - WAIT_FOR_LOADING) to allow lobby music
+		//tbh idk how to play lobby music
+		
+		Music_Stop();
+	
+		howl_StopAudio(1,1,0);
+		sdata->unkAudioState = 0;
+		
+		
+	    //if not in race then erase driving function
+        for (int loop = 0; loop < 0xd; loop++)
+        {
+            gGT->drivers[0]->funcPtrs[loop] = 0;
+        }
+        //if not in race then disable all HUD flags
+        gGT->hudFlags = 0;
+		
 		void PrintTimeStamp();
 		PrintTimeStamp();
+        lobbysquare();
+		
+//delete this later -penta3
+//i forgot it XD
+//already deleted
 
-//delete this before penta3
-		// if not viewing planet
-		if(!octr->boolPlanetLEV)
-		{
-			struct RectMenu* m = sdata->ptrActiveMenu;
+	}
+
+	#if 0
+	if(strcmp("debugcam", octr->nameBuffer[0]) == 0)
+	{
+		void Freecam();
+		Freecam();
+	}
+	#endif
+}
+
+//separated to being able to move it in the future
+void lobbysquare(struct GameTracker* gGT)
+{
+	gGT = sdata->gGT;
+				struct RectMenu* m = sdata->ptrActiveMenu;
 
 			// draw menu now because it is drawn
 			// later, which puts it behind our background
@@ -182,14 +207,4 @@ void ThreadFunc(struct Thread* t)
 
 			DECOMP_RECTMENU_DrawInnerRect(
 				&endRaceRECT, 0, gGT->backBuffer->otMem.startPlusFour);
-		}
-	}
-
-	#if 0
-	if(strcmp("debugcam", octr->nameBuffer[0]) == 0)
-	{
-		void Freecam();
-		Freecam();
-	}
-	#endif
 }

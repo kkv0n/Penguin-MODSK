@@ -9,9 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <Psapi.h>
+#include <time.h>
+#include <atomic>
 //#include <chrono>
 //#include <thread>
-
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
@@ -20,11 +21,14 @@
 #include "../../../../../decompile/General/AltMods/OnlineCTR/global.h"
 #include <enet/enet.h>
 
+clock_t timeStart;
+clock_t warpclockdelay;
+
 char* pBuf;
 OnlineCTR* octr;
 
 int buttonPrev[8] = { 0 };
-char name[100];
+unsigned char name[100];
 
 ENetHost* clientHost;
 ENetPeer* serverPeer;
@@ -33,6 +37,10 @@ ENetPeer* serverPeer;
 void usleep(__int64 usec);
 #endif
 
+std::atomic<bool> lockengineandcharacter(false);
+int prev_warpclock = -1;
+int prev_special = -1;
+int prev_finishtimer = -1;
 struct Gamepad
 {
 	short unk_0;
@@ -72,17 +80,16 @@ void ProcessReceiveEvent(ENetPacket* packet)
 		{
 			SG_MessageRooms* r = reinterpret_cast<SG_MessageRooms*>(recvBuf);
 
-			octr->ver_pc = VERSION;
+			octr->ver_pc = GASMOXIAN_VER;
 			octr->ver_server = r->version;
 
-			if (!(r->version == 1019 && VERSION == 1020)) //special case, v1019 servers are fully compatible with v1020 clients.
-				if (r->version != VERSION)
+				if (r->version != GASMOXIAN_VER)
 				{
 					octr->CurrState = LAUNCH_ERROR;
 					return;
 				}
 
-			if (octr->ver_psx != VERSION)
+			if (octr->ver_psx != GASMOXIAN_VER)
 			{
 				octr->CurrState = LAUNCH_ERROR;
 				return;
@@ -129,11 +136,27 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			octr->boolLockedInEngine = 0;
 			octr->boolLockedInSpecial = 0;
 			octr->lapID = 0;
+			octr->special = 0;
 			octr->levelID = 0;
 			octr->boolLockedInCharacter = 0;
 			octr->numDriversEnded = 0;
+			octr->finishracetimer = 0;
+			octr->warpclock = 0;
+			lockengineandcharacter = false;
+			octr->sendwarpclock[octr->DriverID] = false;
+			prev_warpclock = octr->warpclock;
+			prev_special = -1;
+			prev_finishtimer = -1;
+
+
+
+			if (octr->serverRoom == 15)
+			{
+				printf("\n EASTER EGG: SAFFI FIRE UNLOCKED IN THIS ROOM \n");
+			}
 
 			memset(&octr->boolLockedInCharacters[0], 0, sizeof(octr->boolLockedInCharacters));
+			memset(&octr->boolLockedInEnginee[0], 0, sizeof(octr->boolLockedInEnginee));
 			memset(&octr->nameBuffer[0], 0, sizeof(octr->nameBuffer));
 			memset(&octr->raceStats[0], 0, sizeof(octr->raceStats));
 
@@ -184,30 +207,29 @@ void ProcessReceiveEvent(ENetPacket* packet)
 		{
 			SG_MessageTrack* r = reinterpret_cast<SG_MessageTrack*>(recvBuf);
 
-			// 1,3,5,7
-			int numLaps = (r->lapID * 2) + 1;
 
-			if (r->lapID == 4) numLaps = 10;
-			if (r->lapID == 5) numLaps = 15;
-			if (r->lapID == 6) numLaps = 20;
-			if (r->lapID == 7) numLaps = 25;
-			if (r->lapID == 8) numLaps = 30;
-			if (r->lapID == 9) numLaps = 35;
-			if (r->lapID == 10) numLaps = 40;
-			if (r->lapID == 11) numLaps = 50;
-			if (r->lapID == 12) numLaps = 70;
-			if (r->lapID == 13) numLaps = 80;
-			if (r->lapID == 14) numLaps = 120;
-			if (r->lapID == 15) numLaps = 240;
+			unsigned char numLaps = (r->lapID * 2) + 1;
 
-			// set sdata->gGT->numLaps
-			char* numLapsV = (char*)&pBuf[(0x80096b20 + 0x1d33) & 0xffffff];
+			int lapValues[] = { 10, 15, 20, 25, 30, 35, 40, 50, 69, 80, 90, 127 };
+
+			if (r->lapID >= 4 && r->lapID <= 15) {
+				numLaps = lapValues[r->lapID - 4];
+			}
+
+
+
+			unsigned char* numLapsV = (unsigned char*)&pBuf[(0x80096b20 + 0x1d33) & 0xffffff];
 			*numLapsV = numLaps;
 
 			octr->levelID = r->trackID;
+
+
 			octr->CurrState = LOBBY_SPECIALPICK;
+
+
 			break;
 		}
+
 		case SG_SPECIAL:
 		{
 			SG_MessageSpecial* r = reinterpret_cast<SG_MessageSpecial*>(recvBuf);
@@ -216,45 +238,66 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			// default, disable cheats
 //ps1ptr<int> cheats = pBuf.at<int>(0x80096b28);
 			int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
-			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000);
+			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000 | 0x10000);
 
 			//pbuf= duckstation shared memory
 			*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;                  //turbo counter cheat 0x8000000
 
-			// update the value in the client
-			octr->special = r->special;
 
-			printf("Client received special: %d\n", octr->special);
+					// update the value in the client
+					octr->special = r->special;
 
-			if (octr->special == 0) {
+					prev_special = r->special;
 
-			}
-			// special 1
-			if (octr->special == 1) {
-				printf("\n EVENT: MIRROR MODE \n");
 
-			}  
-			else if (octr->special == 2) {           //special 2
-				printf("\n EVENT: ICY TRACKS \n");
-				// icy tracks cheat
-				*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
 
-			}
-			else if (octr->special == 3) {      //special 3
-				printf("\n ONLINE: CLASSIC MODE \n");
+					if (octr->special == 0) {
 
-			}
-			r->special = octr->special;
+					}
+					// special 1
+					else if (octr->special == 1) {
+						printf("\033[1;36m\n  MODE: 🪞 MIRROR 🪞 \n\033[0m");
+
+					}
+					else if (octr->special == 2) {           //special 2
+						printf("\033[1;34m\n MODE: ❄️ ICY TRACKS ❄️ \n\033[0m");
+						// icy tracks cheat
+						*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
+
+					}
+					else if (octr->special == 3) {      //special 3
+						printf("\n MODE: 💥 NO COLLISION 💥 \n");
+
+					}
+					else if (octr->special == 4) { //special 4
+						printf("\033[1;33m\n MODE: 🌙 MOON 🌙 \n\033[0m");
+					}
+					else if (octr->special == 5) { //special 5
+						printf("\033[1;38;5;214m\n MODE: 🔥 RETRO FUELED 🔥 \n\033[0m");
+						//superturbo pad cheat
+						*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x100000;
+					}
+					else if (octr->special == 6) { //special 6
+						printf("\033[1;35m\n MODE: ✨ VOID WORLD ✨ \n\033[0m");
+					}
+					else if (octr->special == 7) { //special 7
+						printf("\033[1;31m\n MODE: 👔 BOSS RACE 👔 \n\033[0m");
+
+
+					}
+				
 
 			octr->CurrState = LOBBY_CHARACTER_PICK;
 			break;
 		}
 		case SG_CHARACTER:
 		{
+
 			SG_MessageCharacter* r = reinterpret_cast<SG_MessageCharacter*>(recvBuf);
 
 			unsigned char clientID = r->clientID;
 			unsigned char characterID = r->characterID;
+
 
 			if (clientID == octr->DriverID) break;
 			if (clientID < octr->DriverID) slot = clientID + 1;
@@ -264,6 +307,30 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			*characterIDV = characterID;
 			octr->boolLockedInCharacters[clientID] = r->boolLockedIn;
 
+
+			
+			break;
+		}
+		case SG_ENGINE:
+		{
+			SG_MessageEngine* r = reinterpret_cast<SG_MessageEngine*>(recvBuf);
+
+			unsigned char clientID = r->clientID;
+			unsigned char engineID = r->enginetype;
+
+
+			if (clientID == octr->DriverID) break;
+			if (clientID < octr->DriverID) slot = clientID + 1;
+			if (clientID > octr->DriverID) slot = clientID;
+
+
+
+			octr->boolLockedInEnginee[clientID] = r->boolLockedIn;
+			
+			//this garbage is so problematic i hate onlinectr no joke
+			octr->enginetype[slot] = engineID;
+
+			
 			break;
 		}
 
@@ -280,6 +347,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 		case SG_STARTRACE:
 		{
 			octr->CurrState = GAME_START_RACE;
+
 			break;
 		}
 
@@ -381,6 +449,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			break;
 		}
 
+
 		case SG_WEAPON:
 		{
 			SG_MessageWeapon* r = reinterpret_cast<SG_MessageWeapon*>(recvBuf);
@@ -394,11 +463,35 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			octr->Shoot[slot].Weapon = r->weapon;
 			octr->Shoot[slot].boolJuiced = r->juiced;
 			octr->Shoot[slot].flags = r->flags;
+			
+			
+
 			break;
 		}
 
+		case SG_WARPCLOCK:
+		{
+			SG_MessageWarpclock* r = reinterpret_cast<SG_MessageWarpclock*>(recvBuf);
+
+			//at least it works xd
+			prev_warpclock = r->warpclock;
+
+			if (octr->warpclock != prev_warpclock) {
+				octr->warpclock = r->warpclock;
+			}
+			
+
+			break;
+		}
+		case SG_FINISHTIMER:
+		{
+			SG_MessageFinishTimer* r = reinterpret_cast<SG_MessageFinishTimer*>(recvBuf);
+			octr->finishracetimer = r->finishracetimer;  
+			break;
+		}
 		case SG_ENDRACE:
 		{
+
 			SG_MessageEndRace* r = reinterpret_cast<SG_MessageEndRace*>(recvBuf);
 
 			int clientID = r->clientID;
@@ -417,6 +510,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			memcpy(&octr->raceStats[octr->numDriversEnded].finalTime, &r->courseTime, sizeof(r->courseTime));
 			memcpy(&octr->raceStats[octr->numDriversEnded].bestLap, &r->lapTime, sizeof(r->lapTime));
 			octr->numDriversEnded++;
+
 			break;
 		}
 
@@ -464,7 +558,7 @@ void PrintBanner(char show_name)
 {
 	printf("\033[0;32m");
 
-	// Arte ASCII para "GASMOXIAN"
+
 	printf("   ____    _    ____  __  __  _____  _____    _    _   _ \n");
 	printf("  / ___|  / \\  / ___||  \\/  |/ _ \\ \\/ /_ _|  / \\  | \\ | |\n");
 	printf(" | |  _  / _ \\ \\___ \\| |\\/| | | | \\  / | |  / _ \\ |  \\| |\n");
@@ -472,12 +566,12 @@ void PrintBanner(char show_name)
 	printf("  \\____/_/   \\_\\____/|_|  |_|\\___/_/\\_\\___/_/   \\_\\_| \\_|\n");
 	printf("                                                          \n");
 
-	// Restablecer el color del texto
+
 	printf("\033[0m");
 
 	printf(" Gasmoxian Client (press CTRL + C to quit)\n Build %s (%s)\n\n", __DATE__, __TIME__);
 
-	if (show_name == true) printf(" Welcome to OnlineCTR Gasmoxian: %s!\n", name);
+	if (show_name == true) printf(" Welcome to OnlineCTR Gasmoxian: %s!\n", (const char*)name);
 }
 
 void StartAnimation()
@@ -513,11 +607,26 @@ void DisconSELECT()
 		serverPeer = 0;
 
 		// to go the lobby browser
+		octr->autoRetryJoinRoomIndex = -1;
 		octr->CurrState = -1;
+		lockengineandcharacter = false;
+
 		return;
 	}
 }
 
+void DisconAFK()
+{
+	StopAnimation();
+	printf("Client: Kicked, reason: AFK  ");
+	enet_peer_disconnect_now(serverPeer, 0);
+	serverPeer = 0;
+
+	// to go the lobby browser
+	octr->CurrState = -1;
+	lockengineandcharacter = false;
+	return;
+}
 void ClearInputBuffer()
 {
 	int c;
@@ -571,7 +680,7 @@ void StatePC_Launch_PickServer()
 	int gGT_levelID = *(int*)&pBuf[(0x80096b20 + 0x1a10) & 0xffffff];
 
 	// must be in cutscene level to see country selector
-	if (gGT_levelID!= 0x26)
+	if (gGT_levelID!= 33)
 		return;
 
 	// quit if in loading screen (force-reconnect)
@@ -580,12 +689,14 @@ void StatePC_Launch_PickServer()
 	if (sdata_Loading_stage != -1)
 		return;
 
-	if (serverPeer != 0)
-	{
-		//when it dc's it ends up here. Either this is causing the enet dc or the client is bugged to call this function again when it shouldn't
-		printf("NON-`null` enet server peer during server connection (case 1), disconnecting from old server...\n");
-		enet_peer_disconnect_now(serverPeer, 0);
-		serverPeer = 0;
+	if (octr->CurrState < LAUNCH_PICK_ROOM) {
+		if (serverPeer != 0)
+		{
+			//when it dc's it ends up here. Either this is causing the enet dc or the client is bugged to call this function again when it shouldn't
+			printf("Disconnecting from old server...\n");
+			enet_peer_disconnect_now(serverPeer, 0);
+			serverPeer = 0;
+		}
 	}
 
 	// return now if the server selection hasn't been selected yet
@@ -602,80 +713,136 @@ void StatePC_Launch_PickServer()
 		// MEDNAFEN PERU
 		case 0:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "mednafen-peru2.ddns.net");
+			strcpy_s(dns_string, sizeof(dns_string), "147.185.221.24"); // temp ip for betatesting
 			enet_address_set_host(&addr, dns_string);
-			addr.port = 64001;
+			addr.port = 17056;
 
 			break;
 		}
-		// BETAMX)
+		// GASMOX USA)
 		case 1:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "22.ip.gl.ply.gg");
+			strcpy_s(dns_string, sizeof(dns_string), "provided-pharmacy.gl.at.ply.gg"); //temp ip for betatesting
 			enet_address_set_host(&addr, dns_string);
-			addr.port = 21776;
+			addr.port = 24060;
 
 			break;
 		}
-   // PRIVATE SERVER
-    case 2:
-    {
-        StopAnimation();
+		// PRIVATE SERVER
+		case 2:
+		{
+			StopAnimation();
 
-        // IP and Port should be inside the .txt
-        const char* filePath = ".\\data\\host\\host.txt";
-        FILE* file;
-        errno_t err = fopen_s(&file, filePath, "r");
-
-        if (err != 0)
-        {
-            printf("\nError: Could not open private server file /data/host/host.txt %s\n", filePath);
-            break; // exit if the file doesnt exist
-        }
-
-        // read the ip from the file
-        if (fgets(ip, sizeof(ip), file) == NULL)
-        {
-            printf("\nError: Could not read IP from host.txt!\n");
-            fclose(file);
-            break;
-        }
-
-        // 
-        ip[strcspn(ip, "\n")] = '\0';
-
-        // read the port from the file in the second line
-        if (fgets(portStr, sizeof(portStr), file) == NULL)
-        {
-            printf("\nError: Could not read port from host.txt!\n");
-            fclose(file);
-            break;
-        }
+			// IP and Port should be inside the .txt
+			//IP is the first line in the txt
+			//PORT is the 2nd line
+			const char* filePath = ".\\data\\host\\host.txt";
+			FILE* file;
+			errno_t err = fopen_s(&file, filePath, "r");
 
 
-        portStr[strcspn(portStr, "\n")] = '\0';
+			if (err != 0)
+			{
+				printf("\nError: Could not open private server file /data/host/host.txt %s\n", filePath);
 
 
-        port = atoi(portStr);
+			private_server_ip:
+				ClearInputBuffer(); 
+				printf("\nEnter manually server IP Address: ");
 
-        if (port < 0 || port > 65535)
-        {
-            printf("\nError: Port value out of range, try an smaller number!\n");
-            fclose(file);
-            break;
-        }
+				if (fgets(ip, sizeof(ip), stdin) == NULL)
+				{
+					printf("\nError: Invalid IP address!\n");
+					goto private_server_ip; 
+				}
 
-        // close the file after reading
-        fclose(file);
+				
+				ip[strcspn(ip, "\n")] = '\0';
+
+		
+				if (strlen(ip) == 0) strcpy_s(ip, IP_ADDRESS_SIZE, DEFAULT_IP);
+
+			private_server_port:
+
+				printf("Server Port (0-65535): ");
+
+				if (fgets(portStr, sizeof(portStr), stdin) == NULL)
+				{
+					printf("\nError: Invalid port input!\n");
+					goto private_server_port; 
+				}
 
 
-        enet_address_set_host(&addr, ip);
-        addr.port = port;
+				portStr[strcspn(portStr, "\n")] = '\0';
 
-        localServer = true;
 
-        break;
-    }
+				if (strlen(portStr) == 0)
+				{
+					printf("\nError: The port value cannot be empty!\n");
+					goto private_server_port; 
+				}
+
+
+				port = atoi(portStr);
+
+
+				if (port < 0 || port > 65535)
+				{
+					printf("\nError: Port value out of range!\n");
+					goto private_server_port; 
+				}
+
+
+				enet_address_set_host(&addr, ip);
+				addr.port = port;
+
+				localServer = true;
+
+				break;
+			}
+
+
+			if (fgets(ip, sizeof(ip), file) == NULL)
+			{
+				printf("\nError: Could not read IP from host.txt!\n");
+				fclose(file);
+				break;
+			}
+
+			ip[strcspn(ip, "\n")] = '\0'; 
+
+
+			if (fgets(portStr, sizeof(portStr), file) == NULL)
+			{
+				printf("\nError: Could not read port from host.txt!\n");
+				fclose(file);
+				break;
+			}
+
+			portStr[strcspn(portStr, "\n")] = '\0'; 
+
+
+			port = atoi(portStr);
+
+
+			if (port < 0 || port > 65535)
+			{
+				printf("\nError: Port value out of range, try a smaller number!\n");
+				fclose(file);
+				break;
+			}
+
+
+			fclose(file);
+
+
+			enet_address_set_host(&addr, ip);
+			addr.port = port;
+
+			localServer = true;
+
+			break;
+		}
 } 
 
 	StopAnimation();
@@ -699,6 +866,7 @@ void StatePC_Launch_PickServer()
 	if (serverPeer != 0)
 	{
 		printf("NON-`null` enet server peer during server connection (case 2), disconnecting from old server...\n");
+		lockengineandcharacter = false;
 		enet_peer_disconnect_now(serverPeer, 0);
 		serverPeer = 0;
 	}
@@ -738,7 +906,7 @@ void StatePC_Launch_PickServer()
 			if (retryCount >= MAX_RETRIES)
 			{
 				// to go the country select
-				octr->CurrState = LAUNCH_PICK_SERVER;
+				octr->CurrState = 1;
 				octr->boolClientBusy = 0;
 				return;
 			}
@@ -765,7 +933,7 @@ int countFrame = 0;
 void StatePC_Launch_PickRoom()
 {
 	countFrame++;
-	if (countFrame == octr->desiredFPS)
+	if (countFrame == 30 * 5) //just in case server's tracking & updating is flawed
 	{
 		countFrame = 0;
 
@@ -794,6 +962,7 @@ void StatePC_Launch_PickRoom()
 	CG_MessageRoom mr;
 	mr.type = CG_JOINROOM;
 	mr.room = octr->serverRoom;
+	octr->autoRetryJoinRoomIndex = -1;
 
 	sendToHostReliable(&mr, sizeof(CG_MessageRoom));
 }
@@ -816,70 +985,83 @@ void StatePC_Lobby_HostTrackPick()
 	CG_MessageTrack mt = { 0 };
 	mt.type = CG_TRACK;
 
+
 	mt.trackID = octr->levelID;
 	mt.lapID = octr->lapID;
 
-	// 1,3,5,7
-	char numLaps = (mt.lapID * 2) + 1;
+	unsigned char numLaps = (mt.lapID * 2) + 1;
 
-	if (mt.lapID == 4) numLaps = 10;
-	if (mt.lapID == 5) numLaps = 15;
-	if (mt.lapID == 6) numLaps = 20;
-	if (mt.lapID == 7) numLaps = 25;
-	if (mt.lapID == 8) numLaps = 30;
-	if (mt.lapID == 9) numLaps = 35;
-	if (mt.lapID == 10) numLaps = 40;
-	if (mt.lapID == 11) numLaps = 50;
-	if (mt.lapID == 12) numLaps = 70;
-	if (mt.lapID == 13) numLaps = 80;
-	if (mt.lapID == 14) numLaps = 120;
-	if (mt.lapID == 15) numLaps = 240;
+	int lapValues[] = { 10, 15, 20, 25, 30, 35, 40, 50, 69, 80, 90, 127 };
 
-	// sdata->gGT->numLaps
-	char* numLapsV = (char*)&pBuf[(0x80096b20 + 0x1d33) & 0xffffff];
+	if (mt.lapID >= 4 && mt.lapID <= 15) {
+		numLaps = lapValues[mt.lapID - 4];
+	}
+
+	unsigned char* numLapsV = (unsigned char*)&pBuf[(0x80096b20 + 0x1d33) & 0xffffff];
 	*numLapsV = numLaps;
+
 
 	sendToHostReliable(&mt, sizeof(CG_MessageTrack));
 
+
+
 	octr->CurrState = LOBBY_SPECIALPICK;
 }
-void StatePC_Lobby_SpecialPick()
-{
-	StopAnimation();
-	printf("Client: Sending special...  ");
 
-	// Prepare the message to send to the server
-	CG_MessageSpecial mt = { 0 };
-	mt.type = CG_SPECIAL;
-	mt.special = octr->special;
+void StatePC_Lobby_SpecialPick() {
 
-	printf("special: %d\n", mt.special);
+	if (!octr->boolLockedInSpecial) return;
 
-	// Send the special to the host (server)
-	sendToHostReliable(&mt, sizeof(CG_MessageSpecial));
-	printf("Sent special message to host\n");
+	
+	
+	
 
-	octr->CurrState = LOBBY_CHARACTER_PICK;
+	if (octr->special != prev_special)
+	{
+
+		StopAnimation();
+		printf("Client: Sending gamemode to the server...  ");
+
+		CG_MessageSpecial mt = { 0 };
+		mt.type = CG_SPECIAL;
+		mt.special = octr->special;
+
+		prev_special = octr->special;
+
+
+		
+		sendToHostReliable(&mt, sizeof(CG_MessageSpecial));
+
+		octr->CurrState = LOBBY_CHARACTER_PICK;
+	}
 }
+
 
 int prev_characterID = -1;
 int prev_boolLockedIn = -1;
+int prev_enginetype = -1;
+int prev_boolLockedInEngine = -1;
 
 
 void StatePC_Lobby_GuestTrackWait()
 {
 	prev_characterID = -1;
 	prev_boolLockedIn = -1;
+	prev_enginetype = -1;
+	prev_boolLockedInEngine = -1;
+	
 }
 
 void StatePC_Lobby_CharacterPick()
 {
+
 	CG_MessageCharacter mc = { 0 };
 	mc.type = CG_CHARACTER;
 
 	// data.characterIDs[0]
 	char* characterID = (char*)&pBuf[0x80086e84 & 0xffffff];
 	mc.characterID = *characterID;
+
 
 	mc.boolLockedIn = octr->boolLockedInCharacters[octr->DriverID];
 
@@ -894,14 +1076,43 @@ void StatePC_Lobby_CharacterPick()
 		sendToHostReliable(&mc, sizeof(CG_MessageCharacter));
 	}
 
-	if (mc.boolLockedIn == 1)
+	if (mc.boolLockedIn== 0)
 	{
-		octr->CurrState = LOBBY_ENGINEPICK;
+     lockengineandcharacter = true;
 	}
+		if (mc.boolLockedIn == 1)
+		{
+			octr->CurrState = LOBBY_ENGINEPICK;
+		}
 }
 void StatePC_Lobby_EnginePick()
 {
-	octr->CurrState = LOBBY_WAIT_FOR_LOADING;
+
+	CG_MessageEngine mc = { 0 };
+	mc.type = CG_ENGINE;
+
+
+
+	mc.enginetype = octr->enginetype[octr->DriverID]; 
+	mc.boolLockedIn = octr->boolLockedInEnginee[octr->DriverID];  
+
+	if (
+		(prev_enginetype != mc.enginetype) ||
+		(prev_boolLockedInEngine != mc.boolLockedIn)
+		)
+		{
+			prev_enginetype = mc.enginetype;
+			prev_boolLockedInEngine = mc.boolLockedIn;
+			sendToHostReliable(&mc, sizeof(CG_MessageEngine));
+		}
+
+
+
+		if (mc.boolLockedIn == 1)
+		{
+			lockengineandcharacter = false;
+			octr->CurrState = LOBBY_WAIT_FOR_LOADING;
+		}
 }
 void StatePC_Lobby_WaitForLoading()
 {
@@ -915,6 +1126,7 @@ int boolAlreadySent_EndRace = 0;
 
 void StatePC_Lobby_StartLoading()
 {
+	octr->finishracetimer = 0;
 	boolAlreadySent_StartRace = 0;
 	boolAlreadySent_EndRace = 0;
 }
@@ -981,17 +1193,67 @@ void SendEverything()
 
 		w.type = CG_WEAPON;
 		w.weapon = octr->Shoot[0].Weapon;
+
 		w.juiced = octr->Shoot[0].boolJuiced;
 		w.flags = octr->Shoot[0].flags;
 
 		sendToHostReliable(&w, sizeof(CG_MessageWeapon));
 	}
+
+	//stop orb/clock spam
+// this one was very problematic to make it possible so i dont want to touch this NEVER again
+	//feel free to laught about the useless code on it
+	if (!octr->sendwarpclock[octr->DriverID] && warpclockdelay == 0) {
+
+		if (octr->warpclock != prev_warpclock) {
+			CG_MessageWarpclock w = { 0 };
+			w.type = CG_WARPCLOCK;
+			w.warpclock = octr->warpclock;
+
+			sendToHostReliable(&w, sizeof(CG_MessageWarpclock));
+
+
+			octr->sendwarpclock[octr->DriverID] = true;
+
+
+			prev_warpclock = octr->warpclock;
+
+
+			warpclockdelay = clock();
+		}
+	}
+
+	//set banned time for orb/clock
+	if (octr->sendwarpclock[octr->DriverID]) {
+		if (((clock() - warpclockdelay) / CLOCKS_PER_SEC) >= 40) {
+
+			octr->warpclock = 0;
+
+
+			if (octr->warpclock != prev_warpclock) {
+				CG_MessageWarpclock w = { 0 };
+				w.type = CG_WARPCLOCK;
+				w.warpclock = octr->warpclock;
+
+
+				sendToHostReliable(&w, sizeof(CG_MessageWarpclock));
+
+
+				prev_warpclock = octr->warpclock;
+			}
+
+
+			octr->sendwarpclock[octr->DriverID] = false;
+			warpclockdelay = 0;
+		}
+	}
+
 }
 
 void StatePC_Game_WaitForRace()
 {
 	int gGT_gameMode1 = *(int*)&pBuf[(0x80096b20 + 0x0) & 0xffffff];
-
+	
 	if (
 		// only send once
 		(!boolAlreadySent_StartRace) &&
@@ -1033,10 +1295,10 @@ void StatePC_Game_StartRace()
 }
 
 //imo all includes should go at the top
-#include <time.h>
-clock_t timeStart;
+
 void StatePC_Game_EndRace()
 {
+
 	if (!boolAlreadySent_EndRace)
 	{
 		boolAlreadySent_EndRace = 1;
@@ -1047,6 +1309,7 @@ void StatePC_Game_EndRace()
 		CG_MessageEndRace cg = { 0 };
 		cg.type = CG_ENDRACE;
 
+
 		int courseTime = *(int*)&pBuf[psxPtr + DRIVER_COURSE_OFFSET];
 		int bestLapTime = *(int*)&pBuf[psxPtr + DRIVER_BESTLAP_OFFSET];
 
@@ -1055,14 +1318,40 @@ void StatePC_Game_EndRace()
 
 		sendToHostReliable(&cg, sizeof(CG_MessageEndRace));
 
-		// end race for yourself
+
+
+
 		octr->raceStats[octr->numDriversEnded].slot = 0;
 		octr->raceStats[octr->numDriversEnded].finalTime = courseTime;
 		octr->raceStats[octr->numDriversEnded].bestLap = bestLapTime;
 		octr->numDriversEnded++;
 
-		// if you finished last
-		timeStart = clock();
+
+		int disconnectedPlayers = 0;
+		int activePlayers = 0;
+		for (int i = 0; i < octr->NumDrivers; i++) {
+			if (octr->nameBuffer[i][0] == 0) {
+				disconnectedPlayers++;
+			}
+			else {
+				activePlayers++;
+			}
+		}
+
+
+		if (octr->finishracetimer == 0 && prev_finishtimer != 30) {
+			if (activePlayers >= 4 && octr->numDriversEnded == 3 || activePlayers == 3 && octr->numDriversEnded == 2
+				|| activePlayers == 2 && octr->numDriversEnded == 1) {
+
+				octr->finishracetimer = 30;
+				prev_finishtimer = 30;
+			}
+
+			CG_MessageFinishTimer mc = { 0 };
+			mc.type = CG_FINISHTIMER;
+			mc.finishracetimer = octr->finishracetimer;
+			sendToHostReliable(&mc, sizeof(CG_MessageFinishTimer));
+		}
 	}
 
 	int numDead = 0;
@@ -1070,7 +1359,7 @@ void StatePC_Game_EndRace()
 	for (int i = 0; i < octr->NumDrivers; i++)
 	{
 		if (octr->nameBuffer[i][0] == 0)
-			numDead++; //what is this used for?
+			numDead++; //what is this used for? //why you asked ??
 	}
 }
 
@@ -1092,12 +1381,89 @@ void (*ClientState[]) () = {
 	StatePC_Game_EndRace			// 13
 };
 
+#define NUM_PROHIBITED_NAMES 32
+
+
+const unsigned char* prohibitedNames[NUM_PROHIBITED_NAMES] = {
+	(unsigned char*)"NIGGA", (unsigned char*)"NIGGER", (unsigned char*)"NIGGO", (unsigned char*)"HITLER",
+	(unsigned char*)"DICK", (unsigned char*)"PUSSY", (unsigned char*)"GAY", (unsigned char*)"FAGGOT",
+	(unsigned char*)"NIGA", (unsigned char*)"NIGER", (unsigned char*)"PORN", (unsigned char*)"ASS",
+	(unsigned char*)"BASTARD", (unsigned char*)"BITCH", (unsigned char*)"TITS", (unsigned char*)"TITY",
+	(unsigned char*)"FUCK", (unsigned char*)"PENIS", (unsigned char*)"ANAL", (unsigned char*)"SEX",
+	(unsigned char*)"BALLS", (unsigned char*)"PISS", (unsigned char*)"ORGASM", (unsigned char*)"MASTURBATE",
+	(unsigned char*)"CUM", (unsigned char*)"PUSSIES", (unsigned char*)"BONER", (unsigned char*)"RETARD",
+	(unsigned char*)"PUTA", (unsigned char*)"VAGINA", (unsigned char*)"FUCK", (unsigned char*)"PENE"
+};
+
+void toLowerCase(unsigned char* str) {
+	for (int i = 0; str[i]; i++) {
+		str[i] = (unsigned char)tolower(str[i]); // Trabajar directamente con unsigned char
+	}
+}
+
+int containsProhibitedNames(const unsigned char* str) {
+	unsigned char lowerStr[NAME_LEN + 1];
+
+	// Copiar usando strncpy_s para mayor seguridad
+	strncpy_s((char*)lowerStr, sizeof(lowerStr), (const char*)str, NAME_LEN);
+	lowerStr[NAME_LEN] = '\0'; // Asegurar el término nulo
+	toLowerCase(lowerStr);
+
+	for (int i = 0; i < NUM_PROHIBITED_NAMES; i++) {
+		unsigned char lowerProhibited[NAME_LEN + 1];
+
+		// Copiar usando strncpy_s
+		strncpy_s((char*)lowerProhibited, sizeof(lowerProhibited), (const char*)prohibitedNames[i], NAME_LEN);
+		lowerProhibited[NAME_LEN] = '\0'; // Asegurar el término nulo
+		toLowerCase(lowerProhibited);
+
+		// Comparar las cadenas
+		if (strstr((const char*)lowerStr, (const char*)lowerProhibited) != NULL) {
+			return 1; // Nombre prohibido encontrado
+		}
+	}
+	return 0; // No se encontraron nombres prohibidos
+}
+
+
+void afktimer() {
+	if (!lockengineandcharacter)
+	{
+		timeStart = 0;
+	}
+
+	if (lockengineandcharacter) {  
+
+		if (timeStart == 0) {  
+			timeStart = clock();  
+		}
+
+		
+		if (((clock() - timeStart) / CLOCKS_PER_SEC) >= 80) {
+
+			
+			if (!lockengineandcharacter) {
+				timeStart = 0;
+				return;  
+			}
+			else
+			{
+				DisconAFK();  
+				timeStart = 0;
+			}
+
+
+		}
+
+
+	}
+}
 // for EnumProcessModules
 #pragma comment(lib, "psapi.lib")
 
 char* progName;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	progName = argv[0];
 	HWND console = GetConsoleWindow();
@@ -1114,9 +1480,15 @@ int main(int argc, char *argv[])
 	{
 		PrintBanner(DONT_SHOW_NAME);
 		// ask for the users online identification
-		printf("Input: Enter Your Online Name: ");
+		printf("Enter Your Username (11) = ");
 		scanf_s("%s", name, (int)sizeof(name));
 	}
+
+	if (containsProhibitedNames(name)) {
+		printf("\nyour username contains banned words, using default name: \"gasmoxian\"\n");
+		strcpy_s((char*)name, NAME_LEN, "gasmoxian");
+	}
+
 	name[NAME_LEN] = 0; // truncate the name (0 based)
 
 	// show a welcome message
@@ -1247,6 +1619,7 @@ int main(int argc, char *argv[])
 	}
 
 	octr = (OnlineCTR*)&pBuf[0x8000C000 & 0xffffff];
+	octr->autoRetryJoinRoomIndex = -1;
 
 	// initialize enet
 	if (enet_initialize() != 0)
@@ -1257,7 +1630,7 @@ int main(int argc, char *argv[])
 	}
 
 	atexit(enet_deinitialize);
-	printf("Client: Waiting for the OnlineCTR binary to load...  ");
+	printf("Client: Waiting for the Gasmoxian binary to load...  ");
 
 	while (1)
 	{
@@ -1268,22 +1641,28 @@ int main(int argc, char *argv[])
 		//write it (without needing a blocking read first).
 		octr->windowsClientSync++;
 
+		//afk timer only in character and engine selection
+		if (octr->CurrState >= LOBBY_CHARACTER_PICK && octr->CurrState < LOBBY_WAIT_FOR_LOADING) {
+			afktimer();
+		}
+
 		// should rename to room selection
 		if (octr->CurrState >= LAUNCH_PICK_ROOM)
+
 			DisconSELECT();
+			StartAnimation();
 
-		StartAnimation();
+			//send data
+			if (octr->CurrState >= 0)
+				ClientState[octr->CurrState]();
 
-		//send data
-		if (octr->CurrState >= 0)
-			ClientState[octr->CurrState]();
+			// now check for new RECV message
+			ProcessNewMessages();
 
-		// now check for new RECV message
-		ProcessNewMessages();
+			// Wait for PSX to have P1 data,
+			// which is set at octr->sleepControl
+			void FrameStall(); FrameStall();
 
-		// Wait for PSX to have P1 data,
-		// which is set at octr->sleepControl
-		void FrameStall(); FrameStall();
 	}
 
 	printf("\n");
@@ -1304,6 +1683,8 @@ void usleep(__int64 usec)
 	CloseHandle(timer);
 }
 #endif
+
+
 
 int gGT_timer = 0;
 void FrameStall()

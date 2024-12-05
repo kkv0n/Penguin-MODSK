@@ -1,5 +1,7 @@
 #include <common.h>
-
+#ifdef USE_ONLINE
+#include "../../General/AltMods/OnlineCTR/global.h"
+#endif
 // all in this file
 void DrawUnpluggedMsg(struct GameTracker* gGT, struct GamepadSystem* gGamepads);
 void DrawFinalLap(struct GameTracker* gGT);
@@ -285,7 +287,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 	}
 #endif
 
-	DECOMP_PushBuffer_FadeAllWindows();
+
 
 	if((gGT->renderFlags & 1) != 0)
 	{
@@ -296,6 +298,9 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 		{
 			// 226-229
 			// placeholder for DrawLevelOvr1P
+			// void world event
+			#ifdef USE_ONLINE
+			if (octr->special != 6){
 			TEST_226(
 				0,
 				&gGT->pushBuffer[i],
@@ -303,7 +308,17 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 				&gGT->backBuffer->primMem,
 				0,
 				0); // waterEnvMap?
+			}
+			#else
 
+			TEST_226(
+				0,
+				&gGT->pushBuffer[i],
+				gGT->level1->ptr_mesh_info,
+				&gGT->backBuffer->primMem,
+				0,
+				0); // waterEnvMap?
+			#endif
 			// placeholder for DrawSky_Full
 			TEST_DrawSkybox(
 				gGT->level1->ptr_skybox,
@@ -1184,6 +1199,9 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			numPlyrCurrGame);
 
 		// 226-229
+		// void world event
+		#ifdef USE_ONLINE
+		if (octr->special != 6){
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
@@ -1191,7 +1209,16 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			&gGT->backBuffer->primMem,
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
-
+		}
+		#else
+					DrawLevelOvr1P(
+			&gGT->LevRenderLists[0],
+			pushBuffer,
+			ptr_mesh_info,
+			&gGT->backBuffer->primMem,
+			gGT->visMem1->visFaceList[0],
+			level1->ptr_tex_waterEnvMap); // waterEnvMap?
+		#endif
 		DrawSky_Full(
 			level1->ptr_skybox,
 			pushBuffer,
@@ -1320,6 +1347,9 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			numPlyrCurrGame);
 
 		// 226-229
+		// void world event
+		#ifdef USE_ONLINE
+		if (octr->special != 6){
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
@@ -1327,7 +1357,16 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			&gGT->backBuffer->primMem,
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
-
+		}
+		#else
+					DrawLevelOvr1P(
+			&gGT->LevRenderLists[0],
+			pushBuffer,
+			ptr_mesh_info,
+			&gGT->backBuffer->primMem,
+			gGT->visMem1->visFaceList[0],
+			level1->ptr_tex_waterEnvMap); // waterEnvMap?
+		#endif
 		DrawSky_Full(
 			level1->ptr_skybox,
 			pushBuffer,

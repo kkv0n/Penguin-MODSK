@@ -16,7 +16,7 @@
 //#define USE_BIGQUEUE	// Requires RAMEX: Extended loading queue
 //#define USE_HIGH1P	// Requires BIGQUEUE: All high model drivers
 //#define USE_RANDOM	// Requires HIGH1P: Character Randomizer
-//#define USE_ONLINE	// Requires HIGH1P: Online Multiplayer
+#define USE_ONLINE	// Requires HIGH1P: Online Multiplayer
 //#define USE_HIGHMP	// Requires RAMEX: Multiplayer Maxed mod
 
 //#define USE_VR		// Virtual Reality
@@ -28,8 +28,9 @@
 #define USE_RAMEX
 #define USE_BIGQUEUE
 #define USE_HIGH1P
-
-//note: if you disable this, you'll need to fix anything related to the `ROOM_...` defines in global.h
+#define USE_ENGINEPICK
+//retrofueled special 5
+#define USE_RETROFUELED
 #endif
 
 #ifdef USE_60FPS
@@ -49,7 +50,7 @@
 // param1 - normal
 // param2 - widescreen
 #ifdef USE_16BY9
-#define WIDE_34(x) ((((x)*750))/1000)
+#define WIDE_34(x) ((((x)*800))/1000)
 #define WIDE_PICK(x,y) (y)
 #else
 #define WIDE_34(x) (x)
@@ -62,11 +63,7 @@
 
 #include <macros.h>
 #include <ctr_math.h>
-
-#ifndef REBUILD_PC
 #include <ctr_gte.h>
-#endif
-
 #include <prim.h>
 
 // =============================

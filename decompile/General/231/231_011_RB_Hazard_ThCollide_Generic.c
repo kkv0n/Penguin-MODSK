@@ -82,7 +82,7 @@ int DECOMP_RB_Hazard_ThCollide_Generic(struct Thread* thread)
 		DECOMP_RB_MinePool_Remove(mw);
 		
 		#ifndef REBUILD_PS1
-		DECOMP_RB_Explosion_InitGeneric(inst);
+
 		#endif
 		
 		inst->scale[0] = 0;

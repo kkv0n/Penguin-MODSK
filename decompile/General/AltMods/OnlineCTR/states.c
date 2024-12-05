@@ -1,23 +1,57 @@
 #include <common.h>
 #include "global.h"
-
 extern struct RectMenu menu;
- struct Driver* driver;
-extern void VehBirth_SetConsts(driver);
+struct Driver* driver;
+bool oxidecam = 0;
+extern bool papumoon;
+extern int shouldExecuteSpecText;
+unsigned int afk = 80;
+extern void queuetojoin();
 
+//afk timer by penta3
+void afktimer()
+{
+
+	static unsigned msCount1 = 0;
+	
+		if (afk > 0)
+	{
+		msCount1 += sdata->gGT->elapsedTimeMS;
+		if (msCount1 >= SECONDS(1))
+		{
+			msCount1 -= SECONDS(1);
+			afk--;
+		}
+		char msg[10];
+		sprintf(msg, "%u", afk);
+		DecalFont_DrawLine(msg, 0xCB, 0x7D, FONT_BIG, JUSTIFY_CENTER | CORTEX_RED);
+	}
+	else 
+	{
+
+	msCount1 = 0; 
+	
+    }
+	
+}
 void StatePS1_Launch_EnterPID()
 {
 	//client closed text message
 	DECOMP_DecalFont_DrawLine(
 		"Attach Windows Client To Continue",
-		0x100,0xA8,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+		0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 }
 
-extern char* countryNames[8];
+extern char* countryNames[3];
 bool initString = true;
 //oxide icon
-void ShowOxideIcon(int characterID, int x, int y)
+
+void ShowCharacterIcon(int characterID, int x, int y)
 {
+	if (octr->boolClientBusy)
+	{
+		return;
+	}
     
     struct Icon* icon = sdata->gGT->ptrIcons[data.MetaDataCharacters[characterID].iconID];
 
@@ -31,14 +65,17 @@ void ShowOxideIcon(int characterID, int x, int y)
 
 void StatePS1_Launch_PickServer()
 {
+	octr->autoRetryJoinRoomIndex = -1;
 	if (initString)
 	{
 		//probably the text above the server list
 		strcpy(sdata->lngStrings[0x4e], "GASMOXIAN");
 		initString = false;
 	}
+
+DecalFont_DrawLine("WELCOME TO GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
 	//print oxide icon
-	ShowOxideIcon(15, 373, 82);
+	ShowCharacterIcon(15, 235, 82);
 
 	MenuWrites_ServerCountry();
 
@@ -77,12 +114,17 @@ void ResetPsxGlobals()
 	{
 		data.characterIDs[i] = 0;
 		octr->boolLockedInCharacters[i] = 0;
+		octr->boolLockedInEnginee[i] = 0;
+		octr->enginetype[i] = 0;
+		afk = 80;
 	}
 }
 
 // should rename to EnterRoom
 void StatePS1_Launch_PickRoom()
 {
+	DecalFont_DrawLine("BY ANZUP AND PENTA3", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+	ShowCharacterIcon(15, 120, 16);
 	MenuWrites_ServerRoom();
 
 	// If already picked
@@ -95,46 +137,41 @@ void StatePS1_Launch_PickRoom()
 	UpdateMenu();
 	NewPage_ServerRoom();
 
-	int serverTotal = 0;
-	for(int i = 0; i < 16; i++)
-	{
-		int curr = octr->clientCount[i];
-		if(curr > 8) curr -= 8;
-		serverTotal += curr;
-	}
-//players online counter
-	char* text = "Server Total: 000";
-	text[14] = '0' + ((serverTotal / 100) % 10);
-	text[15] = '0' + ((serverTotal / 10) % 10);
-	text[16] = '0' + (serverTotal % 10);
+int serverTotal = 0;
+for (int i = 0; i < 16; i++) {
+    int curr = octr->clientCount[i];
+    if (curr > 8) curr -= 8;
+    serverTotal += curr;
+}
+
+// Players online counter
+char text[25] = "Players Online: 000";
+text[16] = '0' + ((serverTotal / 100) % 10);
+text[17] = '0' + ((serverTotal / 10) % 10);
+text[18] = '0' + (serverTotal % 10);
 
 	DecalFont_DrawLine(
 		text,
 		menu.posX_curr,0xb8,
 		FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
+		
+		
+		queuetojoin();
 }
 
 void StatePS1_Launch_Error()
 {
 	char str[32];
-//text displayed when your game is outdated
-	//sprintf(str, "XDELTA: %d", octr->ver_psx);
-	//DECOMP_DecalFont_DrawLine(str,0x100,0x98-2,FONT_SMALL,JUSTIFY_CENTER);
-
-	//sprintf(str, "CLIENT: %d", octr->ver_pc);
-	//DECOMP_DecalFont_DrawLine(str,0x100,0xA0-2,FONT_SMALL,JUSTIFY_CENTER);
-
-	//sprintf(str, "SERVER: %d", octr->ver_server);
-	//DECOMP_DecalFont_DrawLine(str,0x100,0xA8-2,FONT_SMALL,JUSTIFY_CENTER);
 
 	char* str2 = "PLEASE UPDATE YOUR GAME TO PLAY";
-	DECOMP_DecalFont_DrawLine(str2,0x100,0xB0-2,FONT_SMALL,JUSTIFY_CENTER);
+	DECOMP_DecalFont_DrawLine(str2,0x100,0x74,FONT_SMALL,JUSTIFY_CENTER);
 
 	sdata->ptrActiveMenu = 0;
 }
 
 void StatePS1_Lobby_AssignRole()
 {
+	afk = 80;
 	menu.posX_curr = 0x70; // X position
 	menu.posY_curr = 0x84;  // Y position
 
@@ -152,6 +189,7 @@ void StatePS1_Lobby_AssignRole()
 
 void StatePS1_Lobby_HostTrackPick()
 {
+	
 	MenuWrites_Tracks();
 
 	// If already picked
@@ -163,10 +201,7 @@ void StatePS1_Lobby_HostTrackPick()
 			octr->boolLockedInLap = 1;
 		}
 
-		// do this without adding to enum,
-		// cause that means changing PS1/PC
-		StatePS1_Lobby_SpecialPick();
-
+      StatePS1_Lobby_SpecialPick();
 		return;
 	}
 
@@ -174,20 +209,33 @@ void StatePS1_Lobby_HostTrackPick()
 
 	UpdateMenu();
 	NewPage_Tracks();
+	
+	if(octr->levelID == PAPU_PYRAMID || octr->levelID == HOT_AIR_SKYWAY)
+	{
+		papumoon = 1;
+	}
+	else
+	{
+		papumoon = 0;
+	}
 }
 
 void StatePS1_Lobby_SpecialPick()
 {
     MenuWrites_Events();
 
-    // Verificar si el menú ha terminado
+    
     if (MenuFinished() == 1)
-    {
+	{
+
+    void FakeState_Lobby_HostLapPick();
         FakeState_Lobby_HostLapPick();
         return;
-    }
+	}
 
     PrintCharacterStats();
+	
+
     UpdateMenu();
     NewPage_Events();
 }
@@ -198,12 +246,11 @@ void FakeState_Lobby_HostLapPick()
 	MenuWrites_Laps();
 
 	// If already picked
-	if(MenuFinished() == 1)
-	{
-		return;
-	}
+	if(MenuFinished() == 1) return;
+		
 
 	PrintCharacterStats();
+	
 
 	UpdateMenu();
 	NewPage_Laps();
@@ -220,15 +267,19 @@ void StatePS1_Lobby_GuestTrackWait()
 //ready to start the race text
 	DECOMP_DecalFont_DrawLine(
 		"waiting for host",
-		menu.posX_curr,0xA8,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+		menu.posX_curr,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 
 	DECOMP_DecalFont_DrawLine(
 		"to pick the track",
-		menu.posX_curr,0xB0,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+		menu.posX_curr,0x7C,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+		
 }
 
 void StatePS1_Lobby_CharacterPick()
 {
+
+	afktimer();
+	
 	MenuWrites_Characters();
 
 	// If already picked
@@ -239,37 +290,54 @@ void StatePS1_Lobby_CharacterPick()
 
 	UpdateMenu();
 	NewPage_Characters();
-	
-			// get menu
+
+
+	// get menu
 	struct RectMenu* b = sdata->ptrActiveMenu;
 
 	if(b != 0)
 	{
 		// update real-time
 		data.characterIDs[0] = (8 * octr->PageNumber) + b->rowSelected;
-	}
 
+//show icon in character selection
+		int selectedchar = data.characterIDs[0];
+		ShowCharacterIcon(selectedchar, 0x5D, 0x2A);
+		
+		//oxide custom cam
+        if (data.characterIDs[0] == 15)
+        {
+            oxidecam = 1;
+        }
+        else
+        {
+            oxidecam = 0;
+        }
+    }
 }
+
 
 
 void StatePS1_Lobby_EnginePick()
 {
+	
+	afktimer();
+	
     MenuWrites_Engine();
 
-    if (MenuFinished() == 1) 
-	{
-		VehBirth_SetConsts(driver);
-		return;
-	}
+    if (MenuFinished() == 1) return;
 		
 	PrintCharacterStats();
+	PrintRecvTrack();
 
 	UpdateMenu();
     NewPage_Engine();
 	
+	
 }
 void StatePS1_Lobby_WaitForLoading()
 {
+	afktimer();
 	PrintCharacterStats();
 	PrintRecvTrack();
 
@@ -278,8 +346,11 @@ void StatePS1_Lobby_WaitForLoading()
 static bool initRace = true;
 static bool endRace = true;
 
+
 void StatePS1_Lobby_StartLoading()
 {
+
+	shouldExecuteSpecText = 1;
 	initRace = true;
 	endRace = true;
 	PrintCharacterStats();
@@ -311,8 +382,18 @@ void StatePS1_Lobby_StartLoading()
 		(octr->levelID >= GEM_STONE_VALLEY)
 	  )
 	{
-		// for all other tracks
-		gGT->gameMode1 = LOADING | ARCADE_MODE;
+		
+		//boss mode event
+		if (octr->special == 7) {
+		
+		gGT->gameMode1 = LOADING | ADVENTURE_BOSS;
+		
+		}
+		else
+		{
+			// for all other tracks
+			gGT->gameMode1 = LOADING | ARCADE_MODE;
+		}
 	}
 
 	// instant load
@@ -332,42 +413,7 @@ RECT drawTimeRECT =
 	.w = 0x228,
 	.h = 0
 };
-//#if 0
-//static void Instance_Ghostify(struct Instance *inst, unsigned driverID, unsigned isDriver)
-//{
-//	if (!inst) { return; }
 
-//	if (isDriver)
-//	{
-//		inst->flags |= 0x60000;
-//		inst->alphaScale = 0xA00;
-//	}
-//	else
-//	{
-//		inst->flags |= 0x10000;
-//		inst->alphaScale = 0x600;
-//	}
-//}
-
-//the ghost players from time trial
-//static void Ghostify()
-//{
-//	struct Turbo *turboObj;
-//	struct Thread *fireThread;
-//	struct GameTracker *gGT = sdata->gGT;
-//	struct Icon **ptrIconArray;
-//	struct Instance *inst;
-
-//	for (int driverID = 1; driverID < MAX_NUM_PLAYERS; driverID++)
-//	{
-//		gGT->drivers[driverID]->wheelSprites = ICONGROUP_GETICONS(gGT->iconGroup[0xC]);
-//		inst = gGT->drivers[driverID]->instSelf;
-//		if (!inst) { continue; }
-//		inst->flags |= 0x60000;
-//		inst->alphaScale = 0xA00;
-//	}
-//}
-//#endif
 extern unsigned int checkpointTimes[(MAX_LAPS * CPS_PER_LAP) + 1];
 
 static void OnRaceInit()
@@ -432,7 +478,7 @@ void StatePS1_Game_WaitForRace()
 void StatePS1_Game_StartRace()
 {
 	int i;
-
+static unsigned msCount = 0;
 
 
 	for(i = 1; i < 8; i++)
@@ -443,32 +489,60 @@ void StatePS1_Game_StartRace()
 
 			struct Driver* d = sdata->gGT->drivers[i];
 
-			if(octr->Shoot[i].boolJuiced)
-				d->numWumpas = 10;
-
-			d->heldItemID = octr->Shoot[i].Weapon;
-
-			// copy/paste from ShootOnCirclePress
-			int weapon;
-			weapon = d->heldItemID;
-
-			// Missiles and Bombs share code,
-			// Change Bomb1x, Bomb3x, Missile3x, to Missile1x
-			if(
-				(weapon == 1) ||
-				(weapon == 10) ||
-				(weapon == 11)
-			)
+			if (d->instBombThrow != 0)
 			{
-				weapon = 2;
-			}
 
-			DECOMP_VehPickupItem_ShootNow(
-				d,
-				weapon,
-				octr->Shoot[i].flags);
+	          // Detonate the bomb
+				struct TrackerWeapon* bomb = (struct TrackerWeapon*)d->instBombThrow->thread->object;
+				bomb->flags |= 2;
+				d->instBombThrow = NULL;
+			}
+			else if (d->instBubbleHold != 0)
+			{
+				// Shoot the shield
+				struct Shield* shield = (struct Shield*)d->instBubbleHold->thread->object;
+				shield->flags |= 2;
+				d->instBubbleHold = NULL;
+			}
+			else
+			{
+				if (octr->Shoot[i].boolJuiced)
+					d->numWumpas = 10;
+				d->heldItemID = octr->Shoot[i].Weapon;
+				// copy/paste from ShootOnCirclePress
+				int weapon;
+				weapon = d->heldItemID;
+				// Missiles and Bombs share code,
+				// Change Bomb1x, Bomb3x, Missile3x, to Missile1x
+				if (
+					(weapon == 1) ||
+					(weapon == 10) ||
+					(weapon == 11)
+					)
+				{
+					weapon = 2;
+				}
+				DECOMP_VehPickupItem_ShootNow(
+					d,
+					weapon,
+					octr->Shoot[i].flags);
+			}
 		}
 	}
+	//timer to finish the race by penta3
+		if (octr->finishracetimer > 0)
+	{
+		msCount += sdata->gGT->elapsedTimeMS;
+		if (msCount >= SECONDS(1))
+		{
+			msCount -= SECONDS(1);
+			octr->finishracetimer--;
+		}
+		char msg[10];
+		sprintf(msg, "%u", octr->finishracetimer);
+		DecalFont_DrawLine(msg, 0x100, 0x67, FONT_BIG, JUSTIFY_CENTER | CRASH_BLUE);
+	}
+	else { msCount = 0; }
 }
 
 static void OnRaceEnd()
@@ -478,8 +552,6 @@ static void OnRaceEnd()
 	bool foundRacer = false;
 	for (int driverID = 1; driverID < MAX_NUM_PLAYERS; driverID++)
 	{
-		/* Undo wheel ghostify */
-		drivers[driverID]->wheelSprites = ICONGROUP_GETICONS(sdata->gGT->iconGroup[0]);
 
 		if (!foundRacer && octr->nameBuffer[driverID][0] && !checkpointTracker[driverID].raceFinished)
 		{
@@ -489,6 +561,7 @@ static void OnRaceEnd()
 	}
 	//tbh I don't think this fixes the spectator name bug.
 	sdata->gGT->cameraDC[0].driverToFollow = before;
+
 }
 
 void StatePS1_Game_EndRace()

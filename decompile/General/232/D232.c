@@ -505,7 +505,7 @@ struct OverlayDATA_232 D232 =
 		},
 		
 		// null terminator
-		[9] = {0}
+		[9] = {}
 	},
 	
 	.emSet_maskLeave =
@@ -671,7 +671,7 @@ struct OverlayDATA_232 D232 =
 		},
 		
 		// null terminator
-		[9] = {0}
+		[9] = {}
 	},
 	
 	.maskAudioSettings =

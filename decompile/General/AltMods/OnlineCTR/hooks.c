@@ -1,7 +1,7 @@
 #include <common.h>
 #include "global.h"
 extern int shouldExecuteSpecText;
-
+extern void spec_text();
 int OnlineGetNumDrivers()
 {
 	return octr->NumDrivers;
@@ -37,7 +37,7 @@ void octr_entryHook()
 	// default for first LEV, before gameplay
 	memset(octr, 0, sizeof(struct OnlineCTR));
 	octr->IsBootedPS1 = 1;
-	octr->ver_psx = VERSION;
+	octr->ver_psx = GASMOXIAN_VER;
 }
 
 // this runs after the end of MainInit_FinalizeInit,
@@ -168,48 +168,69 @@ void OnlineInit_Drivers(struct GameTracker* gGT)
 		#endif
 	}
 
-	if (gGT->levelID != 0x26) //lobby level2
+	if (gGT->levelID != 33) //lobby level2
 	{
 		octr->CurrState = GAME_WAIT_FOR_RACE;
 	}
+	
 }
 
 bool HasRaceEnded()
 {
-	int numPlayersDisconnected = 0;
-	for (int i = 0; i < octr->NumDrivers; i++)
-	{
-		if (octr->nameBuffer[i][0] == 0) { numPlayersDisconnected++; }
-	}
-	return octr->numDriversEnded == (octr->NumDrivers - numPlayersDisconnected);
+    int numPlayersDisconnected = 0;
+
+    
+    for (int i = 0; i < octr->NumDrivers; i++)
+    {
+        if (octr->nameBuffer[i][0] == 0) {
+            numPlayersDisconnected++;
+        }
+    }
+
+//finishracetimer
+    int activePlayers = octr->NumDrivers - numPlayersDisconnected;
+
+
+    int requiredPlayersToFinish = 0;
+    if (activePlayers >= 4 && activePlayers <= 8) {
+        requiredPlayersToFinish = 3; 
+    } else if (activePlayers == 3) {
+        requiredPlayersToFinish = 2; 
+    }
+else if (activePlayers >= 1 && activePlayers <= 2) {
+	requiredPlayersToFinish = 1;
 }
+    return octr->numDriversEnded >= requiredPlayersToFinish;
+}
+
 
 RECT windowText = {0x118, 0x40, 0xD8, 0};
 
-//extern int currCam; //from endOfRaceUI.c
+extern int currCam; //from endOfRaceUI.c
 
 void OnlineEndOfRace()
 {
 	struct Driver * driver = sdata->gGT->drivers[0];
 	if (((driver->actionsFlagSet & 0x2000000) == 0) ||
 		(octr->CurrState < GAME_START_RACE)) { return; }
+		
 
-	//this is a potential untested fix for the "spectator name bug"
-	//(i.e.), when first beginning to spectate, the name of the person you're
-	//spectating at the bottom of the screen can sometimes be incorrect until you
-	//change the camera for the first time.
-	//if (octr->CurrState != GAME_END_RACE) //this must be out first frame here.
-	//{
-	//	currCam = 0;
-	//	sdata->gGT->cameraDC[0].driverToFollow = sdata->gGT->drivers[currCam];
-	//}
+	if (octr->CurrState != GAME_END_RACE)
+	{
+		currCam = 0;
+		sdata->gGT->cameraDC[0].driverToFollow = sdata->gGT->drivers[currCam];
+	}
 
 	octr->CurrState = GAME_END_RACE;
+
 	EndOfRace_Camera();
 	EndOfRace_Icons();
+
+
 	if (HasRaceEnded())
 	{
 shouldExecuteSpecText = 0;
+EndOfRace_Camera();
 	}
 }
 

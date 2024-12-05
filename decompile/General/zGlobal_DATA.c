@@ -448,7 +448,22 @@ struct Data data =
 		.angle[2] = 0x70,
 		.vertDistance = 0x40
 	},
-
+	#ifdef USE_ONLINE
+	//oxide custom cam by penta3
+	.NearCam8x3 =
+	{
+		.distMin = 0x117,
+		.distMax = 0x144,
+		.speedMin = 0x400,
+		.speedMax = 0x1400,
+		.percentage1 = 0xF0, // 90%
+		.percentage2 = 0xFF, // 99%
+		.angle[0] = 0x80,
+		.angle[1] = 0xE0,
+		.angle[2] = 0x70,
+		.vertDistance = 0x70
+	},
+	#else
 	.NearCam8x3 =
 	{
 		.distMin = 0x133,
@@ -462,6 +477,7 @@ struct Data data =
 		.angle[2] = 0x60,
 		.vertDistance = 0x60
 	},
+#endif
 
 	.FarCam4x3 =
 	{
@@ -476,6 +492,23 @@ struct Data data =
 		.angle[2] = 0x60,
 		.vertDistance = 0x60
 	},
+	
+	#ifdef USE_ONLINE
+	//normal ctr cam for oxide when l2 is pressed
+		.FarCam8x3 =
+	{
+		.distMin = 0xB3,
+		.distMax = 0xE0,
+		.speedMin = 0x400,
+		.speedMax = 0x1400,
+		.percentage1 = 0xF0, // 90%
+		.percentage2 = 0xFF, // 99%
+		.angle[0] = 0x80,
+		.angle[1] = 0xE0,
+		.angle[2] = 0x70,
+		.vertDistance = 0x90
+	},
+	#else
 
 	.FarCam8x3 =
 	{
@@ -490,7 +523,7 @@ struct Data data =
 		.angle[2] = 0x60,
 		.vertDistance = 0xA0
 	},
-
+#endif
 	.EndOfRace_Camera_Size =
 	{
 		0,		// mode 0 (CAM_FollowDriver_Normal)
@@ -1714,15 +1747,24 @@ struct Data data =
 		5, // SMALL
 		4, // CREDITS
 	},
-
+#ifdef USE_ONLINE
+//FONT WIDTH SIZE
 	.font_charPixWidth =
+	{
+		0,	// DEBUG (removed)
+		WIDE_34(15),	// BIG
+		WIDE_34(10),	// SMALL
+		WIDE_34(14),	// CREDITS
+	},
+#else
+		.font_charPixWidth =
 	{
 		0,	// DEBUG (removed)
 		WIDE_34(17),	// BIG
 		WIDE_34(13),	// SMALL
 		WIDE_34(14),	// CREDITS
 	},
-
+#endif
 	#if BUILD >= UsaRetail
 	.font_charPixHeight =
 	{
@@ -8951,17 +8993,9 @@ struct Data data =
 		// 7/52 mask
 		// 1/52 n tropy clock
 
-		4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-		3, 3, 3, 3, 3, 3, 3, 3, 3,
-		1, 1, 1, 1, 1,
-		10, 10, 10, 10,
-		0, 0, 0, 0, 0, 0, 0,
-		6, 6,
-		2, 2, 2,
-		11, 11,
-		9,
-		7, 7, 7, 7, 7, 7, 7,
-		8,
+		7, 12, 2, 2, 4, 4, 0, 0, 6, 6,
+		1, 2, 1, 2, 1, 2, 1, 2, 12,
+		0,
 #else
 		// 10/52 potion
 		// 8/52 tnt
@@ -8977,15 +9011,8 @@ struct Data data =
 
 		4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
 		3, 3, 3, 3, 3, 3, 3, 3,
-		1, 1, 1, 1, 1,
-		10, 10, 10,
-		0, 0, 0, 0, 0,
-		6, 6, 6,
-		2, 2, 2,
-		11, 11,
-		9, 9, 9, 9, 9,
-		7, 7, 7, 7, 7, 7, 7,
-		8,
+		1, 1,
+		//reduced rng in itemset 2
 #endif
 	},
 
@@ -9004,7 +9031,7 @@ struct Data data =
 		// 5/20 mask
 		// 1/20 clock
 
-		4, 3, 1, 10, 10, 10, 0, 0, 6, 2, 2, 2, 11, 9, 7, 7, 7, 7, 7, 8,
+		4, 1, 0, 0, 0, 7, 3, 2, 6, 6, 1, 2, 2, 7, 7, 7, 7, 7, 2, 2,
 #else
 		// 1/20 potion
 		// 1/20 tnt
@@ -9034,7 +9061,7 @@ struct Data data =
 		// 8/20 mask
 		// 1/20 clock
 
-		0, 0, 6, 2, 2, 11, 11, 11, 10, 9, 9, 7, 7, 7, 7, 7, 7, 7, 7, 8,
+		2, 2, 1, 1, 6, 9, 8, 0, 0, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 2,
 #else
 		// 2/20 turbo (one zero at the start, and one at the end)
 		// 1/20 shield
@@ -9050,12 +9077,12 @@ struct Data data =
 
 	.RNG_itemSetBossrace =
 	{
-		4, 3, 1, 10, 10, 0, 0, 6, 2, 11, 9, 9, 9, 7, 7, 7, 7, 7, 8, 8,
+		0, 0, 1, 1, 2, 0, 0, 6, 2, 2, 9, 9, 7, 7, 7, 7, 7, 2, 8, 0,
 	},
 
 	.RNG_itemSetBattleDefault =
 	{
-		4, 3, 1, 1, 1, 10, 10, 6, 6, 2, 2, 2, 2, 2, 7, 7, 7, 13, 13, 12,
+		9, 9, 9, 8, 2, 2, 0, 0, 0, 2, 7, 7, 7, 7, 7, 7, 7, 7, 0, 3,
 	},
 
 	// 0xB

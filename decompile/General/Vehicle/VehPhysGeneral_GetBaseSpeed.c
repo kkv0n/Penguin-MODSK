@@ -1,5 +1,7 @@
 #include <common.h>
-
+#ifdef USE_ONLINE
+#include "../AltMods/OnlineCTR/global.h"
+#endif
 int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
 {
   int netSpeed;
@@ -7,7 +9,9 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
   int speedAdditional;
   int netSpeedCap;
 
-  statAdditional = (int)driver->const_Speed_ClassStat;
+
+	statAdditional = (int)driver->const_Speed_ClassStat;
+
 
   #if 1
   netSpeedCap = 6144;
@@ -40,11 +44,15 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
   // {0, 0x42e, 2, 14640, 15020, 15400, 14450}
   // {0, 0x42c, 2, 13140, 13520, 13900, 12950}
   // subtraction = 1500
-  int netSpeedStat = (((driver->const_AccelSpeed_ClassStat - driver->const_Speed_ClassStat) * 0x1000) / 5) - 1;
+    int netSpeedStat = (((driver->const_AccelSpeed_ClassStat - driver->const_Speed_ClassStat) * 0x1000) / 5) - 1;
+
 
   #endif
 
-  speedAdditional = ((netWumpaFruitCount * netSpeedStat) / 10) + ((turboMultiplier * netSpeedStat) >> 12);
+
+
+speedAdditional = ((netWumpaFruitCount * netSpeedStat) / 10) + ((turboMultiplier * netSpeedStat) >> 12);		
+
 
   if ((driver->actionsFlagSet & 0x800000) != 0)
   {
@@ -82,11 +90,20 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
 		driver->const_DamagedSpeed *
 		((0x14 - driver->driverRank) >> 4);
 
+if (octr->special == 5){
+clockEffect = (int)(clockEffect * 2.0);
+}
+else
+{
+ clockEffect = (int)(clockEffect * 1.3);
+}
+ 
 	  if(subtract < clockEffect)
 		  subtract = clockEffect;
   }
 
   netSpeed = statAdditional + speedAdditional - subtract;
+
 
   if (0x6400 < netSpeed) {
     netSpeed = 0x6400;

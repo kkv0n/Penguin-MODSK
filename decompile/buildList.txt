@@ -29,6 +29,9 @@
 // +47 for RB_Block2
 // Divide it all by 1190 (1181 functions + 9 DATA regions)
 
+// update blue fire
+common, exe, BOTS_SetRotation, -0x8, General/AltMods/OnlineCTR/blueUpdate.s
+
 // functions bigger than their originals
 common, exe, rdata_free, 0x0, General/MATH/MATH_Sin.c General/LibraryOfModels/LibraryOfModels_Store.c, rdata.bin
 common, exe, MATH_Sin, 0x0, General/MATH/MATH_Sin_hook.s

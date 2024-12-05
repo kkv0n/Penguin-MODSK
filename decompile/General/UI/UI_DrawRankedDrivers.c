@@ -7,6 +7,7 @@
 
 int DriverIndex_GetDamageColor(int iVar14)
 {
+	
 	struct GameTracker* gGT = sdata->gGT;
 	struct Driver* d = gGT->drivers[iVar14];
 
@@ -100,6 +101,9 @@ void DECOMP_UI_DrawRankedDrivers(void)
 	  {
         if (data.rankIconsTransitionTimer[iVar14] == 0)
 		{
+			//found this 4387483 years after i finished modifying this file
+			//i dont care, anyways ivar12 is more easy to use for me.
+			
           // player structure + 0x482 is your rank in the race
           // 0 = 1st place, 1 = 2nd place, 2 = 3rd place, etc
           data.rankIconsDesired[iVar14] = gGT->drivers[iVar14]->driverRank;
@@ -186,6 +190,10 @@ void DECOMP_UI_DrawRankedDrivers(void)
 		  // icon not transitioning
           if (*psVar13 == 0)
 		  {
+			  //ivar12 is driver position in the race
+			  //ivar12 0-7 is the position 1-8 of the player 
+			  //for example ivar12 0-2 is ctr top 3 podium positions
+			  //it could be named driverRank too
             // get absolute pos-rank of driver
             iVar12 = *des;
 
@@ -209,6 +217,30 @@ void DECOMP_UI_DrawRankedDrivers(void)
           }
 
 		  #ifdef USE_ONLINE
+		  
+		  int name_logic = octr->nameBuffer[iVar14]; //ivar 14 == 0 is our name, if not 0 then it is other players name  
+		  int defined_colors;
+		  int players_colors;
+
+if (iVar12 == 0) {
+    players_colors = JUSTIFY_CENTER | CORTEX_RED;
+} else if (iVar14 == 0 && iVar12 != 0) {
+    players_colors = JUSTIFY_CENTER | OXIDE_LIGHT_GREEN;
+} else if (iVar14 != 0 && iVar12 != 0) {
+    players_colors = JUSTIFY_CENTER | ORANGE;
+}
+
+		  if (octr->special == 7)
+		  {
+			defined_colors = players_colors;
+		  }
+		  else
+		  {
+			 
+			 defined_colors = iVar14 == 0 ? (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN) : (JUSTIFY_CENTER | ORANGE);
+			 
+		  }		  
+		  
 		  short iconScale = FP(0.75);
 		  txtColor = 4;
 		  if (checkpointTracker[iVar15].raceFinished) { txtColor = 3; }
@@ -252,6 +284,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
 		  #ifdef USE_ONLINE
 		  if (checkpointTracker[iVar14].timer > 0)
 		  {
+
 			DECOMP_DecalFont_DrawLineStrlen(
 				checkpointTracker[iVar14].displayTime,
 				10,
@@ -259,22 +292,31 @@ void DECOMP_UI_DrawRankedDrivers(void)
 				pos.y + 9,
 				FONT_SMALL, checkpointTracker[iVar14].drawFlags);
 			checkpointTracker[iVar14].timer -= sdata->gGT->elapsedTimeMS;
+			//number of letters for the name and position
 			DECOMP_DecalFont_DrawLineStrlen(
-				octr->nameBuffer[iVar14],
-				3,
-				pos.x + 45,
+                name_logic,
+				5,
+				pos.x + 49,
 				pos.y + 1,
-				FONT_SMALL, iVar14 == 0 ? JUSTIFY_CENTER | BLUE : JUSTIFY_CENTER | ORANGE);
+                FONT_SMALL,
+                defined_colors
+				);
 		  }
 		  else
 		  {
-			DECOMP_DecalFont_DrawLineStrlen(
-				octr->nameBuffer[iVar14],
-				3,
-				pos.x + 45,
-				pos.y + 7,
-				FONT_SMALL, iVar14 == 0 ? JUSTIFY_CENTER | BLUE : JUSTIFY_CENTER | ORANGE);
+
+//number of letters for the name and position
+
+DECOMP_DecalFont_DrawLineStrlen(
+    name_logic,
+    5,
+    pos.x + 47,
+    pos.y + 7,
+    FONT_SMALL,
+    defined_colors
+);
 		  }
+
 		  #endif
         }
       }

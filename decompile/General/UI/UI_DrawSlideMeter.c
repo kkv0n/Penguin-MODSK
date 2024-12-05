@@ -1,15 +1,35 @@
 #include <common.h>
-
+extern bool bossrace;
 void DECOMP_UI_DrawSlideMeter(short posX, short posY, struct Driver* driver)
 {
 	const struct GameTracker * gGT = sdata->gGT;
 	#ifdef USE_ONLINE
+
+//this is for moon mode, for now avoid tnts in this mode just to test if it can reduce crashes
+		if (octr->special == 4 && driver->heldItemID == 0x3) {
+		driver->heldItemID = 0x1;
+		
+	}
+		//this is for boss race mode
+    //using this file because it updates itself every second
+	if (octr->special == 7) {
+		if (driver->driverRank == 0 && driver->numWumpas == 99)
+	{   
+			driver->numWumpas = 0;
+
+	}
+	if (driver->driverRank != 0) {
+		driver->numWumpas = 99;
+
+	}
+	}
+
 	const int xOffset = 2;
 	const int barWidth = 39;
 	int barHeight = 10;
 	posX += xOffset;
 	#else
-	const int barWidth = WIDE_34(49);
+	const int barWidth = WIDE_34(46);
 	int barHeight = gGT->numPlyrCurrGame > 2 ? 3 : 7;
 	#endif
 

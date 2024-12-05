@@ -26,6 +26,10 @@ void DECOMP_Audio_SetReverbMode(int levelID, u_int isBossRace, int bossID)
             }
         }
 
+#ifdef USE_ONLINE
+// allow boss music with invalid bossID
+reverb = sdata->reverbModeBossID[5];
+#else
         // If this is a boss race
         else
         {
@@ -39,7 +43,7 @@ void DECOMP_Audio_SetReverbMode(int levelID, u_int isBossRace, int bossID)
             // get reverb based on boss
             reverb = sdata->reverbModeBossID[bossID];
         }
-
+#endif
         DECOMP_SetReverbMode(reverb);
     }
 }

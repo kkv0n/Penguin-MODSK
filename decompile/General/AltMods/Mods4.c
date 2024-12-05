@@ -1,5 +1,7 @@
 #ifdef USE_ONLINE
-#include "OnlineCTR/names3d.c"
+#include "OnlineCTR/getoverheadlen.c"
+#include "OnlineCTR/drawoverheadnames.c"
+#include "OnlineCTR/drawoverheadcalibration.c"
 
 typedef void (*VehicleFuncPtr)(struct Thread* thread, struct Driver* driver);
 

@@ -14,7 +14,7 @@ void AssignMeterGrade(struct Driver * driver, int meterLeft)
 	const int gradeTreshold[] = {SECONDS(1) * FP(0.50), SECONDS(1) * FP(0.65),
 						SECONDS(1) * FP(0.80), SECONDS(1) * FP(0.90),
 						SECONDS(1) * FP(0.95)};
-	const int gradeColors[] = {TROPY_LIGHT_BLUE, TINY_GREEN, PAPU_YELLOW, ROO_ORANGE, ORANGE_RED};
+	const int gradeColors[] = {CORTEX_RED, ROO_ORANGE, CRASH_BLUE, TROPY_LIGHT_BLUE, PAPU_YELLOW};
 
 	driver->meterGradeTimer = SECONDS(0.5);
 	driver->meterGrade[1] = '\0';
@@ -30,7 +30,7 @@ void AssignMeterGrade(struct Driver * driver, int meterLeft)
 		}
 	}
 	driver->meterGrade[0] = 'S';
-	driver->gradeColor = COCO_MAGENTA;
+	driver->gradeColor = SILVER;
 }
 #endif
 #endif
@@ -41,25 +41,7 @@ void FixReservesIncrement(struct Driver * driver, int reserves)
 }
 
 
-#ifdef USE_BOOSTBAR
-void uibb_entryHook()
-{
-	data.hud_2P_P1[8].y -= 6;
-	data.hud_2P_P2[8].y -= 6;
-	data.hud_4P_P1[8].y -= 6;
-	data.hud_4P_P2[8].y -= 6;
-	data.hud_4P_P3[8].y -= 6;
-	data.hud_4P_P4[8].y -= 6;
 
-	// lapcount that draws above bootbar
-	data.hud_2P_P1[1].y -= 6;
-	data.hud_2P_P2[1].y -= 6;
-	data.hud_4P_P1[1].y -= 6;
-	data.hud_4P_P2[1].y -= 6;
-	data.hud_4P_P3[1].y -= 6;
-	data.hud_4P_P4[1].y -= 6;
-}
-#endif
 
 #ifdef USE_OXIDE
 void Oxide_HookAppendLoadingQueue()

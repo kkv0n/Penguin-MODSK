@@ -508,8 +508,9 @@ void PhysTerrainSlope(struct Driver* driver)
 	#ifndef REBUILD_PS1
 	VehPhysForce_RotAxisAngle(&driver->matrixMovingDir, &driver->AxisAngle1_normalVec.x, (int)driver->angle);
 	gte_SetRotMatrix(&driver->matrixMovingDir);
-	DECOMP_VehPhysForce_CounterSteer(driver);
 	#endif
+
+	DECOMP_VehPhysForce_CounterSteer(driver);
 }
 
 void DECOMP_VehPhysProc_PowerSlide_Finalize(struct Thread* t, struct Driver* d)

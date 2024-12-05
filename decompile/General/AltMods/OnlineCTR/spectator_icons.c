@@ -32,7 +32,7 @@ void EndOfRace_Icons()
         struct Icon * icon = sdata->gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[index]].iconID];
         char racePos = i + '1';
         DECOMP_DecalFont_DrawLineStrlen(&racePos, 1, pos.x + 27, pos.y, FONT_SMALL, RED);
-        DECOMP_DecalFont_DrawLineStrlen(octr->nameBuffer[index], NAME_LEN, pos.x + 38, pos.y + 1, FONT_SMALL, index == 0 ? BLUE : ORANGE);
+        DECOMP_DecalFont_DrawLineStrlen(octr->nameBuffer[index], NAME_LEN, pos.x + 38, pos.y + 1, FONT_SMALL, index == 0 ? OXIDE_LIGHT_GREEN : ORANGE);
         ElapsedTimeToTotalTime(&tt, octr->raceStats[i].finalTime);
         if (tt.hours > 0)
         {
@@ -42,11 +42,11 @@ void EndOfRace_Icons()
         {
             sprintf(s_time, "%d:%02d.%03d", tt.minutes, tt.seconds, tt.miliseconds);
         }
-        DECOMP_DecalFont_DrawLine(s_time, pos.x + 38, pos.y + 8 + 1, FONT_SMALL, index == bestCourseIndex ? PAPU_YELLOW : WHITE);
+        DECOMP_DecalFont_DrawLine(s_time, pos.x + 38, pos.y + 8 + 1, FONT_SMALL, index == bestCourseIndex ? SILVER : PINSTRIPE_PALE_DARK_BLUE);
         ElapsedTimeToTotalTime(&tt, octr->raceStats[i].bestLap);
-        tt.minutes = min(tt.minutes, 9);
+        tt.minutes = min(tt.minutes, 120);
         sprintf(s_time, "%d:%02d.%03d", tt.minutes, tt.seconds, tt.miliseconds);
-        DECOMP_DecalFont_DrawLine(s_time, pos.x + 38, pos.y + 16 + 1, FONT_SMALL, index == bestLapIndex ? PAPU_YELLOW : WHITE);
+        DECOMP_DecalFont_DrawLine(s_time, pos.x + 38, pos.y + 16 + 1, FONT_SMALL, index == bestLapIndex ? PURA_VIOLET : PINSTRIPE_PALE_DARK_BLUE);
         DECOMP_UI_DrawDriverIcon(icon, pos, sdata->gGT->pushBuffer_UI.ptrOT, 1, scale, MakeColor(0x80, 0x80, 0x80));
 
         pos.x += iconSpacing;

@@ -37,43 +37,42 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker* gGT, struct GamepadSystem* g
 			#ifdef USE_ONLINE
 			psVar9 = gGT->drivers[0];
 			#endif
+//clock send//receive// dont use clock flash
+   if (psVar9->clockSend) {
+        psVar9->clockSend--;
+    }
+	//if the race ended then disable clock effect
+		if (octr->CurrState <= LOBBY_WAIT_FOR_LOADING) {
+			psVar9->clockReceive = 0;
+		}
+	//use clock icon instead of clock effect
+if (psVar9->clockReceive != 0) {
+	iconclock();
+}
+    if (psVar9->clockReceive == 0) {
+        if (psVar9->clockSend == 0) {
+            if ((gGT->clockEffectEnabled & 1) == 0) goto LAB_80034e74; 
+                
+            
+            
+        }
+    } 
+	else
+		{
+        if ((psVar9->actionsFlagSet & 0x2000000) != 0) {
+            psVar9->clockReceive = 0;
+        }
+	} 
 
-			if (psVar9->clockSend)
-			{
-				psVar9->clockSend--;
-			}
-			uVar3 = psVar9->clockFlash;
-			if (uVar3 == 0)
-			{
-				if (psVar9->clockReceive == 0)
-				{
-					uVar3 = (u_int)psVar9->clockSend;
-					if (uVar3 == 0)
-					{
-						if ((gGT->clockEffectEnabled & 1) == 0) goto LAB_80034e74;
-						uVar3 = 10000;
-					}
-				}
-				else
-				{
-					if ((psVar9->actionsFlagSet & 0x2000000) != 0)
-					{
-						psVar9->clockReceive = 0;
-					}
-					uVar3 = (u_int)psVar9->clockReceive;
-				}
 
 #ifndef REBUILD_PS1
-				DISPLAY_Blur_Main(pushBuffer, uVar3);
+				//DISPLAY_Blur_Main(pushBuffer, uVar3);
 #endif
-			}
-			else
-			{
+
 #ifndef REBUILD_PS1
-				DISPLAY_Blur_Main(pushBuffer, -uVar3);
+				//DISPLAY_Blur_Main(pushBuffer, -uVar3);
 #endif
-				psVar9->clockFlash--;
-			}
+				
 LAB_80034e74:
 			pushBuffer = pushBuffer + 1;
 
@@ -301,7 +300,6 @@ LAB_80035098:
 #ifndef REBUILD_PS1
 		BOTS_UpdateGlobals();
 #endif
-		DECOMP_GhostTape_WriteMoves(0);
 		gGT->unk1cc4[4] = (u_int)(gGT->unk1cc4[4] * 10000) / 0x147e;
 
 #ifndef REBUILD_PS1

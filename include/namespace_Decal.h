@@ -13,7 +13,7 @@ enum BlendModeDecal
 	// additive blending on 25% transparency
 	ADD_25_DECAL=4
 };
-
+//font namespace
 enum Font
 {
 	// erased in final builds

@@ -624,7 +624,6 @@ struct Driver
 
 	// 0x367
 	// clock effect
-	char clockFlash;
 
 	// 0x368
 	short AxisAngle2_normalVec[3];

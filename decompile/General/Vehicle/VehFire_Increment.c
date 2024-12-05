@@ -1,5 +1,6 @@
 #include <common.h>
-
+extern void saffi_fire(struct Driver * driver, int reserves);
+extern void saffi_fire2(struct Driver * driver, int reserves);
 #ifdef USE_ONLINE
 #include "../AltMods/OnlineCTR/global.h"
 void FixReservesIncrement(struct Driver * driver, int reserves);
@@ -262,10 +263,9 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 
 			#endif
 		);
-
+		
 #if defined(USE_RETROFUELED) && defined(USE_ONLINE)
-	int rn = octr->serverRoom;
-	int doRetroFueled = ROOM_IS_RETRO(rn);
+    int retro = octr->special;
 #endif
 	if
 	(
@@ -290,7 +290,7 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 			(int)driver->const_SacredFireSpeed < (int)driver->fireSpeedCap &&
 			((driver->stepFlagSet & 2) == 0)
 			#if defined(USE_RETROFUELED) && defined(USE_ONLINE)
-			&& !doRetroFueled //is not retrofueled mode
+			   && (retro != 5) //is not retrofueled mode
 			#endif
 		)
 	)
@@ -329,7 +329,7 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 	{
 		// increase reserves BY param2
 		#ifdef USE_ONLINE
-		FixReservesIncrement(driver, reserves);
+	     saffi_fire2(driver, reserves);
 		#else
 		driver->reserves += reserves;
 		#endif
@@ -342,17 +342,8 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 		// then prevent reserves from decreasing until the first frame
 		// you leave the turbo pad
 
-		oldOTT = driver->turbo_outsideTimer;
+            saffi_fire(driver, reserves);
 
-		if (oldOTT < reserves)
-		{
-			#ifdef USE_ONLINE
-			FixReservesIncrement(driver, reserves - oldOTT);
-			#else
-			driver->reserves += 			(reserves - oldOTT);
-			#endif
-			driver->turbo_outsideTimer += 	(reserves - oldOTT);
-		}
 	}
 
 	#if defined(USE_ONLINE)

@@ -3,6 +3,8 @@
 void RB_GenericMine_ThTick(struct Thread* t);
 void RB_ShieldDark_ThTick_Grow(struct Thread* t);
 void RB_Warpball_ThTick(struct Thread* t);
+extern void iconclock();
+extern bool bossrace;
 
 #ifdef USE_ONLINE
 #include "../AltMods/OnlineCTR/global.h"
@@ -29,7 +31,19 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 		octr->Shoot[0].flags = flags & 3;
 
 		octr->Shoot[0].boolNow = 1;
+	if (octr->Shoot[0].Weapon >= 8 && octr->Shoot[0].Weapon <= 9) {
+		octr->warpclock = 1;
 	}
+	}
+
+if (octr->special == 7 && d->driverRank != 0)
+{
+	if (d->heldItemID == 0x3 || d->heldItemID == 0x4 || d->heldItemID == 0x1) {
+			
+		d->numHeldItems = 0x0;
+	}
+}
+
 	#endif
 
 	switch(weaponID)
@@ -561,10 +575,11 @@ RunMineCOLL:
 			{
 				Voiceline_RequestPlay(0xe, data.characterIDs[d->driverID], 0x10);
 			}
-
-			int hurtVal = 0x1e00;
+//buffed 20% clock time
+			int hurtVal = 0x2400;
 			if(d->numWumpas >= 10)
-				hurtVal = 0x2d00;
+				hurtVal = 0x3600;
+			
 
 			struct Driver** dptr;
 
@@ -577,15 +592,19 @@ RunMineCOLL:
 				struct Driver* victim = *dptr;
 
 				if(victim == 0) continue;
-
-				victim->clockFlash = FPS_DOUBLE(4);
-
+				//if someone uses a clock then delete items of victims
+                victim->heldItemID = 0xf;
+				
 				if(victim == d) continue;
 
+                if (victim->driverRank != 7)
+				{
 				// if spin out driver
 				if(RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0)
 				{
+					
 					victim->clockReceive = hurtVal;
+				}
 				}
 			}
 			break;
@@ -687,13 +706,13 @@ RunMineCOLL:
 			tw->vel[0] = (weaponInst->matrix.m[0][2] * 7) >> 8;
 			tw->vel[2] = (weaponInst->matrix.m[2][2] * 7) >> 8;
 
-			struct Particle* p =
-				Particle_Init(0, gGT->iconGroup[0], &data.emSet_Warpball[0]);
+ struct Particle* p =
+     Particle_Init(0, gGT->iconGroup[0], &data.emSet_Warpball[0]);
 
-			tw->ptrParticle = p;
+ tw->ptrParticle = p;
 
-			if(p != 0)
-				p->unk18 = 250;
+ if(p != 0)
+     p->unk18 = 250;
 
 			break;
 #endif

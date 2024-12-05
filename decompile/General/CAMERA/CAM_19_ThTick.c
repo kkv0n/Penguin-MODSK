@@ -1,4 +1,5 @@
 #include <common.h>
+extern bool oxidecam;
 
 void DECOMP_CAM_ThTick(struct Thread *t)
 {
@@ -74,8 +75,15 @@ void DECOMP_CAM_ThTick(struct Thread *t)
 			cDC->cameraMode = 0;
 		}
 	}
-
+//use custom cam with oxide
+if (oxidecam) {
+	ptrZoomData = &data.NearCam8x3;
+}
+else
+{
 	ptrZoomData = &data.NearCam4x3;
+}
+	
 	if (gGT->numPlyrCurrGame == 2)
 		ptrZoomData = &data.NearCam8x3;
 

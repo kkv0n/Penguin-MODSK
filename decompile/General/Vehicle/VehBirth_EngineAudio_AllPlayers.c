@@ -1,5 +1,7 @@
 #include <common.h>
-
+#ifdef USE_ONLINE
+#include "../AltMods/OnlineCTR/global.h"
+#endif
 void DECOMP_VehBirth_EngineAudio_AllPlayers(void)
 {
   struct Thread* th;
@@ -19,9 +21,23 @@ void DECOMP_VehBirth_EngineAudio_AllPlayers(void)
 	#endif
 	
     u_char driverID = d->driverID;
+	//change engine sound per enginetype
+int engine;
+if (octr->enginetype[driverID] < 5){
+		engine = data.MetaDataCharacters
+	[data.characterIDs[driverID]].engineID = octr->enginetype[driverID];
 
-	int engine = data.MetaDataCharacters
+
+}
+else
+{
+			 engine = data.MetaDataCharacters
 		[data.characterIDs[driverID]].engineID;
+}
+
+
+		
+
 
 	#ifndef REBUILD_PS1
     EngineAudio_InitOnce((engine * 4) + driverID, 0x8080);

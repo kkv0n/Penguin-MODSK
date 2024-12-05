@@ -13950,8 +13950,6 @@ LAB_800659ec:
 	  // pointer incrementer, for each player structure
       iVar14 = iVar5 * 4;
 
-	  // driver->clockFlash
-      *(undefined *)(*(int *)(PTR_DAT_8008d2ac + iVar14 + 0x24ec) + 0x367) = 4;
 
 	  // get pointer to each player structure
       iVar8 = *(int *)(PTR_DAT_8008d2ac + iVar14 + 0x24ec);

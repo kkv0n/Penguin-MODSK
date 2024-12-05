@@ -278,11 +278,8 @@ int DECOMP_RB_CrateWeapon_LInC(
 			}
 		}
 
-		// if driver is influenced by clock weapon, quit
-		if(driver->clockReceive != 0)
-		{
-			return 1;
-		}
+//enable the ability of getting items even if an clock is active
+//deleted lines was here
 		
 		#ifdef USE_ONLINE
 		if(driver->driverID != 0)

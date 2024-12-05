@@ -1,24 +1,24 @@
 #ifndef ONLINE_GLOBAL_H
 #define ONLINE_GLOBAL_H
 
-#define VERSION 1020
-//#define ONLINE_BETA_MODE
+#define GASMOXIAN_VER 2
+
 
 #ifndef WINDOWS_INCLUDE
-	#include <common.h>
+#include <common.h>
 #endif
 
 #ifdef __GNUC__ // GCC and Clang
 
-	#ifdef WINDOWS_INCLUDE
-		#include <unistd.h> // for the 'usleep()' function
-	#endif
+#ifdef WINDOWS_INCLUDE
+#include <unistd.h> // for the 'usleep()' function
+#endif
 
-	#define STATIC_ASSERT2(test_for_true, message) _Static_assert((test_for_true), message)
+#define STATIC_ASSERT2(test_for_true, message) _Static_assert((test_for_true), message)
 
 #else // MSVC (Visual Studio)
 
-	#define STATIC_ASSERT2 static_assert
+#define STATIC_ASSERT2 static_assert
 
 #endif
 
@@ -31,12 +31,14 @@
 #define DEFAULT_IP			            "127.0.0.1" // the default IP address we want to use for private lobbies
 #define IP_ADDRESS_SIZE		            16 // assuming IPv4 (which is "xxx.xxx.xxx.xxx" + '\0')
 #define PORT_SIZE			            6 // the port number as a string (0-65535 + '\0')
+
  // 2 seconds to be very tolerant on client
 #ifdef USE_60FPS
 #define DISCONNECT_AT_UNSYNCED_FRAMES   120
 #else
 #define DISCONNECT_AT_UNSYNCED_FRAMES   60
 #endif
+
 
 enum ClientState
 {
@@ -58,7 +60,7 @@ enum ClientState
 	NUM_STATES
 };
 
-#define NAME_LEN 9
+#define NAME_LEN 11
 #define MAX_NUM_PLAYERS 8
 
 typedef struct raceStats
@@ -90,7 +92,6 @@ struct OnlineCTR
 	// 0xC
 	unsigned char IsBootedPS1;
 	unsigned char boolLockedInCharacter;
-	unsigned char enginetype;
 	unsigned char boolLockedInEngine;
 	unsigned char numRooms;
 	unsigned char numDriversEnded;
@@ -106,6 +107,8 @@ struct OnlineCTR
 	unsigned char boolClientBusy;
 	unsigned char boolLockedInSpecial;
 	unsigned char special;
+	unsigned char warpclock;
+	unsigned char finishracetimer;
 	char padding;
 
 	// 0x18
@@ -118,9 +121,12 @@ struct OnlineCTR
 
 	// 0x30
 	char boolLockedInCharacters[MAX_NUM_PLAYERS];
+	char boolLockedInEnginee[MAX_NUM_PLAYERS];
+	char enginetype[MAX_NUM_PLAYERS];
+	char sendwarpclock[MAX_NUM_PLAYERS];
 
 	// 0x38
-	char nameBuffer[MAX_NUM_PLAYERS][NAME_LEN + 1]; //+1 for nullterm
+	unsigned char nameBuffer[MAX_NUM_PLAYERS][NAME_LEN + 1]; //+1 for nullterm
 
 	raceStats raceStats[MAX_NUM_PLAYERS];
 
@@ -138,21 +144,24 @@ struct OnlineCTR
 		unsigned char boolNow;
 	} Shoot[MAX_NUM_PLAYERS];
 
-    // Frames that the client didn't update
-    int frames_unsynced;
+	// Frames that the client didn't update
+	int frames_unsynced;
 
-    // Last windowsClientSync counter
+	// Last windowsClientSync counter
 	char lastWindowsClientSync;
 
-	char desiredFPS;
+	//char desiredFPS;
 
 	// when to start the client.exe loop
 	int readyToSend;
+
+	//queue to join
+	int autoRetryJoinRoomIndex;
 };
 
 STATIC_ASSERT2(sizeof(struct OnlineCTR) <= 0x400, "Size of OnlineCTR must be lte 1kb");
 
-#define MAX_LAPS 7
+#define MAX_LAPS 16
 #define CPS_PER_LAP 2
 
 typedef struct TotalTime
@@ -163,7 +172,7 @@ typedef struct TotalTime
 	int miliseconds;
 } TotalTime;
 
-void ElapsedTimeToTotalTime(TotalTime * totalTime, int elapsedTime);
+void ElapsedTimeToTotalTime(TotalTime* totalTime, int elapsedTime);
 
 typedef struct CheckpointTracker
 {
@@ -184,7 +193,7 @@ void EndOfRace_Icons();
 #include <time.h>
 
 #ifndef __GNUC__
-	#include <windows.h>
+#include <windows.h>
 #endif
 
 enum ServerGiveMessageType
@@ -200,11 +209,14 @@ enum ServerGiveMessageType
 	SG_TRACK,
 	SG_SPECIAL,
 	SG_CHARACTER,
+	SG_ENGINE,
 	SG_STARTLOADING,
 
 	SG_STARTRACE,
 	SG_RACEDATA,
 	SG_WEAPON,
+	SG_WARPCLOCK,
+	SG_FINISHTIMER,
 	SG_ENDRACE,
 
 	SG_SERVERCLOSED,
@@ -266,8 +278,6 @@ struct SG_MessageClientStatus
 	// 1-15
 	unsigned char numClientsTotal : 4;
 
-	// special event
-	unsigned char special : 4;
 };
 
 // get name from any client
@@ -281,18 +291,19 @@ struct SG_MessageName
 	unsigned char clientID : 4;
 	unsigned char numClientsTotal : 4;
 
-	char name[NAME_LEN + 1];
+	unsigned char name[NAME_LEN + 1];
+
 };
 
 // get track, assigned by host
 struct SG_MessageTrack
 {
 	// 15 types, 15 bytes max
-	unsigned char type : 4; 
+	unsigned char type : 4;
 	unsigned char padding : 4;
 
 	unsigned char trackID : 5;
-	unsigned char lapID : 3;
+	unsigned char lapID : 8;
 };
 
 struct SG_MessageSpecial
@@ -319,7 +330,19 @@ struct SG_MessageCharacter
 	// can be used for Engine type, or more characters
 	unsigned char padding : 4;
 };
+struct SG_MessageEngine
+{
+	// 15 types, 15 bytes max
+	// 15 types, 15 bytes max
+	unsigned char type : 4;
 
+	unsigned char clientID : 3;
+	unsigned char enginetype : 4;
+	unsigned char boolLockedIn : 1;
+
+
+	unsigned char padding : 7;
+};
 struct SG_EverythingKart
 {
 	// byte[0]
@@ -365,8 +388,21 @@ struct SG_MessageWeapon
 	unsigned char weapon : 4;
 	unsigned char flags : 2;
 	unsigned char padding : 2;
+
 };
 
+struct SG_MessageWarpclock
+{
+	unsigned char type : 4;
+	unsigned char padding : 2;
+	unsigned char clientID : 4;
+	unsigned char warpclock : 2;
+};
+struct SG_MessageFinishTimer
+{
+	unsigned char type : 4;
+	unsigned char finishracetimer : 6;
+};
 struct SG_MessageEndRace
 {
 	// 15 types, 15 bytes max
@@ -379,9 +415,10 @@ struct SG_MessageEndRace
 STATIC_ASSERT2(sizeof(struct SG_Header) == 1, "Size of SG_Header must be 1 byte");
 STATIC_ASSERT2(sizeof(struct SG_MessageRooms) == 12, "Size of SG_MessageRooms must be 12 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageClientStatus) == 2, "Size of SG_MessageClientStatus must be 2 bytes");
-STATIC_ASSERT2(sizeof(struct SG_MessageName) == 12, "Size of SG_MessageName must be 12 bytes");
+STATIC_ASSERT2(sizeof(struct SG_MessageName) == 14, "Size of SG_MessageName must be 14 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageCharacter) == 2, "Size of SG_MessageCharacter must be 2 bytes");
-STATIC_ASSERT2(sizeof(struct SG_MessageTrack) == 2, "Size of SG_MessageTrack must be 2 bytes");
+STATIC_ASSERT2(sizeof(struct SG_MessageEngine) == 3, "Size of SG_MessageEngine must be 3 bytes");
+STATIC_ASSERT2(sizeof(struct SG_MessageTrack) == 3, "Size of SG_MessageTrack must be 3 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageSpecial) == 2, "Size of SG_MessageSpecial must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct SG_EverythingKart) == 10, "Size of SG_EverythingKart must be 10 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageWeapon) == 2, "Size of SG_MessageWeapon must be 2 bytes");
@@ -396,10 +433,13 @@ enum ClientGiveMessageType
 	CG_TRACK,
 	CG_SPECIAL,
 	CG_CHARACTER,
+	CG_ENGINE,
 
 	CG_STARTRACE,
 	CG_RACEDATA,
 	CG_WEAPON,
+	CG_WARPCLOCK,
+	CG_FINISHTIMER,
 	CG_ENDRACE,
 
 	CG_COUNT
@@ -431,7 +471,8 @@ struct CG_MessageName
 	unsigned char type : 4;
 	unsigned char padding : 4;
 
-	char name[NAME_LEN + 1];
+	unsigned char name[NAME_LEN + 1];
+
 };
 
 // get track, assigned by host
@@ -441,7 +482,7 @@ struct CG_MessageTrack
 	unsigned char type : 4;
 	unsigned char padding : 4;
 	unsigned char trackID : 5;
-	unsigned char lapID : 3;
+	unsigned char lapID : 8;
 };
 struct CG_MessageSpecial
 {
@@ -465,7 +506,19 @@ struct CG_MessageCharacter
 	// can be used for Engine type, or more characters
 	unsigned char padding : 7;
 };
+struct CG_MessageEngine
+{
+	// 15 types, 15 bytes max
+	// 15 types, 15 bytes max
+	unsigned char type : 4;
 
+	unsigned char clientID : 3;
+	unsigned char enginetype : 4;
+	unsigned char boolLockedIn : 1;
+
+
+	unsigned char padding : 7;
+};
 struct CG_EverythingKart
 {
 	// byte[0]
@@ -508,8 +561,21 @@ struct CG_MessageWeapon
 	unsigned char weapon : 4;
 
 	unsigned char padding2 : 4;
+	unsigned char warpclock : 2;
 };
+struct CG_MessageWarpclock
+{
+	unsigned char type : 4;
+	unsigned char padding : 2;
+	unsigned char clientID : 4;
+	unsigned char warpclock : 2;
+};
+struct CG_MessageFinishTimer
+{
+	unsigned char type : 4;
+	unsigned char finishracetimer : 6;
 
+};
 struct CG_MessageEndRace
 {
 	// 15 types, 15 bytes max
@@ -523,12 +589,13 @@ struct CG_MessageEndRace
 #define DRIVER_BESTLAP_OFFSET 0x63c
 
 STATIC_ASSERT2(sizeof(struct CG_Header) == 1, "Size of CG_Header must be 1 byte");
-STATIC_ASSERT2(sizeof(struct CG_MessageName) == 11, "Size of CG_MessageName must be 11 bytes");
+STATIC_ASSERT2(sizeof(struct CG_MessageName) == 13, "Size of CG_MessageName must be 13 bytes");
 STATIC_ASSERT2(sizeof(struct CG_MessageCharacter) == 2, "Size of CG_MessageCharacter must be 2 bytes");
-STATIC_ASSERT2(sizeof(struct CG_MessageTrack) == 2, "Size of CG_MessageTrack must be 2 bytes");
+STATIC_ASSERT2(sizeof(struct CG_MessageEngine) == 3, "Size of CG_MessageEngine must be 3 bytes");
+STATIC_ASSERT2(sizeof(struct CG_MessageTrack) == 3, "Size of CG_MessageTrack must be 3 bytes");
 STATIC_ASSERT2(sizeof(struct CG_MessageSpecial) == 2, "Size of CG_MessageSpecial must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct CG_EverythingKart) == 10, "Size of CG_EverythingKart must be 10 bytes");
-STATIC_ASSERT2(sizeof(struct CG_MessageWeapon) == 2, "Size of CG_MessageWeapon must be 2 bytes");
+STATIC_ASSERT2(sizeof(struct CG_MessageWeapon) == 3, "Size of CG_MessageWeapon must be 3 bytes");
 STATIC_ASSERT2(sizeof(struct CG_MessageEndRace) == 12, "Size of CG_MessageEndRace must be 12 bytes");
 
 // OnlineCTR functions
@@ -555,32 +622,32 @@ void StopAnimation();
 #endif
 
 #ifndef WINDOWS_INCLUDE
-	// set zero to fix DuckStation,
-	// is it needed on console?
-	#define USE_K1 0
+// set zero to fix DuckStation,
+// is it needed on console?
+#define USE_K1 0
 
-	#if USE_K1 == 1
-		register struct OnlineCTR* octr asm("k1");
-	#else
-		static struct OnlineCTR* octr = (struct OnlineCTR*)0x8000C000;
-	#endif
+#if USE_K1 == 1
+register struct OnlineCTR* octr asm("k1");
+#else
+static struct OnlineCTR* octr = (struct OnlineCTR*)0x8000C000;
+#endif
 
-	// my functions
-	void StatePS1_Launch_EnterPID();
-	void StatePS1_Launch_PickServer();
-	void StatePS1_Launch_Error();
-	void StatePS1_Launch_PickRoom();
-	void StatePS1_Lobby_AssignRole();
-	void StatePS1_Lobby_HostTrackPick();
-	void StatePC_Lobby_SpecialPick();
-	void StatePS1_Lobby_GuestTrackWait();
-	void StatePS1_Lobby_CharacterPick();
-	void StatePC_Lobby_EnginePick();
-	void StatePS1_Lobby_WaitForLoading();
-	void StatePS1_Lobby_StartLoading();
-	void StatePS1_Game_WaitForRace();
-	void StatePS1_Game_StartRace();
-	void StatePS1_Game_EndRace();
+// my functions
+void StatePS1_Launch_EnterPID();
+void StatePS1_Launch_PickServer();
+void StatePS1_Launch_Error();
+void StatePS1_Launch_PickRoom();
+void StatePS1_Lobby_AssignRole();
+void StatePS1_Lobby_HostTrackPick();
+void StatePC_Lobby_SpecialPick();
+void StatePS1_Lobby_GuestTrackWait();
+void StatePS1_Lobby_CharacterPick();
+void StatePC_Lobby_EnginePick();
+void StatePS1_Lobby_WaitForLoading();
+void StatePS1_Lobby_StartLoading();
+void StatePS1_Game_WaitForRace();
+void StatePS1_Game_StartRace();
+void StatePS1_Game_EndRace();
 #endif
 
 #endif

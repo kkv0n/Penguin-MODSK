@@ -3,20 +3,21 @@
 #include "OnlineCTR/menu.c"
 #include "OnlineCTR/states.c"
 #include "OnlineCTR/thread.c"
-#include "OnlineCTR/setnextcamera.c"
-#include "OnlineCTR/zMirrorMode.c"
-
-
-extern const char spec_mode[]; 
+extern const char specting[];
+extern const char finish_race[];
 
 int shouldExecuteSpecText = 0;
 
+const char* spec_mode;
+
+
 void spec_text() {
-    if (shouldExecuteSpecText) {  
+        spec_mode = shouldExecuteSpecText ? specting : finish_race;
         static unsigned frameCounter = 0;
         int spec_color = frameCounter++ & FPS_DOUBLE(1) ? ORANGE : WHITE;
         DECOMP_DecalFont_DrawLine(spec_mode, 0x100, 0x74, FONT_SMALL, JUSTIFY_CENTER | spec_color);
-    }
+
+    
 }
 
 #ifdef USE_ONLINE
@@ -24,15 +25,18 @@ void spec_text() {
 void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
 {
     // disable collisions in special 3 
-    if (octr->special != 1 && octr->special != 2) { 
+    if (octr->special == 3) { 
         return;
     }
+	else 
+	{
 	while (th != 0)
 	{
 		DECOMP_PROC_CollidePointWithSelf(th, vec3_pos);
 		// next
 		th = th->siblingThread;
 	}
+  }
 }
 #endif
 

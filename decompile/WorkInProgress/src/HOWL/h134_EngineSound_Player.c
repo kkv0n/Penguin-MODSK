@@ -1,5 +1,7 @@
 #include <common.h>
-
+#ifdef USE_ONLINE
+#include "../AltMods/OnlineCTR/global.h"
+#endif
 void EngineSound_Player(struct Driver *driver)
 {
     char id;
@@ -234,9 +236,19 @@ void EngineSound_Player(struct Driver *driver)
 
     vol |= distort;
 RECALCULATE:
+//change engine sound per enginetype
+int engine;
 
-    int engine = data.MetaDataCharacters
+if (octr->enginetype[id] < 5) {
+	    engine = data.MetaDataCharacters
+		[data.characterIDs[id]].engineID = octr->enginetype[id];
+
+
+}
+else
+{
+		engine = data.MetaDataCharacters
 		[data.characterIDs[id]].engineID;
-
+}
     EngineAudio_Recalculate((engine * 4) + id, vol | LR);
 }

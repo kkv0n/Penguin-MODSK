@@ -386,8 +386,6 @@ void DECOMP_PushBuffer_SetDrawEnv_Normal(
 		void* ot, struct PushBuffer* pb, struct DB* backBuffer,
 		DRAWENV* copyDrawEnvNULL, int isbg);
 
-void DECOMP_PushBuffer_FadeOneWindow(struct PushBuffer* pb);
-void DECOMP_PushBuffer_FadeAllWindows();
 
 void DECOMP_QueueLoadTrack_MenuProc(struct RectMenu* menu);
 struct RectMenu* DECOMP_QueueLoadTrack_GetMenuPtr();

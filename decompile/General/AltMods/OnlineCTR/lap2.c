@@ -33,22 +33,22 @@ void UpdateCheckpointTracker(int driverID)
 			{
 				checkpointTimes[cp] = driver->timeElapsedInRace;
 				ElapsedTimeToTotalTime(&tt, driver->timeElapsedInRace);
-				tt.minutes = min(tt.minutes, 9);
+				tt.minutes = min(tt.minutes, 120);
 				tt.miliseconds /= 10;
 				sprintf(checkpointTracker[driverID].displayTime, "%d:%02d.%02d", tt.minutes, tt.seconds, tt.miliseconds);
-				checkpointTracker[driverID].drawFlags = TINY_GREEN;
+				checkpointTracker[driverID].drawFlags = PURA_VIOLET;
 			}
 			else
 			{
 				ElapsedTimeToTotalTime(&tt, driver->timeElapsedInRace - checkpointTimes[cp]);
-				tt.minutes = min(tt.minutes, 9);
+				tt.minutes = min(tt.minutes, 120);
 				tt.miliseconds /= 10;
 				sprintf(checkpointTracker[driverID].displayTime, "+%d:%02d.%02d", tt.minutes, tt.seconds, tt.miliseconds);
-				checkpointTracker[driverID].drawFlags = RED;
+				checkpointTracker[driverID].drawFlags = PAPU_YELLOW;
 			}
 			if (cp == sdata->gGT->numLaps * CPS_PER_LAP)
 			{
-				checkpointTracker[driverID].timer = HOURS(100);
+				checkpointTracker[driverID].timer = HOURS(10);
 				checkpointTracker[driverID].raceFinished = 1;
 			}
 			else { checkpointTracker[driverID].timer = SECONDS(3); }

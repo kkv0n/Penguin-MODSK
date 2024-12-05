@@ -321,8 +321,11 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 		case 3:
 		{
 			#ifdef USE_ONLINE
+			//lobbylevel4
+			//if you are wondering why im adding numbers is for being able to search it more easy
+			//btw dont change this to track levels, just keep it in 0x26 or it will crash
 			// Load Region3 for planet
-			if(gGT->levelID == 0x26)
+			if(gGT->levelID == 33)
 				ovrRegion3 = 3;
 			else
 			#endif

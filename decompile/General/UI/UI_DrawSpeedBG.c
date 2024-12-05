@@ -1,47 +1,39 @@
 #include <common.h>
 
 #ifdef USE_ONLINE
-#define SPEEDO_GREEN MakeColor(0, 0xb5, 0)
+#define SPEEDO_LIGHT_RED MakeColor(0xff, 0x66, 0x66)
 #define SPEEDO_YELLOW MakeColor(0xdb, 0xb5, 0)
 #define SPEEDO_RED MakeColor(0xdb, 0, 0)
-#define SPEEDO_PINK MakeColor(0xd8, 0, 0xcb)
-#define SPEEDO_PURPLE MakeColor(0xa4, 0x21, 0xff)
-#define SPEEDO_BLUE MakeColor(0x18, 0x18, 0xf3)
+#define SPEEDO_BLUE MakeColor(0x41, 0x69, 0xe1)
+#define SPEEDO_LIGHT_BLUE MakeColor(0x87, 0xce, 0xfa)
 const Color DrawSpeedBG_Colors[] =
 {
-  SPEEDO_GREEN, SPEEDO_GREEN,
-  SPEEDO_GREEN, SPEEDO_YELLOW,
+  SPEEDO_YELLOW, SPEEDO_YELLOW,
+  SPEEDO_YELLOW, SPEEDO_LIGHT_RED,
   SPEEDO_RED, SPEEDO_RED,
-  SPEEDO_RED, SPEEDO_PINK,
-  SPEEDO_PURPLE, SPEEDO_PURPLE,
-  SPEEDO_BLUE,
+  SPEEDO_RED, SPEEDO_BLUE,
+  SPEEDO_BLUE, SPEEDO_LIGHT_BLUE,
+  SPEEDO_LIGHT_BLUE, SPEEDO_LIGHT_BLUE,
 };
 
 const Point speedometerData[]=
 {
-  { .x = WIDE_34(-65), .y = 16 },  { .x = WIDE_34(-54), .y = 13 },
-  { .x = WIDE_34(-70), .y = 0 },   { .x = WIDE_34(-58), .y = 0 },
-  { .x = WIDE_34(-65), .y = -16 }, { .x = WIDE_34(-54), .y = -13 },
-  { .x = WIDE_34(-50), .y = -29 }, { .x = WIDE_34(-42), .y = -24 },
-  { .x = WIDE_34(-25), .y = -39 }, { .x = WIDE_34(-21), .y = -32 },
+  { .x = WIDE_34(-62), .y = 16 },  { .x = WIDE_34(-51), .y = 13 },
+  { .x = WIDE_34(-67), .y = 0 },   { .x = WIDE_34(-55), .y = 0 },
+  { .x = WIDE_34(-62), .y = -16 }, { .x = WIDE_34(-51), .y = -13 },
+  { .x = WIDE_34(-47), .y = -29 }, { .x = WIDE_34(-39), .y = -24 },
+  { .x = WIDE_34(-23), .y = -39 }, { .x = WIDE_34(-18), .y = -32 },
   { .x = WIDE_34(0), .y = -42 },   { .x = WIDE_34(0), .y = -35 },
-  { .x = WIDE_34(25), .y = -39 },  { .x = WIDE_34(21), .y = -32 },
-  { .x = WIDE_34(50), .y = -29 },  { .x = WIDE_34(42), .y = -24 },
-  { .x = WIDE_34(65), .y = -16 },  { .x = WIDE_34(54), .y = -13 },
-  { .x = WIDE_34(70), .y = 0 },    { .x = WIDE_34(58), .y = 0 },
-  { .x = WIDE_34(65), .y = 16 },   { .x = WIDE_34(54), .y = 13 },
+  { .x = WIDE_34(22), .y = -39 },  { .x = WIDE_34(18), .y = -32 },
+  { .x = WIDE_34(47), .y = -29 },  { .x = WIDE_34(39), .y = -24 },
+  { .x = WIDE_34(62), .y = -16 },  { .x = WIDE_34(51), .y = -13 },
+  { .x = WIDE_34(67), .y = 0 },    { .x = WIDE_34(55), .y = 0 },
+  { .x = WIDE_34(62), .y = 16 },   { .x = WIDE_34(51), .y = 13 },
 };
-#else
-
-#ifdef REBUILD_PC
-#define SPEEDO_GREEN 0xb500
-#define SPEEDO_YELLOW 0xffd1
-#define SPEEDO_RED 0xdb
 #else
 #define SPEEDO_GREEN MakeColor(0, 0xb5, 0)
 #define SPEEDO_YELLOW MakeColor(0xff, 0xd1, 0)
 #define SPEEDO_RED MakeColor(0xdb, 0, 0)
-#endif
 
 const Color DrawSpeedBG_Colors[7] =
 {

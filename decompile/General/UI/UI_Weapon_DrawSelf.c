@@ -167,3 +167,4 @@ void DECOMP_UI_Weapon_DrawSelf(short posX,short posY,short scale,struct Driver* 
 		
   return;
 }
+
