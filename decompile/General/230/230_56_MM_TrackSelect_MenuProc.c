@@ -498,7 +498,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 			{
 				#ifndef REBUILD_PS1
 				// Check if this track has Ghost Data
-				uVar15 = RefreshCard_BoolGhostForLEV(selectMenu[iVar10].levID);
+				//uVar15 = RefreshCard_BoolGhostForLEV(selectMenu[iVar10].levID);
 				#else
 				uVar15 = 0;
 				#endif

@@ -1,9 +1,6 @@
 #include <common.h>
 #include "global.h"
 
-extern unsigned int checkpointTimes[(MAX_LAPS * CPS_PER_LAP) + 1];
-CheckpointTracker checkpointTracker[MAX_NUM_PLAYERS];
-extern void UpdateCheckpointTracker(int driverID);
 
 void ElapsedTimeToTotalTime(TotalTime * totalTime, int elapsedTime)
 {

@@ -1,5 +1,6 @@
 #include <common.h>
 
+extern void ShowCharacterIcon();
 // Draw weapon and wumpa fruit in HUD
 void DECOMP_UI_Weapon_DrawSelf(short posX,short posY,short scale,struct Driver* d)
 
@@ -118,6 +119,7 @@ void DECOMP_UI_Weapon_DrawSelf(short posX,short posY,short scale,struct Driver* 
 				itemID = 3;
 			}
 		}
+
 		
 		// only change icon once per 2 frames,
 		// take advantage of unused padding
@@ -144,15 +146,25 @@ void DECOMP_UI_Weapon_DrawSelf(short posX,short posY,short scale,struct Driver* 
 		// subtract one from timer
 		d->PickupTimeboxHUD.cooldown--;
 	}
-	
 	iconID = itemID + 5;
+	
 	
 	posX = posXY[0];
 	posY = posXY[1];
   }
+  //print custom icons for super engine, invisibility and spring
+int customicon = (d->heldItemID == 5) ? 10 : (d->heldItemID == 12) ? 14 : 15;
 
+		if (d->heldItemID == 5 || d->heldItemID >= 12 && d->heldItemID <= 13)
+		{
+			
+			ShowCharacterIcon(customicon , posX, posY);
+		}
+		else
+		{
   DECOMP_DecalHUD_DrawWeapon(
 		// pointer to icon, from array of icon pointers
+
 		gGT->ptrIcons[iconID],
 	
 		(int)posX,(int)posY,
@@ -164,6 +176,7 @@ void DECOMP_UI_Weapon_DrawSelf(short posX,short posY,short scale,struct Driver* 
 		gGT->pushBuffer_UI.ptrOT,
 	
 		TRANS_50_DECAL,(int)scale,1);
+		}
 		
   return;
 }

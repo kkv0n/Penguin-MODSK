@@ -236,19 +236,9 @@ void EngineSound_Player(struct Driver *driver)
 
     vol |= distort;
 RECALCULATE:
-//change engine sound per enginetype
-int engine;
 
-if (octr->enginetype[id] < 5) {
-	    engine = data.MetaDataCharacters
-		[data.characterIDs[id]].engineID = octr->enginetype[id];
-
-
-}
-else
-{
-		engine = data.MetaDataCharacters
+		int engine = data.MetaDataCharacters
 		[data.characterIDs[id]].engineID;
-}
+
     EngineAudio_Recalculate((engine * 4) + id, vol | LR);
 }

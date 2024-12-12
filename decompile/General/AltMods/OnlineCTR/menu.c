@@ -3,14 +3,34 @@
 extern const char* options[16];
 
 //special menu text, probably will move it later
+#ifdef GASMOX_ENG
 const char* special_0 = "NORMAL";
 const char* special_1 = "MIRROR MODE";
 const char* special_2 = "ICY TRACK";
-const char* special_3 = "NO COLLISION";
+const char* special_3 = "TIME TRIAL";
 const char* special_4 = "MOON MODE";
 const char* special_5 = "RETROFUELED";
 const char* special_6 = "VOID WORLD";
 const char* special_7 = "BOSS RACE";
+#elif defined(GASMOX_ES)
+const char* special_0 = "NORMAL";
+const char* special_1 = "MODO ESPEJO";
+const char* special_2 = "PISO DE HIELO";
+const char* special_3 = "SIN ITEMS";
+const char* special_4 = "MODO LUNAR";
+const char* special_5 = "RETROFUELED";
+const char* special_6 = "MUNDO VACIO";
+const char* special_7 = "MODO JEFE";
+#elif defined(GASMOX_BR)
+const char* special_0 = "NORMAL";
+const char* special_1 = "ESPELHADO";
+const char* special_2 = "PISTA GELO";
+const char* special_3 = "FANTASMAS";
+const char* special_4 = "MODO LUNAR";
+const char* special_5 = "RETROFUELED";
+const char* special_6 = "PISTA VAZIA";
+const char* special_7 = "CONTRA CHEFE";	
+#endif
 
 struct MenuRow menuRows[9] =
 {
@@ -80,9 +100,14 @@ int MenuFinished()
 //for some reason when i change the number from 8 to 3 i got 20 extra bytebudget 
 char* countryNames[3] =
 {
-	"BETA GASMOX",
-	"BETA FUZION",
-	"Private server",
+	"Mednafen Peru",
+	"Gasmox USA",
+#ifdef GASMOX_ENG
+    "Private server",
+#elif defined(GASMOX_ES) || defined(GASMOX_BR)
+    "Sala privada",
+#endif
+	
 };
 
 void NewPage_ServerCountry()
@@ -147,6 +172,7 @@ void NewPage_ServerRoom()
 
 	// override "LAPS" "3/5/7"
 	//room names, the names can be translated or rewrite
+	#ifdef GASMOX_ENG
 	sdata->lngStrings[0x9a] = "ROOM 1 - x/8";
 	sdata->lngStrings[0x9b] = "ROOM 2 - x/8";
 	sdata->lngStrings[0x9c] = "ROOM 3 - x/8";
@@ -155,6 +181,18 @@ void NewPage_ServerRoom()
 	sdata->lngStrings[0x9f] = "ROOM 6 - x/8";
 	sdata->lngStrings[0xa0] = "ROOM 7 - x/8";
 	sdata->lngStrings[0xa1] = "ROOM 8 - x/8";
+	#elif defined(GASMOX_ES) || defined(GASMOX_BR)
+	sdata->lngStrings[0x9a] = "SALA 1 - x/8";
+	sdata->lngStrings[0x9b] = "SALA 2 - x/8";
+	sdata->lngStrings[0x9c] = "SALA 3 - x/8";
+	sdata->lngStrings[0x9d] = "SALA 4 - x/8";
+	sdata->lngStrings[0x9e] = "SALA 5 - x/8";
+	sdata->lngStrings[0x9f] = "SALA 6 - x/8";
+	sdata->lngStrings[0xa0] = "SALA 7 - x/8";
+	sdata->lngStrings[0xa1] = "SALA 8 - x/8";	
+		
+	
+	#endif
 
 	int pn = octr->PageNumber;
 
@@ -319,15 +357,34 @@ void NewPage_Engine()
 {
     int i;
 
-    
+    #ifdef GASMOX_ENG
     sdata->lngStrings[0x9a] = "BALANCED";
-    sdata->lngStrings[0x9b] = "ACCEL";
+    sdata->lngStrings[0x9b] = "ACCELERATION";
     sdata->lngStrings[0x9c] = "SPEED";
     sdata->lngStrings[0x9d] = "TURNING";
     sdata->lngStrings[0x9e] = "UNLIMITED";
     sdata->lngStrings[0x9f] = "ONLINE STATS";
-    sdata->lngStrings[0xa0] = "-";
+	sdata->lngStrings[0xa0] = "-";
     sdata->lngStrings[0xa1] = "-";
+	#elif defined(GASMOX_ES)
+	sdata->lngStrings[0x9a] = "BALANCEADO";
+    sdata->lngStrings[0x9b] = "ACELERACION";
+    sdata->lngStrings[0x9c] = "VELOCIDAD";
+    sdata->lngStrings[0x9d] = "GIRO";
+    sdata->lngStrings[0x9e] = "MAXIMO";
+    sdata->lngStrings[0x9f] = "ONLINE STATS";
+    sdata->lngStrings[0xa0] = "-";
+    sdata->lngStrings[0xa1] = "-";	
+	#elif defined(GASMOX_BR)
+	sdata->lngStrings[0x9a] = "EQUILIBRADO";
+    sdata->lngStrings[0x9b] = "ACELERACAO";
+    sdata->lngStrings[0x9c] = "VELOCIDADE";
+    sdata->lngStrings[0x9d] = "CURVA";
+    sdata->lngStrings[0x9e] = "MAXIMIZADO";
+    sdata->lngStrings[0x9f] = "PADRAO OCTR";	
+	sdata->lngStrings[0xa0] = "-";
+    sdata->lngStrings[0xa1] = "-";
+	#endif
 
     for (i = 0; i < 8; i++)
     {
@@ -346,7 +403,7 @@ void MenuWrites_Engine()
     pageMax = 0;
 
 
-    OnPressX_SetPtr = &octr->enginetype[octr->DriverID];          
+    OnPressX_SetPtr = &octr->enginetype[0];          
     OnPressX_SetLock = &octr->boolLockedInEnginee[octr->DriverID];  
 }
 int pressedX = 0;
@@ -409,7 +466,7 @@ void PrintCharacterStats()
 	int i;
 	int color;
 
-//special events text when you are in a room, to enable this delete #if 0 and #endif
+//special events text when you are in a room
 //for the special events logic search octr special in cl_main.c
 
 char* special_titles[] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7 };
@@ -433,6 +490,7 @@ if (octr->special >= 0 && octr->special < 8) {
 		countryNames[octr->serverCountry],
 		0x10, 0x10, FONT_SMALL, 0);
 //i think this is the room name in the top left of the screen
+#ifdef GASMOX_ENG
 	char* roomName = "ROOM x";
 	roomName[5] = GetRoomChar(octr->serverRoom+1);
 
@@ -454,6 +512,54 @@ if (octr->special >= 0 && octr->special < 8) {
 	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
 
 	int h = 0;
+
+#elif defined(GASMOX_ES)
+	char* roomName = "SALA x";
+	roomName[5] = GetRoomChar(octr->serverRoom+1);
+
+	DecalFont_DrawLine(
+		roomName,
+		0x10, 0x18, FONT_SMALL, 0);
+
+
+
+	int numDead = 0;
+	for(i = 0; i < octr->NumDrivers; i++)
+		if(octr->nameBuffer[i][0] == 0)
+			numDead++;
+
+	int posX;
+
+	posX = 0x110;
+	sprintf(message, "JUGADORES: %d/8", (octr->NumDrivers-numDead));
+	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
+
+	int h = 0;
+
+#elif defined(GASMOX_BR)
+	char* roomName = "SALA x";
+	roomName[5] = GetRoomChar(octr->serverRoom+1);
+
+	DecalFont_DrawLine(
+		roomName,
+		0x10, 0x18, FONT_SMALL, 0);
+
+
+
+	int numDead = 0;
+	for(i = 0; i < octr->NumDrivers; i++)
+		if(octr->nameBuffer[i][0] == 0)
+			numDead++;
+
+	int posX;
+
+	posX = 0x110;
+	sprintf(message, "JOGADORES: %d/8", (octr->NumDrivers-numDead));
+	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
+
+	int h = 0;
+#endif
+
 
 	// UI-test
 	// octr->NumDrivers = 8;
@@ -499,10 +605,22 @@ if (octr->special >= 0 && octr->special < 8) {
 
 	posX = 0x11E;
 	int posY = 0xB3;
+#ifdef GASMOX_ENG
 	DecalFont_DrawLine("gasmoxian is a fanmade",posX,posY,FONT_SMALL,0);
 	DecalFont_DrawLine("version of onlinectr,pls",posX-0x8,posY+0x8,FONT_SMALL,0);
 	DecalFont_DrawLine("don't annoy official devs",posX-0x18,posY+0x10,FONT_SMALL,PAPU_YELLOW);
-}
+#elif defined(GASMOX_ES)
+	DecalFont_DrawLine("gasmoxian es una version",posX,posY,FONT_SMALL,0);
+	DecalFont_DrawLine("hecha por fans,no molestes",posX-0x8,posY+0x8,FONT_SMALL,0);
+	DecalFont_DrawLine("a los devs de el oficial",posX-0x18,posY+0x10,FONT_SMALL,PAPU_YELLOW);
+#elif defined(GASMOX_BR)
+DecalFont_DrawLine("essa eh uma versao do",posX,posY,FONT_SMALL,0);
+DecalFont_DrawLine("octr da comunidade, nao",posX-0x8,posY+0x8,FONT_SMALL,0);
+DecalFont_DrawLine("incomode os devs oficiais",posX-0x18,posY+0x10,FONT_SMALL,PAPU_YELLOW); 
+
+#endif
+	}
+	
 
 char* onlineLapString = "Laps: 000\0";
 void PrintRecvTrack()

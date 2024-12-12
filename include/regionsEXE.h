@@ -199,6 +199,7 @@ struct MetaDataCHAR
 	// Can be 0,1,2,3,(4 for max, in pal)
 	// changes engine sound
 	int engineID;
+	
 };
 
 // always starts at address 0x80010000,

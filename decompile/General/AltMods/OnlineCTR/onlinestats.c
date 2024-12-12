@@ -1,7 +1,9 @@
 #include "global.h"
 void StatsUpgrade(struct Driver* driver)
 {
-    if (octr->enginetype[driver->driverID] == 5)
+	unsigned char driverID = driver->driverID;
+	
+    if (octr->enginetype[driverID] == 5)
     {
         /*
             Stat 9 is acceleration,

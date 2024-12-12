@@ -1,15 +1,13 @@
 #include <common.h>
 #include "global.h"
 
-
-extern int bestCourseIndex;
-extern int bestLapIndex;
-
+int bestCourseIndex;
+int bestLapIndex;
 
 void UpdateBestTimes()
 {
-    int bestCourse = HOURS(10);
-    int bestLap = MINUTES(60);
+    int bestCourse = HOURS(1);
+    int bestLap = MINUTES(10);
     for (int i = 0; i < octr->NumDrivers; i++)
     {
         int index = octr->raceStats[i].slot;

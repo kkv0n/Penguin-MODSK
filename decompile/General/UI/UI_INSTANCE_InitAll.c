@@ -46,7 +46,7 @@ void DECOMP_UI_INSTANCE_InitAll(void)
 	  return;
     }
 
-    if ((gameMode1 & (RELIC_RACE | ADVENTURE_ARENA | TIME_TRIAL)) != 0)
+    if ((gameMode1 & (RELIC_RACE | ADVENTURE_ARENA)) != 0)
 	{
 
 // Mistake? Why would this happen if there's no icons in these modes?

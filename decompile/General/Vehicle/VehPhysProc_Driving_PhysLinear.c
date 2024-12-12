@@ -985,10 +985,20 @@ CheckJumpButtons:
 				{
 					driver->actionsFlagSet = uVar20;
 
-					// fire level, depending on numWumpa
+					// fire level, depending on numWumpa & driverRank
+					if (driver->driverRank != 0) {
+					superEngineFireLevel = 0x200;
+					if (driver->numWumpas > 9)
+						superEngineFireLevel = 0x400;
+					}
+					else
+					{
 					superEngineFireLevel = 0x80;
 					if (driver->numWumpas > 9)
 						superEngineFireLevel = 0x100;
+						
+					}
+					
 
 					// add 0.12s reserves
 					DECOMP_VehFire_Increment(driver, 120, (TURBO_PAD | SUPER_ENGINE), superEngineFireLevel);

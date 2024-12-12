@@ -1,12 +1,10 @@
 #include <common.h>
 #include "global.h"
 
-// forward declaration
+
 extern int bestCourseIndex;
 extern int bestLapIndex;
-
-// forward declaration
-void UpdateBestTimes();
+extern void UpdateBestTimes();
 
 void EndOfRace_Icons()
 {

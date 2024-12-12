@@ -2,13 +2,8 @@
 #include "global.h"
 
 int currCam;
-int bestCourseIndex;
-int bestLapIndex;
 
-// forward declaration
-void SetNextCamera(bool increase);
-
- void SetNextCamera(bool increase)
+void SetNextCamera(bool increase)
 {
 	int driverCount = octr->NumDrivers;
 	while (true)

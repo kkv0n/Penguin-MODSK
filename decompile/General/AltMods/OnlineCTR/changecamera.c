@@ -2,7 +2,7 @@
 #include "global.h"
 
 extern int currCam;
-void SetNextCamera(bool increase);
+extern void SetNextCamera(bool increase);
 extern void spec_text();
 extern int shouldExecuteSpecText;
 

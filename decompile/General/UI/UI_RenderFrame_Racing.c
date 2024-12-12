@@ -122,7 +122,7 @@ void DECOMP_UI_RenderFrame_Racing()
 
 	// If you are not in Relic Race, and not in battle mode,
 	// and not in time trial
-	if ((gameMode1 & (RELIC_RACE | TIME_TRIAL | BATTLE_MODE)) == 0)
+	if ((gameMode1 & (RELIC_RACE | BATTLE_MODE)) == 0)
 	{
 // cant run on PC yet, drivers dont initialize
 #ifndef REBUILD_PC

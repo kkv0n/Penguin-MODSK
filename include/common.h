@@ -23,6 +23,9 @@
 
 #ifdef USE_ONLINE
 //#define USE_60FPS
+//#define GASMOX_ES
+#define GASMOX_BR
+//#define GASMOX_ENG
 #define USE_BOOSTBAR
 #define USE_16BY9
 #define USE_RAMEX

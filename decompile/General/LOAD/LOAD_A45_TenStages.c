@@ -209,7 +209,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			}
 			
 			// if relic, or time trial
-			if((gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0)
+			if((gGT->gameMode1 & (RELIC_RACE)) != 0)
 			{
 				sdata->levelLOD = 8;
 			}

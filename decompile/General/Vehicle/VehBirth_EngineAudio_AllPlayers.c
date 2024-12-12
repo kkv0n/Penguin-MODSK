@@ -22,17 +22,20 @@ void DECOMP_VehBirth_EngineAudio_AllPlayers(void)
 	
     u_char driverID = d->driverID;
 	//change engine sound per enginetype
+	
 int engine;
-if (octr->enginetype[driverID] < 5){
-		engine = data.MetaDataCharacters
+
+if (octr->enginetype[driverID] <= 3){
+	engine = data.MetaDataCharacters
 	[data.characterIDs[driverID]].engineID = octr->enginetype[driverID];
 
 
 }
 else
-{
-			 engine = data.MetaDataCharacters
-		[data.characterIDs[driverID]].engineID;
+{					
+// client.exe sets the OG engine for each character	 
+	 engine = data.MetaDataCharacters
+	[data.characterIDs[driverID]].engineID = octr->OGengine[driverID]; 
 }
 
 

@@ -2,7 +2,7 @@
 #include "global.h"
 
 extern unsigned int checkpointTimes[(MAX_LAPS * CPS_PER_LAP) + 1];
-
+CheckpointTracker checkpointTracker[MAX_NUM_PLAYERS];
 extern void ElapsedTimeToTotalTime(TotalTime * totalTime, int elapsedTime);
 
 void UpdateCheckpointTracker(int driverID)
@@ -28,27 +28,40 @@ void UpdateCheckpointTracker(int driverID)
 		int cpIndex = cp % CPS_PER_LAP;
 		if (progress < trackPoints[cpIndex] && progress > trackPoints[cpIndex + 1])
 		{
-			TotalTime tt;
+		TotalTime tt;
 			if (checkpointTimes[cp] == 0)
 			{
 				checkpointTimes[cp] = driver->timeElapsedInRace;
 				ElapsedTimeToTotalTime(&tt, driver->timeElapsedInRace);
-				tt.minutes = min(tt.minutes, 120);
 				tt.miliseconds /= 10;
-				sprintf(checkpointTracker[driverID].displayTime, "%d:%02d.%02d", tt.minutes, tt.seconds, tt.miliseconds);
+				if (tt.hours > 0)
+				{
+				sprintf(checkpointTracker[driverID].displayTime, "%d:%02d:%02d.%d", tt.hours, tt.minutes, tt.seconds, tt.miliseconds);
+				}
+				else
+				{
+				 if (tt.minutes > 9)
+				 {
+				 sprintf(checkpointTracker[driverID].displayTime, "%02d:%02d.%02d", tt.minutes, tt.seconds, tt.miliseconds);
+				 }
+				 else
+				 {
+		         sprintf(checkpointTracker[driverID].displayTime, "%d:%02d.%02d", tt.minutes, tt.seconds, tt.miliseconds);
+				 }
+				}
 				checkpointTracker[driverID].drawFlags = PURA_VIOLET;
 			}
 			else
 			{
 				ElapsedTimeToTotalTime(&tt, driver->timeElapsedInRace - checkpointTimes[cp]);
-				tt.minutes = min(tt.minutes, 120);
+				tt.minutes = min(tt.minutes, 9);
 				tt.miliseconds /= 10;
 				sprintf(checkpointTracker[driverID].displayTime, "+%d:%02d.%02d", tt.minutes, tt.seconds, tt.miliseconds);
 				checkpointTracker[driverID].drawFlags = PAPU_YELLOW;
 			}
 			if (cp == sdata->gGT->numLaps * CPS_PER_LAP)
 			{
-				checkpointTracker[driverID].timer = HOURS(10);
+				checkpointTracker[driverID].timer = HOURS(100);
 				checkpointTracker[driverID].raceFinished = 1;
 			}
 			else { checkpointTracker[driverID].timer = SECONDS(3); }

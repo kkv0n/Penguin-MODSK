@@ -124,6 +124,7 @@ struct OnlineCTR
 	char boolLockedInEnginee[MAX_NUM_PLAYERS];
 	char enginetype[MAX_NUM_PLAYERS];
 	char sendwarpclock[MAX_NUM_PLAYERS];
+	char OGengine[MAX_NUM_PLAYERS];
 
 	// 0x38
 	unsigned char nameBuffer[MAX_NUM_PLAYERS][NAME_LEN + 1]; //+1 for nullterm

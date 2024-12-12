@@ -21,7 +21,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 	int modelID;
 //some items logic for online
 #ifdef USE_ONLINE
-	if(d->driverID == 0)
+	if(octr->special != 3 && d->driverID == 0)
 	{
 		octr->Shoot[0].boolJuiced = 0;
 		if(d->numWumpas >= 10) octr->Shoot[0].boolJuiced = 1;
@@ -592,20 +592,28 @@ RunMineCOLL:
 				struct Driver* victim = *dptr;
 
 				if(victim == 0) continue;
-				//if someone uses a clock then delete items of victims
-                victim->heldItemID = 0xf;
+				
+				iconclock;
 				
 				if(victim == d) continue;
 
-                if (victim->driverRank != 7)
+//dont affect the last player
+int lastdriver = octr->NumDrivers - 1;
+
+                if (victim->driverRank != lastdriver)
 				{
 				// if spin out driver
 				if(RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0)
 				{
 					
-					victim->clockReceive = hurtVal;
+			    victim->clockReceive = hurtVal;
+				//if someone uses a clock then delete items of victims
+				victim->heldItemID = 15;
+				victim->numHeldItems = 0;
+				
 				}
 				}
+
 			}
 			break;
 
@@ -741,9 +749,9 @@ RunMineCOLL:
 		// Super Engine
 		case 0xd: {
 
-			int engine = 0x1e00;
+			int engine = 0x3c00;
 			if(d->numWumpas >= 10)
-				engine = 0x2d00;
+				engine = 0x7530;
 
 			d->superEngineTimer = engine;
 			} break;

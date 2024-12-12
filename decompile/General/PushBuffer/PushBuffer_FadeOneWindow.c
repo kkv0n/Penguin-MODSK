@@ -13,7 +13,7 @@ int posX = 183;
 int posY = 80;
 
 
-int scale = 0x3000; 
+int scale = 0x2500; 
 
 
 DECOMP_DecalHUD_DrawWeapon(

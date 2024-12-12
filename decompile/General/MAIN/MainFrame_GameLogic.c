@@ -45,10 +45,17 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker* gGT, struct GamepadSystem* g
 		if (octr->CurrState <= LOBBY_WAIT_FOR_LOADING) {
 			psVar9->clockReceive = 0;
 		}
-	//use clock icon instead of clock effect
+	
+	int lastdriver = octr->NumDrivers - 1;
+	
+	//dont affect last player
+	if (psVar9->driverRank != lastdriver) {
+		
+		//use clock icon instead of clock effect
 if (psVar9->clockReceive != 0) {
 	iconclock();
 }
+	}
     if (psVar9->clockReceive == 0) {
         if (psVar9->clockSend == 0) {
             if ((gGT->clockEffectEnabled & 1) == 0) goto LAB_80034e74; 
@@ -74,7 +81,7 @@ if (psVar9->clockReceive != 0) {
 #endif
 				
 LAB_80034e74:
-			pushBuffer = pushBuffer + 1;
+			//pushBuffer = pushBuffer + 1;
 
 			#ifdef USE_ONLINE
 			break;

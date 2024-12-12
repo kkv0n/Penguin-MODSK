@@ -44,14 +44,11 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
   // {0, 0x42e, 2, 14640, 15020, 15400, 14450}
   // {0, 0x42c, 2, 13140, 13520, 13900, 12950}
   // subtraction = 1500
-    int netSpeedStat = (((driver->const_AccelSpeed_ClassStat - driver->const_Speed_ClassStat) * 0x1000) / 5) - 1;
-
+  int netSpeedStat = (((driver->const_AccelSpeed_ClassStat - driver->const_Speed_ClassStat) * 0x1000) / 5) - 1;
 
   #endif
 
-
-
-speedAdditional = ((netWumpaFruitCount * netSpeedStat) / 10) + ((turboMultiplier * netSpeedStat) >> 12);		
+  speedAdditional = ((netWumpaFruitCount * netSpeedStat) / 10) + ((turboMultiplier * netSpeedStat) >> 12);		
 
 
   if ((driver->actionsFlagSet & 0x800000) != 0)

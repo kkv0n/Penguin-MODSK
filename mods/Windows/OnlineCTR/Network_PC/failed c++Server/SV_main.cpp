@@ -4,6 +4,7 @@
 #include <windows.h>
 #endif
 
+
 #include <stdio.h>
 #include <enet/enet.h>
 #include "malloc.h"
@@ -26,14 +27,80 @@
 #define CLOCKS_PER_SEC_FIX ((clock_t)100000) // Original value (1000000), I removed one zero
 #endif
 
-
-
+struct LoosePeerList;
+struct LoosePeerList {
+	ENetPeer* peer;
+	struct LoosePeerList* next;
+};
+struct LoosePeerList* lplHead = NULL;
 //SV_helper.c forward decls
 void PrintTime();
 //int GetWeekDay(); //not used currently
-void AddPeerLPL(ENetPeer* peer);
-int RemovePeerLPL(ENetPeer* peer);
-int ForeachPeerLPL(void (*lambda)(ENetPeer*));
+void AddPeerLPL(ENetPeer* peer)
+{
+	if (lplHead == NULL)
+	{
+		lplHead = (struct LoosePeerList*)malloc(sizeof(struct LoosePeerList));
+		lplHead->next = NULL;
+		lplHead->peer = peer;
+	}
+	else
+	{
+		struct LoosePeerList* c = lplHead;
+		while (c->next != NULL)
+			c = c->next;
+		c->next = (struct LoosePeerList*)malloc(sizeof(struct LoosePeerList));
+		c->next->next = NULL;
+		c->next->peer = peer;
+	}
+}
+int RemovePeerLPL(ENetPeer* peer)
+{
+	int didFree = 0;
+	struct LoosePeerList* c = lplHead, * prev = NULL;
+	while (c != NULL)
+	{
+		if (c->peer == peer)
+		{
+			if (prev == NULL)
+			{
+				struct LoosePeerList* toFree = c;
+				lplHead = c->next;
+				c = c->next;
+				free(toFree);
+				didFree |= 1;
+			}
+			else
+			{
+				struct LoosePeerList* toFree = c;
+				prev->next = c->next;
+				c = c->next;
+				free(toFree);
+				didFree |= 1;
+			}
+		}
+		else
+		{
+			//i++
+			prev = c;
+			c = c->next;
+		}
+	}
+	return didFree;
+}
+int ForeachPeerLPL(void (*lambda)(ENetPeer*))
+{
+	int count = 0;
+	struct LoosePeerList* c = lplHead;
+	while (c != NULL)
+	{
+		count++;
+		(*lambda)(c->peer);
+		c = c->next;
+	}
+	return count;
+}
+
 
 typedef struct {
 	ENetPeer* peer;
@@ -48,6 +115,7 @@ typedef struct {
 
 } PeerInfo;
 
+
 typedef struct
 {
 	PeerInfo peerInfos[MAX_CLIENTS];
@@ -60,15 +128,15 @@ typedef struct
 	char boolLoadAll;
 	char boolRaceAll;
 	char boolEndAll;
-	char timer;                     //bool to tell the client if the timer should be active or not (just for avoid server crashing)
-	char allplayersfinished;      //bool that gets activated when all players finished
-	int timeLimit;               //desired seconds
-    int endTime;              //timer
-	double currentTime; // timer
-	double elapsedTime; // timer
-	char requiredPlayersToFinish; //required players to finish
-	char finishedCount; //players finished
-	char activePlayers; // players who are not disconnected
+	char timer;
+	char allplayersfinished;
+	int timeLimit;
+	int endTime;
+	double currentTime;
+	double elapsedTime;
+	char requiredPlayersToFinish;
+	char finishedCount;
+	char activePlayers;
 
 } RoomInfo;
 
@@ -84,25 +152,22 @@ void PrintPrefix(const int roomId)
 	PrintTime();
 	if (roomId != -1) {
 		printf(" | Room %d] ", roomId);
-	} else {
+	}
+	else {
 		printf(" | General] ");
 	}
 }
-// use this instead of the ugly and imprecise clock();
-//works on linux
-double finishclock() {
-	//windows
+double getTimeInSeconds() {
 #ifdef __WINDOWS__
 	LARGE_INTEGER frequency;
 	LARGE_INTEGER currentTime;
-	QueryPerformanceFrequency(&frequency);    
-	QueryPerformanceCounter(&currentTime);    
-	return (double)currentTime.QuadPart / frequency.QuadPart; 
-//linux	
+	QueryPerformanceFrequency(&frequency);    // Frecuencia del contador
+	QueryPerformanceCounter(&currentTime);    // Valor actual del contador
+	return static_cast<double>(currentTime.QuadPart) / frequency.QuadPart;
 #else
 	struct timeval tv;
-	gettimeofday(&tv, NULL);  
-	return tv.tv_sec + tv.tv_usec / 1e6;  
+	gettimeofday(&tv, NULL);  // Obtener tiempo en microsegundos
+	return tv.tv_sec + tv.tv_usec / 1e6;  // Convertir a segundos
 #endif
 }
 // similar to enet_host_broadcast
@@ -110,7 +175,7 @@ void broadcastToPeersUnreliable(RoomInfo* ri, const void* data, size_t size)
 {
 	ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNSEQUENCED);
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for (int i = 0; i < MAX_CLIENTS; i++)
 	{
 		ENetPeer* currentPeer = ri->peerInfos[i].peer;
 
@@ -167,7 +232,7 @@ void SendRoomData(ENetPeer* peer)
 	mr.version = GASMOXIAN_VER;
 
 
-// Turn 1-7 inro 9-15
+	// Turn 1-7 inro 9-15
 #define SETUP(x, index) \
 	x = roomCount[index]; \
 	if (roomInfos[index].boolRoomLocked) \
@@ -180,28 +245,28 @@ void SendRoomData(ENetPeer* peer)
 	int roomCount[16];
 	memset(&roomCount[0], 0, sizeof(roomCount));
 
-	for(int i = 0; i < 16; i++)
-		for(int j = 0; j < 8; j++)
+	for (int i = 0; i < 16; i++)
+		for (int j = 0; j < 8; j++)
 			if (roomInfos[i].peerInfos[j].peer != 0)
 				roomCount[i]++;
 
 
-SETUP(mr.numClients01, 0x0);
-SETUP(mr.numClients02, 0x1);
-SETUP(mr.numClients03, 0x2);
-SETUP(mr.numClients04, 0x3);
-SETUP(mr.numClients05, 0x4);
-SETUP(mr.numClients06, 0x5);
-SETUP(mr.numClients07, 0x6);
-SETUP(mr.numClients08, 0x7);
-SETUP(mr.numClients09, 0x8);
-SETUP(mr.numClients10, 0x9);
-SETUP(mr.numClients11, 0xa);
-SETUP(mr.numClients12, 0xb);
-SETUP(mr.numClients13, 0xc);
-SETUP(mr.numClients14, 0xd);
-SETUP(mr.numClients15, 0xe);
-SETUP(mr.numClients16, 0xf);
+	SETUP(mr.numClients01, 0x0);
+	SETUP(mr.numClients02, 0x1);
+	SETUP(mr.numClients03, 0x2);
+	SETUP(mr.numClients04, 0x3);
+	SETUP(mr.numClients05, 0x4);
+	SETUP(mr.numClients06, 0x5);
+	SETUP(mr.numClients07, 0x6);
+	SETUP(mr.numClients08, 0x7);
+	SETUP(mr.numClients09, 0x8);
+	SETUP(mr.numClients10, 0x9);
+	SETUP(mr.numClients11, 0xa);
+	SETUP(mr.numClients12, 0xb);
+	SETUP(mr.numClients13, 0xc);
+	SETUP(mr.numClients14, 0xd);
+	SETUP(mr.numClients15, 0xe);
+	SETUP(mr.numClients16, 0xf);
 
 	sendToPeerReliable(peer, &mr, sizeof(struct SG_MessageRooms));
 }
@@ -260,7 +325,7 @@ void ProcessDisconnectEvent(ENetPeer* peer)
 	// alive in the for-loop that is about to be nullified
 	numAlive -= 1;
 	int didRemove = RemovePeerLPL(peer);
-	PrintPrefix((((unsigned int)ri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1);
+	PrintPrefix(((ri - roomInfos) / sizeof(RoomInfo)) + 1);
 	if (!didRemove)
 		printf("Player %s (%d) disconnected from room, and yet LPL did not contain them, how did they avoid being added to LPL?\n",
 			&ri->peerInfos[peerID].name[0],
@@ -274,10 +339,11 @@ void ProcessDisconnectEvent(ENetPeer* peer)
 	//race is in session and (1 or less players AND non-race map)
 	int oneOrLessOrNonRaceMap = (ri->boolRaceAll == 1) && ((numAlive <= 1) && (ri->levelPlayed > 18));
 	// Kill lobby under either of these conditions
-	int killLobby = noneAlive || oneOrLessOrNonRaceMap;
+	int killLobby = noneAlive | oneOrLessOrNonRaceMap;
 	if (killLobby)
 	{
-		PrintPrefix((((unsigned int)ri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1);
+		PrintPrefix(((ri - &roomInfos[0]) / sizeof(RoomInfo)) + 1);
+
 		if (noneAlive)
 			printf("Room has been killed as no players are left\n");
 		else if (oneOrLessOrNonRaceMap)
@@ -359,7 +425,7 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 	//identify which client ID this came from
 	GetDriverFromRace(peer, &ri, &peerID);
 
-	struct CG_Header* recvBuf = packet->data;
+	struct CG_Header* recvBuf = (struct CG_Header*)packet->data;
 	char sgBuffer[16];
 	memset(sgBuffer, 0, sizeof(sgBuffer));
 
@@ -374,7 +440,7 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 	{
 	case CG_JOINROOM:
 	{
-		struct CG_MessageRoom* r = recvBuf;
+		struct CG_MessageRoom* r = (struct CG_MessageRoom*)recvBuf;
 
 		// kick if room is invalid
 		if (r->room > 16)
@@ -460,15 +526,15 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 	case CG_NAME:
 	{
-		struct SG_MessageName* s = &sgBuffer[0];
-		struct CG_MessageName* r = recvBuf;
+		struct SG_MessageName* s = reinterpret_cast<struct SG_MessageName*>(&sgBuffer[0]);
+		struct CG_MessageName* r = reinterpret_cast<struct CG_MessageName*>(recvBuf);
 
 		s->numClientsTotal = ri->clientCount;
 
 		// save new name
 		memcpy(&ri->peerInfos[peerID].name[0], &r->name[0], NAME_LEN);
 
-		int roomId = (((unsigned int)ri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1;
+		int roomId = ((ri - roomInfos) / sizeof(RoomInfo)) + 1;
 		PrintPrefix(roomId);
 		printf("Player %d joined room %d and is now identified as %s [%08x]\n",
 
@@ -504,13 +570,12 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 	case CG_TRACK:
 	{
-	
+
 		ri->boolRoomLocked = 1;
 
 
-
-		struct SG_MessageTrack* s = &sgBuffer[0];
-		struct CG_MessageTrack* r = recvBuf;
+		struct SG_MessageTrack* s = reinterpret_cast<struct SG_MessageTrack*>(&sgBuffer[0]);
+		struct CG_MessageTrack* r = reinterpret_cast<struct CG_MessageTrack*>(recvBuf);
 
 
 		s->type = SG_TRACK;
@@ -520,7 +585,8 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 
 
-		PrintPrefix((((unsigned int)ri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1);
+		PrintPrefix(((ri - roomInfos) / sizeof(RoomInfo)) + 1);
+
 		printf("Track #%d and %d laps were selected\n", s->trackID, (2 * s->lapID) + 1);
 
 
@@ -529,11 +595,11 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 		break;
 	}
 	case CG_SPECIAL: {
-		struct SG_MessageSpecial* s = &sgBuffer[0]; 
-		struct CG_MessageSpecial* r = recvBuf;     
+		struct SG_MessageSpecial* s = reinterpret_cast<struct SG_MessageSpecial*>(&sgBuffer[0]);
+		struct CG_MessageSpecial* r = reinterpret_cast<struct CG_MessageSpecial*>(recvBuf);
 
 
-		
+
 		s->type = SG_SPECIAL;
 		s->special = r->special & 0xF;
 
@@ -547,8 +613,8 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 	case CG_CHARACTER:
 	{
-		struct SG_MessageCharacter* s = &sgBuffer[0];
-		struct CG_MessageCharacter* r = recvBuf;
+		struct SG_MessageCharacter* s = reinterpret_cast<struct SG_MessageCharacter*>(&sgBuffer[0]);
+		struct CG_MessageCharacter* r = reinterpret_cast<struct CG_MessageCharacter*>(recvBuf);
 
 
 		s->type = SG_CHARACTER;
@@ -564,18 +630,17 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 	}
 	case CG_ENGINE:
 	{
-
-		struct SG_MessageEngine* s = &sgBuffer[0];  
-		struct CG_MessageEngine* r = recvBuf;         
-
+		struct  SG_MessageEngine* s = reinterpret_cast<struct  SG_MessageEngine*>(&sgBuffer[0]);
+		struct CG_MessageEngine* r = reinterpret_cast<struct CG_MessageEngine*>(recvBuf);
 
 
 
 
-		s->type = SG_ENGINE; 
-		s->clientID = peerID;           
-		s->enginetype = r->enginetype;   
-		s->boolLockedIn = r->boolLockedIn; 
+
+		s->type = SG_ENGINE;
+		s->clientID = peerID;
+		s->enginetype = r->enginetype;
+		s->boolLockedIn = r->boolLockedIn;
 
 
 		//idk if this is needed but i dont want more headaches.
@@ -585,7 +650,7 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 		ri->peerInfos[peerID].boolLoadSelf = s->boolLockedIn;
 
 
-	
+
 		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageEngine));
 
 		break;
@@ -597,7 +662,7 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 #if 0
 		printf("Ready to Race: %d\n", peerID);
 #endif
-	
+
 
 		ri->peerInfos[peerID].boolRaceSelf = 1;
 
@@ -606,8 +671,8 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 	case CG_RACEDATA:
 	{
-		struct SG_EverythingKart* s = &sgBuffer[0];
-		struct CG_EverythingKart* r = recvBuf;
+		struct  SG_EverythingKart* s = reinterpret_cast<struct  SG_EverythingKart*>(&sgBuffer[0]);
+		struct CG_EverythingKart* r = reinterpret_cast<struct CG_EverythingKart*>(recvBuf);
 
 		s->type = SG_RACEDATA;
 		s->clientID = peerID;
@@ -628,8 +693,8 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 	case CG_WEAPON:
 	{
-		struct SG_MessageWeapon* s = &sgBuffer[0];
-		struct CG_MessageWeapon* r = recvBuf;
+		struct  SG_MessageWeapon* s = reinterpret_cast<struct  SG_MessageWeapon*>(&sgBuffer[0]);
+		struct  CG_MessageWeapon* r = reinterpret_cast<struct  CG_MessageWeapon*>(recvBuf);
 
 		s->type = SG_WEAPON;
 		s->clientID = peerID;
@@ -637,11 +702,11 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 		s->weapon = r->weapon;
 		s->juiced = r->juiced;
 		s->flags = r->flags;
-		
 
 
 
-		
+
+
 
 		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageWeapon)); //comment this if using the above cheat mitigation
 
@@ -650,13 +715,13 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 	case CG_WARPCLOCK:
 	{
-		struct SG_MessageWarpclock* s = &sgBuffer[0];
-		struct CG_MessageWarpclock* r = recvBuf;
+		struct SG_MessageWarpclock* s = reinterpret_cast<struct  SG_MessageWarpclock*>(&sgBuffer[0]);
+		struct  CG_MessageWarpclock* r = reinterpret_cast<struct  CG_MessageWarpclock*>(recvBuf);
 
 		s->type = SG_WARPCLOCK;
 		s->clientID = r->clientID;
 		s->warpclock = r->warpclock;
-		
+
 		printf("ban orb/clock %d\n", s->warpclock);
 		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageWarpclock));
 
@@ -664,22 +729,22 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 	}
 	case CG_FINISHTIMER:
 	{
-		struct SG_MessageFinishTimer* s = &sgBuffer[0];
-		struct CG_MessageFinishTimer* r = recvBuf;
+		struct  SG_MessageFinishTimer* s = reinterpret_cast<struct  SG_MessageFinishTimer*>(&sgBuffer[0]);
+		struct   CG_MessageFinishTimer* r = reinterpret_cast<struct   CG_MessageFinishTimer*>(recvBuf);
 
 		s->type = SG_FINISHTIMER;
 
-		s ->finishracetimer = r->finishracetimer;
+		s->finishracetimer = r->finishracetimer;
 
-		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageFinishTimer)); 
+		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageFinishTimer));
 
 		break;
 	}
 
 	case CG_ENDRACE:
 	{
-		struct SG_MessageEndRace* s = &sgBuffer[0];
-		struct CG_MessageEndRace* r = recvBuf;
+		struct  SG_MessageEndRace* s = reinterpret_cast<struct SG_MessageEndRace*>(&sgBuffer[0]);
+		struct  CG_MessageEndRace* r = reinterpret_cast<struct  CG_MessageEndRace*>(recvBuf);
 
 		s->type = SG_ENDRACE;
 		s->clientID = peerID;
@@ -706,16 +771,16 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 
 
-			broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageEndRace));
-			break;
-		}
+		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageEndRace));
+		break;
+	}
 
 	default:
 	{
 		break;
 	}
 	}
-	}
+}
 
 void ProcessNewMessages() {
 	ENetEvent event;
@@ -735,7 +800,7 @@ void ProcessNewMessages() {
 
 			ProcessDisconnectEvent(event.peer);
 			break;
-	}
+		}
 
 		enet_packet_destroy(event.packet);
 	}
@@ -758,7 +823,7 @@ int ServerState_FirstBoot(int argc, char** argv)
 	//initialize enet
 	if (enet_initialize() != 0)
 	{
-		printf(stderr, "Failed to initialize ENet!\n");
+		fprintf(stderr, "Failed to initialize ENet!\n");
 		return 1;
 	}
 	atexit(enet_deinitialize);
@@ -905,8 +970,8 @@ void ServerState_Tick()
 				ri->requiredPlayersToFinish = 1; // 1-2 players race
 			}
 
-			if (ri->activePlayers == 1) {    
-			ri->requiredPlayersToFinish = 0;  //avoid using 30 seconds timer in 1 player races
+			if (ri->activePlayers == 1) {
+				ri->requiredPlayersToFinish = 0;  //avoid using 30 seconds timer in 1 player races
 			}
 
 			if (ri->finishedCount == ri->activePlayers && ri->finishedCount != 0) {  //only use this if all players finished the race
@@ -917,12 +982,12 @@ void ServerState_Tick()
 
 			if (ri->allplayersfinished)
 			{
-				
+
 				printf("All players finished\n");
-				ri->timeLimit = (ri->activePlayers == 1) ? 6 : 3; // All players finished the race
+				ri->timeLimit = (ri->activePlayers == 1) ? 6 : 4; // All players finished the race
 				printf("Restarting in %d seconds\n", ri->timeLimit);
-				ri->endTime = finishclock();
-				
+				ri->endTime = getTimeInSeconds();
+
 			}
 		}
 
@@ -936,32 +1001,32 @@ void ServerState_Tick()
 			}
 
 			//if required players to finish already ended the race
-			if (ri->finishedCount == ri->requiredPlayersToFinish && ri->requiredPlayersToFinish != 0) { 
+			if (ri->finishedCount == ri->requiredPlayersToFinish && ri->requiredPlayersToFinish != 0) {
 				printf("Required players finished!\n");
 
 
 
 				ri->timeLimit = 30;
 				printf("Race ends in %d seconds\n", ri->timeLimit);
-				ri->endTime = finishclock();           // start timer
+				ri->endTime = getTimeInSeconds();            // start timer
 				ri->boolEndAll = 1;               // end the race for all
 			}
 
 
-				if (ri->boolEndAll) {
-					PrintPrefix(r + 1);
-					printf("Countdown to finish started, resetting room soon\n");
-					
-				}
+			if (ri->boolEndAll) {
+				PrintPrefix(r + 1);
+				printf("Countdown to finish started, resetting room soon\n");
+
 			}
+		}
 
 
 		else
 		{
 			if (!ri->timer && ri->boolEndAll)
 			{
-
-				ri->currentTime = finishclock();
+				
+				ri->currentTime = getTimeInSeconds();
 
 				//probably ri->elapsedtime is not efficient bc only using ri->currenttime/ri->endtime should be enough
 				//but i leave it like this just in case
@@ -970,45 +1035,45 @@ void ServerState_Tick()
 
 				if (ri->elapsedTime >= ri->timeLimit) {
 					ri->timer = 1;
-
+				
 				}
-				if (ri->timer)
+			if (ri->timer)
+			{
+
+				PrintPrefix(r + 1);
+				printf("Room has been reset\n");
+
+				for (int i = 0; i < MAX_CLIENTS; i++)
 				{
+					if (ri->peerInfos[i].peer == 0)
+						continue;
 
-					PrintPrefix(r + 1);
-					printf("Room has been reset\n");
+					ri->peerInfos[i].boolLoadSelf = 0;
+					ri->peerInfos[i].boolRaceSelf = 0;
+					ri->peerInfos[i].boolEndSelf = 0;
 
-					for (int i = 0; i < MAX_CLIENTS; i++)
-					{
-						if (ri->peerInfos[i].peer == 0)
-							continue;
-
-						ri->peerInfos[i].boolLoadSelf = 0;
-						ri->peerInfos[i].boolRaceSelf = 0;
-						ri->peerInfos[i].boolEndSelf = 0;
-
-						// tell all clients to reset
-						WelcomeNewClient(ri, i);
-					}
-
-					ri->levelPlayed = 0;
-					ri->boolRoomLocked = 0;
-					ri->boolLoadAll = 0;
-					ri->boolRaceAll = 0;
-					ri->boolEndAll = 0;
-					ri->endTime = 0;
-					ri->requiredPlayersToFinish = 0;
-					ri->finishedCount = 0;
-					ri->activePlayers = 0;
-					ri->allplayersfinished = 0;
-					ri->timeLimit = 0;
-					ri->timer = 0;
-					ri->currentTime = 0;
-					ri->elapsedTime = 0;
-
-					ForeachPeerLPL(SendRoomData); //race over, re-notify all clients
-
+					// tell all clients to reset
+					WelcomeNewClient(ri, i);
 				}
+
+				ri->levelPlayed = 0;
+				ri->boolRoomLocked = 0;
+				ri->boolLoadAll = 0;
+				ri->boolRaceAll = 0;
+				ri->boolEndAll = 0;
+				ri->endTime = 0;
+				ri->requiredPlayersToFinish = 0;
+				ri->finishedCount = 0;
+				ri->activePlayers = 0;
+				ri->allplayersfinished = 0;
+				ri->timeLimit = 0;
+				ri->timer = 0;
+				ri->currentTime = 0;
+				ri->elapsedTime = 0;
+
+				ForeachPeerLPL(SendRoomData); //race over, re-notify all clients
+
+			}
 
 			}
 		}
@@ -1021,9 +1086,9 @@ int main(int argc, char** argv)
 
 	while (1)
 	{
-		#ifdef __WINDOWS__
+#ifdef __WINDOWS__
 		void usleep(__int64 usec);
-		#endif
+#endif
 
 		usleep(1);
 		ServerState_Tick();

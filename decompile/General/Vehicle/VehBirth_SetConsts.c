@@ -1,6 +1,6 @@
 #include <common.h>
 extern void moongravity();
-extern void StatsUpgrade(struct Driver* driver);
+extern void StatsUpgrade(driver);
 #ifdef USE_ONLINE
 #include "../AltMods/OnlineCTR/global.h"
 #endif
@@ -20,18 +20,19 @@ void DECOMP_VehBirth_SetConsts(struct Driver* driver)
 #ifdef USE_ONLINE
 
 int engineID;
+
 //engine selection
-if (octr->enginetype[driverID] < 5){
+if (octr->enginetype[driverID] <= 4){
 engineID = octr->enginetype[i];
 
 }
 else
 {
-	engineID = data.MetaDataCharacters
-	[data.characterIDs[driverID]].engineID;
+	//client.exe sets the OG engine for each character
+	engineID = octr->OGengine[driverID];
 	
 	// if online stats are selected
-	 StatsUpgrade(driverID);
+	 StatsUpgrade(driver);
 }
 
 	

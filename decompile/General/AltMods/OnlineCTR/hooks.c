@@ -2,6 +2,7 @@
 #include "global.h"
 extern int shouldExecuteSpecText;
 extern void spec_text();
+extern void finishracetimer();
 int OnlineGetNumDrivers()
 {
 	return octr->NumDrivers;
@@ -177,30 +178,9 @@ void OnlineInit_Drivers(struct GameTracker* gGT)
 
 bool HasRaceEnded()
 {
-    int numPlayersDisconnected = 0;
+ 
 
-    
-    for (int i = 0; i < octr->NumDrivers; i++)
-    {
-        if (octr->nameBuffer[i][0] == 0) {
-            numPlayersDisconnected++;
-        }
-    }
-
-//finishracetimer
-    int activePlayers = octr->NumDrivers - numPlayersDisconnected;
-
-
-    int requiredPlayersToFinish = 0;
-    if (activePlayers >= 4 && activePlayers <= 8) {
-        requiredPlayersToFinish = 3; 
-    } else if (activePlayers == 3) {
-        requiredPlayersToFinish = 2; 
-    }
-else if (activePlayers >= 1 && activePlayers <= 2) {
-	requiredPlayersToFinish = 1;
-}
-    return octr->numDriversEnded >= requiredPlayersToFinish;
+    return octr->finishracetimer > 0 && octr->finishracetimer <= 6;
 }
 
 
@@ -211,27 +191,30 @@ extern int currCam; //from endOfRaceUI.c
 void OnlineEndOfRace()
 {
 	struct Driver * driver = sdata->gGT->drivers[0];
+
 	if (((driver->actionsFlagSet & 0x2000000) == 0) ||
 		(octr->CurrState < GAME_START_RACE)) { return; }
-		
 
-	if (octr->CurrState != GAME_END_RACE)
+	if (octr->CurrState != GAME_END_RACE) //this must be out first frame here.
 	{
 		currCam = 0;
 		sdata->gGT->cameraDC[0].driverToFollow = sdata->gGT->drivers[currCam];
 	}
-
+		
 	octr->CurrState = GAME_END_RACE;
-
+	
+	finishracetimer();
 	EndOfRace_Camera();
 	EndOfRace_Icons();
 
 
 	if (HasRaceEnded())
 	{
+
 shouldExecuteSpecText = 0;
-EndOfRace_Camera();
+
 	}
+
 }
 
 void Online_OtherFX_RecycleNew(

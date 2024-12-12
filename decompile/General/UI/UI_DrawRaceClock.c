@@ -249,13 +249,13 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	if ((driver->driverID == 0) && (driver->lapIndex > 0))
 	{
 		ElapsedTimeToTotalTime(&tt, driver->bestLapTime);
-		tt.minutes = min(tt.minutes, 60);
+		tt.minutes = min(tt.minutes, 9);
 		sprintf(displayTime, "%d:%02d.%03d", tt.minutes, tt.seconds, tt.miliseconds);
 		DECOMP_DecalFont_DrawLine("BEST: ", posX, textPosY + 0x18, FONT_SMALL, SILVER);
 		DECOMP_DecalFont_DrawLine(displayTime, posX + data.font_charPixWidth[FONT_SMALL] * 5, textPosY + 0x18, FONT_SMALL, PERIWINKLE);
 
 		ElapsedTimeToTotalTime(&tt, driver->currLapTime);
-		tt.minutes = min(tt.minutes, 60);
+		tt.minutes = min(tt.minutes, 9);
 		sprintf(displayTime, "%d:%02d.%03d", tt.minutes, tt.seconds, tt.miliseconds);
 		DECOMP_DecalFont_DrawLine("LAST: ", posX, textPosY + 0x18 + 8, FONT_SMALL, PAPU_YELLOW);
 		DECOMP_DecalFont_DrawLine(displayTime, posX + data.font_charPixWidth[FONT_SMALL] * 5, textPosY + 0x18 + 8, FONT_SMALL, PERIWINKLE);

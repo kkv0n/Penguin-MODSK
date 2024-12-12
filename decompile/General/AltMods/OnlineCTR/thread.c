@@ -30,6 +30,7 @@ RECT endRaceRECT =
 
 void ThreadFunc(struct Thread* t)
 {
+	
 	int isIdle = 0;
 
 	struct GameTracker* gGT = sdata->gGT;
@@ -161,16 +162,19 @@ void ThreadFunc(struct Thread* t)
 		
 		
 	    //if not in race then erase driving function
+		
         for (int loop = 0; loop < 0xd; loop++)
         {
             gGT->drivers[0]->funcPtrs[loop] = 0;
         }
+		
         //if not in race then disable all HUD flags
         gGT->hudFlags = 0;
 		
 		void PrintTimeStamp();
 		PrintTimeStamp();
         lobbysquare();
+		
 		
 //delete this later -penta3
 //i forgot it XD

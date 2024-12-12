@@ -8,6 +8,26 @@ extern int shouldExecuteSpecText;
 unsigned int afk = 80;
 extern void queuetojoin();
 
+
+//timer to finish the race by penta3
+void finishracetimer() {
+	static unsigned msCount = 0;
+
+		if (octr->finishracetimer > 0)
+	{
+		msCount += sdata->gGT->elapsedTimeMS;
+		if (msCount >= SECONDS(1))
+		{
+			msCount -= SECONDS(1);
+			octr->finishracetimer--;
+		}
+		char msg[10];
+		sprintf(msg, "%u", octr->finishracetimer);
+		DecalFont_DrawLine(msg, 0x100, 0x67 - 11, FONT_BIG, JUSTIFY_CENTER | PLAYER_BLUE);
+	}
+	else { msCount = 0; }
+}
+
 //afk timer by penta3
 void afktimer()
 {
@@ -37,9 +57,19 @@ void afktimer()
 void StatePS1_Launch_EnterPID()
 {
 	//client closed text message
+#ifdef GASMOX_ENG
 	DECOMP_DecalFont_DrawLine(
 		"Attach Windows Client To Continue",
 		0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+#elif defined(GASMOX_ES)
+				DECOMP_DecalFont_DrawLine(
+		"ABRE EL CLIENTE PARA CONTINUAR",
+		0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+#elif defined(GASMOX_BR)
+							DECOMP_DecalFont_DrawLine(
+		"Conecte com o Client para Continuar",
+		0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+#endif
 }
 
 extern char* countryNames[3];
@@ -48,7 +78,7 @@ bool initString = true;
 
 void ShowCharacterIcon(int characterID, int x, int y)
 {
-	if (octr->boolClientBusy)
+	if (octr->boolClientBusy || driver->heldItemID == 0x7 || driver->heldItemID == 0xe || driver->heldItemID == 0x6)
 	{
 		return;
 	}
@@ -72,8 +102,13 @@ void StatePS1_Launch_PickServer()
 		strcpy(sdata->lngStrings[0x4e], "GASMOXIAN");
 		initString = false;
 	}
-
+#ifdef GASMOX_ENG
 DecalFont_DrawLine("WELCOME TO GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+#elif defined(GASMOX_ES)
+DecalFont_DrawLine("BIENVENIDO,GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+#elif defined(GASMOX_BR)
+DecalFont_DrawLine("BEMVINDO AO GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+#endif
 	//print oxide icon
 	ShowCharacterIcon(15, 235, 82);
 
@@ -123,7 +158,14 @@ void ResetPsxGlobals()
 // should rename to EnterRoom
 void StatePS1_Launch_PickRoom()
 {
+#ifdef GASMOX_ENG
 	DecalFont_DrawLine("BY ANZUP AND PENTA3", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+#elif defined(GASMOX_ES)
+	DecalFont_DrawLine("POR ANZUP Y PENTA3", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+#elif defined(GASMOX_BR)
+	DecalFont_DrawLine("POR ANZUP E PENTA3 ", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+#endif
+	DECOMP_DecalFont_DrawLine("THX FARADISE", 25, 178, FONT_SMALL, PAPU_YELLOW);
 	ShowCharacterIcon(15, 120, 16);
 	MenuWrites_ServerRoom();
 
@@ -145,7 +187,13 @@ for (int i = 0; i < 16; i++) {
 }
 
 // Players online counter
+#ifdef GASMOX_ENG
 char text[25] = "Players Online: 000";
+#elif defined(GASMOX_ES)
+char text[25] = "Jugadores actv: 000";
+#elif defined(GASMOX_BR)
+char text[25] = "Jogadores aqui: 000";
+#endif
 text[16] = '0' + ((serverTotal / 100) % 10);
 text[17] = '0' + ((serverTotal / 10) % 10);
 text[18] = '0' + (serverTotal % 10);
@@ -162,8 +210,14 @@ text[18] = '0' + (serverTotal % 10);
 void StatePS1_Launch_Error()
 {
 	char str[32];
+#ifdef GASMOX_ENG
 
 	char* str2 = "PLEASE UPDATE YOUR GAME TO PLAY";
+#elif defined(GASMOX_ES)
+char* str2 = "ACTUALIZA TU JUEGO PARA JUGAR.";
+#elif defined(GASMOX_BR)
+char* str2 = "PLEASE UPDATE YOUR GAME TO PLAY";
+#endif
 	DECOMP_DecalFont_DrawLine(str2,0x100,0x74,FONT_SMALL,JUSTIFY_CENTER);
 
 	sdata->ptrActiveMenu = 0;
@@ -265,6 +319,7 @@ void StatePS1_Lobby_GuestTrackWait()
 	// close menu
 	sdata->ptrActiveMenu = 0;
 //ready to start the race text
+#ifdef GASMOX_ENG
 	DECOMP_DecalFont_DrawLine(
 		"waiting for host",
 		menu.posX_curr,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
@@ -273,6 +328,25 @@ void StatePS1_Lobby_GuestTrackWait()
 		"to pick the track",
 		menu.posX_curr,0x7C,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 		
+#elif defined(GASMOX_ES)
+			DECOMP_DecalFont_DrawLine(
+		"esperando a que el",
+		menu.posX_curr,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+
+	DECOMP_DecalFont_DrawLine(
+		"host elija pista",
+		menu.posX_curr,0x7C,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+		
+#elif defined(GASMOX_BR)
+			DECOMP_DecalFont_DrawLine(
+		"Esperando o lider",
+		menu.posX_curr,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+
+	DECOMP_DecalFont_DrawLine(
+		"escolher a pista",
+		menu.posX_curr,0x7C,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+		
+#endif
 }
 
 void StatePS1_Lobby_CharacterPick()
@@ -392,7 +466,7 @@ void StatePS1_Lobby_StartLoading()
 		else
 		{
 			// for all other tracks
-			gGT->gameMode1 = LOADING | ARCADE_MODE;
+		gGT->gameMode1 = (octr->special == 3) ?  LOADING | TIME_TRIAL : LOADING | ARCADE_MODE;
 		}
 	}
 
@@ -453,10 +527,22 @@ void StatePS1_Game_WaitForRace()
 	posY = 0x46;
 	drawTimeRECT.h = 0;
 //more ui text for rooms
+#ifdef GASMOX_ENG
 	DECOMP_DecalFont_DrawLine(
 		"WAITING FOR PLAYERS...",
 		0x100, posY + drawTimeRECT.h,
 		FONT_SMALL, (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN));
+#elif defined(GASMOX_ES)
+			DECOMP_DecalFont_DrawLine(
+		"ESPERANDO JUGADORES...",
+		0x100, posY + drawTimeRECT.h,
+		FONT_SMALL, (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN));
+#elif defined(GASMOX_BR)
+			DECOMP_DecalFont_DrawLine(
+		"ESPERANDO JOGADORES...",
+		0x100, posY + drawTimeRECT.h,
+		FONT_SMALL, (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN));
+#endif
 
 	// add for each line
 	drawTimeRECT.h += 8;
@@ -478,7 +564,6 @@ void StatePS1_Game_WaitForRace()
 void StatePS1_Game_StartRace()
 {
 	int i;
-static unsigned msCount = 0;
 
 
 	for(i = 1; i < 8; i++)
@@ -529,20 +614,7 @@ static unsigned msCount = 0;
 			}
 		}
 	}
-	//timer to finish the race by penta3
-		if (octr->finishracetimer > 0)
-	{
-		msCount += sdata->gGT->elapsedTimeMS;
-		if (msCount >= SECONDS(1))
-		{
-			msCount -= SECONDS(1);
-			octr->finishracetimer--;
-		}
-		char msg[10];
-		sprintf(msg, "%u", octr->finishracetimer);
-		DecalFont_DrawLine(msg, 0x100, 0x67, FONT_BIG, JUSTIFY_CENTER | CRASH_BLUE);
-	}
-	else { msCount = 0; }
+	finishracetimer();
 }
 
 static void OnRaceEnd()

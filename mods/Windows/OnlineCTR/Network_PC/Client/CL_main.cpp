@@ -41,6 +41,8 @@ std::atomic<bool> lockengineandcharacter(false);
 int prev_warpclock = -1;
 int prev_special = -1;
 int prev_finishtimer = -1;
+bool alreadysended = false;
+
 struct Gamepad
 {
 	short unk_0;
@@ -127,6 +129,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 		{
 			SG_MessageClientStatus* r = reinterpret_cast<SG_MessageClientStatus*>(recvBuf);
 
+
 			octr->DriverID = r->clientID;
 			octr->NumDrivers = r->numClientsTotal;
 
@@ -143,6 +146,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			octr->finishracetimer = 0;
 			octr->warpclock = 0;
 			lockengineandcharacter = false;
+			alreadysended = false;
 			octr->sendwarpclock[octr->DriverID] = false;
 			prev_warpclock = octr->warpclock;
 			prev_special = -1;
@@ -189,8 +193,8 @@ void ProcessReceiveEvent(ENetPacket* packet)
 
 			memcpy(&octr->nameBuffer[slot], &r->name[0], NAME_LEN);
 
-			// handle disconnection
-			if (r->name[0] == 0)
+			// handle disconnection //if not in race all players should hold square to avoid bugs
+			if (r->name[0] == 0 || octr->CurrState < LOBBY_WAIT_FOR_LOADING)
 			{
 				// make this player hold SQUARE
 				Gamepad* gamepad = (Gamepad*)&pBuf[(0x80096804 + (slot * 0x50)) & 0xffffff];
@@ -250,6 +254,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 					prev_special = r->special;
 
 
+					//in the future i will try to replace this with an array
 
 					if (octr->special == 0) {
 
@@ -259,28 +264,35 @@ void ProcessReceiveEvent(ENetPacket* packet)
 						printf("\033[1;36m\n  MODE: 🪞 MIRROR 🪞 \n\033[0m");
 
 					}
-					else if (octr->special == 2) {           //special 2
+					//special 2
+					else if (octr->special == 2) {           
 						printf("\033[1;34m\n MODE: ❄️ ICY TRACKS ❄️ \n\033[0m");
 						// icy tracks cheat
 						*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
 
 					}
-					else if (octr->special == 3) {      //special 3
-						printf("\n MODE: 💥 NO COLLISION 💥 \n");
+					//special 3
+					else if (octr->special == 3) {      
+						printf("\n MODE: 💥 ITEMLESS 💥 \n");
 
 					}
-					else if (octr->special == 4) { //special 4
+					//special 4
+					else if (octr->special == 4) { 
 						printf("\033[1;33m\n MODE: 🌙 MOON 🌙 \n\033[0m");
 					}
-					else if (octr->special == 5) { //special 5
+					//special 5
+					else if (octr->special == 5) { 
 						printf("\033[1;38;5;214m\n MODE: 🔥 RETRO FUELED 🔥 \n\033[0m");
+
 						//superturbo pad cheat
 						*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x100000;
 					}
-					else if (octr->special == 6) { //special 6
+					//special 6
+					else if (octr->special == 6) { 
 						printf("\033[1;35m\n MODE: ✨ VOID WORLD ✨ \n\033[0m");
 					}
-					else if (octr->special == 7) { //special 7
+					//special 7
+					else if (octr->special == 7) { 
 						printf("\033[1;31m\n MODE: 👔 BOSS RACE 👔 \n\033[0m");
 
 
@@ -297,14 +309,25 @@ void ProcessReceiveEvent(ENetPacket* packet)
 
 			unsigned char clientID = r->clientID;
 			unsigned char characterID = r->characterID;
-
-
+			unsigned char ogEngine = r-> characterID;
 			if (clientID == octr->DriverID) break;
 			if (clientID < octr->DriverID) slot = clientID + 1;
 			if (clientID > octr->DriverID) slot = clientID;
 
 			short* characterIDV = (short*)&pBuf[(0x80086e84 + (2 * slot)) & 0xffffff];
 			*characterIDV = characterID;
+
+			//this defines the default engine if enginetype is 4-5, but only for other players.
+			//needed because my code in engineaudio overwrittes the value in zdataglobal ._XD
+			//anyways it is better than only have the default audio
+
+			int desiredengines[] = { 0, 0, 2, 1, 1, 2, 3, 3,
+					  1, 2, 3, 0, 2, 3, 0, 0 };
+
+			ogEngine = desiredengines[r->characterID];
+			octr->OGengine[slot] = ogEngine;
+
+
 			octr->boolLockedInCharacters[clientID] = r->boolLockedIn;
 
 
@@ -322,13 +345,13 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			if (clientID == octr->DriverID) break;
 			if (clientID < octr->DriverID) slot = clientID + 1;
 			if (clientID > octr->DriverID) slot = clientID;
+			
+			//it works i love onlinectr
 
-
+			octr->enginetype[slot] = engineID;
 
 			octr->boolLockedInEnginee[clientID] = r->boolLockedIn;
-			
-			//this garbage is so problematic i hate onlinectr no joke
-			octr->enginetype[slot] = engineID;
+
 
 			
 			break;
@@ -486,7 +509,12 @@ void ProcessReceiveEvent(ENetPacket* packet)
 		case SG_FINISHTIMER:
 		{
 			SG_MessageFinishTimer* r = reinterpret_cast<SG_MessageFinishTimer*>(recvBuf);
-			octr->finishracetimer = r->finishracetimer;  
+			if (r->finishracetimer != prev_finishtimer) {
+				octr->finishracetimer = r->finishracetimer;
+				prev_finishtimer = octr->finishracetimer;
+			}
+			
+
 			break;
 		}
 		case SG_ENDRACE:
@@ -689,7 +717,6 @@ void StatePC_Launch_PickServer()
 	if (sdata_Loading_stage != -1)
 		return;
 
-	if (octr->CurrState < LAUNCH_PICK_ROOM) {
 		if (serverPeer != 0)
 		{
 			//when it dc's it ends up here. Either this is causing the enet dc or the client is bugged to call this function again when it shouldn't
@@ -697,7 +724,7 @@ void StatePC_Launch_PickServer()
 			enet_peer_disconnect_now(serverPeer, 0);
 			serverPeer = 0;
 		}
-	}
+	
 
 	// return now if the server selection hasn't been selected yet
 	if (octr->serverLockIn1 == 0)
@@ -713,18 +740,18 @@ void StatePC_Launch_PickServer()
 		// MEDNAFEN PERU
 		case 0:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "147.185.221.24"); // temp ip for betatesting
+			strcpy_s(dns_string, sizeof(dns_string), "mednafen-peru2.ddns.net"); 
 			enet_address_set_host(&addr, dns_string);
-			addr.port = 17056;
+			addr.port = 12345;
 
 			break;
 		}
 		// GASMOX USA)
 		case 1:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "provided-pharmacy.gl.at.ply.gg"); //temp ip for betatesting
+			strcpy_s(dns_string, sizeof(dns_string), "medicine-kong.gl.at.ply.gg"); 
 			enet_address_set_host(&addr, dns_string);
-			addr.port = 24060;
+			addr.port = 63746;
 
 			break;
 		}
@@ -933,7 +960,7 @@ int countFrame = 0;
 void StatePC_Launch_PickRoom()
 {
 	countFrame++;
-	if (countFrame == 30 * 5) //just in case server's tracking & updating is flawed
+	if (countFrame == 60) //room not updating bug still happens if the number is not 60, i didnt tried 30 anyways
 	{
 		countFrame = 0;
 
@@ -1076,6 +1103,18 @@ void StatePC_Lobby_CharacterPick()
 		sendToHostReliable(&mc, sizeof(CG_MessageCharacter));
 	}
 
+	//this defines the default engine if enginetype is 4-5, but only for your player [0].
+//needed because my code in engineaudio overwrittes the value in zdataglobal ._XD
+//anyways it is better than only have the default audio
+
+	unsigned char ogEngine = mc.characterID;
+
+	int desiredengines[] = { 0, 0, 2, 1, 1, 2, 3, 3,
+		  1, 2, 3, 0, 2, 3, 0, 0 };
+
+	ogEngine = desiredengines[mc.characterID];
+	octr->OGengine[0] = ogEngine;
+
 	if (mc.boolLockedIn== 0)
 	{
      lockengineandcharacter = true;
@@ -1193,16 +1232,55 @@ void SendEverything()
 
 		w.type = CG_WEAPON;
 		w.weapon = octr->Shoot[0].Weapon;
-
 		w.juiced = octr->Shoot[0].boolJuiced;
 		w.flags = octr->Shoot[0].flags;
 
 		sendToHostReliable(&w, sizeof(CG_MessageWeapon));
 	}
+}
+
+void StatePC_Game_WaitForRace()
+{
+	int gGT_gameMode1 = *(int*)&pBuf[(0x80096b20 + 0x0) & 0xffffff];
+	
+	if (
+		// only send once
+		(!boolAlreadySent_StartRace) &&
+
+		// after camera fly-in is done
+		((gGT_gameMode1 & 0x40) == 0)
+		)
+	{
+		StopAnimation();
+		printf("Client: Gasmoxian race in progress...  ");
+		boolAlreadySent_StartRace = 1;
+
+		CG_Header cg = { 0 };
+		cg.type = CG_STARTRACE;
+
+		sendToHostReliable(&cg, sizeof(CG_Header));
+	}
+
+	SendEverything();
+}
+int requiredPlayers = 0;
+int disconnectedPlayers = 0;
+int activePlayers = 0;
+
+void StatePC_Game_StartRace()
+{
+	SendEverything();
+
+
+
+
+
+
+
 
 	//stop orb/clock spam
 // this one was very problematic to make it possible so i dont want to touch this NEVER again
-	//feel free to laught about the useless code on it
+	//probably an simple boolean instead of octr is enough
 	if (!octr->sendwarpclock[octr->DriverID] && warpclockdelay == 0) {
 
 		if (octr->warpclock != prev_warpclock) {
@@ -1211,7 +1289,6 @@ void SendEverything()
 			w.warpclock = octr->warpclock;
 
 			sendToHostReliable(&w, sizeof(CG_MessageWarpclock));
-
 
 			octr->sendwarpclock[octr->DriverID] = true;
 
@@ -1225,7 +1302,7 @@ void SendEverything()
 
 	//set banned time for orb/clock
 	if (octr->sendwarpclock[octr->DriverID]) {
-		if (((clock() - warpclockdelay) / CLOCKS_PER_SEC) >= 40) {
+		if (((clock() - warpclockdelay) / CLOCKS_PER_SEC) >= 50) {
 
 			octr->warpclock = 0;
 
@@ -1248,49 +1325,75 @@ void SendEverything()
 		}
 	}
 
-}
 
-void StatePC_Game_WaitForRace()
-{
-	int gGT_gameMode1 = *(int*)&pBuf[(0x80096b20 + 0x0) & 0xffffff];
-	
-	if (
-		// only send once
-		(!boolAlreadySent_StartRace) &&
 
-		// after camera fly-in is done
-		((gGT_gameMode1 & 0x40) == 0)
-		)
-	{
-		StopAnimation();
-		printf("Client: Online race in progress...  ");
-		boolAlreadySent_StartRace = 1;
 
-		CG_Header cg = { 0 };
-		cg.type = CG_STARTRACE;
 
-		sendToHostReliable(&cg, sizeof(CG_Header));
+
+
+
+
+
+
+
+	//calculate disconnected players
+
+	disconnectedPlayers = 0;
+	activePlayers = 0;
+	for (int i = 0; i < octr->NumDrivers; i++) {
+		if (octr->nameBuffer[i][0] == 0) {
+			disconnectedPlayers++;
+		}
+		else {
+			activePlayers++;
+		}
 	}
 
-	SendEverything();
-}
+	requiredPlayers = 0;
+	
+	//conditions to end the race
+	if (octr->numDriversEnded >= 3 && activePlayers >= 4) {
+		requiredPlayers = 3;
+	}
+	if (octr->numDriversEnded == 2 && activePlayers == 3) {
+		requiredPlayers = 2;
+	}
+	if (octr->numDriversEnded == 1 && activePlayers == 2) {
+		requiredPlayers = 1;
+	}
+	if (activePlayers == 1) {
+		requiredPlayers = 0;
+	}
 
-void StatePC_Game_StartRace()
-{
-	SendEverything();
+	//if not 1 player race then set 30 seconds
+	if (octr->numDriversEnded == requiredPlayers && requiredPlayers != 0 && prev_finishtimer != 30) {
+
+			octr->finishracetimer = 30;
+			prev_finishtimer = 30;
+
+		}
+
+	          //send the timer (visual) to the server
+			if (octr->finishracetimer > 0 && !alreadysended) {
+				CG_MessageFinishTimer mc = { 0 };
+				mc.type = CG_FINISHTIMER;
+				mc.finishracetimer = octr->finishracetimer;
+				sendToHostReliable(&mc, sizeof(CG_MessageFinishTimer));
+				alreadysended = true;
+			}
+
+
+
 
 	// not using this special event
 #if 0
-	int gGT_levelID = *(int*)&pBuf[(0x80096b20 + 0x1a10) & 0xffffff];
+			int gGT_levelID =
+				*(int*)&pBuf[(0x80096b20 + 0x1a10) & 0xffffff];
 
-	octr.refresh();
-	// Friday demo mode camera
-	if (octr.get()->special == 3)
-		if ((*gGT_levelID.get()) < 18)
-		{
-			short* val = (short*)&pBuf[0x80098028 & 0xffffff];
-			*val = 0x20;
-		}
+			// Friday demo mode camera
+			if (octr->special == 3)
+				if (gGT_levelID < 18)
+					*(short*)&pBuf[(0x80098028) & 0xffffff] = 0x20;
 #endif
 }
 
@@ -1327,30 +1430,26 @@ void StatePC_Game_EndRace()
 		octr->numDriversEnded++;
 
 
-		int disconnectedPlayers = 0;
-		int activePlayers = 0;
-		for (int i = 0; i < octr->NumDrivers; i++) {
-			if (octr->nameBuffer[i][0] == 0) {
-				disconnectedPlayers++;
-			}
-			else {
-				activePlayers++;
-			}
+	}
+	if (boolAlreadySent_EndRace) {
+		// if all players finished the race then show the timer
+
+
+		//1 player race // all players finished
+		if (octr->numDriversEnded == activePlayers && prev_finishtimer != 3 && prev_finishtimer != 6) {
+
+			octr->finishracetimer = (activePlayers == 1) ? 6 : 3;
+			prev_finishtimer = (activePlayers == 1) ? 6 : 3;
+			alreadysended = true;
 		}
 
 
-		if (octr->finishracetimer == 0 && prev_finishtimer != 30) {
-			if (activePlayers >= 4 && octr->numDriversEnded == 3 || activePlayers == 3 && octr->numDriversEnded == 2
-				|| activePlayers == 2 && octr->numDriversEnded == 1) {
-
-				octr->finishracetimer = 30;
-				prev_finishtimer = 30;
-			}
-
+		if (octr->finishracetimer > 0 && alreadysended && prev_finishtimer == 3	 || alreadysended && prev_finishtimer == 6) {
 			CG_MessageFinishTimer mc = { 0 };
 			mc.type = CG_FINISHTIMER;
 			mc.finishracetimer = octr->finishracetimer;
 			sendToHostReliable(&mc, sizeof(CG_MessageFinishTimer));
+			alreadysended = false;
 		}
 	}
 
@@ -1359,7 +1458,7 @@ void StatePC_Game_EndRace()
 	for (int i = 0; i < octr->NumDrivers; i++)
 	{
 		if (octr->nameBuffer[i][0] == 0)
-			numDead++; //what is this used for? //why you asked ??
+			numDead++; //what is this used for? //why are you asking ?? //btw even if this is not used in the code it was helpfully as a template, so ty random dev
 	}
 }
 
@@ -1383,7 +1482,7 @@ void (*ClientState[]) () = {
 
 #define NUM_PROHIBITED_NAMES 32
 
-
+// ban bad names
 const unsigned char* prohibitedNames[NUM_PROHIBITED_NAMES] = {
 	(unsigned char*)"NIGGA", (unsigned char*)"NIGGER", (unsigned char*)"NIGGO", (unsigned char*)"HITLER",
 	(unsigned char*)"DICK", (unsigned char*)"PUSSY", (unsigned char*)"GAY", (unsigned char*)"FAGGOT",
@@ -1397,35 +1496,35 @@ const unsigned char* prohibitedNames[NUM_PROHIBITED_NAMES] = {
 
 void toLowerCase(unsigned char* str) {
 	for (int i = 0; str[i]; i++) {
-		str[i] = (unsigned char)tolower(str[i]); // Trabajar directamente con unsigned char
+		str[i] = (unsigned char)tolower(str[i]); 
 	}
 }
 
 int containsProhibitedNames(const unsigned char* str) {
 	unsigned char lowerStr[NAME_LEN + 1];
 
-	// Copiar usando strncpy_s para mayor seguridad
+	
 	strncpy_s((char*)lowerStr, sizeof(lowerStr), (const char*)str, NAME_LEN);
-	lowerStr[NAME_LEN] = '\0'; // Asegurar el término nulo
+	lowerStr[NAME_LEN] = '\0'; 
 	toLowerCase(lowerStr);
 
 	for (int i = 0; i < NUM_PROHIBITED_NAMES; i++) {
 		unsigned char lowerProhibited[NAME_LEN + 1];
 
-		// Copiar usando strncpy_s
+		
 		strncpy_s((char*)lowerProhibited, sizeof(lowerProhibited), (const char*)prohibitedNames[i], NAME_LEN);
-		lowerProhibited[NAME_LEN] = '\0'; // Asegurar el término nulo
+		lowerProhibited[NAME_LEN] = '\0'; 
 		toLowerCase(lowerProhibited);
 
-		// Comparar las cadenas
+		
 		if (strstr((const char*)lowerStr, (const char*)lowerProhibited) != NULL) {
-			return 1; // Nombre prohibido encontrado
+			return 1; 
 		}
 	}
-	return 0; // No se encontraron nombres prohibidos
+	return 0; 
 }
 
-
+// anti afk
 void afktimer() {
 	if (!lockengineandcharacter)
 	{
@@ -1485,7 +1584,7 @@ int main(int argc, char* argv[])
 	}
 
 	if (containsProhibitedNames(name)) {
-		printf("\nyour username contains banned words, using default name: \"gasmoxian\"\n");
+		printf("\nyour username contains banned words, using default instead: \"gasmoxian\"\n");
 		strcpy_s((char*)name, NAME_LEN, "gasmoxian");
 	}
 
