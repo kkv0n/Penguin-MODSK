@@ -199,7 +199,6 @@ struct MetaDataCHAR
 	// Can be 0,1,2,3,(4 for max, in pal)
 	// changes engine sound
 	int engineID;
-	
 };
 
 // always starts at address 0x80010000,
@@ -2514,7 +2513,7 @@ struct Data
 	char RNG_itemSetRace1[0x14];
 
 	// 80089b80, Itemset 2 for Races
-	char RNG_itemSetRace2[0x14];
+	char RNG_itemSetRace2[0x34];
 
 	// 80089bb4, Itemset 3 for Races
 	char RNG_itemSetRace3[0x14];

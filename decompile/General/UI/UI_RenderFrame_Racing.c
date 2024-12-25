@@ -41,7 +41,7 @@ void DECOMP_UI_RenderFrame_Racing()
 	u_int mapPosX;
 	u_int mapPosY;
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	offset = WIDE_PICK(-19, -27);
 	#else
 	offset = 0;
@@ -120,15 +120,22 @@ void DECOMP_UI_RenderFrame_Racing()
 		levPtrMap = pointers[ST1_MAP];
 	}
 
+#ifdef USE_GASMOXIAN
 	// If you are not in Relic Race, and not in battle mode,
 	// and not in time trial
 	if ((gameMode1 & (RELIC_RACE | BATTLE_MODE)) == 0)
-	{
+
+#else
+if ((gameMode1 & (RELIC_RACE | TIME_TRIAL | BATTLE_MODE)) == 0)	
 // cant run on PC yet, drivers dont initialize
+#endif
+{
 #ifndef REBUILD_PC
 		DECOMP_UI_DrawRankedDrivers();
 #endif
+
 	}
+	
 
 	// pointer to first Player thread
 	playerThread = gGT->threadBuckets[0].thread;
@@ -142,7 +149,7 @@ void DECOMP_UI_RenderFrame_Racing()
 			// pointer to player structure
 			playerStruct = (struct Driver*)playerThread->object;
 
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			playerStruct = gGT->drivers[0];
 			#endif
 
@@ -205,14 +212,14 @@ void DECOMP_UI_RenderFrame_Racing()
 			(
 				// numPlyrCurrGame is less than 2 (1P mode)
 				(numPlyr < 2)
-				#ifndef USE_ONLINE
+				#ifndef USE_GASMOXIAN
 				&&
 				// if want to draw speedometer
 				((sdata->HudAndDebugFlags & 8) != 0)
 				#endif
 			)
 			{
-				#ifdef USE_ONLINE
+				#ifdef USE_GASMOXIAN
 				DECOMP_UI_DrawSpeedNeedle(hudStructPtr[9].x + offset, hudStructPtr[9].y, playerStruct);
 				DECOMP_UI_DrawSlideMeter(hudStructPtr[8].x + offset - 8, hudStructPtr[8].y + 3, playerStruct);
 				DECOMP_UI_JumpMeter_Draw(hudStructPtr[8].x + offset + 18, hudStructPtr[8].y - 7, playerStruct);
@@ -231,7 +238,7 @@ void DECOMP_UI_RenderFrame_Racing()
 				// If you're not in Battle Mode
 				if ((gameMode1 & BATTLE_MODE) == 0)
 				{
-					#ifdef USE_ONLINE
+					#ifdef USE_GASMOXIAN
 					DECOMP_UI_DrawSlideMeter(hudStructPtr[8].x + offset - 8, hudStructPtr[8].y + 3, playerStruct);
 					#else
 					// Draw powerslide meter
@@ -542,7 +549,7 @@ void DECOMP_UI_RenderFrame_Racing()
 
 				sVar1 = hudStructPtr[5].x;
 				sVar2 = hudStructPtr[5].y;
-				#ifndef USE_ONLINE
+				#ifndef USE_GASMOXIAN
 				DECOMP_UI_DrawPosSuffix(sVar1, sVar2, playerStruct, (short)partTimeVariable5);
 				#endif
 
@@ -636,7 +643,7 @@ void DECOMP_UI_RenderFrame_Racing()
 			// TODO: use num where 0x14 = NUM_HUD
 			hudStructPtr += 0x14;
 
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			break;
 			#endif
 
@@ -858,7 +865,7 @@ void DECOMP_UI_RenderFrame_Racing()
 		(
 			(
 				(numPlyr == 1)
-				#ifndef USE_ONLINE
+				#ifndef USE_GASMOXIAN
 				&&
 				// if want to draw map, not speedometer
 				(sdata->HudAndDebugFlags & 8) == 0
@@ -873,14 +880,14 @@ void DECOMP_UI_RenderFrame_Racing()
 			DECOMP_UI_Map_DrawDrivers	(levPtrMap, gGT->threadBuckets[PLAYER].thread, local_30);
 			DECOMP_UI_Map_DrawDrivers	(levPtrMap, gGT->threadBuckets[ROBOT].thread, local_30);
 
-			#ifndef USE_ONLINE
+			#ifndef USE_GASMOXIAN
 			DECOMP_UI_Map_DrawGhosts	(levPtrMap, gGT->threadBuckets[GHOST].thread);
 			#endif
 
 			DECOMP_UI_Map_DrawTracking	(levPtrMap, gGT->threadBuckets[TRACKING].thread);
 
 			mapPosX = 500;
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			mapPosY = 145;
 			#else
 			mapPosY = 195;

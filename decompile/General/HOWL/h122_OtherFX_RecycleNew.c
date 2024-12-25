@@ -3,7 +3,7 @@
 void DECOMP_OtherFX_RecycleNew(
 		u_int* soundID_Count, u_int newSoundID, u_int modifyFlags)
 {
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	void Online_OtherFX_RecycleNew(
 		u_int* soundID_Count, u_int newSoundID, u_int modifyFlags);
 	

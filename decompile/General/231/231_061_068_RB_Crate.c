@@ -278,10 +278,15 @@ int DECOMP_RB_CrateWeapon_LInC(
 			}
 		}
 
-//enable the ability of getting items even if an clock is active
-//deleted lines was here
-		
-		#ifdef USE_ONLINE
+#ifndef USE_GASMOXIAN
+		// if driver is influenced by clock weapon, quit
+		if(driver->clockReceive != 0)
+		{
+			return 1;
+		}
+
+#endif	
+		#ifdef USE_GASMOXIAN
 		if(driver->driverID != 0)
 			return;
 		
@@ -393,7 +398,7 @@ int DECOMP_RB_CrateFruit_LInC(
 		}
 		newWumpa = random + (newWumpa >> 2) * -4 + 5;
 		
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		if(driver->driverID != 0)
 		{
 			DECOMP_RB_Player_ModifyWumpa(driver, newWumpa);
@@ -467,7 +472,7 @@ int DECOMP_RB_CrateTime_LInC(
 	driver = driverTh->object;
 	modelID = crateInst->model->id;
 	
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	if(driver->driverID != 0) return;
 	#endif
 	

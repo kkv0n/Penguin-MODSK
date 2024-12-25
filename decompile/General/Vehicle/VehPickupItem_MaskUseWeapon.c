@@ -44,7 +44,7 @@ struct MaskHeadWeapon* DECOMP_VehPickupItem_MaskUseWeapon(struct Driver *driver,
         maskObj->duration = (driver->numWumpas < 10) ? 0x2d00 : 0x1e00;
 
         if (
-				#ifdef USE_ONLINE
+				#ifdef USE_GASMOXIAN
 				(driver->driverID == 0) &&
 				#else
 				// If this is human and not AI
@@ -88,7 +88,7 @@ struct MaskHeadWeapon* DECOMP_VehPickupItem_MaskUseWeapon(struct Driver *driver,
 
     
     if (
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			(driver->driverID == 0) &&
 			#else
 			// If this is human and not AI

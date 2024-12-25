@@ -1,13 +1,12 @@
 #include <common.h>
 
+
 void RB_GenericMine_ThTick(struct Thread* t);
 void RB_ShieldDark_ThTick_Grow(struct Thread* t);
 void RB_Warpball_ThTick(struct Thread* t);
-extern void iconclock();
-extern bool bossrace;
 
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 #endif
 
 void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
@@ -19,9 +18,10 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 	struct TrackerWeapon* tw;
 	struct GameTracker* gGT = sdata->gGT;
 	int modelID;
-//some items logic for online
-#ifdef USE_ONLINE
-	if(octr->special != 3 && d->driverID == 0)
+
+	#if defined(USE_GASMOXIAN)
+
+	if(octr->special != 3 && d->driverID == 0) //if not in time trial and is ourself
 	{
 		octr->Shoot[0].boolJuiced = 0;
 		if(d->numWumpas >= 10) octr->Shoot[0].boolJuiced = 1;
@@ -31,11 +31,11 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 		octr->Shoot[0].flags = flags & 3;
 
 		octr->Shoot[0].boolNow = 1;
-	if (octr->Shoot[0].Weapon >= 8 && octr->Shoot[0].Weapon <= 9) {
+		
+		if (octr->Shoot[0].Weapon >= 8 && octr->Shoot[0].Weapon <= 9) {
 		octr->warpclock = 1;
 	}
 	}
-
 if (octr->special == 7 && d->driverRank != 0)
 {
 	if (d->heldItemID == 0x3 || d->heldItemID == 0x4 || d->heldItemID == 0x1) {
@@ -575,11 +575,17 @@ RunMineCOLL:
 			{
 				Voiceline_RequestPlay(0xe, data.characterIDs[d->driverID], 0x10);
 			}
-//buffed 20% clock time
+#ifdef USE_GASMOXIAN
+			//buffed 20% clock time
 			int hurtVal = 0x2400;
 			if(d->numWumpas >= 10)
 				hurtVal = 0x3600;
-			
+#else
+int hurtVal = 0x1e00;
+if(d->numWumpas >= 10)
+    hurtVal = 0x2d00;	
+
+#endif
 
 			struct Driver** dptr;
 
@@ -590,31 +596,44 @@ RunMineCOLL:
 				)
 			{
 				struct Driver* victim = *dptr;
-
+#ifdef USE_GASMOXIAN
 				if(victim == 0) continue;
-				
-				iconclock;
-				
+
+
+
 				if(victim == d) continue;
 
 //dont affect the last player
 int lastdriver = octr->NumDrivers - 1;
-
                 if (victim->driverRank != lastdriver)
 				{
 				// if spin out driver
 				if(RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0)
 				{
-					
-			    victim->clockReceive = hurtVal;
+					victim->clockReceive = hurtVal;
 				//if someone uses a clock then delete items of victims
 				victim->heldItemID = 15;
 				victim->numHeldItems = 0;
-				
 				}
 				}
-
 			}
+#else
+				if(victim == 0) continue;
+
+                victim->clockFlash = FPS_DOUBLE(4);
+
+				if(victim == d) continue;
+
+
+				// if spin out driver
+				if(RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0)
+				{
+					victim->clockReceive = hurtVal;
+
+				}
+				}
+#endif				
+				
 			break;
 
 		// Warpball
@@ -714,13 +733,13 @@ int lastdriver = octr->NumDrivers - 1;
 			tw->vel[0] = (weaponInst->matrix.m[0][2] * 7) >> 8;
 			tw->vel[2] = (weaponInst->matrix.m[2][2] * 7) >> 8;
 
- struct Particle* p =
-     Particle_Init(0, gGT->iconGroup[0], &data.emSet_Warpball[0]);
+			struct Particle* p =
+				Particle_Init(0, gGT->iconGroup[0], &data.emSet_Warpball[0]);
 
- tw->ptrParticle = p;
+			tw->ptrParticle = p;
 
- if(p != 0)
-     p->unk18 = 250;
+			if(p != 0)
+				p->unk18 = 250;
 
 			break;
 #endif
@@ -745,10 +764,10 @@ int lastdriver = octr->NumDrivers - 1;
 			d->invisibleTimer = time;
 			break;
 
-
-		// Super Engine
+#ifdef USE_GASMOXIAN
+		// Super Oxide Engine
 		case 0xd: {
-
+//more engine duration
 			int engine = 0x3c00;
 			if(d->numWumpas >= 10)
 				engine = 0x7530;
@@ -757,3 +776,16 @@ int lastdriver = octr->NumDrivers - 1;
 			} break;
 	}
 }
+#else
+	// Super Engine
+		case 0xd: {
+//more engine duration
+			int engine = 0x1e00;
+			if(d->numWumpas >= 10)
+				engine = 0x2d00;
+
+			d->superEngineTimer = engine;
+			} break;
+	}
+}
+#endif

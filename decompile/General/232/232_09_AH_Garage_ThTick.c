@@ -246,10 +246,13 @@ LAB_800aede8:
     dist[1] = drv_inst->matrix.t[1] - pos[1];
     dist[2] = drv_inst->matrix.t[2] - pos[2];
 
+#ifndef USE_GASMOXIAN
     if (dist[0] * dist[0] + dist[1] * dist[1] + dist[2] * dist[2] < 0x40000)
     {
+		
         gGT->pushBuffer_UI.fadeFromBlack_desiredResult = 0;
         gGT->pushBuffer_UI.fade_step = 0xfd56;
+		
     }
     if (gGT->pushBuffer_UI.fadeFromBlack_currentValue == 0)
     {
@@ -283,5 +286,6 @@ LAB_800aede8:
         DECOMP_RaceFlag_SetDrawOrder(1);
         DECOMP_MainRaceTrack_RequestLoad(levelID);
     }
+	#endif
     return;
 }

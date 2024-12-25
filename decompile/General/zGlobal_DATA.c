@@ -448,7 +448,8 @@ struct Data data =
 		.angle[2] = 0x70,
 		.vertDistance = 0x40
 	},
-	#ifdef USE_ONLINE
+
+	#ifdef USE_GASMOXIAN
 	//oxide custom cam by penta3
 	.NearCam8x3 =
 	{
@@ -464,6 +465,7 @@ struct Data data =
 		.vertDistance = 0x70
 	},
 	#else
+		
 	.NearCam8x3 =
 	{
 		.distMin = 0x133,
@@ -478,7 +480,6 @@ struct Data data =
 		.vertDistance = 0x60
 	},
 #endif
-
 	.FarCam4x3 =
 	{
 		.distMin = 0xE0,
@@ -492,8 +493,9 @@ struct Data data =
 		.angle[2] = 0x60,
 		.vertDistance = 0x60
 	},
-	
-	#ifdef USE_ONLINE
+
+
+	#ifdef USE_GASMOXIAN
 	//normal ctr cam for oxide when l2 is pressed
 		.FarCam8x3 =
 	{
@@ -509,7 +511,7 @@ struct Data data =
 		.vertDistance = 0x90
 	},
 	#else
-
+		
 	.FarCam8x3 =
 	{
 		.distMin = 0x180,
@@ -1747,8 +1749,7 @@ struct Data data =
 		5, // SMALL
 		4, // CREDITS
 	},
-#ifdef USE_ONLINE
-//FONT WIDTH SIZE
+//font size
 	.font_charPixWidth =
 	{
 		0,	// DEBUG (removed)
@@ -1756,15 +1757,9 @@ struct Data data =
 		WIDE_34(10),	// SMALL
 		WIDE_34(14),	// CREDITS
 	},
-#else
-		.font_charPixWidth =
-	{
-		0,	// DEBUG (removed)
-		WIDE_34(17),	// BIG
-		WIDE_34(13),	// SMALL
-		WIDE_34(14),	// CREDITS
-	},
-#endif
+
+		
+
 	#if BUILD >= UsaRetail
 	.font_charPixHeight =
 	{
@@ -1871,7 +1866,7 @@ struct Data data =
 	{
 		0,		// DEBUG (removed)
 		0x1000,	// BIG
-		0x1000,	// SMALL
+		0x0FD0,	// SMALL
 		0,		// CREDITS
 	},
 
@@ -7622,10 +7617,19 @@ struct Data data =
 		{PHYSWRAP(0x422, 2, 260, 260, 260, 260, 260)},
 		{PHYSWRAP(0x424, 2, 120, 120, 120, 120, 120)},
 		{PHYSWRAP(0x426, 2, 120, 120, 120, 120, 120)},
+		#ifdef USE_GASMOXIAN
+		//idk why they used statsupgrade i think this is a better idea
+		//speed & accel stats rebalanced
+		{PHYSWRAP(0x428, 2, 544, 544, 544, 544, 544)},
+		{PHYSWRAP(0x42a, 2, 1152, 1152, 1152, 1152, 1152)},
+		{PHYSWRAP(0x42c, 2, 13900, 13900, 13900, 13900, 13900)},
+		{PHYSWRAP(0x42e, 2, 15400, 15400, 15400, 15400, 15400)},
+		#else
 		{PHYSWRAP(0x428, 2, 480, 544, 448, 512, 544)},
 		{PHYSWRAP(0x42a, 2, 1152, 1152, 1152, 1152, 1152)},
 		{PHYSWRAP(0x42c, 2, 13140, 13520, 13900, 12950, 13900)},
-		{PHYSWRAP(0x42e, 2, 14640, 15020, 15400, 14450, 15400)},
+		{PHYSWRAP(0x42e, 2, 14640, 15020, 15400, 14450, 15400)},	
+		#endif
 		{PHYSWRAP(0x430, 2, 2048, 2048, 2048, 2048, 2048)},
 		{PHYSWRAP(0x432, 2, 4096, 4096, 4096, 4096, 4096)},
 		{PHYSWRAP(0x434, 2, 5120, 5120, 5120, 5120, 5120)},
@@ -8953,7 +8957,7 @@ struct Data data =
 
 	.RNG_itemSetRace1 =
 	{
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 		// 8/20 potion
 		// 8/20 tnt
 		// 2/20 bomb
@@ -8980,7 +8984,7 @@ struct Data data =
 
 	.RNG_itemSetRace2 =
 	{
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 		// 11/52 potion
 		// 9/52 tnt
 		// 5/52 bomb
@@ -8993,9 +8997,17 @@ struct Data data =
 		// 7/52 mask
 		// 1/52 n tropy clock
 
-        7, 7, 12, 1, 1, 6, 1, 2, 7, 2,
-		2, 10, 7, 2, 2, 1, 7, 2, 1,
-		6,
+        1, 1, 12, 1, 1, 6, 1, 2, 7, 2,
+		2, 2, 1, 2, 2, 1, 7, 2,
+        1, 6, 1, 2, 12,
+		1, 1, 6, 
+	    2, 0, 2, 2, 2,
+	    7, 2, 2,
+	    1, 7, 2,
+		1, 6,
+		7, 7, 12, 11, 11,
+		6, 6, 2, 7, 2, 2, 1,
+		10,
 #else
 		// 10/52 potion
 		// 8/52 tnt
@@ -9011,14 +9023,21 @@ struct Data data =
 
 		4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
 		3, 3, 3, 3, 3, 3, 3, 3,
-		1, 1,
-		//reduced rng in itemset 2
+		1, 1, 1, 1, 1,
+		10, 10, 10,
+		0, 0, 0, 0, 0,
+		6, 6, 6,
+		2, 2, 2,
+		11, 11,
+		9, 9, 9, 9, 9,
+		7, 7, 7, 7, 7, 7, 7,
+		8,
 #endif
 	},
 
 	.RNG_itemSetRace3 =
 	{
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 		// 1/20 potion
 		// 1/20 tnt
 		// 1/20 bomb x1
@@ -9051,7 +9070,7 @@ struct Data data =
 
 	.RNG_itemSetRace4 =
 	{
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 		// 2/20 turbo
 		// 1/20 shield
 		// 2/20 missile x1
@@ -9061,7 +9080,7 @@ struct Data data =
 		// 8/20 mask
 		// 1/20 clock
 
-		2, 2, 1, 1, 13, 11, 10, 0, 0, 7, 7, 7, 7, 7, 7, 7, 7, 0, 9, 2,
+		2, 2, 1, 1, 13, 11, 10, 11, 10, 7, 7, 7, 7, 7, 7, 13, 13, 9, 9, 2,
 #else
 		// 2/20 turbo (one zero at the start, and one at the end)
 		// 1/20 shield
@@ -9082,7 +9101,7 @@ struct Data data =
 
 	.RNG_itemSetBattleDefault =
 	{
-		9, 4, 5, 3, 2, 2, 9, 13, 9, 8, 7, 7, 7, 11, 4, 7, 7, 7, 13, 3,
+		9, 4, 5, 3, 2, 2, 9, 13, 9, 8, 7, 9, 7, 11, 4, 7, 7, 8, 13, 3,
 	},
 
 	// 0xB

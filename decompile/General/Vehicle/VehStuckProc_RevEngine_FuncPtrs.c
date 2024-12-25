@@ -93,7 +93,7 @@ void DECOMP_VehStuckProc_RevEngine_PhysLinear(struct Thread *t, struct Driver *d
     if (d->KartStates.RevEngine.maskObj != 0)
         d->KartStates.RevEngine.maskObj->duration = 7680;
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	if(d->driverID != 0)
 		return;
 	#endif
@@ -180,7 +180,7 @@ void DECOMP_VehStuckProc_RevEngine_Animate(struct Thread *t, struct Driver *d)
                 d->KartStates.RevEngine.unk[0] = 0;
                 d->KartStates.RevEngine.unk[1] |= 3;
 
-				#ifdef USE_ONLINE
+				#ifdef USE_GASMOXIAN
 				if(d->driverID == 0)
 				#endif
 

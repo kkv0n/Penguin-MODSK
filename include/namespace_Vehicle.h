@@ -623,7 +623,11 @@ struct Driver
 	char forcedJump_trampoline;
 
 	// 0x367
-	// clock effect
+	#ifndef USE_GASMOXIAN
+	
+	char clockFlash;
+	#endif
+	
 
 	// 0x368
 	short AxisAngle2_normalVec[3];
@@ -1544,9 +1548,11 @@ struct Driver
 
 	// 0x62C - 0x670 reserved for ghost
 
-	// 0x62C
-	struct GhostTape* ghostTape;
 
+	// 0x62C
+	
+	struct GhostTape* ghostTape;
+#ifndef USE_GASMOXIAN
 	// 0x630
 	short ghostID;
 
@@ -1555,15 +1561,16 @@ struct Driver
 
 	// 0x634
 	short ghostBoolStarted;
-	short unk636;
+	#endif
+	short unk636; //  0x630 in online
 
-	#ifdef USE_ONLINE
-	int uncappedReserves; // 0x638
-	int bestLapTime; // 0x63C
-	int currLapTime; // 0x640
-	char meterGrade[2]; // 0x644
-	short meterGradeTimer; // 0x646
-	int gradeColor; // 0x648
+	#ifdef USE_GASMOXIAN
+int uncappedReserves; // 0x634
+int bestLapTime;      // 0x638
+int currLapTime;      // 0x63C
+char meterGrade[2];   // 0x640
+short meterGradeTimer; // 0x642
+int gradeColor;       // 0x644
 	#endif
 
 	// 0x638
@@ -1583,6 +1590,6 @@ _Static_assert(sizeof(struct MetaPhys) == 0x20);
 _Static_assert(sizeof(struct MetaPhys) == 0x1C);
 #endif
 
-#if BUILD == UsaRetail && !defined(USE_ONLINE)
+#if BUILD == UsaRetail && !defined(USE_GASMOXIAN)
 _Static_assert(sizeof(struct Driver) == 0x638);
 #endif

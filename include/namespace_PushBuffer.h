@@ -1,3 +1,4 @@
+
 // named after TILE primitive used in DrawEnv/DispEnv,
 // attempting to flip that in my MirrorMode mod killed the screens
 struct PushBuffer
@@ -12,6 +13,7 @@ struct PushBuffer
 	// set at bottom of Camera_UpdateFrustum,
 	// used in 226-229 overlays for LEV
 	char data6[6];
+
 
 	// 0x12
 	// 0 for black,
@@ -91,5 +93,6 @@ struct PushBuffer
 
 	// 0x110 - end of struct
 };
+
 
 _Static_assert(sizeof(struct PushBuffer) == 0x110);

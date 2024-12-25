@@ -1,5 +1,6 @@
 #include <common.h>
 
+#ifndef USE_GASMOXIAN
 void DECOMP_GhostTape_WriteBoosts(int addReserve,u_char type,int speedCap)
 {
   char *puVar1;
@@ -35,3 +36,4 @@ void DECOMP_GhostTape_WriteBoosts(int addReserve,u_char type,int speedCap)
   
   sdata->GhostRecording.ptrCurrOffset += 6;
 }
+#endif

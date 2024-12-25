@@ -2585,7 +2585,7 @@ LAB_800153d0:
   *(undefined2 *)(iVar17 + 0x2f6) = *(undefined2 *)(iVar17 + 0x2ee);
   *(undefined2 *)(iVar17 + 0x2f8) = *(undefined2 *)(iVar17 + 0x2f0);
 
-  // These next 3 instructions are deleted in OnlineCTR
+  // These next 3 instructions are deleted in Gasmoxian
 
   // Set X position of AI to follow nav point (does not impact spawn)
   *(int *)(iVar17 + 0x5f0) =

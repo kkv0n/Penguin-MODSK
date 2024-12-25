@@ -7,8 +7,8 @@ struct
 } rdata = { 0 };
 #endif
 
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 #endif
 
 // used for both finished lap time and current race time
@@ -72,7 +72,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 		return;
 	}
 
-	#ifndef USE_ONLINE // 99:59:59:99
+	#ifndef USE_GASMOXIAN // 99:59:59:99
 	// set default time to 99:59:99
 	minutesTens = 9;
 	minutesOnes = 9;
@@ -85,7 +85,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	// milliseconds elapsed in race
 	msElapsed = driver->timeElapsedInRace;
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	TotalTime tt;
 	ElapsedTimeToTotalTime(&tt, msElapsed);
 	#else
@@ -190,7 +190,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 		strFlags_but_its_also_posY = (u_short)((gGT->timer & FPS_DOUBLE(2)) == 0) << 2;
 	}
 
-	#ifndef USE_ONLINE
+	#ifndef USE_GASMOXIAN
 	// OG game was "== 7"
 	// but now expand for Online
 	if (gGT->numLaps >= 7)
@@ -237,7 +237,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	}
 
 	// Draw String
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	char displayTime[15]; // 99:59:59.999 or BEST: 9:59.999
 	sprintf(displayTime, "%d:%02d:%02d.%03d", tt.hours, tt.minutes, tt.seconds, tt.miliseconds);
 	DECOMP_DecalFont_DrawLine(displayTime, posX, numParamY >> 0x10, FONT_BIG, (int)strFlags_but_its_also_posY);
@@ -245,7 +245,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	DECOMP_DecalFont_DrawLine(totalTimeString, posX, numParamY >> 0x10, FONT_BIG, (int)strFlags_but_its_also_posY);
 	#endif
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	if ((driver->driverID == 0) && (driver->lapIndex > 0))
 	{
 		ElapsedTimeToTotalTime(&tt, driver->bestLapTime);

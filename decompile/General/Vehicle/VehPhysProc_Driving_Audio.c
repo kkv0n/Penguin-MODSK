@@ -2,7 +2,7 @@
 
 void DECOMP_VehPhysProc_Driving_Audio(struct Thread* t, struct Driver* d)
 {
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 	if(d->driverID != 0)
 		return;
 #endif

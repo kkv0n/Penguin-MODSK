@@ -18,7 +18,7 @@ void DECOMP_UI_JumpMeter_Draw(short posX, short posY, struct Driver* driver)
 	int jumpMeterHeight;
 	int whateverThisIs;
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	int numbersYOffset = 0;
 	int numbersYHeight = 10;
 	int barHeight = 53;
@@ -64,7 +64,7 @@ void DECOMP_UI_JumpMeter_Draw(short posX, short posY, struct Driver* driver)
 
 	if (p != 0)
 	{
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		jumpMeter = driver->jumpMeter;
 		colorAndCode = 0x28ffffff;
 		if (0x27f < jumpMeter)
@@ -104,7 +104,7 @@ void DECOMP_UI_JumpMeter_Draw(short posX, short posY, struct Driver* driver)
 		*(int*)p = *primmemCurr | 0x5000000;
 		*primmemCurr = (u_int)p & 0xffffff;
 
-		#ifndef USE_ONLINE
+		#ifndef USE_GASMOXIAN
 		box2.y = posY - barHeight;
 		box2.w = WIDE_34(0xc);
 		box2.h = barHeight;

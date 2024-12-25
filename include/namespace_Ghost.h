@@ -1,6 +1,6 @@
 // GhostTape is 0x268 large
 // GhostRecBuf is 0x3e00
-
+#ifndef USE_GASMOXIAN
 struct GhostPacket 
 {
 	// just position,
@@ -14,6 +14,7 @@ struct GhostPacket
 	
 	// 0x10 -- size of packet
 };
+
 
 struct GhostTape
 {
@@ -71,6 +72,7 @@ struct GhostTape
 };
 
 
+
 struct GhostHeader
 {
 	// 0x0
@@ -103,3 +105,5 @@ struct GhostHeader
 
 #define GHOSTHEADER_GETRECORDBUFFER(x) \
 	((unsigned int)x + sizeof(struct GhostHeader))
+	
+	#endif

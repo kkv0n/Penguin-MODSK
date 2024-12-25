@@ -2,8 +2,8 @@
 
 typedef void (*VehicleFuncPtr)(struct Thread* thread, struct Driver* driver);
 
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 void RunVehicleThread(VehicleFuncPtr func, struct Thread* thread, struct Driver* driver);
 #endif
 
@@ -34,9 +34,11 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker* gGT, struct GamepadSystem* g
 		{
 			psVar9 = (struct Driver*)psVar12->object;
 
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			psVar9 = gGT->drivers[0];
 			#endif
+			
+#ifdef USE_GASMOXIAN
 //clock send//receive// dont use clock flash
    if (psVar9->clockSend) {
         psVar9->clockSend--;
@@ -45,17 +47,16 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker* gGT, struct GamepadSystem* g
 		if (octr->CurrState <= LOBBY_WAIT_FOR_LOADING) {
 			psVar9->clockReceive = 0;
 		}
-	
+	//dont affect last player
 	int lastdriver = octr->NumDrivers - 1;
 	
-	//dont affect last player
-	if (psVar9->driverRank != lastdriver) {
 		
 		//use clock icon instead of clock effect
-if (psVar9->clockReceive != 0) {
+if (psVar9->clockReceive != 0 && psVar9->driverRank != lastdriver) {
 	iconclock();
-}
+
 	}
+	
     if (psVar9->clockReceive == 0) {
         if (psVar9->clockSend == 0) {
             if ((gGT->clockEffectEnabled & 1) == 0) goto LAB_80034e74; 
@@ -69,21 +70,59 @@ if (psVar9->clockReceive != 0) {
         if ((psVar9->actionsFlagSet & 0x2000000) != 0) {
             psVar9->clockReceive = 0;
         }
-	} 
+		}
 
+#else
+	
+			if (psVar9->clockSend)
+			{
+				psVar9->clockSend--;
+			}
+			uVar3 = psVar9->clockFlash;
+			if (uVar3 == 0)
+			{
+				if (psVar9->clockReceive == 0)
+				{
+					uVar3 = (u_int)psVar9->clockSend;
+					if (uVar3 == 0)
+					{
+						if ((gGT->clockEffectEnabled & 1) == 0) goto LAB_80034e74;
+						uVar3 = 10000;
+					}
+				}
+				else
+				{
+					if ((psVar9->actionsFlagSet & 0x2000000) != 0)
+					{
+						psVar9->clockReceive = 0;
+					}
+					uVar3 = (u_int)psVar9->clockReceive;
+				}
 
 #ifndef REBUILD_PS1
-				//DISPLAY_Blur_Main(pushBuffer, uVar3);
+				DISPLAY_Blur_Main(pushBuffer, uVar3);
+#endif
+			}
+			else
+			{
+#ifndef REBUILD_PS1
+				DISPLAY_Blur_Main(pushBuffer, -uVar3);
 #endif
 
-#ifndef REBUILD_PS1
-				//DISPLAY_Blur_Main(pushBuffer, -uVar3);
+#ifndef USE_GASMOXIAN
+				psVar9->clockFlash--;
 #endif
-				
+			}
+			
+#endif
+			
+
 LAB_80034e74:
-			//pushBuffer = pushBuffer + 1;
+            #ifndef USE_GASMOXIAN
+			pushBuffer = pushBuffer + 1;
+			#endif
 
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			break;
 			#endif
 		}
@@ -210,7 +249,7 @@ LAB_80035098:
 				(gGT->threadBuckets[iVar4].thread != 0)
 			)
 			{
-				#if defined(USE_ONLINE)
+				#if defined(USE_GASMOXIAN)
 				// synchronize track hazards
 				if(
 					(iVar4 == STATIC) ||
@@ -248,7 +287,7 @@ LAB_80035098:
 
 							pcVar5 = psVar9->funcPtrs[iVar11];
 
-							#ifdef USE_ONLINE
+							#ifdef USE_GASMOXIAN
 							RunVehicleThread(pcVar5, psVar12, psVar9);
 							#else
 							if (pcVar5 != 0)
@@ -290,7 +329,7 @@ LAB_80035098:
 					gGT->numPlyrCurrGame = backupPlyrCount;
 					#endif
 
-					#ifdef USE_ONLINE
+					#ifdef USE_GASMOXIAN
 					octr->readyToSend = 1;
 					#endif
 				}
@@ -306,6 +345,10 @@ LAB_80035098:
 
 #ifndef REBUILD_PS1
 		BOTS_UpdateGlobals();
+#endif
+
+#ifndef USE_GASMOXIAN
+		DECOMP_GhostTape_WriteMoves(0);
 #endif
 		gGT->unk1cc4[4] = (u_int)(gGT->unk1cc4[4] * 10000) / 0x147e;
 

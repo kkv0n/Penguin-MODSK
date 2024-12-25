@@ -1,3 +1,4 @@
+//fix mirror mode joystick later -penta3
 #include <common.h>
 
 // Writes all gamepad variables
@@ -57,7 +58,7 @@ void DECOMP_GAMEPAD_ProcessTapRelease(struct GamepadSystem *gGamepads)
             pad->buttonsReleased = pad->buttonsHeldPrevFrame & ~pad->buttonsHeldCurrFrame;
         }
 		
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		break;
 		#endif
     }

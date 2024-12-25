@@ -1,5 +1,6 @@
 #include <common.h>
 
+#ifndef USE_GASMOXIAN
 void DECOMP_RB_Explosion_ThTick(struct Thread* t)
 {
 	struct Instance* inst = t->inst;
@@ -16,3 +17,4 @@ void DECOMP_RB_Explosion_ThTick(struct Thread* t)
 	// dead thread
 	t->flags |= 0x800;
 }
+#endif

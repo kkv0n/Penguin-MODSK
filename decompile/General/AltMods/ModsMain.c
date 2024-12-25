@@ -31,7 +31,7 @@ void ModsMain()
 	void uibb_entryHook(); uibb_entryHook();
 	#endif
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	void octr_entryHook(); octr_entryHook();
 	#endif
 

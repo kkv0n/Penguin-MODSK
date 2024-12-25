@@ -385,7 +385,7 @@ struct GameTracker
 	char boolDemoMode;
 
 	// 1d33
-	unsigned char numLaps;
+	char numLaps;
 
 	// 1d34
 	// Variable is never given a value

@@ -186,7 +186,7 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
         gGT->numLaps * 8;
 #endif
 
-#ifndef USE_ONLINE
+#ifndef USE_GASMOXIAN
 	// OG code
     DECOMP_MainInit_Drivers(gGT);
 #else
@@ -337,9 +337,10 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
         lev1->unk5);
 #endif
 
+#ifndef USE_GASMOXIAN
     gGT->pushBuffer_UI.fadeFromBlack_desiredResult = 0x1000;
     gGT->pushBuffer_UI.fade_step = 0x200;
-
+#endif
     numPlyr = gGT->numPlyrCurrGame;
 
 	// stars
@@ -363,7 +364,7 @@ void DECOMP_MainInit_FinalizeInit(struct GameTracker *gGT)
     BOTS_EmptyFunc();
 #endif
 
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 	void octr_initHook();
 	octr_initHook();
 	

@@ -2,7 +2,7 @@
 
 void DECOMP_LOAD_Robots1P(int characterID)
 {
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	return;
 	#endif
 	

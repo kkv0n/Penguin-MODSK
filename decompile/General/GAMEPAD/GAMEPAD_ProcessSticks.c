@@ -120,7 +120,7 @@ void DECOMP_GAMEPAD_ProcessSticks(struct GamepadSystem *gGS)
         if ((pad->buttonsHeldCurrFrame & 4) != 0) pad->stickLX = 0;
         if ((pad->buttonsHeldCurrFrame & 8) != 0) pad->stickLX = 0xFF;
 
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		break;
 		#endif
 	}

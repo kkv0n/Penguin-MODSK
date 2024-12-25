@@ -207,13 +207,20 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			{
 				sdata->levelLOD = 1;
 			}
-			
+			#ifndef USE_GASMOXIAN
+			// if relic, or time trial
+			if((gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0)
+			{
+				sdata->levelLOD = 8;
+			}
+			#else
 			// if relic, or time trial
 			if((gGT->gameMode1 & (RELIC_RACE)) != 0)
 			{
 				sdata->levelLOD = 8;
-			}
+			}	
 			
+			#endif
 			// RAM optimization, dont do this OG code
 			#if 0
 			
@@ -320,7 +327,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 		}	
 		case 3:
 		{
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			//lobbylevel4
 			//if you are wondering why im adding numbers is for being able to search it more easy
 			//btw dont change this to track levels, just keep it in 0x26 or it will crash

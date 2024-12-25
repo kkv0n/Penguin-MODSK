@@ -14,7 +14,7 @@ void DECOMP_UI_DrawDriverIcon(struct Icon* icon, Point point, u_long* ot, unsign
 	int height = icon->texLayout.v2 - icon->texLayout.v0;
 	int topX = point.x;
 	int bottomX = topX + FP_Mult(width, scale);
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 		int topY = point.y;
 		int bottomY = topY + FP_Mult(height, scale);
 	#else
@@ -51,7 +51,7 @@ void DECOMP_UI_DrawDriverIcon(struct Icon* icon, Point point, u_long* ot, unsign
 		p->colorCode.code.poly.semiTransparency = 1;
 	}
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	p->v[0].texCoords.u = icon->texLayout.u0;
 	p->v[0].texCoords.v = icon->texLayout.v0;
 	p->v[1].texCoords.u = icon->texLayout.u1;

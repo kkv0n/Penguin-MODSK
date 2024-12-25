@@ -35,8 +35,9 @@ void DECOMP_RB_MovingExplosive_Explode(
   
   // stop audio of rolling
   OtherFX_RecycleMute(&tw->audioPtr);
-  
+
   DECOMP_RB_Burst_Init(inst);
+
 #endif
   
   // This thread is now dead

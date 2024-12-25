@@ -21,6 +21,9 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
     }
 #endif
 
+#ifndef USE_GASMOXIAN
+    DECOMP_GhostReplay_Init1();
+#endif
 
     if (DECOMP_LOAD_IsOpen_RacingOrBattle())
     {
@@ -176,8 +179,11 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
     // basically, if you're in time trial gameplay
     if ((gameMode & 0x20022000) == TIME_TRIAL)
     {
+		#ifndef USE_GASMOXIAN
+        DECOMP_GhostReplay_Init2();
 
-
+        DECOMP_GhostTape_Start();
+		#endif
 		
 		#ifdef REBUILD_PS1
 		

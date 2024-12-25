@@ -1,15 +1,22 @@
 #include <common.h>
 
+#ifdef USE_GASMOXIAN
 
-#include "../../General/AltMods/OnlineCTR/changecamera.c"
-
-
+#include "../../General/AltMods/Gasmoxian/global.h"
+#include "../../General/AltMods/Gasmoxian/changecamera.c"
 
 void queuetojoin(){
 	
 	if (octr->autoRetryJoinRoomIndex != -1)
 	{
+		#ifdef GASMOX_ENG
 		char* wtj = "joinning,pls wait ->";
+		#elif defined(GASMOX_ES)
+		char* wtj = "entrando.. espera ->";
+		#elif defined(GASMOX_BR)
+		char* wtj = "na fila, aguarde. ->";
+		
+		#endif
 		int lineInd = octr->autoRetryJoinRoomIndex % 8;
 		int pageNum = octr->autoRetryJoinRoomIndex / 8;
 		if (pageNum == octr->PageNumber)
@@ -31,3 +38,12 @@ void queuetojoin(){
 		}
 	}	
 }
+
+
+#else
+void DECOMP_GhostReplay_Init2()
+{
+	// combined into GhostReplay_Init1
+	return;
+}
+#endif

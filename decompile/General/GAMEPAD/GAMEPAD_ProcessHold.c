@@ -99,7 +99,7 @@ void DECOMP_GAMEPAD_ProcessHold(struct GamepadSystem *gGamepads)
 			}
 		}
 	
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		break;
 		#endif
 	}

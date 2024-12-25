@@ -33,7 +33,7 @@ void DECOMP_UI_DrawLapCount(short posX,int posY,int param_3,struct Driver* d)
     flags = (JUSTIFY_RIGHT | PERIWINKLE);
   }
   
-  #ifdef USE_ONLINE
+  #ifdef USE_GASMOXIAN
  
   char message[8];
   char* str = &message[0];

@@ -3,7 +3,7 @@
 void DECOMP_UI_DrawSpeedNeedle(short posX, short posY, struct Driver * driver)
 {
   int minScale = 0;
-  #ifdef USE_ONLINE
+  #ifdef USE_GASMOXIAN
   int maxScale = 100; // USF
 	int speed = driver->kartState == KS_ENGINE_REVVING ?
               driver->unk36E :
@@ -15,7 +15,7 @@ void DECOMP_UI_DrawSpeedNeedle(short posX, short posY, struct Driver * driver)
   int minAngle, maxAngle;
   int accelSpeedInt = FP8_INT(driver->const_AccelSpeed_ClassStat);
   if (driver->const_AccelSpeed_ClassStat < speed) {
-    #ifdef USE_ONLINE
+    #ifdef USE_GASMOXIAN
     maxAngle = ANG(67.5);
     #else
     maxAngle = ANG(157.5);
@@ -110,7 +110,7 @@ void DECOMP_UI_DrawSpeedNeedle(short posX, short posY, struct Driver * driver)
 
   AddPrimitive(p, sdata->gGT->pushBuffer_UI.ptrOT);
 
-  #ifdef USE_ONLINE
+  #ifdef USE_GASMOXIAN
   char s_speed[15];
   int speedInt = FP8_INT(speed);
   sprintf(s_speed, "%d", speedInt);

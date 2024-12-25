@@ -92,7 +92,7 @@ void DECOMP_VehStuckProc_PlantEaten_Animate(struct Thread *t, struct Driver *d)
 		
         RotTrans(&plantVector, &camVec, alStack32);
 
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		if(d->driverID != 0)
 			return;
 		#endif

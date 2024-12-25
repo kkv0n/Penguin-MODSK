@@ -1,6 +1,6 @@
-#include "OnlineCTR/global.h"
+#include "Gasmoxian/global.h"
 
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 
 Color HsvToRgb(int h, int s, int v);
 
@@ -9,14 +9,14 @@ Color HsvToRgb(int h, int s, int v);
 #ifdef USE_BOOSTBAR
 void DrawBoostBar(short posX, short posY, struct Driver* driver)
 {
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	const int numberBarDivisions = 5;
 	const Color barEmptyColor = MakeColor(0x80, 0x80, 0x80);
 	#endif
 
 	struct GameTracker * gGT = sdata->gGT;
 	short fullHeight = 3;
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	short fullWidth = WIDE_34(93);
 	int reserves;
 	int numFullBarsFilled;
@@ -59,7 +59,7 @@ void DrawBoostBar(short posX, short posY, struct Driver* driver)
 
 	DECOMP_CTR_Box_DrawWireBox(&box, MakeColor(0, 0, 0), gGT->pushBuffer_UI.ptrOT);
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	int spacing = fullWidth / numberBarDivisions;
 	int remainder = fullWidth % numberBarDivisions;
 	for (int i = 0; i < numberBarDivisions - 1; i++)
@@ -83,7 +83,7 @@ void DrawBoostBar(short posX, short posY, struct Driver* driver)
 
 	const PrimCode primCode = { .poly = { .quad = 1, .renderCode = RenderCode_Polygon } };
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	char s_barsCompleted[15];
 	sprintf(s_barsCompleted, "%d", numFullBarsFilled);
 	DECOMP_DecalFont_DrawLine(s_barsCompleted, topX - 4, topY - 3, FONT_SMALL, RED | JUSTIFY_RIGHT);
@@ -133,7 +133,7 @@ void DrawBoostBar(short posX, short posY, struct Driver* driver)
 		p->v[3].pos.y = posY;
 		AddPrimitive(p, gGT->pushBuffer_UI.ptrOT);
 
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		colorCode = bgBarColor;
 		#else
 		colorCode = MakeColorCode(0x80, 0x80, 0x80, primCode); // Gray color for Prim #2

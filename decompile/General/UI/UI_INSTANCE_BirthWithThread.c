@@ -35,7 +35,7 @@ int DECOMP_UI_INSTANCE_BirthWithThread(int param_1,int param_2,int param_3,int p
   {	  
     driver = driverThread->object;
   
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	driver = gGT->drivers[0];
 	#endif
   
@@ -209,7 +209,7 @@ lightDir_spec0x30000:
 	// TODO: use enum for hud elements
 	hudStruct += 0x14;
 	
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	break;
 	#endif
   }

@@ -11,8 +11,9 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
     struct PushBuffer* pb;
     int rot;
     struct MaskHeadWeapon* mask;
-	//dont use 2 mask instances
-    //struct Instance* maskInst;
+	#ifndef USE_GASMOXIAN
+    struct Instance* maskInst;
+	#endif
 	struct Instance* maskBeamInst;
     struct Instance* driverInst;
     struct Driver* d;
@@ -23,13 +24,17 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
     numPlyr = gGT->numPlyrCurrGame;
 
     mask = maskTh->object;
-    //maskInst = maskTh->inst;
+	#ifndef USE_GASMOXIAN
+    maskInst = maskTh->inst;
+	#endif
 	maskBeamInst = mask->maskBeamInst;
 
     d = maskTh->parentThread->object;
     driverInst = maskTh->parentThread->inst;
 	
-	//struct InstDrawPerPlayer* maskIdpp = INST_GETIDPP(maskInst);
+	#ifndef USE_GASMOXIAN
+	struct InstDrawPerPlayer* maskIdpp = INST_GETIDPP(maskInst);
+	#endif
 	struct InstDrawPerPlayer* beamIdpp = INST_GETIDPP(maskBeamInst);
 
     if (d->invisibleTimer == 0)
@@ -37,7 +42,9 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
         for (i = 0; i < numPlyr; i++)
         {
             pb = &gGT->pushBuffer[i];
-            //maskIdpp[i].pushBuffer = pb;
+			#ifndef USE_GASMOXIAN
+            maskIdpp[i].pushBuffer = pb;
+			#endif
             beamIdpp[i].pushBuffer = pb;
         }
     }
@@ -48,8 +55,9 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
         {
             if (i == d->driverID)
 				continue;
-            
-            //maskIdpp[i].pushBuffer = NULL;
+            #ifndef USE_GASMOXIAN
+            maskIdpp[i].pushBuffer = NULL;
+			#endif
             beamIdpp[i].pushBuffer = NULL;
         }
     }
@@ -57,17 +65,21 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
     // if driverInst is not reflective
     if ((driverInst->flags & 0x4000) == 0)
     {
+		#ifndef USE_GASMOXIAN
         // mask is not reflective
-        //maskInst->flags &= 0xffffbfff;
+        maskInst->flags &= 0xffffbfff;
+		#endif
     }
     // if driverInst is reflective
     else
     {
+		#ifndef USE_GASMOXIAN
         // mask is reflective
-        //maskInst->flags |= 0x4000;
+        maskInst->flags |= 0x4000;
 
         // copy split line
-        //maskInst->vertSplit = driverInst->vertSplit;
+        maskInst->vertSplit = driverInst->vertSplit;
+		#endif
 
         // mask beam is reflective
         maskBeamInst->flags |= 0x4000;
@@ -76,8 +88,10 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
         maskBeamInst->vertSplit = driverInst->vertSplit;
     }
 	
-    //maskInst->unk50 = driverInst->unk50;
-    //maskInst->unk51 = driverInst->unk51;
+	#ifndef USE_GASMOXIAN
+    maskInst->unk50 = driverInst->unk50;
+    maskInst->unk51 = driverInst->unk51;
+	#endif
 	
 	struct MaskHeadScratch* mhs = 0x1f800108;
 	
@@ -97,7 +111,8 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
     mhs->rot[1] = rot;
     mhs->rot[2] = 0;
 	
-    instCurr = maskBeamInst; // only use maskbeaminst
+	#ifdef USE_GASMOXIAN
+	   instCurr = maskBeamInst; // only use maskbeaminst
     
     // First pass is now only BeamInst
     for(int i = 0; i < 2; i++)
@@ -125,6 +140,38 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
         // Skip using maskInst and directly set instCurr to maskBeamInst
         instCurr = maskBeamInst;
     }
+	
+	#else
+		
+	instCurr = maskInst;
+	
+	// First time is MaskInst,
+	// Second time is BeamInst
+	for(int i = 0; i < 2; i++)
+	{
+		if ((mask->rot[2] & 1) == 0)
+		{
+			LHMatrix_Parent(instCurr, driverInst, &mhs->posOffset[0]);
+			ConvertRotToMatrix(&mhs->m, &mhs->rot[0]);
+			MatrixRotate(&instCurr->matrix, &instCurr->matrix, &mhs->m);
+		}
+		else
+		{
+			instCurr->matrix.t[0] = (int)mask->pos[0] + mhs->posOffset[0];
+			instCurr->matrix.t[1] = (int)mask->pos[1] + mhs->posOffset[1];
+			instCurr->matrix.t[2] = (int)mask->pos[2] + mhs->posOffset[2];
+			ConvertRotToMatrix(&instCurr->matrix, &mhs->rot[0]);
+		}
+		
+		// Set up the Second pass (BeamInst)
+		
+		mhs->posOffset[0] = 0;
+		mhs->posOffset[1] = 0x40;
+		mhs->posOffset[2] = 0;
+		
+		instCurr = maskBeamInst;
+	}
+	#endif
 	
 	// === Animation ===
 
@@ -173,7 +220,13 @@ void DECOMP_RB_MaskWeapon_ThTick(struct Thread* maskTh)
 		instCurr->scale[1] = mask->scale;
 		instCurr->scale[2] = mask->scale;
 		
+		#ifdef USE_GASMOXIAN
 		// only use maskbeam
 		instCurr = maskBeamInst;
+		
+		#else
+		// second pass
+		instCurr = maskInst;
+		#endif
 	}
 }

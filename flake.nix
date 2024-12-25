@@ -27,16 +27,16 @@
 
           mkOnline = withDebug: {
             native32 = with pkgs32; {
-              gcc = callPackage ./mods/Windows/OnlineCTR/Network_PC/Server { ctrModSDK = self; inherit withDebug; };
-              clang = callPackage ./mods/Windows/OnlineCTR/Network_PC/Server { ctrModSDK = self; stdenv = clangStdenv; inherit withDebug; };
+              gcc = callPackage ./mods/Windows/Gasmoxian/Network_PC/Server { ctrModSDK = self; inherit withDebug; };
+              clang = callPackage ./mods/Windows/Gasmoxian/Network_PC/Server { ctrModSDK = self; stdenv = clangStdenv; inherit withDebug; };
             };
             arm32 = with pkgsARM32; {
-              gcc = callPackage ./mods/Windows/OnlineCTR/Network_PC/Server { ctrModSDK = self; inherit withDebug; };
-              clang = callPackage ./mods/Windows/OnlineCTR/Network_PC/Server { ctrModSDK = self; stdenv = clangStdenv; inherit withDebug; };
+              gcc = callPackage ./mods/Windows/Gasmoxian/Network_PC/Server { ctrModSDK = self; inherit withDebug; };
+              clang = callPackage ./mods/Windows/Gasmoxian/Network_PC/Server { ctrModSDK = self; stdenv = clangStdenv; inherit withDebug; };
             };
             mingw32 = with pkgsCross.mingw32; {
-              gcc = callPackage ./mods/Windows/OnlineCTR/Network_PC/Server { ctrModSDK = self; inherit withDebug; };
-              clang = callPackage ./mods/Windows/OnlineCTR/Network_PC/Server { ctrModSDK = self; stdenv = clangStdenv; trustCompiler = true; inherit withDebug; };
+              gcc = callPackage ./mods/Windows/Gasmoxian/Network_PC/Server { ctrModSDK = self; inherit withDebug; };
+              clang = callPackage ./mods/Windows/Gasmoxian/Network_PC/Server { ctrModSDK = self; stdenv = clangStdenv; trustCompiler = true; inherit withDebug; };
             };
           };
         in

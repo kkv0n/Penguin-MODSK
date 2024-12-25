@@ -1,6 +1,6 @@
 #include <common.h>
 
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 void AssignMeterGrade(struct Driver * driver, int meterLeft);
 #endif
 
@@ -508,9 +508,8 @@ void PhysTerrainSlope(struct Driver* driver)
 	#ifndef REBUILD_PS1
 	VehPhysForce_RotAxisAngle(&driver->matrixMovingDir, &driver->AxisAngle1_normalVec.x, (int)driver->angle);
 	gte_SetRotMatrix(&driver->matrixMovingDir);
-	#endif
-
 	DECOMP_VehPhysForce_CounterSteer(driver);
+	#endif
 }
 
 void DECOMP_VehPhysProc_PowerSlide_Finalize(struct Thread* t, struct Driver* d)
@@ -559,7 +558,7 @@ void DECOMP_VehPhysProc_PowerSlide_Update(struct Thread *t, struct Driver *d)
             // If bar is full
             if (meterLeft == 0)
             {
-				#ifdef USE_ONLINE
+				#ifdef USE_GASMOXIAN
 				if(d->driverID == 0)
 				#endif
 
@@ -590,7 +589,7 @@ void DECOMP_VehPhysProc_PowerSlide_Update(struct Thread *t, struct Driver *d)
             // If distance remaining to be filled in turbo bar, is less than,
             // the distance remaining from the red/green "turning point" to the end,
 
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			AssignMeterGrade(d, meterLeft);
 			#endif
             // If meter is in the red

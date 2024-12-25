@@ -1,7 +1,7 @@
 #include <common.h>
 
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos);
 #endif
 
@@ -9,7 +9,7 @@ void DECOMP_PROC_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
 {
 	// only used with drivers colliding
 	// with other drivers, disabled online
-#if defined(USE_ONLINE)
+#if defined(USE_GASMOXIAN)
 	Online_CollidePointWithBucket(th, vec3_pos);
 #else
 	while(th != 0)

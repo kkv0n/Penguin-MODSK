@@ -46,7 +46,7 @@ void DECOMP_VehStuckProc_MaskGrab_Update(struct Thread *t, struct Driver *d)
     }
 
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	if(d->driverID == 0)
 	#endif
 
@@ -117,7 +117,7 @@ void DECOMP_VehStuckProc_MaskGrab_Animate(struct Thread *t, struct Driver *d)
             // whistle sound has played
             d->KartStates.MaskGrab.boolWhistle = true;
 
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
 			if(d->driverID == 0)
 			#endif
 

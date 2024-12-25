@@ -1,5 +1,6 @@
 #include <common.h>
 
+#ifndef USE_GASMOXIAN
 void DECOMP_GhostTape_End(void)
 {
   struct Driver* d;
@@ -13,6 +14,7 @@ void DECOMP_GhostTape_End(void)
   sdata->boolCanSaveGhost = 0;
     
   // Write the last chunk of ghost data
+  DECOMP_GhostTape_WriteMoves(1);
 
   d = gGT->drivers[0];
   gh = sdata->GhostRecording.ptrGhost;
@@ -24,3 +26,4 @@ void DECOMP_GhostTape_End(void)
 
   return;
 }
+#endif

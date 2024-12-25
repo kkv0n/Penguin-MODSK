@@ -221,7 +221,7 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
 		(player->kartState == KS_MASK_GRABBED)
 	  )
   {
-
+#ifndef USE_GASMOXIAN
     if ((shieldFlags & 8) != 0)
     {
       pb = &gGT->pushBuffer[player->driverID];
@@ -230,7 +230,7 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
       pb->fadeFromBlack_desiredResult = 0x1000;
       pb->fade_step = -(0x88);
     }
-
+#endif
     shield->animFrame = 0;
     player->instBubbleHold = NULL;
 
@@ -269,7 +269,7 @@ void DECOMP_RB_ShieldDark_ThTick_Grow(struct Thread *th)
   struct Thread* bombTh = bombInst->thread;
   bombTh->funcThDestroy = DECOMP_PROC_DestroyInstance;
 
-  #ifdef USE_ONLINE
+  #ifdef USE_GASMOXIAN
   if(player->driverID == 0)
   #else
   // if driver is not an AI (human)

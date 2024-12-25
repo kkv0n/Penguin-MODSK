@@ -1,8 +1,22 @@
 #include <common.h>
-extern bool bossrace;
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
+
+//if boss race
+bool bossrace = 0;
+int bossflag;
+
+void boss() {
+
+bossflag = (bossrace) ? 2 : 0;
+
+}
+ 
+
+	
 #endif
+
 
 enum ItemSet
 {
@@ -25,8 +39,6 @@ extern char numWeapons[7];
 
 // Itemset infographic (outdated):
 // https://discord.com/channels/330945093416779787/550106151887568906/734368526294450267
-
-
 void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 	u_int rng;
 	int itemSet;
@@ -36,40 +48,82 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 
 	gGT = sdata->gGT;
 
-			if (gGT->battleSetup.enabledWeapons == 0x34de)
+	// 6th Itemset (Battle Mode Custom Itemset)
+	itemSet = ITEMSET_BattleCustom;
+
+	// 5th Itemset (Battle Mode Default Itemset, 0x34de)
+	if (gGT->battleSetup.enabledWeapons == 0x34de)
 		itemSet = ITEMSET_BattleDefault;
 	
-		if ((gGT->gameMode1 & BATTLE_MODE) == 0)
-		{
-          		if ((gGT->gameMode1 & CRYSTAL_CHALLENGE) == 0)
-		{
-				int mode = gGT->numPlyrCurrGame + gGT->numBotsNextGame;
+#ifdef USE_GASMOXIAN
+if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
+{
+	//start of itemset assignation
+	
+	bossrace = 0;
+	boss();
+	
+	int lastplace = octr->NumDrivers - 1;
+	
+	//just in case something breaks then assign itemset1 to this player
+	itemSet = ITEMSET_Race1;
 
-			mode = octr->NumDrivers;
+
+const enum ItemSet itemSets[] = {
+    ITEMSET_Race2, // Rank 1
+    ITEMSET_Race2, // Rank 2
+    ITEMSET_Race3, // Rank 3
+    ITEMSET_Race3, // Rank 4
+    ITEMSET_Race4, // Rank 5
+    ITEMSET_Race4  // Rank 6
+};
+	
+	if (driver->driverRank == 0)
+{
+	itemSet = ITEMSET_Race1;
+}
+//assign itemsets based on the driverrank, last place always get battledefault
+if (driver->driverRank >= 1 && driver->driverRank <= 7) {
+    itemSet = (driver->driverRank == lastplace) 
+              ? ITEMSET_BattleDefault 
+              : itemSets[driver->driverRank - 1];
+			  
+int allowsuperengine = octr->NumDrivers - 3; // allow super engine for the last 3 players
+if (driver->heldItemID == 0xd && driver->driverRank != allowsuperengine && gGT->gameMode1 & ARCADE_MODE) {
+	driver->heldItemID = 0x6; //if not last 2 players then replace super engine with shield
+}
+//end of itemset assignation
+}
+		//ban orbs and clocks until lap 2
+		if (driver->heldItemID >= 0x8 && driver->heldItemID <= 0x9 && driver->lapIndex == 0 ||
+		driver->heldItemID == 0xd && driver->lapIndex == 0) {
 			
-			if (octr->NumDrivers >= 1 && octr->NumDrivers <= 7) 
-			{
-				mode = octr->NumDrivers + 2;
-			}
+			driver->heldItemID = 0x7;
+		}
+}
+#else
+	// Not in Battle Mode
+	if ((gGT->gameMode1 & BATTLE_MODE) == 0)
+	{
+		// 7th Itemset (Crystal Challenge)
+		itemSet = ITEMSET_CrystalChallenge;
 
-    bossrace = 0;
+		// Not in Crystal Challenge
+		if ((gGT->gameMode1 & CRYSTAL_CHALLENGE) == 0)
+		{
+			// Choose Itemset based on number of Drivers
+			int mode = gGT->numPlyrCurrGame + gGT->numBotsNextGame;
 
-            
 
-// Itemsets for online players
-				//all the itemsets asigned to the players
-				//maybe this should be in #ifdef use_online
-				//but at this point it doesnt matter for us bc we are a fork
-				
-			
-					
-				switch(mode)
+
+
+			switch(mode)
 			{
 				// if boss race
 				case 2:
 
 					// boss race, last place
-					itemSet = ITEMSET_Race1;
+					itemSet = ITEMSET_BossRace;
 
 					// if in first place
 					if (driver->driverRank == 0)
@@ -80,175 +134,77 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 					}
 					break;
 
-				// 1v1 Race
+				// 3P VS race
 				case 3:
 
 					// if first place
-					if (driver->driverRank == 0)
-					{
-						itemSet = ITEMSET_Race1;
-					}
-					// if second place
+					if (driver->driverRank == 0) goto Itemset1;
+
+					// default (2nd or 3rd place)
+					itemSet = ITEMSET_Race4;
+
+					// 50/50 chance of an upgrade,
+					// while in 2nd place
+
 					if (driver->driverRank == 1)
 					{
-						itemSet = ITEMSET_Race4;
+						itemSet = ITEMSET_Race3;
+						rng = DECOMP_MixRNG_Scramble();
+						if (rng & 1) goto Itemset2;
 					}
 
 					break;
-					
-				//3P Online
 				case 4:
-					if (driver->driverRank == 0)
-					{
-						itemSet = ITEMSET_Race1;
-					}
-					if (driver->driverRank == 1)
-					{
-						itemSet = ITEMSET_Race4;
-					}
-					if (driver->driverRank == 2)
-					{
-						itemSet = ITEMSET_BattleDefault;
-					}
-					
+					itemSet = driver->driverRank;
 					break;
-					
-				//4P Online
 				case 5:
-					if (driver->driverRank == 0)
-					{
-						itemSet = ITEMSET_Race1;
-					}
-					if (driver->driverRank == 1)
-					{
-						itemSet = ITEMSET_Race3;
-					}
-					if (driver->driverRank == 2)
-					{
-						itemSet = ITEMSET_Race4;
-					}
-					if (driver->driverRank == 3)
-					{
-						itemSet = ITEMSET_BattleDefault;
-					}
-					
+					itemSet = driver->driverRank;
+					// 5th rank is 4th Itemset
+					if (itemSet == 4) itemSet = 3;
 					break;
 
-				// 5P Online
+				// 2P Arcade
 				case 6:
-					if (driver->driverRank == 0)
-					{
-						itemSet = ITEMSET_Race1;
-					}
-					if (driver->driverRank == 1)
-					{
-						itemSet = ITEMSET_Race2;
-					}
-					if (driver->driverRank == 2)
-					{
-						itemSet = ITEMSET_Race3;
-					}
-					if (driver->driverRank == 3)
-					{
-						itemSet = ITEMSET_Race4;
-					}
-					if (driver->driverRank == 4)
-					{
-						itemSet = ITEMSET_BattleDefault;
-					}
+
+					// careful, dont get confused by names
+					itemSet = driver->driverRank;
+
+					// if 1st place, ItemSet1
+					if (itemSet == 0) goto Itemset1;
+
+					// if 6th place, ItemSet4
+					if (itemSet == 5) itemSet = ITEMSET_Race4;
+
+					// 2nd, 3rd place, gets 2nd Itemset
+					// 4th, 5th place, gets 3rd Itemset
+					else itemSet = (itemSet - 1)/2 + 1;
 
 					break;
 
-				// 6P Online
-				case 7:
-					if (driver->driverRank == 0)
-					{
-						itemSet = ITEMSET_Race1;
-					}
-					if (driver->driverRank == 1 || driver->driverRank == 2)
-					{
-						itemSet = ITEMSET_Race2;
-					}
-					if (driver->driverRank == 3)
-					{
-						itemSet = ITEMSET_Race3;
-					}
-					if (driver->driverRank == 4)
-					{
-						itemSet = ITEMSET_Race4;
-					}
-					if (driver->driverRank == 5)
-					{
-						itemSet = ITEMSET_BattleDefault;
-					}		
-				
-				break;
-				
-				// 7P Online
+				// 1P Arcade
 				case 8:
-					
-					itemSet = ITEMSET_BattleDefault;
-					
-					if (driver->driverRank == 0)
-					{
-						itemSet = ITEMSET_Race1;
-					}
-					if (driver->driverRank == 1 || driver->driverRank == 2)
-					{
-						itemSet = ITEMSET_Race2;
-					}
-					if (driver->driverRank == 3 || driver->driverRank == 4)
-					{
-						itemSet = ITEMSET_Race3;
-					}
-					if (driver->driverRank == 5)
-					{
-						itemSet = ITEMSET_Race4;
-					}
-					if (driver->driverRank == 6)
-					{
-						itemSet = ITEMSET_BattleDefault;
-					}
-				
-				break;
-				// 8P Online
-				case 9:
-					
-					itemSet = ITEMSET_BattleDefault;
-					
-					if (driver->driverRank == 0)
-					{
-						itemSet = ITEMSET_Race1;
-					}
-					if (driver->driverRank == 1 || driver->driverRank == 2 || driver->driverRank == 3)
+
+					// 0,1 = 0 (itemset1)
+					// 2,3 = 1 (itemset2)
+					// 4,5 = 2 (itemset3)
+					// 6,7 = 3 (itemset4)
+					itemSet = driver->driverRank >> 1;
+
+					// if in 2nd place, get itemSet2
+					if (itemSet == 1)
 					{
 						Itemset2:
 						itemSet = ITEMSET_Race2;
 					}
-					if (driver->driverRank == 4 || driver->driverRank == 5)
-					{
-						itemSet = ITEMSET_Race3;
-					}
-					if (driver->driverRank == 6)
-					{
-						itemSet = ITEMSET_Race4;
-					}
-					if (driver->driverRank == 7)
-					{
-						itemSet = ITEMSET_BattleDefault;
-					}
-					
-//end of the players itemsets asignation
+			}
 		}
-		}		 
-			if (itemSet == ITEMSET_BattleDefault && driver->lapIndex == 0)
-			itemSet = ITEMSET_Race4;					   
-	
-			
-		}
-		
 
-
+		// if you have 4th-place itemset on first lap,
+		// then override to 3rd place
+		if (itemSet == ITEMSET_Race4 && driver->lapIndex == 0)
+			itemSet = ITEMSET_Race3;
+	}
+#endif
 
 	// Decide item for Driver
 	rng = (DECOMP_MixRNG_Scramble() >> 0x3) % 0xc8;
@@ -273,6 +229,15 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 			driver->heldItemID = ((int*)charPtr[itemSet])[(rng * numWeapons[itemSet]) / 0xc8];
 			break;
 
+#ifndef USE_GASMOXIAN
+		case ITEMSET_CrystalChallenge:
+			// Item is bomb at Rocky Road, Nitro Court
+			// Item is turbo at Skull Rock and Rampage Ruins
+			item = 0x1;
+			if (gGT->levelID != SKULL_ROCK && gGT->levelID != RAMPAGE_RUINS) goto SetItem;
+			driver->heldItemID = 0x0;
+			break;
+#endif
 
 		// "-1st place": Undecided rank
 		default:
@@ -282,7 +247,7 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 			driver->heldItemID = item;
 	}
 
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 if (gGT->gameMode1 & ARCADE_MODE)
 {
 	//avoid ghost bug
@@ -298,7 +263,6 @@ if (gGT->gameMode1 & ARCADE_MODE)
 	{
 		driver->heldItemID = 0x7;
 	}
-
 if (octr->warpclock == 0) 
 {
 	
@@ -319,33 +283,31 @@ else if (octr->warpclock == 1)
 		driver->heldItemID = 0xd;
 	}
 }
-
 }
 // if boss race special
 if (gGT->gameMode1 & ADVENTURE_BOSS)
 	{
-
 if (driver->driverRank == 0)
 					{
 						
 		  bossrace = 1;  
+		  boss();
 	      driver->numHeldItems = 0x7;
 		  driver->numWumpas = 0;
 		  
 		  
 			if (driver->heldItemID == 0x6 || driver->heldItemID == 0x0) {
-
 				driver->heldItemID = 0x1;
 			}
 					}
 if (driver->driverRank != 0) {
 	
 	 bossrace = 0;
+	 boss();
 	 
 	if (driver->heldItemID == 0x4 || driver->heldItemID == 0x1 || driver->heldItemID == 0x3) {
                 
 				driver->heldItemID = 0x2;
-
 				
 			}
 			else if (driver->heldItemID == 0xc) {
@@ -359,6 +321,7 @@ if (driver->driverRank != 0) {
 			}
 		}
 	}
+
 #else
 	// In Boss race
 	if (gGT->gameMode1 & ADVENTURE_BOSS)
@@ -389,7 +352,7 @@ if (driver->driverRank != 0) {
 		if (gGT->levelID == DRAGON_MINES && driver->heldItemID == 0xb)
 			driver->heldItemID = 0x2;
 	}
-#endif
+
 #if 0
 	// === Removed ND Code ===
 	// Spring is not in the RNG anyway
@@ -399,6 +362,36 @@ if (driver->driverRank != 0) {
 		driver->heldItemID = 0x0;
 #endif
 
+	// Make sure only 1 Warpball is instanced at once
+	if (driver->heldItemID == 0x9)
+	{
+		// if nobody has warpball, then set flag that somebody has it
+		if ((gGT->gameMode1 & WARPBALL_HELD) == 0)
+			gGT->gameMode1 |= WARPBALL_HELD;
+
+		// if somebody has warpball already, then give 3 missiles
+		else driver->heldItemID = 0xb;
+	}
+
+	if (
+			// if you got 3 missiles
+			driver->heldItemID == 0xb &&
+
+			// if more than 2 players
+			gGT->numPlyrCurrGame > 2 &&
+
+			// if not in battle mode
+			((gGT->gameMode1 & BATTLE_MODE) == 0)
+		)
+	{
+		// if less than 2 drivers have 3 missiles, then increase number of drivers that have it
+		if (gGT->numPlayersWith3Missiles < 2)
+			gGT->numPlayersWith3Missiles++;
+
+		// if 2 drivers already have 3 missiles, now you have 1 missile
+		else driver->heldItemID = 0x2;
+	}
+#endif
 	// Set number of held items
 	if ((u_int)driver->heldItemID - 0xA < 0x2)
 		driver->numHeldItems = 0x3;

@@ -1,13 +1,13 @@
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 
-#include "OnlineCTR/updatetimes.c"
+#include "Gasmoxian/updatetimes.c"
 unsigned int checkpointTimes[(MAX_LAPS * CPS_PER_LAP) + 1];
 extern void AssignMeterGrade(struct Driver * driver, int meterLeft);
 
 extern const int gradeTreshold[];
 extern const int gradeColors[];
 #ifndef REBUILD_PC
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 
 void AssignMeterGrade(struct Driver * driver, int meterLeft)
 {

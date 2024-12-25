@@ -1,7 +1,7 @@
 Disable the MPKs that force certain characters. Also only
 load high LOD models, instead of high+med+low+box
 
-Can be used for graphics upgrade, OnlineCTR,
+Can be used for graphics upgrade, Gasmoxian,
 character randomization, etc
 
 Optimized string searching can potentially be it's own module

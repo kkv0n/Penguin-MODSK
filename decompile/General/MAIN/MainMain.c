@@ -632,6 +632,9 @@ void StateZero()
 
 	ResetGraph(0);
 	SetGraphDebug(0);
+	
+	
+//laugh*
 
 #ifndef REBUILD_PS1
 	DECOMP_MainInit_VRAMClear();
@@ -727,10 +730,8 @@ void StateZero()
 
 	gGT->levelID = NAUGHTY_DOG_CRATE;
 
-	#ifdef USE_ONLINE
-
+	#ifdef USE_GASMOXIAN
 	gGT->levelID = 33; //lobby level 3
-	
 	#endif
 
 	#ifdef FastBoot
@@ -772,7 +773,7 @@ void StateZero()
 
 	VSyncCallback(DECOMP_MainDrawCb_Vsync);
 
-	#if !defined(FastBoot) && !defined(USE_ONLINE)
+	#if !defined(FastBoot) && !defined(USE_GASMOXIAN)
 	DECOMP_Music_SetIntro();
 	DECOMP_CseqMusic_StopAll();
 	DECOMP_CseqMusic_Start(0, 0, 0, 0, 0);

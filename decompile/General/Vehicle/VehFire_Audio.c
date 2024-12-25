@@ -6,7 +6,7 @@ void DECOMP_VehFire_Audio(struct Driver* driver, int speed_cap)
     u_int volume;
 	u_int extraFlags;
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	if(driver->driverID != 0)
 		return;
 	#endif

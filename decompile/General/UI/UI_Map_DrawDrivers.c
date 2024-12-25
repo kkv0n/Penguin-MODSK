@@ -33,7 +33,7 @@ void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
 	
 	// TO-DO: Should we just spawn player threads
 	// and enable the AI flag anyway? What would it do?
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	// if this is driver[0]
 	if(d->driverID == 0)
 	#else

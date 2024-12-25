@@ -1,7 +1,9 @@
 #include <common.h>
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 #endif
+
 int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
 {
   int netSpeed;
@@ -9,9 +11,7 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
   int speedAdditional;
   int netSpeedCap;
 
-
-	statAdditional = (int)driver->const_Speed_ClassStat;
-
+  statAdditional = (int)driver->const_Speed_ClassStat;
 
   #if 1
   netSpeedCap = 6144;
@@ -48,8 +48,7 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
 
   #endif
 
-  speedAdditional = ((netWumpaFruitCount * netSpeedStat) / 10) + ((turboMultiplier * netSpeedStat) >> 12);		
-
+  speedAdditional = ((netWumpaFruitCount * netSpeedStat) / 10) + ((turboMultiplier * netSpeedStat) >> 12);
 
   if ((driver->actionsFlagSet & 0x800000) != 0)
   {
@@ -86,21 +85,21 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
 	  int clockEffect =
 		driver->const_DamagedSpeed *
 		((0x14 - driver->driverRank) >> 4);
-
-if (octr->special == 5){
+#ifdef USE_GASMOXIAN
+		if (octr->special == 5){
 clockEffect = (int)(clockEffect * 2.0);
 }
 else
 {
  clockEffect = (int)(clockEffect * 1.3);
 }
- 
+#endif
+
 	  if(subtract < clockEffect)
 		  subtract = clockEffect;
   }
 
   netSpeed = statAdditional + speedAdditional - subtract;
-
 
   if (0x6400 < netSpeed) {
     netSpeed = 0x6400;

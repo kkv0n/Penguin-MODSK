@@ -1,5 +1,7 @@
 #include <common.h>
+#ifdef USE_GASMOXIAN
 extern bool oxidecam;
+#endif
 
 void DECOMP_CAM_ThTick(struct Thread *t)
 {
@@ -75,15 +77,13 @@ void DECOMP_CAM_ThTick(struct Thread *t)
 			cDC->cameraMode = 0;
 		}
 	}
+#ifdef USE_GASMOXIAN
 //use custom cam with oxide
-if (oxidecam) {
-	ptrZoomData = &data.NearCam8x3;
-}
-else
-{
-	ptrZoomData = &data.NearCam4x3;
-}
-	
+	ptrZoomData = (oxidecam) ? &data.NearCam8x3 : &data.NearCam4x3;
+
+#else
+ptrZoomData = &data.NearCam4x3;
+#endif
 	if (gGT->numPlyrCurrGame == 2)
 		ptrZoomData = &data.NearCam8x3;
 

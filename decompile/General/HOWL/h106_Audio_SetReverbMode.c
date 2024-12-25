@@ -26,10 +26,11 @@ void DECOMP_Audio_SetReverbMode(int levelID, u_int isBossRace, int bossID)
             }
         }
 
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 // allow boss music with invalid bossID
 reverb = sdata->reverbModeBossID[5];
 #else
+	
         // If this is a boss race
         else
         {

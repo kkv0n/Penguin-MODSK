@@ -51,8 +51,10 @@ void DECOMP_UI_RaceEnd_MenuProc(struct RectMenu* menu)
 	// Quit
 	case 3:
 	{
+		#ifndef USE_GASMOXIAN
 		// Erase ghost of previous race from RAM
 		DECOMP_GhostTape_Destroy();
+		#endif
 		
 		// go back to main menu
 		sdata->mainMenuState = 0;
@@ -88,6 +90,7 @@ void DECOMP_UI_RaceEnd_MenuProc(struct RectMenu* menu)
 		// slower than ND's copy, I know, we'll
 		// come up with a modern-gcc friendly way
 		// to sort the LWs and SWs later
+		#ifndef USE_GASMOXIAN
 		memcpy(
 			sdata->ptrGhostTapePlaying, 
 			sdata->GhostRecording.ptrGhost, 
@@ -96,7 +99,7 @@ void DECOMP_UI_RaceEnd_MenuProc(struct RectMenu* menu)
 		// Make P2 the character that is saved in the
 		// header of the ghost that you will see in the race
 		data.characterIDs[1] = sdata->ptrGhostTapePlaying->characterID;
-	
+	#endif
 		// no ghosts are drawing
 		sdata->boolGhostsDrawing = 0;
 	
@@ -107,8 +110,10 @@ void DECOMP_UI_RaceEnd_MenuProc(struct RectMenu* menu)
 	case 5:
 	case 6:
 	{
+		#ifndef USE_GASMOXIAN
 		// Erase ghost of previous race from RAM
 		DECOMP_GhostTape_Destroy();
+		#endif
 	
 		// 1 for character select
 		// 2 for track select

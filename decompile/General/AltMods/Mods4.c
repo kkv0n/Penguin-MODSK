@@ -1,7 +1,7 @@
-#ifdef USE_ONLINE
-#include "OnlineCTR/getoverheadlen.c"
-#include "OnlineCTR/drawoverheadnames.c"
-#include "OnlineCTR/drawoverheadcalibration.c"
+#ifdef USE_GASMOXIAN
+#include "Gasmoxian/getoverheadlen.c"
+#include "Gasmoxian/drawoverheadnames.c"
+#include "Gasmoxian/drawoverheadcalibration.c"
 
 typedef void (*VehicleFuncPtr)(struct Thread* thread, struct Driver* driver);
 
@@ -60,7 +60,7 @@ void RunVehicleSet13(struct Thread* dThread, struct Driver* dOnline)
 }
 #endif
 
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 Color HsvToRgb(int h, int s, int v)
 {
     Color rgb;

@@ -1,8 +1,10 @@
 #include <common.h>
+
+
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 extern void saffi_fire(struct Driver * driver, int reserves);
 extern void saffi_fire2(struct Driver * driver, int reserves);
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
 void FixReservesIncrement(struct Driver * driver, int reserves);
 #endif
 
@@ -50,8 +52,10 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 		(driver->instSelf->thread->modelIndex == 0x18)
 	)
 	{
+		#ifndef USE_GASMOXIAN
 		// Add Reserves to ghost buffer
 		DECOMP_GhostTape_WriteBoosts(reserves, (u_char)type, fireLevel);
+		#endif
 	}
 
 	kartState = driver->kartState;
@@ -263,9 +267,10 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 
 			#endif
 		);
-		
-#if defined(USE_RETROFUELED) && defined(USE_ONLINE)
-    int retro = octr->special;
+
+#if defined(USE_RETROFUELED) && defined(USE_GASMOXIAN)
+	int retro = octr->special;
+	
 #endif
 	if
 	(
@@ -289,8 +294,8 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 			// You are not on a super turbo pad
 			(int)driver->const_SacredFireSpeed < (int)driver->fireSpeedCap &&
 			((driver->stepFlagSet & 2) == 0)
-			#if defined(USE_RETROFUELED) && defined(USE_ONLINE)
-			   && (retro != 5) //is not retrofueled mode
+			#if defined(USE_RETROFUELED) && defined(USE_GASMOXIAN)
+			&& (retro != 5) //is not retrofueled mode
 			#endif
 		)
 	)
@@ -328,8 +333,8 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 	else if (!(type & 1))
 	{
 		// increase reserves BY param2
-		#ifdef USE_ONLINE
-	     saffi_fire2(driver, reserves);
+		#ifdef USE_GASMOXIAN
+		saffi_fire2(driver, reserves);
 		#else
 		driver->reserves += reserves;
 		#endif
@@ -342,16 +347,29 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 		// then prevent reserves from decreasing until the first frame
 		// you leave the turbo pad
 
-            saffi_fire(driver, reserves);
+#ifdef USE_GASMOXIAN
+saffi_fire(driver, reserves);
+		
+#else
+	oldOTT = driver->turbo_outsideTimer;
 
+		if (oldOTT < reserves)
+		{
+
+			driver->reserves += 			(reserves - oldOTT);
+			
+			driver->turbo_outsideTimer += 	(reserves - oldOTT);
+		}
+
+
+#endif
 	}
-
-	#if defined(USE_ONLINE)
+	#if defined(USE_GASMOXIAN)
 	if(driver->driverID != 0) //if not ourself
 		return;
 	#endif
 
-	//#if !defined (USE_ONLINE) //uncomment this if you need bytebudget.
+	//#if !defined (USE_GASMOXIAN) //uncomment this if you need bytebudget.
 	// if modelIndex == "player" of any kind
 	if (driver->instSelf->thread->modelIndex == 0x18)
 	{

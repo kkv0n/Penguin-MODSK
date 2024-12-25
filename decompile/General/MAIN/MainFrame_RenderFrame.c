@@ -1,7 +1,10 @@
 #include <common.h>
-#ifdef USE_ONLINE
-#include "../../General/AltMods/OnlineCTR/global.h"
+
+
+#ifdef USE_GASMOXIAN
+#include "../../General/AltMods/Gasmoxian/global.h"
 #endif
+
 // all in this file
 void DrawUnpluggedMsg(struct GameTracker* gGT, struct GamepadSystem* gGamepads);
 void DrawFinalLap(struct GameTracker* gGT);
@@ -287,7 +290,9 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 	}
 #endif
 
-
+#ifndef USE_GASMOXIAN
+	DECOMP_PushBuffer_FadeAllWindows();
+#endif
 
 	if((gGT->renderFlags & 1) != 0)
 	{
@@ -298,8 +303,8 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 		{
 			// 226-229
 			// placeholder for DrawLevelOvr1P
-			// void world event
-			#ifdef USE_ONLINE
+			#ifdef USE_GASMOXIAN
+			//void world mode
 			if (octr->special != 6){
 			TEST_226(
 				0,
@@ -310,14 +315,13 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 				0); // waterEnvMap?
 			}
 			#else
-
 			TEST_226(
 				0,
 				&gGT->pushBuffer[i],
 				gGT->level1->ptr_mesh_info,
 				&gGT->backBuffer->primMem,
 				0,
-				0); // waterEnvMap?
+				0); // waterEnvMap?	
 			#endif
 			// placeholder for DrawSky_Full
 			TEST_DrawSkybox(
@@ -349,7 +353,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 		{
 			DECOMP_DotLights(gGT);
 
-			#ifndef USE_ONLINE
+			#ifndef USE_GASMOXIAN
 			if((gGT->renderFlags & 0x8000) != 0)
 			{
 				WindowBoxLines(gGT);
@@ -743,7 +747,7 @@ void RenderAllHUD(struct GameTracker* gGT)
 					else
 					{
 						#ifndef REBUILD_PS1
-							#ifndef USE_ONLINE
+							#ifndef USE_GASMOXIAN
 							DECOMP_UI_RenderFrame_CrystChall();
 							#endif
 						#endif
@@ -765,7 +769,7 @@ void RenderAllHUD(struct GameTracker* gGT)
 						return;
 					}
 
-					#ifdef USE_ONLINE
+					#ifdef USE_GASMOXIAN
 					void OnlineEndOfRace();
 					OnlineEndOfRace();
 					return;
@@ -816,7 +820,7 @@ void RenderAllHUD(struct GameTracker* gGT)
 					// if any transition is over
 					if(gGT->pushBuffer_UI.fadeFromBlack_currentValue > 0xfff)
 					{
-						#ifndef USE_ONLINE
+						#ifndef USE_GASMOXIAN
 						DECOMP_UI_RenderFrame_AdvHub();
 						#endif
 					}
@@ -857,9 +861,11 @@ void RenderAllHUD(struct GameTracker* gGT)
 						// allow instances again
 						gGT->gameMode2 &= ~(DISABLE_LEV_INSTANCE);
 
+#ifndef USE_GASMOXIAN
 						// fade transition
 						gGT->pushBuffer_UI.fadeFromBlack_desiredResult = 0x1000;
 						gGT->pushBuffer_UI.fade_step = 0x2aa;
+#endif
 					}
 				}
 			}
@@ -1199,8 +1205,8 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			numPlyrCurrGame);
 
 		// 226-229
-		// void world event
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
+		//void world mode
 		if (octr->special != 6){
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
@@ -1211,7 +1217,7 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
 		}
 		#else
-					DrawLevelOvr1P(
+			DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
 			ptr_mesh_info,
@@ -1219,6 +1225,7 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
 		#endif
+
 		DrawSky_Full(
 			level1->ptr_skybox,
 			pushBuffer,
@@ -1345,11 +1352,12 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			&gGT->LevRenderLists[0],
 			level1->visMem->bspList[0],
 			numPlyrCurrGame);
-
-		// 226-229
-		// void world event
-		#ifdef USE_ONLINE
+			
+			
+#ifdef USE_GASMOXIAN
+//void world mode
 		if (octr->special != 6){
+		// 226-229
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
@@ -1358,15 +1366,18 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
 		}
-		#else
-					DrawLevelOvr1P(
+#else
+		// 226-229
+		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
 			ptr_mesh_info,
 			&gGT->backBuffer->primMem,
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
-		#endif
+#endif
+	
+	
 		DrawSky_Full(
 			level1->ptr_skybox,
 			pushBuffer,
@@ -1543,7 +1554,7 @@ void MultiplayerWumpaHUD(struct GameTracker* gGT)
 	#endif
 }
 
-#ifndef USE_ONLINE
+#ifndef USE_GASMOXIAN
 void WindowBoxLines(struct GameTracker* gGT)
 {
 	int i;
@@ -1721,9 +1732,7 @@ int ReadyToBreak(struct GameTracker* gGT)
 		gGT->vSync_between_drawSync > 6;
 }
 
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
-#endif
+
 
 void RenderVSYNC(struct GameTracker* gGT)
 {
@@ -1733,7 +1742,7 @@ void RenderVSYNC(struct GameTracker* gGT)
 		VSync(0);
 	}
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	int boolFirstFrame = 1;
 	#endif
 
@@ -1752,7 +1761,7 @@ void RenderVSYNC(struct GameTracker* gGT)
 			return;
 		}
 
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 		// gpu submission is not too late,
 		// we got to this while() loop before
 		// the flip was ready, so we're on-time
@@ -1816,10 +1825,22 @@ void RenderSubmit(struct GameTracker* gGT)
 	gGT->bool_DrawOTag_InProgress = 1;
 
 	void* ot = &gGT->pushBuffer[0].ptrOT[0x3ff];
+
+#ifdef USE_GASMOXIAN
+
+//ban demo camera skip when using L2
+void ban_demo_skip();
+ban_demo_skip();
+
+//different menu tittles
+
+void menu_tittle();
+menu_tittle();
+
 //mirror mode enabled
-#ifdef USE_ONLINE
 	void OnlineMirrorMode(u_long* ot);
 	OnlineMirrorMode(ot);
+
 #endif
 
 	DrawOTag(ot);

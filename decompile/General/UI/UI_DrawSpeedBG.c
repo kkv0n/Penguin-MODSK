@@ -1,6 +1,6 @@
 #include <common.h>
 
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 #define SPEEDO_LIGHT_RED MakeColor(0xff, 0x66, 0x66)
 #define SPEEDO_YELLOW MakeColor(0xdb, 0xb5, 0)
 #define SPEEDO_RED MakeColor(0xdb, 0, 0)
@@ -31,9 +31,16 @@ const Point speedometerData[]=
   { .x = WIDE_34(62), .y = 16 },   { .x = WIDE_34(51), .y = 13 },
 };
 #else
+
+#ifdef REBUILD_PC
+#define SPEEDO_GREEN 0xb500
+#define SPEEDO_YELLOW 0xffd1
+#define SPEEDO_RED 0xdb
+#else
 #define SPEEDO_GREEN MakeColor(0, 0xb5, 0)
 #define SPEEDO_YELLOW MakeColor(0xff, 0xd1, 0)
 #define SPEEDO_RED MakeColor(0xdb, 0, 0)
+#endif
 
 const Color DrawSpeedBG_Colors[7] =
 {
@@ -47,7 +54,7 @@ const Color DrawSpeedBG_Colors[7] =
 // speedometer background
 void DECOMP_UI_DrawSpeedBG(void)
 {
-  #ifdef USE_ONLINE
+  #ifdef USE_GASMOXIAN
   Point * vertexes = &speedometerData;
   Point * vertexesExtLine = &speedometerData;
   int pointCount = len(speedometerData);

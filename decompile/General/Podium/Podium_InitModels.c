@@ -1,4 +1,3 @@
-
 #include <common.h>
 
 void DECOMP_Podium_InitModels(struct GameTracker *gGT)

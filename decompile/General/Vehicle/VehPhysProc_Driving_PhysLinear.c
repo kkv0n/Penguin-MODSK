@@ -1,6 +1,6 @@
 #include <common.h>
-#ifdef USE_RETROFUELED && USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+#if defined USE_RETROFUELED && defined USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 #endif
 
 // budget: 4624
@@ -87,8 +87,9 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 	for(i = 0; i < 14; i++)
 	{
 		short* val = (short*)((int)driver + (int)PhysLinear_DriverOffsets[i]);
-		#ifdef USE_ONLINE
-		if (octr->serverRoom == 15) {
+		#ifdef USE_GASMOXIAN
+		if (octr->serverRoom == 15) { //saffi fire allowed in this room
+			
 		if(*val > 0)
 		{
 			*val -= msPerFrame;
@@ -249,7 +250,6 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 					// if time on the clock is zero
 					driverTimer = gGT->elapsedEventTime,
 					driverTimer == 0
-					
 				)
 			)
 		)
@@ -511,11 +511,9 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 	if
 	(
 		(
-		(
-	((buttonsTapped & BTN_CIRCLE) != 0)
-		) &&
-		
-		(
+			((buttonsTapped & BTN_CIRCLE) != 0) &&
+
+			(
 				(kartState == KS_NORMAL) ||
 				(kartState == KS_DRIFTING) ||
 				(kartState == KS_ANTIVSHIFT)
@@ -523,9 +521,10 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 		) &&
 
 		// if there is no tnt on your head
-		(driver->instTntRecv == 0) 
+		(driver->instTntRecv == 0)
 	)
 	{
+
 		// If there is a Bomb Pointer
 		if (driver->instBombThrow != 0)
 		{
@@ -533,8 +532,8 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 			bomb = (struct TrackerWeapon*)driver->instBombThrow->thread->object;
 			bomb->flags |= 2;
 			driver->instBombThrow = NULL;
-			#ifdef USE_ONLINE
-			if (driver->driverID == 0) octr->Shoot[0].boolNow = 1;
+			#if defined(USE_GASMOXIAN)
+			if (octr->special != 3 && driver->driverID == 0) octr->Shoot[0].boolNow = 1;
 			#endif
 			goto CheckJumpButtons;
 		}
@@ -546,8 +545,8 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 			shield = (struct Shield*)driver->instBubbleHold->thread->object;
 			shield->flags |= 2;
 			driver->instBubbleHold = NULL;
-			#ifdef USE_ONLINE
-			if (driver->driverID == 0) octr->Shoot[0].boolNow = 1;
+			#if defined(USE_GASMOXIAN)
+			if (octr->special != 3 && driver->driverID == 0) octr->Shoot[0].boolNow = 1;
 			#endif
 			goto CheckJumpButtons;
 		}
@@ -600,7 +599,6 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 					// only reduce numHeldItem if not using item cheats
 					if ((gameMode2 & (CHEAT_BOMBS | CHEAT_TURBO | CHEAT_MASK)) == 0) driver->numHeldItems--;
 				}
-
 
 				// no spring in final game
 				#if 0
@@ -700,10 +698,10 @@ CheckJumpButtons:
 	// if you are holding square
 	if (square != 0)
 	{
-		#if defined(USE_ONLINE)
-		if (octr->special != 5)  //if not retro mode
-			goto SKIP_RF;
+		#if defined(USE_GASMOXIAN)
 		
+		if (octr->special != 5) //if not retro mode
+			goto SKIP_RF;
 		#endif
 
 		// held DOWN or have landing boost
@@ -984,21 +982,28 @@ CheckJumpButtons:
 				if ((uVar20 & 0x400020) == 0)
 				{
 					driver->actionsFlagSet = uVar20;
-
+#ifdef USE_GASMOXIAN
 					// fire level, depending on numWumpa & driverRank
-					if (driver->driverRank != 0) {
+					if (driver->driverRank >= 1) {
+	
 					superEngineFireLevel = 0x200;
 					if (driver->numWumpas > 9)
 						superEngineFireLevel = 0x400;
 					}
 					else
 					{
-					superEngineFireLevel = 0x80;
-					if (driver->numWumpas > 9)
-						superEngineFireLevel = 0x100;
+					//super oxide engine is funny but need an nerf
+					driver->superEngineTimer = 0;
 						
 					}
 					
+#else
+	
+					// fire level, depending on numWumpa
+					superEngineFireLevel = 0x80;
+					if (driver->numWumpas > 9)
+						superEngineFireLevel = 0x100;
+#endif
 
 					// add 0.12s reserves
 					DECOMP_VehFire_Increment(driver, 120, (TURBO_PAD | SUPER_ENGINE), superEngineFireLevel);

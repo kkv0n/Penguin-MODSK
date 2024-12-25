@@ -24,7 +24,7 @@ void DECOMP_GAMEPAD_PollVsync(struct GamepadSystem *gGamepads)
         maxPadsPerPort = 4;
     }
 	
-#ifdef USE_ONLINE
+#ifdef USE_GASMOXIAN
 	numPorts = 1;
 	maxPadsPerPort = 1;
 #endif

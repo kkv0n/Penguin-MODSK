@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
+#endif
+
 void DECOMP_Audio_Update1(void)
 {
     char i;
@@ -50,7 +54,7 @@ void DECOMP_Audio_Update1(void)
     case 10:
         DECOMP_Audio_SetMaskSong(0);
 
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		
 		d = gGT->drivers[0];
 		
@@ -99,7 +103,7 @@ void DECOMP_Audio_Update1(void)
     case 11:
         DECOMP_Audio_SetMaskSong(0);
 
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		
 		d = gGT->drivers[0];
 		
@@ -176,7 +180,7 @@ void DECOMP_Audio_Update1(void)
     case 13:
         DECOMP_Audio_SetMaskSong(20);
 
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		
 		d = gGT->drivers[0];
 		
@@ -221,7 +225,7 @@ void DECOMP_Audio_Update1(void)
         break;
     case 14:
 
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		
 		d = gGT->drivers[0];
 		
@@ -268,6 +272,7 @@ void DECOMP_Audio_Update1(void)
         // if the race is over for this racer
         if ((d->actionsFlagSet & 0x2000000) != 0)
         {
+			#ifndef USE_GASMOXIAN
             // if did not just open N Tropy
             if ((gGT->unknownFlags_1d44 & 0x8000) == 0)
             {
@@ -326,9 +331,12 @@ void DECOMP_Audio_Update1(void)
                         // N Tropy Unlocked XA
                         // "you've earned the right to choose me in character selection"
                         uVar1 = 0x43;
+						
                     }
+					
                 }
             }
+
 
             // if n tropy just opened
             else
@@ -340,12 +348,24 @@ void DECOMP_Audio_Update1(void)
                 // "Think your fast eh, well, lets see if you can beat my fastest time"
                 uVar1 = 0x46;
             }
+			#endif
 
+#ifdef USE_GASMOXIAN
+            if (octr->special == 3 && d->driverRank == 0)
+			{
+				uVar1 = 4;
+			}
+			else
+			{
+				uVar1 = 5;
+			}
+#endif
             // desired XA
             sdata->desiredXA_3 = uVar1;
 
             DECOMP_Audio_SetState_Safe(0x10);
         }
+
         break;
     case 15:
 

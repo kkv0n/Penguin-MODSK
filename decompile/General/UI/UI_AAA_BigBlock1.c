@@ -4,14 +4,14 @@
 #include "../math.c"
 #include "../gte.c"
 
-#ifndef USE_ONLINE
+#ifndef USE_GASMOXIAN
 #include "UI_SaveLapTime.c"
 #endif
 
 #include "UI_ThTick_CountPickup.c"
 #include "UI_ThTick_Reward.c"
 
-#ifndef USE_ONLINE
+#ifndef USE_GASMOXIAN
 #include "UI_ThTick_CtrLetters.c"
 #endif
 
@@ -26,7 +26,7 @@
 #include "UI_Map_DrawRawIcon.c"
 #include "UI_Map_DrawDrivers.c"
 
-#ifndef USE_ONLINE
+#ifndef USE_GASMOXIAN
 #include "UI_Map_DrawGhosts.c"
 #endif
 
@@ -61,7 +61,7 @@
 #include "UI_DrawRankedDrivers.c"
 #include "UI_RenderFrame_Racing.c"
 
-#ifndef USE_ONLINE
+#ifndef USE_GASMOXIAN
 #include "UI_RenderFrame_AdvHub.c"
 #include "UI_RenderFrame_CrystChall.c"
 #endif

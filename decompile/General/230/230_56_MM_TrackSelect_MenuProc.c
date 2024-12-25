@@ -96,11 +96,13 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 				// if you are in time trial mode
 				if ((gGT->gameMode1 & TIME_TRIAL) != 0)
 				{
+					#ifndef USE_GASMOXIAN
 					// allocate room at the end of RAM for ghosts
 					sdata->ptrGhostTapePlaying =
 						DECOMP_MEMPACK_AllocHighMem(0x3e00/*, R230.s_loaded_ghost_data*/);
 
 					memset(sdata->ptrGhostTapePlaying, 0, 0x28);
+					#endif
 
 					// by default, dont show ghost in race
 					sdata->boolReplayHumanGhost = 0;
@@ -496,9 +498,9 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 			// if you are in time trial mode
 			if ((gGT->gameMode1 & TIME_TRIAL) != 0)
 			{
-				#ifndef REBUILD_PS1
+				#if !defined(REBUILD_PS1) || !defined(USE_GASMOXIAN)
 				// Check if this track has Ghost Data
-				//uVar15 = RefreshCard_BoolGhostForLEV(selectMenu[iVar10].levID);
+				uVar15 = RefreshCard_BoolGhostForLEV(selectMenu[iVar10].levID);
 				#else
 				uVar15 = 0;
 				#endif

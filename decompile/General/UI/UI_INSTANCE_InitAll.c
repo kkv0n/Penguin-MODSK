@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_GASMOXIAN
+#include "../../General/AltMods/Gasmoxian/global.h"
+#endif
+
 void DECOMP_UI_INSTANCE_InitAll(void)
 {
   struct GameTracker *gGT;
@@ -46,8 +50,13 @@ void DECOMP_UI_INSTANCE_InitAll(void)
 	  return;
     }
 
+#ifdef USE_GASMOXIAN
     if ((gameMode1 & (RELIC_RACE | ADVENTURE_ARENA)) != 0)
-	{
+
+#else
+ if ((gameMode1 & (RELIC_RACE | ADVENTURE_ARENA | TIME_TRIAL)) != 0)	
+#endif		
+	{		
 
 // Mistake? Why would this happen if there's no icons in these modes?
 #if 0
@@ -144,10 +153,17 @@ void DECOMP_UI_INSTANCE_InitAll(void)
     sdata->pushBuffer_DecalMP.ptrOT = gGT->pushBuffer->ptrOT;
     sdata->pushBuffer_DecalMP.distanceToScreen_PREV = gGT->pushBuffer->distanceToScreen_PREV;
 
-	// Replace PushBufferUI with regular PushBuffer,
+#ifdef USE_GASMOXIAN
+if (octr->special != 3) {
+    sdata->ptrFruitDisp =
+		DECOMP_UI_INSTANCE_BirthWithThread(0x37,DECOMP_UI_ThTick_CountPickup,3,1,/*sdata->ptrPushBufferUI*/0,/*sdata->s_fruitdisp*/0);
+}
+#else
+			// Replace PushBufferUI with regular PushBuffer,
 	// workaround for decompile, and it just looks better
     sdata->ptrFruitDisp =
 		DECOMP_UI_INSTANCE_BirthWithThread(0x37,DECOMP_UI_ThTick_CountPickup,3,1,/*sdata->ptrPushBufferUI*/0,/*sdata->s_fruitdisp*/0);
+#endif		
 
     if (
 			(gGT->numPlyrCurrGame < 3) &&
@@ -156,7 +172,7 @@ void DECOMP_UI_INSTANCE_InitAll(void)
 			((gameMode1 & BATTLE_MODE) == 0)
 		)
 	  {
-      #ifndef USE_ONLINE
+      #ifndef USE_GASMOXIAN
       DECOMP_UI_INSTANCE_BirthWithThread(0x38,DECOMP_UI_ThTick_big1,2,0,0,/*sdata->s_big1*/0);
       #endif
     }
@@ -166,7 +182,7 @@ void DECOMP_UI_INSTANCE_InitAll(void)
       return;
     }
 
-	#ifndef USE_ONLINE
+	#ifndef USE_GASMOXIAN
     sdata->ptrHudC = DECOMP_UI_INSTANCE_BirthWithThread(0x93,DECOMP_UI_ThTick_CtrLetters,0x12,0,0,/*sdata->s_hudc*/0);
     sdata->ptrHudT = DECOMP_UI_INSTANCE_BirthWithThread(0x94,DECOMP_UI_ThTick_CtrLetters,0x12,0,0,/*sdata->s_hudt*/0);
     sdata->ptrHudR = DECOMP_UI_INSTANCE_BirthWithThread(0x95,DECOMP_UI_ThTick_CtrLetters,0x12,0,0,/*sdata->s_hudr*/0);

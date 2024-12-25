@@ -1,5 +1,5 @@
 #include <common.h>
-#include "../AltMods/OnlineCTR/global.h"
+#include "../AltMods/Gasmoxian/global.h"
 
 // Draw player icons on left side of screen
 // in Arcade mode and Boss mode, and draws
@@ -7,7 +7,6 @@
 
 int DriverIndex_GetDamageColor(int iVar14)
 {
-	
 	struct GameTracker* gGT = sdata->gGT;
 	struct Driver* d = gGT->drivers[iVar14];
 
@@ -101,9 +100,6 @@ void DECOMP_UI_DrawRankedDrivers(void)
 	  {
         if (data.rankIconsTransitionTimer[iVar14] == 0)
 		{
-			//found this 4387483 years after i finished modifying this file
-			//i dont care, anyways ivar12 is more easy to use for me.
-			
           // player structure + 0x482 is your rank in the race
           // 0 = 1st place, 1 = 2nd place, 2 = 3rd place, etc
           data.rankIconsDesired[iVar14] = gGT->drivers[iVar14]->driverRank;
@@ -130,7 +126,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
         iVar14 = 2;
       }
 
-	  #ifdef USE_ONLINE
+	  #ifdef USE_GASMOXIAN
 	  int OnlineGetNumDrivers();
 	  int oNumDrivers = OnlineGetNumDrivers();
 	  if(oNumDrivers < 9) { iVar14 = oNumDrivers; }
@@ -142,7 +138,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
 	  // height to draw rank (this bitshifts later)
 	  iVar12 = 0x380000;
 
-	  #ifndef USE_ONLINE
+	  #ifndef USE_GASMOXIAN
 	  for (iVar15 = 0; iVar15 < iVar14; iVar15++)
 	  {
 		// make the text white by default
@@ -165,7 +161,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
 
       for (iVar14 = 0; iVar14 < 8; iVar14++)
 	  {
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		if (!octr->nameBuffer[iVar14][0]) { continue; }
 		#endif
 
@@ -190,7 +186,6 @@ void DECOMP_UI_DrawRankedDrivers(void)
 		  // icon not transitioning
           if (*psVar13 == 0)
 		  {
-			
             // get absolute pos-rank of driver
             iVar12 = *des;
 
@@ -199,7 +194,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
 			{
               // if top positions
 
-			  #ifdef USE_ONLINE
+			  #ifdef USE_GASMOXIAN
 			  pos.x = 10;
 			  pos.y = 53 + iVar12 * 20;
 			  #else
@@ -213,36 +208,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
             }
           }
 
-		  #ifdef USE_ONLINE
-		  
-
-		  int defined_colors;
-		  int players_colors;
-
-
- //ivar12 is driver position in the race
-//ivar12 0-7 is the position 1-8 of the player 
-//for example ivar12 0-2 is ctr top 3 podium positions
-//it could be named driverRank too
-if (iVar12 == 0) {
-    players_colors = JUSTIFY_CENTER | CORTEX_RED; //boss
-} else if (iVar14 == 0 && iVar12 != 0) {
-    players_colors = JUSTIFY_CENTER | OXIDE_LIGHT_GREEN;
-} else if (iVar14 != 0 && iVar12 != 0) {
-    players_colors = JUSTIFY_CENTER | ORANGE;
-}
-
-		  if (octr->special == 7)
-		  {
-			defined_colors = players_colors; //only use this if boss race mode is enabled
-		  }
-		  else
-		  {
-			 
-			 defined_colors = iVar14 == 0 ? (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN) : (JUSTIFY_CENTER | ORANGE);
-			 
-		  }		  
-		  
+		  #ifdef USE_GASMOXIAN
 		  short iconScale = FP(0.75);
 		  txtColor = 4;
 		  if (checkpointTracker[iVar15].raceFinished) { txtColor = 3; }
@@ -283,10 +249,44 @@ if (iVar12 == 0) {
 
             1, iconScale, color);
 
-		  #ifdef USE_ONLINE
+		  #ifdef USE_GASMOXIAN
+		  
+		  
+		  int defined_colors;
+		  int players_colors;
+ //ivar12 is driver position in the race
+//ivar12 0-7 is the position 1-8 of the player 
+//for example ivar12 0-2 is ctr top 3 podium positions
+//it could be named driverRank too
+if (iVar12 == 0) {
+    players_colors = JUSTIFY_CENTER | CORTEX_RED; //boss
+} else if (iVar14 == 0 && iVar12 != 0) {
+    players_colors = JUSTIFY_CENTER | OXIDE_LIGHT_GREEN;
+} else if (iVar14 != 0 && iVar12 != 0) {
+    players_colors = JUSTIFY_CENTER | ORANGE;
+}
+		  if (octr->special == 7)
+		  {
+			defined_colors = players_colors; //only use this if boss race mode is enabled
+		  }
+		  else
+		  {
+			 
+			 defined_colors = iVar14 == 0 ? (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN) : (JUSTIFY_CENTER | ORANGE);
+			 
+		  }		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		  
+		 
 		  if (checkpointTracker[iVar14].timer > 0)
 		  {
-
 			DECOMP_DecalFont_DrawLineStrlen(
 				checkpointTracker[iVar14].displayTime,
 				10,
@@ -294,29 +294,21 @@ if (iVar12 == 0) {
 				pos.y + 9,
 				FONT_SMALL, checkpointTracker[iVar14].drawFlags);
 			checkpointTracker[iVar14].timer -= sdata->gGT->elapsedTimeMS;
-			//number of letters for the name and position
 			DECOMP_DecalFont_DrawLineStrlen(
-                octr->nameBuffer[iVar14],
-				5,
+				octr->nameBuffer[iVar14],
+				5, //allow 5 letters
 				pos.x + 49,
 				pos.y + 1,
-                FONT_SMALL,
-                defined_colors
-				);
+				FONT_SMALL, defined_colors);
 		  }
 		  else
 		  {
-
-//number of letters for the name and position
-
-DECOMP_DecalFont_DrawLineStrlen(
-    octr->nameBuffer[iVar14],
-    5,
-    pos.x + 47,
-    pos.y + 7,
-    FONT_SMALL,
-    defined_colors   //ivar 14 == 0 is our name, if not 0 then it is other players name  
-);	
+			DECOMP_DecalFont_DrawLineStrlen(
+				octr->nameBuffer[iVar14],
+                 5, //allow 5 letters
+                 pos.x + 47,
+                 pos.y + 7,
+				FONT_SMALL, defined_colors);
 		  }
 		  #endif
         }

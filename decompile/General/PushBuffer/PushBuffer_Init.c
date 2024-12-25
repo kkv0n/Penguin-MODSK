@@ -11,11 +11,15 @@ void DECOMP_PushBuffer_Init(struct PushBuffer* pb, int id, int total)
 	#define SIZEY_1P 0xD8
 	#endif
 	
+	#ifndef USE_GASMOXIAN
 	pb->fade_step = 0x88;
+	#endif
 	pb->cameraID = id;
 
+#ifndef USE_GASMOXIAN
 	pb->fadeFromBlack_currentValue = 0x1000;
 	pb->fadeFromBlack_desiredResult = 0x1000;
+#endif
 
 	// dont write Projection matrix, waste of time,
 	// dont write Aspect Ratio, waste of time,

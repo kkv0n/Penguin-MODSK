@@ -1,8 +1,11 @@
-// OnlineCTR (part 1)
-#include "OnlineCTR/hooks.c"
-#include "OnlineCTR/menu.c"
-#include "OnlineCTR/states.c"
-#include "OnlineCTR/thread.c"
+// Gasmox(part 1)
+#ifdef USE_GASMOXIAN
+#include "Gasmoxian/hooks.c"
+#include "Gasmoxian/menu.c"
+#include "Gasmoxian/states.c"
+#include "Gasmoxian/thread.c"
+#include "Gasmoxian/global.h"
+
 extern const char specting[];
 extern const char finish_race[];
 
@@ -20,8 +23,24 @@ void spec_text() {
     
 }
 
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+void ban_demo_skip()
+{       
+
+if (octr->special == 8) {
+    data.gamepadMapBtn[8].output = BTN_R2; // if demo camera mode change L2 to R2
+}
+
+	if (octr->CurrState < LOBBY_WAIT_FOR_LOADING)
+	{
+	  data.gamepadMapBtn[8].output = BTN_L2_one; // if not in demo camera mode use L2 as L2
+
+	} 
+	
+	return;
+}
+
+
+#include "../AltMods/Gasmoxian/global.h"
 void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
 {
     // disable collisions in special 3 

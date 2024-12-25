@@ -207,7 +207,7 @@ SPINOUT:
 		((gameMode1 & END_OF_RACE) == 0)
 	)
 	{
-		#ifdef USE_ONLINE
+		#ifdef USE_GASMOXIAN
 		if(attackDriver->driverID != 0)
 			return;
 		#endif

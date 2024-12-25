@@ -1,6 +1,6 @@
 #include <common.h>
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 #endif
 void EngineSound_Player(struct Driver *driver)
 {

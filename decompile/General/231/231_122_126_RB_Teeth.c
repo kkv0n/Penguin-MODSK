@@ -1,4 +1,7 @@
 #include <common.h>
+//tiger temple door
+//tiger temple shortcut
+//tiger temple bomb
 
 void DECOMP_RB_Teeth_OpenDoor();
 
@@ -7,13 +10,19 @@ void DECOMP_RB_Teeth_LInB(struct Instance* inst)
   inst->unk50 += 2;
   
   // If in relic race
+  #ifdef USE_GASMOXIAN
+  if((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0)
+  #else
   if ((sdata->gGT->gameMode1 & RELIC_RACE) != 0) 
+  #endif
   {
+
 	// enable access through a door (disable collision)
     sdata->doorAccessFlags |= 1;
 	
 	// Make invisible
     inst->flags |= 0x80;
+	
   }
   return;
 }
@@ -88,6 +97,18 @@ void DECOMP_RB_Teeth_ThTick(struct Thread* t)
   #define SPS \
 	((struct ScratchpadStruct*)0x1f800108)
   
+  #ifdef USE_GASMOXIAN
+      // open the door in time trial
+    if (sdata->gGT->gameMode1 & TIME_TRIAL) 
+    {
+        // keep the door open
+        inst->animFrame = VehFrameInst_GetNumAnimFrames(inst, 0) - 1;
+        teeth->direction = 0;   
+        teeth->timeOpen = 0x780; 
+        inst->flags &= ~0x80;   
+        return;
+    }
+	#endif
   // if door is not moving
   if (teeth->direction == 0) 
   {
@@ -103,9 +124,18 @@ void DECOMP_RB_Teeth_ThTick(struct Thread* t)
 	// if timer is up
 	if (iVar1 < 1) 
 	{
+		//
+		#ifdef USE_GASMOXIAN
+		if((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) == 0)
+		{
+    //only play door sound in other modes
+      PlaySound3D(0x75,inst);
+		}
+		#else
 	  // play sound
 	  // teeth closing
-      PlaySound3D(0x75,inst);
+			PlaySound3D(0x75,inst);
+		#endif
       
 	  // timer is zero
 	  teeth->timeOpen = 0;
@@ -218,8 +248,22 @@ int DECOMP_RB_Teeth_LInC(struct Instance *teethInst, struct Thread *t, struct Sc
 
     // If in relic race, ignore the function,
     // there are no weapons to activate door anyways
-    if ((sdata->gGT->gameMode1 & RELIC_RACE) != 0)
-        return 2;
+	#ifdef USE_GASMOXIAN
+    if((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0) 
+	{
+	#else
+	if ((sdata->gGT->gameMode1 & RELIC_RACE) != 0)
+		return 2;
+	#endif
+	
+	
+	
+#ifdef USE_GASMOXIAN
+        DECOMP_RB_Teeth_OpenDoor(teethInst);
+	return 2;
+	}
+#endif
+        
         
     teethTh = teethInst->thread;
     d = t->object;
@@ -316,10 +360,31 @@ void DECOMP_RB_Teeth_OpenDoor(struct Instance* inst)
   
   // play sound,
   // teeth opening
+  #ifdef USE_GASMOXIAN
+  if((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) == 0) {
   PlaySound3D(0x75,inst);
+  }
+  #else
+  PlaySound3D(0x75,inst);  
+  #endif
   
-  // door is open
+  #ifndef USE_GASMOXIAN
+    // door is open
   ((struct Teeth*)teethTh->object)->direction = 1;
+  
+  #else
+   if((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0) {
+  ((struct Teeth*)teethTh->object)->direction = 0; 
+  ((struct Teeth*)teethTh->object)->timeOpen = 0;
+  
+   inst->animFrame = VehFrameInst_GetNumAnimFrames(inst, 0) - 1;
+   }
+   else
+   {
+	 ((struct Teeth*)teethTh->object)->direction = 1;  
+   }
+
+  #endif
   
   // enable access through a door (disable collision)
   sdata->doorAccessFlags |= 1;

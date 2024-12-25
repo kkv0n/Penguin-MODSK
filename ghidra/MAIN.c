@@ -8996,7 +8996,7 @@ LAB_8003ca68:
 	  // VehBirth_EngineAudio_AllPlayers
       FUN_80058ba4();
 
-	  // This is in OnlineCTR
+	  // This is in Gasmoxian
 	  // 9 = intro cutscene
 	  // 10 = traffic lights
 	  // 11 = racing

@@ -35,7 +35,7 @@ void DECOMP_UI_BattleDrawHeadArrows(struct Driver *player)
 
   u_char numPlyr = gGT->numPlyrCurrGame;
 
-  #ifdef USE_ONLINE
+  #ifdef USE_GASMOXIAN
   int OnlineGetNumDrivers();
   numPlyr = OnlineGetNumDrivers();
   #endif
@@ -129,7 +129,7 @@ void DECOMP_UI_BattleDrawHeadArrows(struct Driver *player)
     // color data
     color = *(u_int *)data.ptrColor[PLAYER_BLUE + currTeam];
 	
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	int onlineCharID = data.characterIDs[i];
 	color = *(u_int *)data.ptrColor[CRASH_BLUE + onlineCharID];
 	#endif

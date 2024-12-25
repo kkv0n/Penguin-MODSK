@@ -1,31 +1,30 @@
 #include <common.h>
-extern bool bossrace;
+
+#ifdef USE_GASMOXIAN
+#include "../../General/AltMods/Gasmoxian/global.h"
+#endif
+
 void DECOMP_UI_DrawSlideMeter(short posX, short posY, struct Driver* driver)
 {
 	const struct GameTracker * gGT = sdata->gGT;
-	#ifdef USE_ONLINE
-
-//this is for moon mode, for now avoid tnts in this mode just to test if it can reduce crashes
-		if (octr->special == 4 && driver->heldItemID == 0x3) {
-		driver->heldItemID = 0x1;
-		
-	}
-		//this is for boss race mode
+	#ifdef USE_GASMOXIAN
+	
+	
+			//this is for boss race mode
     //using this file because it updates itself every second
 	if (octr->special == 7) {
 		if (driver->driverRank == 0 && driver->numWumpas == 99)
 	{   
 			driver->numWumpas = 0;
-
 	}
 	if (driver->driverRank != 0) {
 		driver->numWumpas = 99;
-
 	}
 	}
-
+	
+	
 	const int xOffset = 2;
-	const int barWidth = 39;
+	const int barWidth = 36;
 	int barHeight = 10;
 	posX += xOffset;
 	#else
@@ -49,7 +48,7 @@ void DECOMP_UI_DrawSlideMeter(short posX, short posY, struct Driver* driver)
 	box.h = barHeight;
 	DECOMP_CTR_Box_DrawWireBox(&box, MakeColor(0, 0, 0), gGT->pushBuffer_UI.ptrOT);
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	if (driver->driverID == 0 && driver->meterGradeTimer > 0)
 	{
 		driver->meterGradeTimer -= gGT->elapsedTimeMS;
@@ -89,7 +88,7 @@ void DECOMP_UI_DrawSlideMeter(short posX, short posY, struct Driver* driver)
 
 	#ifdef USE_BOOSTBAR
 	void DrawBoostBar(short posX, short posY, struct Driver* driver);
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	DrawBoostBar(posX - xOffset, posY + 5, driver);
 	#else
 	DrawBoostBar(posX, posY + 5, driver);

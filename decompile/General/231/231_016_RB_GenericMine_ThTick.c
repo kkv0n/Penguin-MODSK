@@ -147,7 +147,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread* t)
 	{
 		RB_RainCloud_Init(d);
 	}
-	
+	#ifndef USE_GASMOXIAN
 	// if this driver is not an AI
     if ((d->actionsFlagSet & 0x100000) == 0) 
 	{
@@ -160,7 +160,7 @@ void DECOMP_RB_GenericMine_ThTick(struct Thread* t)
 	  // fade step
 	  gGT->pushBuffer[d->driverID].fade_step = 0xff78;
 	}
-	
+	#endif
 	// make player icon red
 	// If this is a red beaker
     param = 0x1e;

@@ -54,7 +54,7 @@ void DECOMP_RB_Burst_CollThBucket(struct ScratchpadStruct *sps, struct Thread *t
       if (attacker->longestShot < tw->timeAlive)
 		attacker->longestShot = tw->timeAlive;
     }
-
+#ifndef USE_GASMOXIAN
     // if this driver is not an AI
     if ((victim->actionsFlagSet & 0x100000) == 0)
     {
@@ -64,7 +64,7 @@ void DECOMP_RB_Burst_CollThBucket(struct ScratchpadStruct *sps, struct Thread *t
       pb->fadeFromBlack_desiredResult = 0x1000;
       pb->fade_step = 0xff78;
     }
-
+#endif
     // icon damage timer, draw icon as red
     victim->damageColorTimer = 0x1e;
 

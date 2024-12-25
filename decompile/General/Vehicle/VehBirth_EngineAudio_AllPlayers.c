@@ -1,7 +1,9 @@
 #include <common.h>
-#ifdef USE_ONLINE
-#include "../AltMods/OnlineCTR/global.h"
+
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
 #endif
+
 void DECOMP_VehBirth_EngineAudio_AllPlayers(void)
 {
   struct Thread* th;
@@ -16,37 +18,33 @@ void DECOMP_VehBirth_EngineAudio_AllPlayers(void)
   {
 	struct Driver* d = th->object;
 	
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	d = gGT->drivers[0];
 	#endif
 	
     u_char driverID = d->driverID;
+	
+#ifdef USE_GASMOXIAN
+
 	//change engine sound per enginetype
 	
-int engine;
-
-if (octr->enginetype[driverID] <= 3){
-	engine = data.MetaDataCharacters
+	data.MetaDataCharacters
 	[data.characterIDs[driverID]].engineID = octr->enginetype[driverID];
 
-
-}
-else
-{					
-// client.exe sets the OG engine for each character	 
-	 engine = data.MetaDataCharacters
-	[data.characterIDs[driverID]].engineID = octr->OGengine[driverID]; 
-}
+	int engine = data.MetaDataCharacters
+		[data.characterIDs[driverID]].engineID;
 
 
-		
-
+#else
+	int engine = data.MetaDataCharacters
+		[data.characterIDs[driverID]].engineID;
+#endif
 
 	#ifndef REBUILD_PS1
     EngineAudio_InitOnce((engine * 4) + driverID, 0x8080);
 	#endif
 
-	#ifdef USE_ONLINE
+	#ifdef USE_GASMOXIAN
 	return;
 	#endif
   }

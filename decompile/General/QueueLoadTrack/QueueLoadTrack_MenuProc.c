@@ -6,11 +6,13 @@ void DECOMP_QueueLoadTrack_MenuProc(struct RectMenu* menu)
 
   // If you're in Time Trial,
   // set P3 to N Tropy, and P4 to N Oxide
-  //if ((gGT->gameMode1 & TIME_TRIAL) != 0)
-  //{
-    //data.characterIDs[2] = 0xc;
-    //data.characterIDs[3] = 0xf;
-  //}
+  #ifndef USE_GASMOXIAN
+  if ((gGT->gameMode1 & TIME_TRIAL) != 0)
+  {
+    data.characterIDs[2] = 0xc;
+    data.characterIDs[3] = 0xf;
+  }
+  #endif
 
   // If you're in Adventure Mode, 
   // go to Adventure Arena from Title Screen

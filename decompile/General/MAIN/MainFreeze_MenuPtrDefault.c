@@ -106,12 +106,14 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 			// if you are not showing a ghost during a race
 			if (sdata->boolReplayHumanGhost == 0) return;
 
+#ifndef USE_GASMOXIAN
 			// If the ghost playing buffer is nullptr
 			if (sdata->ptrGhostTapePlaying == 0) return;
 
 			// Make P2 the character that is saved in the header of the
 			// ghost that you will see in the race
 			data.characterIDs[1] = sdata->ptrGhostTapePlaying->characterID;
+#endif
 			return;
 
 		// stringID 2: "RESUME"
@@ -131,7 +133,9 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 		case 5:
 
 			// erase ghost of previous race from RAM
+			#ifndef USE_GASMOXIAN
 			DECOMP_GhostTape_Destroy();
+			#endif
 
 			// set level ID to main menu
 			levID = MAIN_MENU_LEVEL;
@@ -147,7 +151,9 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 		case 6:
 
 			// erase ghost of previous race from RAM
+			#ifndef USE_GASMOXIAN
 			DECOMP_GhostTape_Destroy();
+			#endif
 
 			// level ID of main mb
 			levID = MAIN_MENU_LEVEL;

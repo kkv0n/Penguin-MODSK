@@ -11,7 +11,9 @@ void DECOMP_MainFreeze_MenuPtrQuit(struct RectMenu* menu)
         if (row == 0)
         {
             // Erase ghost of previous race from RAM
+			#ifndef USE_GASMOXIAN
             DECOMP_GhostTape_Destroy();
+			#endif
 
             // Add bit for "in menu" when loading is done
             sdata->Loading.OnBegin.AddBitsConfig0 |= MAIN_MENU;
