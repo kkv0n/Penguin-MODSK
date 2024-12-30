@@ -9,8 +9,6 @@
 
 extern void uibb_entryHook();
 
-//if boss race
-bool bossrace = 0;
 
 
 
