@@ -1,5 +1,4 @@
 #include <common.h>
-#include "../../../tracks.h"
 
 // all in this file
 void DrawUnpluggedMsg(struct GameTracker* gGT, struct GamepadSystem* gGamepads);
@@ -46,26 +45,22 @@ void RB_Follower_ProcessBucket(struct Thread* thread);
 void RB_StartText_ProcessBucket(struct Thread* thread);
 u_int MM_Video_CheckIfFinished(int param_1);
 
+
 void MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem* gGamepads)
 {
 	struct Level* lev = gGT->level1;
 
-	//dont allow time trial, it is buggy and crashes
-	if (sdata->gGT->gameMode1 & TIME_TRIAL) {
-		sdata->gGT->gameMode1 &= ~TIME_TRIAL;
-		sdata->gGT->gameMode1 |= ARCADE_MODE;
-	}
 
 	DrawUnpluggedMsg(gGT, gGamepads);
 	DrawFinalLap(gGT);
 
 	ElimBG_HandleState(gGT);
 
-	if (gGT->numPlyrNextGame == 1)
-	{
-		if ((gGT->renderFlags & 0x21) != 0)
-			MainFrame_VisMemFullFrame(gGT, gGT->level1);
-	}
+
+
+	if ((gGT->renderFlags & 0x21) != 0)
+		MainFrame_VisMemFullFrame(gGT, gGT->level1);
+
 
 
 
@@ -99,8 +94,9 @@ void MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem* gGamep
 	RenderAllStars(gGT);
 
 
-	RenderAllHUD(gGT);
 
+
+	RenderAllHUD(gGT);
 
 
 	RenderAllBeakerRain(gGT);
@@ -110,9 +106,7 @@ void MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem* gGamep
 	RenderAllNormalParticles(gGT);
 	RenderDispEnv_World(gGT); // == RenderDispEnv_World ==
 
-#if 0
-	// Multiplayer PixelLOD Part 2
-#endif
+
 
 	RenderAllFlag0x40(gGT); // I need a better name
 	RenderAllTitleDPP(gGT);
@@ -125,24 +119,21 @@ void MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem* gGamep
 
 
 
-
 	PushBuffer_FadeAllWindows();
-
 
 	if ((gGT->renderFlags & 1) != 0)
 	{
 
+
+
 		RenderAllLevelGeometry(gGT);
+
 
 
 		RenderDispEnv_World(gGT); // == RenderDispEnv_World ==
 
-		// We just draw full wumpa geometry instead
 		MultiplayerWumpaHUD(gGT);
 
-#if 0
-		// Multiplayer Pixel LOD Part 3
-#endif
 
 		if (
 			// if not cutscene
@@ -178,19 +169,9 @@ void MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem* gGamep
 
 			PlayLevel_UpdateLapStats();
 		}
-	}
-
-
-	if ((gGT->gameMode1 & MAIN_MENU) != 0)
-	{
-
-		data.font_charPixWidth[1] = WIDE_34(13); //make the font small in main menu
 
 	}
-	else
-	{
-		data.font_charPixWidth[1] = WIDE_34(17); //return the font to his original size
-	}
+
 
 	// If in main menu, or in adventure arena,
 	// or in End-Of-Race menu
@@ -211,22 +192,27 @@ void MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem* gGamep
 		CAM_ClearScreen(gGT);
 	}
 
-
 	if ((gGT->renderFlags & 0x1000) != 0)
 	{
+
+
 		RaceFlag_DrawSelf();
+
 	}
 
-
 	RenderDispEnv_UI(gGT);
+
+	// requires USE_PROFILER,
+	// only for NGin Labs
+
+
+	// VSYNC profiler
 
 
 	RenderVSYNC(gGT);
 
 
 	RenderFMV();
-
-
 
 	RenderSubmit(gGT);
 }
@@ -237,6 +223,7 @@ void DrawUnpluggedMsg(struct GameTracker* gGT, struct GamepadSystem* gGamepads)
 	int lngArrStart;
 	RECT window;
 	int i;
+
 
 	// dont draw error if demo mode, or cutscene,
 	// or if no controllers are missing currently
@@ -278,8 +265,8 @@ void DrawUnpluggedMsg(struct GameTracker* gGT, struct GamepadSystem* gGamepads)
 		struct ControllerPacket* ptrControllerPacket = gGamepads->gamepad[i].ptrControllerPacket;
 
 		if (ptrControllerPacket != 0)
-			if(ptrControllerPacket->plugged == PLUGGED) 
- 				continue;
+			if (ptrControllerPacket->plugged == PLUGGED)
+				continue;
 
 		// if controller is unplugged
 
@@ -493,10 +480,10 @@ void RenderAllHUD(struct GameTracker* gGT)
 {
 	int hudFlags;
 	int gameMode1;
-	static unsigned char press_start = 0;
 
 	hudFlags = gGT->hudFlags;
 	gameMode1 = gGT->gameMode1;
+
 
 
 	// if not drawing intro-race title bars
@@ -519,36 +506,13 @@ void RenderAllHUD(struct GameTracker* gGT)
 			if ((gameMode1 & END_OF_RACE) != 0)
 			{
 
-#ifdef CUSTOM_CUP
-				if (!cup_enabled) sdata->ptrActiveMenu = 0x800a0458;
-#else
-				sdata->ptrActiveMenu = 0x800a0458;
-#endif
+				//we can name this "custom overlay" ?
+				void adventure_endrace();
+				adventure_endrace(); //needed because the entire 222(adventure) overlay wont work here
 
-				void time_helper(u_char showthis);
-				time_helper(1);
 
-#ifdef CUSTOM_CUP
-				int btn = sdata->gGamepads->gamepad[0].buttonsTapped;
-
-				if (cup_enabled) DecalFont_DrawLine("PRESS START TO CONTINUE", 65, 176, FONT_BIG, ORANGE);
-                
-				
-				if (((btn & BTN_START) != 0) && (cup_enabled))
-				{
-					//avoid track skip when spamming start
-					if (!press_start)
-					{
-					void custom_cup();
-					custom_cup();
-					press_start = 1;
-					}
-					
-				}
-#endif
-
-				return;
 			}
+
 		}
 
 		// if hud
@@ -566,8 +530,6 @@ void RenderAllHUD(struct GameTracker* gGT)
 					(gGT->timerEndOfRaceVS != 0)
 					)
 				{
-					press_start = 0;
-					
 					// not crystal challenge
 					if ((gameMode1 & CRYSTAL_CHALLENGE) == 0)
 					{
@@ -577,28 +539,24 @@ void RenderAllHUD(struct GameTracker* gGT)
 					// if crystal challenge
 					else
 					{
+
 						UI_RenderFrame_CrystChall();
 
 					}
 				}
 
-
 				if ((gameMode1 & END_OF_RACE) != 0)
 				{
-					gGT->hudFlags &= ~(1);
-					return;
+					gGT->hudFlags = 0;
+
 				}
-
-
-
-
-
-
 			}
 
 			// if adv hub
 			else
 			{
+
+
 				// load on last frame of waiting to load 232,
 				// leave transition at 1 (see later in func),
 				// and load the 232 overlay
@@ -721,30 +679,17 @@ void RenderBucket_QueueAllInstances(struct GameTracker* gGT)
 	if ((gGT->gameMode1 & RELIC_RACE) != 0)
 		lod |= 4;
 
-#ifdef DEV_MODE
-	if (!firstperson)
-	{
-
-		RBI = gGT->ptrRenderBucketInstance;
-
-
-
-		RBI = RenderBucket_QueueNonLevInstances(
-			gGT->JitPools.instance.taken.first,
-			(u_long*)&gGT->backBuffer->otMem,
-			(void*)RBI,
-			(char*)(unsigned int)(unsigned char)sdata->LOD[lod], //this weird cast is what ghidra does
-			(char)numPlyrCurrGame,
-			gGT->gameMode1 & PAUSE_ALL);
-	}
-	else
-	{
-		return RBI;
-	}
+#ifndef SKIP_INSTANCES
+	RBI = RenderBucket_QueueLevInstances(
+		&gGT->cameraDC[0],
+		(u_long*)&gGT->backBuffer->otMem,
+		gGT->ptrRenderBucketInstance,
+		(char*)(unsigned int)(unsigned char)sdata->LOD[lod], //this weird cast is what ghidra does
+		(char)numPlyrCurrGame,
+		gGT->gameMode1 & PAUSE_ALL);
 #else
-
 	RBI = gGT->ptrRenderBucketInstance;
-
+#endif
 
 	RBI = RenderBucket_QueueNonLevInstances(
 		gGT->JitPools.instance.taken.first,
@@ -753,11 +698,18 @@ void RenderBucket_QueueAllInstances(struct GameTracker* gGT)
 		(char*)(unsigned int)(unsigned char)sdata->LOD[lod], //this weird cast is what ghidra does
 		(char)numPlyrCurrGame,
 		gGT->gameMode1 & PAUSE_ALL);
+
+	// Aug prototype
+#if 0
+		// ptrEnd of otmem is less than ptrCurr otmem
+	if (*(uint*)(*(int*)(PTR_DAT_8008d2ac + 0x10) + 0x98) <
+		*(uint*)(*(int*)(PTR_DAT_8008d2ac + 0x10) + 0x9c)) {
+		printf("OTMEM OVERFLOW!\n");
+	}
 #endif
 
 	// null terminator at end of list
 	* RBI = 0;
-
 }
 
 void RenderAllNormalParticles(struct GameTracker* gGT)
@@ -837,9 +789,14 @@ void RenderBucket_ExecuteAllInstances(struct GameTracker* gGT)
 {
 	if ((gGT->renderFlags & 0x20) == 0) return;
 
+
 	RenderBucket_Execute(
 		gGT->ptrRenderBucketInstance,
 		&gGT->backBuffer->primMem);
+
+
+
+
 }
 
 void RenderAllTires(struct GameTracker* gGT)
@@ -903,9 +860,9 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 
 	numPlyrCurrGame = gGT->numPlyrCurrGame;
 
-
 	if (numPlyrCurrGame == 1)
 	{
+
 		CTR_ClearRenderLists_1P2P(gGT, 1);
 
 		// === Temporary 60FPS macros ===
@@ -1005,161 +962,151 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			pushBuffer,
 			&gGT->backBuffer->primMem);
 
+
 		// skybox gradient
 		if ((level1->configFlags & 1) != 0)
 		{
 			goto SkyboxGlow;
-			return;
 		}
 
-	SkyboxGlow:
-
-		// skybox gradient
-		for (i = 0; i < 1; i++)
-		{
-			pushBuffer = &gGT->pushBuffer[i];
-			CAM_SkyboxGlow(
-				(short*)&level1->glowGradient[0],
-				pushBuffer,
-				&gGT->backBuffer->primMem,
-				&pushBuffer->ptrOT[0x3ff]);
-		}
 		return;
 	}
 
-	// === Temporary 60FPS macros ===
-	// Emulate 30fps on 60fps for SCVert and OVert
+	if (numPlyrCurrGame == 2)
+	{
+
+		CTR_ClearRenderLists_1P2P(gGT, 2);
+
+		// if no SCVert
+		if ((level1->configFlags & 4) == 0)
+		{
+			// assume OVert (no primitives generated here)
+			AnimateWater2P(gGT->timer, level1->numWaterVertices,
+				level1->ptr_water, level1->ptr_tex_waterEnvMap,
+				gGT->visMem1->visOVertList[0],
+				gGT->visMem1->visOVertList[1]);
+		}
+
+		RenderLists_PreInit();
+		gGT->bspLeafsDrawn = 0;
+
+		for (i = 0; i < numPlyrCurrGame; i++)
+		{
+			gGT->bspLeafsDrawn +=
+				RenderLists_Init1P2P(
+					ptr_mesh_info->bspRoot,
+					level1->visMem->visLeafList[i],
+					&gGT->pushBuffer[i],
+					(u_int)&gGT->LevRenderLists[i],
+					level1->visMem->bspList[i],
+					(char)numPlyrCurrGame);
+		}
+
+		// 226-229
+		DrawLevelOvr2P(
+			&gGT->LevRenderLists[0],
+			&gGT->pushBuffer[0],
+			(struct BSP*)ptr_mesh_info,
+			&gGT->backBuffer->primMem,
+			gGT->visMem1->visFaceList[0],
+			gGT->visMem1->visFaceList[1],
+			level1->ptr_tex_waterEnvMap); // waterEnvMap?
+
+
+		goto SkyboxGlow;
+	}
+
+
+
+	// 3P or 4P
+	CTR_ClearRenderLists_3P4P(gGT, numPlyrCurrGame);
 
 	// if no SCVert
 	if ((level1->configFlags & 4) == 0)
 	{
-		// assume OVert (no primitives generated here)
-		AnimateWater1P(FPS_HALF(gGT->timer), level1->numWaterVertices,
-			level1->ptr_water, level1->ptr_tex_waterEnvMap,
-			gGT->visMem1->visOVertList[0]);
-	}
-
-	// if SCVert
-	else
-	{
-		// draw SCVert (no primitives generated here
-		AnimateQuad(gGT->timer << FPS_LEFTSHIFT(7),
-			level1->numSCVert, level1->ptrSCVert,
-			gGT->visMem1->visSCVertList[0]);
-	}
-
-	if (
-		// adv character selection screen
-		(gGT->levelID == ADVENTURE_GARAGE) ||
-
-		// cutscene that's not Crash Bandicoot intro
-		// where he's sleeping and snoring on a hill
-		(
-			((gGT->gameMode1 & GAME_CUTSCENE) != 0) &&
-			(gGT->levelID != INTRO_CRASH)
-			)
-		)
-	{
-		// relationship between near-clip and far-clip,
-		// for each RenderList LOD set in the level
-		*(int*)0x1f800014 = 0x1e00;
-		*(int*)0x1f800018 = 0x640;
-		*(int*)0x1f80001c = 0x640;
-		*(int*)0x1f800020 = 0x500;
-		*(int*)0x1f800024 = 0x280;
-		*(int*)0x1f800028 = 0x140;
-		*(int*)0x1f80002c = 0x640 + 0x140;
-	}
-
-	// every non-cutscene,
-	// except for Crash Bandicoot intro
-	else
-	{
-		// 0x1c2 in 1P mode
-		distToScreen = gGT->pushBuffer[0].distanceToScreen_PREV;
-
-		// int and unsigned int have specific purposes
-		*(unsigned int*)0x1f800014 = distToScreen * 0x2080;
-		if (*(int*)0x1f800014 < 0) *(int*)0x1f800014 = *(int*)0x1f800014 + 0xff;
-		*(int*)0x1f800014 = *(int*)0x1f800014 >> 8; // 0x3921
-
-		*(int*)0x1f800018 = distToScreen * 0x1a;	// 0x2DB4
-		*(int*)0x1f80001c = distToScreen * 0x18;	// 0x2A30
-		*(int*)0x1f800020 = distToScreen * 0xc;		// 0x1518
-		*(int*)0x1f800024 = distToScreen * 7;		// 0xC4E
-		*(int*)0x1f80002c = *(int*)0x1f800018 + 0x140; // 0x2EF4
-
-		// int and unsigned int have specific purposes
-		*(unsigned int*)0x1f800028 = distToScreen * 0x380;
-		if (*(int*)0x1f800028 < 0) *(int*)0x1f800028 = *(int*)0x1f800028 + 0xff;
-		*(int*)0x1f800028 = *(int*)0x1f800028 >> 8; // 0x627
-	}
-
-	// backup
-	struct Driver* d0 = gGT->drivers[0];
-	struct CameraDC dc0;
-	memcpy(&dc0, &gGT->cameraDC[0], sizeof(struct CameraDC));
-
-	for (int i = 0; i < numPlyrCurrGame; i++)
-	{
-		pushBuffer = &gGT->pushBuffer[i];
-
-		CTR_ClearRenderLists_1P2P(gGT, 1);
-		RenderLists_PreInit();
-
-		if (i != 0)
+		if (numPlyrCurrGame == 3)
 		{
-			gGT->drivers[0] = gGT->drivers[i];
-			memcpy(&gGT->cameraDC[0], &gGT->cameraDC[i], sizeof(struct CameraDC));
+			// assume OVert (no primitives generated here)
+			AnimateWater3P(gGT->timer, level1->numWaterVertices,
+				level1->ptr_water, level1->ptr_tex_waterEnvMap,
+				gGT->visMem1->visOVertList[0],
+				gGT->visMem1->visOVertList[1],
+				gGT->visMem1->visOVertList[2]);
 		}
 
-		int backup = gGT->numPlyrCurrGame;
-		gGT->numPlyrCurrGame = 1;
-		if ((gGT->renderFlags & 0x21) != 0)
-			MainFrame_VisMemFullFrame(gGT, gGT->level1);
-		gGT->numPlyrCurrGame = backup;
+		else // 4P mode
+		{
+			// assume OVert (no primitives generated here)
+			AnimateWater4P(gGT->timer, level1->numWaterVertices,
+				level1->ptr_water, level1->ptr_tex_waterEnvMap,
+				gGT->visMem1->visOVertList[0],
+				gGT->visMem1->visOVertList[1],
+				gGT->visMem1->visOVertList[2],
+				gGT->visMem1->visOVertList[3]);
+		}
+	}
 
-		// patch RenderLists_Init1P2P to have max LOD
-		*(short*)0x80070090 = 0;
-		*(short*)0x80070092 = 0x3408;
+	RenderLists_PreInit();
+	gGT->bspLeafsDrawn = 0;
 
-		RenderLists_Init1P2P(
-			ptr_mesh_info->bspRoot,
-			level1->visMem->visLeafList[0],
-			pushBuffer,
-			&gGT->LevRenderLists[0],
-			level1->visMem->bspList[0],
-			numPlyrCurrGame);
+	for (i = 0; i < numPlyrCurrGame; i++)
+	{
+		gGT->bspLeafsDrawn +=
+			RenderLists_Init3P4P(
+				ptr_mesh_info->bspRoot,
+				level1->visMem->visLeafList[i],
+				&gGT->pushBuffer[i],
+				(u_int)&gGT->LevRenderLists[i],
+				level1->visMem->bspList[i]);
+	}
 
+	if (numPlyrCurrGame == 3)
+	{
 		// 226-229
-		DrawLevelOvr1P(
+		DrawLevelOvr3P(
 			&gGT->LevRenderLists[0],
-			pushBuffer,
-			ptr_mesh_info,
+			&gGT->pushBuffer[0],
+			(struct BSP*)ptr_mesh_info,
 			&gGT->backBuffer->primMem,
 			gGT->visMem1->visFaceList[0],
+			gGT->visMem1->visFaceList[1],
+			gGT->visMem1->visFaceList[2],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
-
-		DrawSky_Full(
-			level1->ptr_skybox,
-			pushBuffer,
-			&gGT->backBuffer->primMem);
-
-		// skybox gradient
-		if ((level1->configFlags & 1) != 0)
-		{
-			CAM_SkyboxGlow(
-				&level1->glowGradient[0],
-				pushBuffer,
-				&gGT->backBuffer->primMem,
-				&pushBuffer->ptrOT[0x3ff]);
-		}
 	}
 
-	// restore
-	gGT->drivers[0] = d0;
-	memcpy(&gGT->cameraDC[0], &dc0, sizeof(struct CameraDC));
+	else // 4P mode
+	{
+		// 226-229
+		DrawLevelOvr4P(
+			&gGT->LevRenderLists[0],
+			&gGT->pushBuffer[0],
+			(struct BSP*)ptr_mesh_info,
+			&gGT->backBuffer->primMem,
+			gGT->visMem1->visFaceList[0],
+			gGT->visMem1->visFaceList[1],
+			gGT->visMem1->visFaceList[2],
+			gGT->visMem1->visFaceList[3],
+			level1->ptr_tex_waterEnvMap); // waterEnvMap?
+	}
+
+
+SkyboxGlow:
+
+	// skybox gradient
+	for (i = 0; i < numPlyrCurrGame; i++)
+	{
+		pushBuffer = &gGT->pushBuffer[i];
+		CAM_SkyboxGlow(
+			(short*)&level1->glowGradient[0],
+			pushBuffer,
+			&gGT->backBuffer->primMem,
+			&pushBuffer->ptrOT[0x3ff]);
+	}
+
+	return;
 }
+
+
 
 
 
@@ -1167,15 +1114,26 @@ void MultiplayerWumpaHUD(struct GameTracker* gGT)
 {
 
 	if ((gGT->hudFlags & 1) == 0) return;
-	if (gGT->numPlyrCurrGame < 2) return;
 
+	// Remove manually at end-of-race
+	for (int i = 0; i < gGT->numPlyrCurrGame; i++)
+	{
+		struct Driver* d = gGT->drivers[i];
 
-	// we just draw 3D Wumpa instead of 2D,
-	// come back to this later for purists
-	//UI_RenderFrame_Wumpa3D_2P3P4P(gGT);
+		// if race is over for driver
+		if ((d->actionsFlagSet & 0x2000000) != 0)
+		{
+			struct Instance* instFruitDisp =
+				d->instFruitDisp;
+
+			instFruitDisp->scale[0] = 0;
+			instFruitDisp->scale[1] = 0;
+			instFruitDisp->scale[2] = 0;
+		}
+	}
+
 
 }
-
 
 void WindowBoxLines(struct GameTracker* gGT)
 {
@@ -1211,7 +1169,6 @@ void WindowDivsionLines(struct GameTracker* gGT)
 
 	numPlyrCurrGame = gGT->numPlyrCurrGame;
 
-	// horizontal bar
 
 	if (numPlyrCurrGame > 1)
 
@@ -1245,7 +1202,15 @@ void WindowDivsionLines(struct GameTracker* gGT)
 
 
 	if (numPlyrCurrGame > 2)
+
 	{
+		// test for USE_NEW2P
+#if 0
+		gGT->drivers[0]->numWumpas = 10;
+		gGT->drivers[0]->heldItemID = 3;
+		gGT->drivers[1]->numWumpas = 10;
+		gGT->drivers[1]->heldItemID = 3;
+#endif
 
 		p = gGT->backBuffer->primMem.curr;
 
@@ -1341,6 +1306,7 @@ int ReadyToBreak(struct GameTracker* gGT)
 }
 
 
+
 void RenderVSYNC(struct GameTracker* gGT)
 {
 	// render checkered flag
@@ -1389,11 +1355,11 @@ void RenderFMV()
 	}
 }
 
+
 void RenderSubmit(struct GameTracker* gGT)
 {
 	// 1 VSYNC = 60fps
 	// 2 VSYNCs = 30fps
-
 
 
 
@@ -1416,6 +1382,15 @@ void RenderSubmit(struct GameTracker* gGT)
 	gGT->bool_DrawOTag_InProgress = 1;
 
 	void* ot = &gGT->pushBuffer[0].ptrOT[0x3ff];
+
+
+
+
+
+
+
+
+
 
 
 	DrawOTag(ot);

@@ -200,7 +200,7 @@ void custom_cup()
 
 	selected_track = ((GT->gameMode1 & END_OF_RACE) != 0) ? selected_track + 1 : 0;
 
-	if (selected_track == 4) //go back to the main menu
+	if (selected_track >= 4) //go back to the main menu
 	{
 		sdata->mainMenuState = 0;
 

@@ -1,0 +1,138 @@
+//--beginning of custom tracks files-- //
+
+//n sanity beach
+common, bigfilelevelstracksisland1relicdatavrm, 0x0, 0x0, custom_tracks/n_sanity_1.vrm
+common, bigfilelevelstracksisland1relicdatalev, 0x0, 0x0, custom_tracks/n_sanity_1.lev
+common, bigfilelevelstrackstube1relicdatavrm, 0x0, 0x0, custom_tracks/n_sanity_2.vrm
+common, bigfilelevelstrackstube1relicdatalev, 0x0, 0x0, custom_tracks/n_sanity_2.lev
+common, bigfilelevelstrackscave1relicdatavrm, 0x0, 0x0, custom_tracks/n_sanity_3.vrm
+common, bigfilelevelstrackscave1relicdatalev, 0x0, 0x0, custom_tracks/n_sanity_3.lev
+common, bigfilelevelsbattleskull_rock1datavrm, 0x0, 0x0, custom_tracks/n_sanity_4.vrm
+common, bigfilelevelsbattleskull_rock1datalev, 0x0, 0x0, custom_tracks/n_sanity_4.lev
+common, bigfilelevelstrackssewer1relicdatavrm, 0x0, 0x0, custom_tracks/n_sanity_5.vrm
+common, bigfilelevelstrackssewer1relicdatalev, 0x0, 0x0, custom_tracks/n_sanity_5.lev
+
+
+
+//gemstone valley
+common, bigfilelevelstrackssecret1relicdatavrm, 0x0, 0x0, custom_tracks/gemstone_1.vrm
+common, bigfilelevelstrackssecret1relicdatalev, 0x0, 0x0, custom_tracks/gemstone_1.lev
+common, bigfilelevelstrackssecret2relicdatavrm, 0x0, 0x0, custom_tracks/gemstone_2.vrm
+common, bigfilelevelstrackssecret2relicdatalev, 0x0, 0x0, custom_tracks/gemstone_2.lev
+
+
+
+
+//lost ruins
+common, bigfilelevelstrackstemple1relicdatavrm, 0x0, 0x0, custom_tracks/lost_ruins_1.vrm
+common, bigfilelevelstrackstemple1relicdatalev, 0x0, 0x0, custom_tracks/lost_ruins_1.lev
+common, bigfilelevelstrackscoco1relicdatavrm, 0x0, 0x0, custom_tracks/lost_ruins_2.vrm
+common, bigfilelevelstrackscoco1relicdatalev, 0x0, 0x0, custom_tracks/lost_ruins_2.lev
+common, bigfilelevelstrackstemple2relicdatavrm, 0x0, 0x0, custom_tracks/lost_ruins_3.vrm
+common, bigfilelevelstrackstemple2relicdatalev, 0x0, 0x0, custom_tracks/lost_ruins_3.lev
+common, bigfilelevelsbattlerampage_ruins1datavrm, 0x0, 0x0, custom_tracks/lost_ruins_4.vrm
+common, bigfilelevelsbattlerampage_ruins1datalev, 0x0, 0x0, custom_tracks/lost_ruins_4.lev
+common, bigfilelevelstracksproto8relicdatavrm, 0x0, 0x0, custom_tracks/lost_ruins_5.vrm
+common, bigfilelevelstracksproto8relicdatalev, 0x0, 0x0, custom_tracks/lost_ruins_5.lev
+
+
+
+//glacier park
+common, bigfilelevelstracksdesert2relicdatavrm, 0x0, 0x0,custom_tracks/glacier_1.vrm
+common, bigfilelevelstracksdesert2relicdatalev, 0x0, 0x0, custom_tracks/glacier_1.lev
+common, bigfilelevelstracksproto9relicdatavrm, 0x0, 0x0, custom_tracks/glacier_2.vrm
+common, bigfilelevelstracksproto9relicdatalev, 0x0, 0x0, custom_tracks/glacier_2.lev
+common, bigfilelevelstracksice1relicdatavrm, 0x0, 0x0, custom_tracks/glacier_3.vrm
+common, bigfilelevelstracksice1relicdatalev, 0x0, 0x0, custom_tracks/glacier_3.lev
+common, bigfilelevelsbattlerocky_road1datavrm, 0x0, 0x0, custom_tracks/glacier_4.vrm
+common, bigfilelevelsbattlerocky_road1datalev, 0x0, 0x0, custom_tracks/glacier_4.lev
+common, bigfilelevelstracksarena2relicdatavrm, 0x0, 0x0, custom_tracks/glacier_5.vrm
+common, bigfilelevelstracksarena2relicdatalev, 0x0, 0x0, custom_tracks/glacier_5.lev
+
+
+
+
+//citadel city
+common, bigfilelevelstrackslabs1relicdatavrm, 0x0, 0x0, custom_tracks/citadel_1.vrm
+common, bigfilelevelstrackslabs1relicdatalev, 0x0, 0x0, custom_tracks/citadel_1.lev
+common, bigfilelevelstrackscastle1relicdatavrm, 0x0, 0x0, custom_tracks/citadel_2.vrm
+common, bigfilelevelstrackscastle1relicdatalev, 0x0, 0x0, custom_tracks/citadel_2.lev
+common, bigfilelevelstracksblimp1relicdatavrm, 0x0, 0x0, custom_tracks/citadel_3.vrm
+common, bigfilelevelstracksblimp1relicdatalev, 0x0, 0x0, custom_tracks/citadel_3.lev
+common, bigfilelevelsbattlenitro_court1datavrm, 0x0, 0x0, custom_tracks/citadel_4.vrm
+common, bigfilelevelsbattlenitro_court1datalev, 0x0, 0x0, custom_tracks/citadel_4.lev
+common, bigfilelevelstracksspacerelicdatavrm, 0x0, 0x0, custom_tracks/citadel_5.vrm
+common, bigfilelevelstracksspacerelicdatalev, 0x0, 0x0, custom_tracks/citadel_5.lev
+
+
+
+
+//boss garages
+common, bigfilelevelstrackstube11Pdatavrm, 0x0, 0x0, custom_tracks/n_sanity_boss.vrm
+common, bigfilelevelstrackstube11Pdatalev, 0x0, 0x0, custom_tracks/n_sanity_boss.lev
+common, bigfilelevelstrackstemple21Pdatavrm, 0x0, 0x0, custom_tracks/lost_ruins_boss.vrm
+common, bigfilelevelstrackstemple21Pdatalev, 0x0, 0x0, custom_tracks/lost_ruins_boss.lev
+common, bigfilelevelstracksproto91Pdatavrm, 0x0, 0x0, custom_tracks/glacier_boss.vrm
+common, bigfilelevelstracksproto91Pdatalev, 0x0, 0x0, custom_tracks/glacier_boss.lev
+common, bigfilelevelstracksblimp11Pdatavrm, 0x0, 0x0, custom_tracks/citadel_boss.vrm
+common, bigfilelevelstracksblimp11Pdatalev, 0x0, 0x0, custom_tracks/citadel_boss.lev
+common, bigfilelevelstracksspace1Pdatavrm, 0x0, 0x0, custom_tracks/final_boss.vrm
+common, bigfilelevelstracksspace1Pdatalev, 0x0, 0x0, custom_tracks/final_boss.lev
+
+//--end of custom tracks files-- //
+
+
+
+
+
+
+
+//--beginning of code files--//
+
+
+//fixes
+common, exe, MainFrame_RenderFrame, 0x0, code/renderframe.c
+common, exe, UI_DrawRaceClock, 0x0, code/drawraceclock.c
+common, exe, BOTS_Driver_Init, 0x0, code/bots_init
+common, exe, PlayLevel_UpdateLapStats, 0x0, code/laps.c
+common, exe, UI_RaceStart_IntroText1P, 0x0, code/intro.c
+common, exe, CTR_CycleTex_LEV, 0x0, code/cicle.c
+common, exe, UI_INSTANCE_InitAll, 0x0, code/nopos.c
+common, exe, UI_DrawPosSuffix, 0x0, code/uifix1.c
+common, exe, MainInit_OTMem, 0x0, code/otmem.c
+common, exe, MainInit_PrimMem, 0x0, code/primem.c
+common, exe, UI_DrawRankedDrivers, 0x0, code/ui_driver.c
+common, exe, main, 0x0, code/mainmain_ctr.c
+common, 230, MM_MenuProc_Main, 0x0, code/ctr_main_menu.c
+
+
+//custom track code
+common, exe, LOAD_TenStages, 0x0, code/load_tracks.c
+common, exe, rdata_free, 0x0, code/adventure_main.c
+
+
+//adventure mode
+common, 232, AH_Garage_ThTick, 0x0, code/garage_thtick.c
+common, 232, AH_Garage_LInB, 0x0, code/garage_linb.c
+common, 232, AH_WarpPad_ThDestroy, 0x0, code/warppad_destroy.c
+common, 232, AH_WarpPad_SpinRewards, 0x0, code/warppad_reward.c
+common, 232, AH_WarpPad_MenuProc, 0x0, code/warppad_menu.c
+common, 232, AH_WarpPad_GetSpawnPosRot, 0x0, code/warppad_spawnpos.c
+common, 232, AH_WarpPad_AllWarppadNum, 0x0, code/warppad_num.c
+common, 232, AH_WarpPad_LInB, 0x0, code/warppad_linb.c
+common, 232, AH_WarpPad_ThTick, 0x0, code/warppad_thtick.c
+
+
+//custom itemset
+common, exe, VehPhysGeneral_SetHeldItem, 0x0, code/items.c
+
+//credits cutscene
+common, 233, CS_Credits_End, 0x0, code/credits_end.c
+
+
+//i just need bytebudget lul
+common, custom_adventure, 0x807F8800, 0x0, code/adv.c
+
+
+
+//--end of code files--//
