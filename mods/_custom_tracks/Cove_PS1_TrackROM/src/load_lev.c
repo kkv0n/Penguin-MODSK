@@ -419,7 +419,7 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
                  // adds VRAM to loading queue
 		        LOAD_AppendQueue(sdata->ptrBigfile1, 3, 24, 0, 0);
 		        // adds LEV to loading queue
-		        LOAD_AppendQueue(sdata->ptrBigfile1, 2, 25, 0x80300000, &LOAD_Callback_LEV);
+		        LOAD_AppendQueue(sdata->ptrBigfile1, 2, 25, 0, &LOAD_Callback_LEV);
 			}
 			else
 			{
