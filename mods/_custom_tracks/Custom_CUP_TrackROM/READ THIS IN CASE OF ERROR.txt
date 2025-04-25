@@ -1,0 +1,2 @@
+if you saw any ".o" or ".dep" here in this folder and compiling gives you error then delete the ".o" and ".dep" files pls
+these are residues that dont allow the compilation to be refreshed

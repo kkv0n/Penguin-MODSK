@@ -1,0 +1,91 @@
+
+// inject custom tracks in crash cove files
+common, bigfilelevelstracksisland11Pdatalev, 0x0, 0x0, ../custom_tracks/track1.lev
+common, bigfilelevelstracksisland11Pdatavrm, 0x0, 0x0, ../custom_tracks/track1.vrm
+common, bigfilelevelstracksisland12Pdatalev, 0x0, 0x0, ../custom_tracks/track2.lev
+common, bigfilelevelstracksisland12Pdatavrm, 0x0, 0x0, ../custom_tracks/track2.vrm
+common, bigfilelevelstracksisland14Pdatalev, 0x0, 0x0, ../custom_tracks/track3.lev
+common, bigfilelevelstracksisland14Pdatavrm, 0x0, 0x0, ../custom_tracks/track3.vrm
+common, bigfilelevelstracksisland1relicdatalev, 0x0, 0x0, ../custom_tracks/track4.lev
+common, bigfilelevelstracksisland1relicdatavrm, 0x0, 0x0, ../custom_tracks/track4.vrm
+
+//just in case
+common, exe, UI_RaceStart_IntroText1P, 0x0, code/decomp_stuff/intro.c
+
+
+//retro fueled
+common, exe, VehFire_Increment, 0x0, code/decomp_stuff/vehfire.c
+common, exe, VehPhysProc_Driving_PhysLinear, 0x0, code/decomp_stuff/physlinear.c
+
+// removing this
+common, exe, LevInstDef_UnPack, 0x0, code/returns/return1.c
+common, exe, CTR_CycleTex_LEV, 0x0, code/returns/return2.c
+common, exe, UI_Map_DrawRawIcon, 0x0, code/returns/return3.c
+common, exe, UI_Map_GetIconPos, 0x0, code/returns/return4.c
+common, exe, UI_Map_DrawDrivers, 0x0, code/returns/return5.c
+common, exe, UI_Map_DrawAdvPlayer, 0x0, code/returns/return6.c
+common, exe, UI_Map_DrawMap, 0x0, code/returns/return7.c
+
+//required for multiplayer
+common, exe, MainInit_PrimMem, 0x0, code/decomp_stuff/primem.c
+common, exe, MainInit_OTMem, 0x0, code/decomp_stuff/otmem.c
+common, exe, MainFrame_RenderFrame, 0x0, code/decomp_stuff/renderframe.c
+
+
+//ui fixes for arcade time mode
+common, exe, UI_INSTANCE_InitAll, 0x0, code/decomp_stuff/wumpadraw.c
+common, exe, UI_DrawRankedDrivers, 0x0, code/decomp_stuff/ui_driver.c
+common, exe, UI_DrawPosSuffix, 0x0, code/decomp_stuff/uifix1.c
+
+
+//lap and time fixes
+common, exe, UI_DrawRaceClock, 0x0, code/decomp_stuff/drawraceclock.c
+common, exe, PlayLevel_UpdateLapStats, 0x0, code/decomp_stuff/laps.c
+
+
+
+// this updates in real time and calls the modded code
+common, exe, BOTS_SetRotation, -0x8, code/run_main.s
+common, exe, MainInit_StringToLevID, -0x8, code/run_init.s
+
+
+
+// the main file of the mod stored in rdata
+common, exe, rdata_free, 0x0, code/main_custom.c
+
+
+
+// menu files
+common, 230, MM_Characters_MenuProc, 0x0, code/character_menu.c
+common, 230, MM_MenuProc_Main, 0x0, code/main_menu.c
+
+
+// this loads the lev and vram
+common, exe, LOAD_TenStages, 0x0, code/decomp_stuff/load_track.c
+
+
+// literally the ctr main file, the heart of ctr code
+common, exe, main, 0x0, code/mainmain_ctr.c
+
+
+//engine stats rebalanced by niikasd
+common, exe, VehBirth_SetConsts, 0x0, code/engine_stats.c
+
+
+//set a custom itemset
+common, exe, VehPhysGeneral_SetHeldItem, 0x0, code/decomp_stuff/items.c
+
+
+//using the free room of this file
+common, exe, GhostReplay_ThTick, 0x0, code/quadtriggers.c
+
+
+
+//delete ghosts
+common, exe, GhostReplay_Init1, 0x0, code/returns/ghost1.c
+common, exe, GhostReplay_Init2, 0x0, code/returns/ghost2.c
+common, exe, GhostTape_Start, 0x0, code/returns/ghost3.c
+common, exe, GhostTape_End, 0x0, code/returns/ghost4.c
+common, exe, GhostTape_WriteMoves, 0x0, code/returns/ghost6.c
+common, exe, GhostTape_WriteBoosts, 0x0, code/returns/ghost7.c
+common, exe, GhostTape_Destroy, 0x0, code/returns/ghost8.c
