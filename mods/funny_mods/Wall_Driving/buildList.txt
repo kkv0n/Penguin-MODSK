@@ -1,0 +1,8 @@
+//change quadflags
+common, exe, LOAD_TenStages, 0x0, load_track.c
+
+//give turbo in walls
+common, exe, rdata_free, 0x0, turbo.c
+
+//call turbo
+common, exe, BOTS_SetRotation, -0x8, frame.s

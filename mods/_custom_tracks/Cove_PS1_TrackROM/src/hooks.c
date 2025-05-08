@@ -251,7 +251,7 @@ struct MenuRow NewRowsEND[] =
 	{
 		.stringIndex = 3, // quit
 		.rowOnPressUp = 0,
-		.rowOnPressDown = 2,
+		.rowOnPressDown = 1,
 		.rowOnPressLeft = 1,
 		.rowOnPressRight = 1,
 	},
