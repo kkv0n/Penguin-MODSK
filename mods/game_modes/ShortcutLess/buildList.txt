@@ -1,0 +1,8 @@
+//common, exe, MainInit_StringToLevID, -0x8, src/patches/hookInit.s
+common, exe, BOTS_SetRotation, -0x8, src/patches/hookUpdate.s
+
+//Main hooks
+common, exe, rdata_free, 0x0, src/hooks.c
+
+//Load level
+common, exe, LOAD_TenStages, 0x0, src/load_lev.c
