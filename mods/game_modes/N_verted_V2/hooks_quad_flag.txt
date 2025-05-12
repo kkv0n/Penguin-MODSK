@@ -1,0 +1,221 @@
+#include <common.h>
+#include "utils.h"
+#include "driver_state.c"
+#include "n_verted.c" //Allocate n_verted on rdata_free
+
+int abs(int value) { return value < 0 ? -value : value; }
+
+extern void initDriverStates();
+extern bool updateDriverFloatState(int driverIndex, struct Driver* driver);
+
+char* debugText = (char*)0x1F800000;
+bool updateLev = true;
+
+// PATCH LAP SKIPS ------------------------------------
+// Track previous quadblocks for each player
+struct QuadBlock* lastValidQuadblocks[4] = {NULL, NULL, NULL, NULL};
+// Track quadblocks with temporary mask grab flags
+static struct QuadBlock* flaggedQuadblocks[4] = {NULL, NULL, NULL, NULL};
+static bool flagsApplied[4] = {false, false, false, false};
+
+void ManualMaskGrab(struct Thread* t, struct Driver* d) {
+    // Store original position values
+    int origX = d->posCurr.x;
+    int origY = d->posCurr.y;
+    int origZ = d->posCurr.z;
+    
+    // Call original mask grab
+    VehStuckProc_MaskGrab_Init(t, d);
+    
+    // Restore original position
+    d->posCurr.x = origX;
+    d->posCurr.y = origY;
+    d->posCurr.z = origZ;
+    
+    // Fix previous position too (prevents teleporting on next frame)
+    d->posPrev.x = origX;
+    d->posPrev.y = origY;
+    d->posPrev.z = origZ;
+    
+    // Position mask to follow player
+    struct MaskHeadWeapon* mask = d->KartStates.MaskGrab.maskObj;
+    if (mask != NULL) {
+        mask->pos[0] = origX >> 8;
+        mask->pos[1] = (origY >> 8) + 0x140; // Position mask above player
+        mask->pos[2] = origZ >> 8;
+    }
+}
+
+// Prevent lap skips (NMZ Abuse)
+void preventLapSkip(struct Driver* driver, int driverIndex) {
+    struct GameTracker *gGT = sdata->gGT;
+    
+    // Remove flag from previously modified quadblock for this driver
+    if (flagsApplied[driverIndex] && flaggedQuadblocks[driverIndex] != NULL) {
+        flaggedQuadblocks[driverIndex]->quadFlags &= ~Q_MASK_GRAB;
+        flagsApplied[driverIndex] = false;
+    }
+    
+    // Continue only if driver has a valid quadblock
+    if (driver != NULL && driver->lastValid != NULL) {
+        char maxCheckpoint = gGT->level1->cnt_restart_points - 1;
+        char currentCheckpoint = driver->lastValid->checkpointIndex;
+        
+        // Only check if we have a previous valid checkpoint
+        if (lastValidQuadblocks[driverIndex] != NULL && currentCheckpoint != lastValidQuadblocks[driverIndex]->checkpointIndex) {
+            char prevCheckpoint = lastValidQuadblocks[driverIndex]->checkpointIndex;
+            
+            // Detect lap skip - from after checkpoint 5 to final checkpoint with big jump
+            if (
+                currentCheckpoint == maxCheckpoint
+                && prevCheckpoint > 5
+                && abs((int)currentCheckpoint - (int)prevCheckpoint) > 2
+            ) {
+                // Apply the mask grab flag to the quadblock
+                driver->lastValid->quadFlags |= Q_MASK_GRAB;
+                
+                // Store which quadblock was modified for this driver
+                flaggedQuadblocks[driverIndex] = driver->lastValid;
+                flagsApplied[driverIndex] = true;
+                
+                // Reset to previous valid quadblock
+                driver->lastValid = lastValidQuadblocks[driverIndex];
+                
+                // Visual feedback (only for human players)
+                if ((driver->actionsFlagSet & 0x100000) == 0) {  // Check if not AI
+                    sprintf(debugText, "LAP SKIP BLOCKED! P%d", driverIndex+1);
+                    DecalFont_DrawLine(debugText, 0x100, 0xc8 + 10, FONT_SMALL, (JUSTIFY_CENTER | RED));
+                }
+            }
+        }
+        
+        // Update previous valid quadblock for this driver
+        lastValidQuadblocks[driverIndex] = driver->lastValid;
+    }
+}
+
+// ----------------------------------------------------------------
+
+
+void RunUpdateHook(){
+	struct GameTracker *gGT = sdata->gGT;
+	struct GamepadBuffer* pad = &sdata->gGamepads->gamepad[0];
+	struct Driver* driver = sdata->gGT->drivers[0];
+
+	struct mesh_info* mi = gGT->level1->ptr_mesh_info;
+	struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
+	int quadCount = mi->numQuadBlock;
+	struct LevVertex* verts = mi->ptrVertexArray;
+
+	//----------------------------------
+
+	// if(gGT->trafficLightsTimer > 0){
+	// 	if(updateLev){
+			
+			
+
+	// 		updateLev = false;
+	// 	}
+	// } else {
+	// 	updateLev = true;
+	// }
+
+	static int initialized = 0;
+    if (gGT->trafficLightsTimer > 0) {
+        initDriverStates();
+
+		//reset quadblock flags stuff
+		for (int i = 0; i < 4; i++) {
+			lastValidQuadblocks[i] = NULL;
+			flaggedQuadblocks[i] = NULL;
+			flagsApplied[i] = false;
+		}
+        initialized = 1;
+    }
+    
+    // Process each driver
+    for (unsigned char i = 0; i < gGT->numPlyrCurrGame; i++) {
+        struct Driver* driver = gGT->drivers[i];
+        if (driver == NULL) continue;
+        
+        // Update driver float state
+        if (updateDriverFloatState(i, driver)) {
+            // Float the driver
+            driver->forcedJump_trampoline = 2;
+            driver->jump_unknown = 0x180;
+            driver->jump_InitialVelY = driver->const_JumpForce * 3;
+            
+            // Change tire color while floating
+            driver->tireColor = 0x2e0c0cc2; // Red tire color
+        } else {
+            // Reset tire color when not floating
+            driver->tireColor = 0x2e808080;
+        }
+
+		// Check for lap skips, if it happens, mask grab the player
+		if (gGT->levelID <= TURBO_TRACK) {
+			preventLapSkip(driver, i);
+		}
+	}
+	
+	// DEBUG STUFF -------------------------------
+		
+	if (gGT->levelID != MAIN_MENU_LEVEL && gGT->levelID != ADVENTURE_GARAGE && gGT->levelID != NAUGHTY_DOG_CRATE)
+	{
+		// sprintf(debugText, "BlockID: %d", driver->currBlockTouching->blockID);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8 - 60, FONT_SMALL, (JUSTIFY_CENTER | RED));
+
+		// sprintf(debugText, "progress: %d", driver->distanceToFinish_curr);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8 - 50, FONT_SMALL, (JUSTIFY_CENTER | RED));
+		
+		// sprintf(debugText, "checkpoint: %d", driver->distanceToFinish_checkpoint);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8 - 40, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+		
+		// sprintf(debugText, "reverse: %d", driver->distanceDrivenBackwards);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8 -30, FONT_SMALL, (JUSTIFY_CENTER | CRASH_BLUE));
+
+		// sprintf(debugText, "check id: %d", (unsigned char) driver->underDriver->checkpointIndex);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8 -20, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+
+		// sprintf(debugText, "check cnt: %d", gGT->level1->cnt_restart_points);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8 -10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+
+		// sprintf(debugText, "lastValid: %d", driver->lastValid->checkpointIndex);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+
+		// struct CheckpointNode* nodes = gGT->level1->ptr_restart_points;
+		// unsigned int dist = nodes[driver->underDriver->checkpointIndex].distToFinish;
+		// unsigned int forward_index = nodes[driver->underDriver->checkpointIndex].nextIndex_forward;
+		// unsigned int backward_index = nodes[driver->underDriver->checkpointIndex].nextIndex_backward;
+
+		// sprintf(debugText, "dist: %d", dist);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8 - 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+
+		// sprintf(debugText, "forward id: %d", forward_index);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+
+		// sprintf(debugText, "backward id: %d", backward_index);
+		// DecalFont_DrawLine(debugText, 0x100, 0xc8 + 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+
+		struct GamepadBuffer* pad = &sdata->gGamepads->gamepad[0];
+
+		//Force mask Grab on L1 + Triangle
+		if (((pad->buttonsHeldCurrFrame & BTN_L1) != 0) && ((pad->buttonsHeldCurrFrame & BTN_TRIANGLE) != 0)){
+			// VehStuckProc_MaskGrab_Update((struct Thread*)driver, driver);
+			// VehStuckProc_MaskGrab_Animate((struct Thread*)driver, driver);
+			// VehStuckProc_MaskGrab_Init((struct Thread*)driver, driver);
+
+			ManualMaskGrab((struct Thread*)driver, driver);
+		}
+
+
+		//Fly cheat
+		// if (((pad->buttonsHeldCurrFrame & BTN_L1) != 0) && ((pad->buttonsHeldCurrFrame & BTN_TRIANGLE) != 0))
+		// {
+		// 	pad->buttonsHeldCurrFrame |= BTN_CROSS;
+		// 	driver->forcedJump_trampoline = 2;
+		// 	driver->jump_unknown = 0x180;
+		// 	driver->jump_InitialVelY = driver->const_JumpForce * 3;
+		// }
+	}
+}

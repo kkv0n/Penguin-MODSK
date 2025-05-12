@@ -1,0 +1,90 @@
+#include <common.h>
+#include "utils.h"
+
+void RotateSpawns(struct Level *level){
+    for (int i = 0; i < 8; i++)
+    {
+        // Move backwards
+        short angle = (level->DriverSpawn[i].rot[1] + 0x400) & 0xfff;
+        int dist = 0x300;
+        level->DriverSpawn[i].pos[0] += (MATH_Sin(angle) * dist) >> 12;
+        level->DriverSpawn[i].pos[2] += (MATH_Cos(angle) * dist) >> 12; 
+        // Add 0x800 to Y rotation (180 degrees)
+        level->DriverSpawn[i].rot[1] = (level->DriverSpawn[i].rot[1] + 0x800) & 0xfff;
+    }
+}
+
+void InvertCheckpoints(struct Level *level){
+    int numCheckpoints = level->cnt_restart_points;
+    struct CheckpointNode* checkpoints = level->ptr_restart_points;
+
+    if (numCheckpoints > 0 && checkpoints != NULL){   
+        // Allocate memory for temporary reversed checkpoint array
+        struct CheckpointNode* tempCheckpoints = (struct CheckpointNode*)MEMPACK_AllocHighMem(sizeof(struct CheckpointNode) * numCheckpoints);
+
+        // Create reversed copy of checkpoint array
+        for (int i = 0; i < numCheckpoints; i++)
+        {
+            tempCheckpoints[i] = checkpoints[numCheckpoints - 1 - i];
+        }
+        
+        // Helper function to map from original to reversed position
+        unsigned char mapIndex(unsigned char idx)
+        {
+            if (idx == 0xFF) return 0xFF; // Special case for invalid index
+            return numCheckpoints - 1 - idx;
+        }
+        
+        // Update all checkpoint connections in reversed array
+        for (int i = 0; i < numCheckpoints; i++)
+        {
+            // Swap and remap indices
+            unsigned char tempForward = tempCheckpoints[i].nextIndex_forward;
+            tempCheckpoints[i].nextIndex_forward = mapIndex(tempCheckpoints[i].nextIndex_backward);
+            tempCheckpoints[i].nextIndex_backward = mapIndex(tempForward);
+            
+            unsigned char tempLeft = tempCheckpoints[i].nextIndex_left;
+            tempCheckpoints[i].nextIndex_left = mapIndex(tempCheckpoints[i].nextIndex_right);
+            tempCheckpoints[i].nextIndex_right = mapIndex(tempLeft);
+            
+            // Invert distance to finish
+            unsigned short maxDistance = checkpoints[0].distToFinish;
+            tempCheckpoints[i].distToFinish = maxDistance - tempCheckpoints[i].distToFinish;
+        }
+        
+        // Copy back the reversed array
+        for (int i = 0; i < numCheckpoints; i++)
+        {
+            checkpoints[i] = tempCheckpoints[i];
+        }
+        
+        // Free temporary memory
+        MEMPACK_ClearHighMem();
+
+        // Invert quadblock checkpoint indices
+        struct mesh_info* mi = level->ptr_mesh_info;
+        struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
+        
+        for (int i = 0; i < mi->numQuadBlock; i++) {
+            struct QuadBlock* qb = &quadBlocks[i];
+            if (qb->checkpointIndex != -1) {
+                qb->checkpointIndex = level->cnt_restart_points - 1 - qb->checkpointIndex;
+            }
+        }
+    }
+}
+
+void ReverseTrack(struct Level *level){
+    int numCheckpoints = level->cnt_restart_points;
+    struct CheckpointNode* checkpoints = level->ptr_restart_points;
+    
+    if (numCheckpoints > 0 && checkpoints != NULL)
+    {   
+        // Rotate each driver spawn by 180 degrees
+        RotateSpawns(level);
+
+        // Invert Checkpoints
+        InvertCheckpoints(level);
+    }
+}
+
