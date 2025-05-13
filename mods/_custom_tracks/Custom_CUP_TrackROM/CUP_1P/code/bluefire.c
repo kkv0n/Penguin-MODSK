@@ -173,7 +173,8 @@ void Update_Retro() {
 	{
 
 
-
+        if (gGT->drivers[i] == NULL) continue;
+		
 		d = gGT->drivers[i];
 
 		if (selected_mod != RETRO_FUELED) {

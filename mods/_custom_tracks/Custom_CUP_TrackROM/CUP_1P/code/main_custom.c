@@ -408,8 +408,10 @@ void custom_main()
 
 	for (i = 0; i < GT->numPlyrCurrGame; i++)
 	{
+		if (GT->drivers[i] == NULL) continue;
+		
 		driver[i] = GT->drivers[i];
-		quadblock[i] = driver[i]->underDriver;
+		quadblock[i] = driver[i]->currBlockTouching;
 
 #ifdef DEV_MODE
 		struct GamepadBuffer* pad = &sdata->gGamepads->gamepad[i];
@@ -458,7 +460,7 @@ void custom_main()
 #endif
 
 
-		if (driver[i]->underDriver) //idk i think this is a flag/boolean (?) in any case ill leave it here
+		if (driver[i]->currBlockTouching) 
 		{
 
 			for (j = 0; j < MAX_EFFECTS; j++)
@@ -481,7 +483,7 @@ void custom_main()
 
 					//these lines can be improved
 					driver[desired_driver] = GT->drivers[desired_driver];
-					quadblock[desired_driver] = driver[desired_driver]->underDriver;
+					quadblock[desired_driver] = driver[desired_driver]->currBlockTouching;
 
 					check_effect(task); //call this if the player is driving in the specified terrain
 				}
