@@ -14,6 +14,13 @@ struct QuadBlock* prevTouchedBlock[4] = {NULL, NULL, NULL, NULL};
 int noShortcutMsgTimer[4] = {0, 0, 0, 0};
 
 void MaskGrab(struct Thread* t, struct Driver* d) {
+
+    //if mask grab its already going then quit
+    if (d->kartState == KS_MASK_GRABBED) return;
+
+    // Play sound effect for mask grab
+    OtherFX_Play(fx_menu_locked, 0);
+
     // Store original position values
     int origX = d->posCurr.x;
     int origY = d->posCurr.y;
@@ -70,9 +77,14 @@ void PreventSkip(struct Driver* driver, int driverIndex) {
         int maxCheckpointSkip = 
             (gGT->levelID == PAPU_PYRAMID || gGT->levelID == OXIDE_STATION) ? (maxCheckpoint * 7) / 100 : (maxCheckpoint * 13) / 100;
 
-        //19% for sewer speedway
+        //25% for sewer speedway
         if (gGT->levelID == SEWER_SPEEDWAY) {
-            maxCheckpointSkip = (maxCheckpoint * 19) / 100;
+            maxCheckpointSkip = (maxCheckpoint * 25) / 100;
+        }
+
+        //9% for HOT_AIR_SKYWAY
+        if (gGT->levelID == HOT_AIR_SKYWAY) {
+            maxCheckpointSkip = (maxCheckpoint * 9) / 100;
         }
 
         //17% for polar pass
@@ -115,7 +127,6 @@ void PreventSkip(struct Driver* driver, int driverIndex) {
 
                 //Mask grab the player
                 MaskGrab(driver->instSelf->thread, driver);
-                OtherFX_Play(fx_menu_locked, 0);
 
                 // sprintf(debugText, "LAP SKIP BLOCKED! P%d", driverIndex+1);
                 // DecalFont_DrawLine(debugText, 0x100, 0xc8 + 10, FONT_SMALL, (JUSTIFY_CENTER | RED));
@@ -124,14 +135,13 @@ void PreventSkip(struct Driver* driver, int driverIndex) {
             else if (
                 prevCheckpoint != 0xFF
                 && currentCheckpoint != 0xFF
+                && currentCheckpoint != 0
                 && prevCheckpoint < maxCheckpoint - 1
                 && prevCheckpoint > 5
                 && abs_val(currentCheckpoint - prevCheckpoint) > maxCheckpointSkip
             ) {
                 driver->lastValid = lastValid_prev[driverIndex];
-                MaskGrab(driver->instSelf->thread, driver);
-                OtherFX_Play(fx_menu_locked, 0);
-        
+                MaskGrab(driver->instSelf->thread, driver);        
             }
             // Detect TA nitro lap skip (Awfull solution)
             else if (
@@ -141,7 +151,6 @@ void PreventSkip(struct Driver* driver, int driverIndex) {
             ) {
                 driver->lastValid = lastValid_prev[driverIndex];
                 MaskGrab(driver->instSelf->thread, driver);
-                OtherFX_Play(fx_menu_locked, 0);
             }
         }
 
@@ -152,7 +161,6 @@ void PreventSkip(struct Driver* driver, int driverIndex) {
             && driver->currBlockTouching != prevTouchedBlock[driverIndex]  // Only if it's a new block
         ){
             MaskGrab(driver->instSelf->thread, driver);
-            OtherFX_Play(fx_menu_locked, 0);
         }
         // Detect Labs cut (block id 694 or 685)
         else if (
@@ -163,7 +171,6 @@ void PreventSkip(struct Driver* driver, int driverIndex) {
         ) {
             driver->lastValid = lastValid_prev[driverIndex];
             MaskGrab(driver->instSelf->thread, driver);
-            OtherFX_Play(fx_menu_locked, 0);
         }
 
         prevTouchedBlock[driverIndex] = driver->currBlockTouching;
@@ -186,7 +193,7 @@ bool NeedsMaskGrab(short blockID, short LevelID) {
     short CRASH_COVE_M[] = {1538, 1531, 1215, 1530};
     short CORTEX_CASTLE_M[] = {2572};
     short HOT_AIR_SKYWAY_M[] = {466, 467};
-    short SLIDE_COLISEUM_M[] = {805, 806, 848, 637, 636, 582, 421, 420, 419, 388};
+    short SLIDE_COLISEUM_M[] = {1402, 1469, 1468, 1492, 1491, 805, 806, 848, 637, 636, 582, 421, 420, 419, 388};
     short PAPU_PYRAMID_M[] = {180, 540, 457, 456, 496};
     short SEWER_SPEEDWAY_M[] = {1651, 1650};
     short POLAR_PASS_M[] = {802, 814};
