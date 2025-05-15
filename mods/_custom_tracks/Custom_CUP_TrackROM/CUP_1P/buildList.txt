@@ -79,6 +79,9 @@ common, exe, VehPhysGeneral_SetHeldItem, 0x0, code/decomp_stuff/items.c
 //using the free room of this file
 common, exe, GhostReplay_ThTick, 0x0, code/quadtriggers.c
 
+//load high driver lod
+common, exe, LOAD_DriverMPK, 0x0, code/decomp_stuff/lod.c
+
 
 
 //delete ghosts
