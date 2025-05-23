@@ -1,0 +1,21 @@
+//common, exe, MainInit_StringToLevID, -0x8, src/patches/hookInit.s
+common, exe, BOTS_SetRotation, -0x8, src/patches/hookUpdate.s
+
+//Main hooks
+common, iso, 0x80700000, 0x0, src/hooks.c
+
+//Load level
+common, exe, LOAD_TenStages, 0x0, src/load_lev.c
+
+//Main for ram expansion and load mods files
+common, exe, main, 0x0, src/ctr_main.c
+
+//Penta unlimited stats
+common, exe, VehBirth_SetConsts, 0x0, src/penta_max_stats.c
+
+//Files for MK-Fueled
+//common, exe, VehPhysProc_PowerSlide_Update, 0x0, src/VehPhysProc_PowerSlide_Update.c
+//common, exe, UI_DrawSlideMeter, 0x0, src/mk_fueled_UI_DrawSlideMeter.c
+//common, exe, VehFire_Increment, 0x0, src/mk_fueled_VehFire_Increment.c
+
+// common, exe, VehEmitter_Exhaust, 0x0, src/mk_fueled_NoSmoke.c 
