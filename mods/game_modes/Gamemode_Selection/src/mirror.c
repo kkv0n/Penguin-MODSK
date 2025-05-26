@@ -1,8 +1,11 @@
 #include <common.h>
 #include "utils.h"
 
+void DF_ParseOT(u_long* startOT);
+void DF_DrawOTag(u_long* ot);
+
 #define COLOR 1
-void ParseOT(u_long* startOT)
+void DF_ParseOT(u_long* startOT)
 {
   u_int* header;
 
@@ -11,7 +14,7 @@ void ParseOT(u_long* startOT)
   int centerX;
   int centerY;
   int backup;
-
+  
   unsigned int endOT;
   int windowWidth;
 
@@ -23,10 +26,10 @@ void ParseOT(u_long* startOT)
 	// dont flip TitleFlag
 	startOT-=4;
   }
-
+  
   // stop when ptrOT-4 is in tag, so ptrOT-0 is flipped
   endOT = (unsigned int)gGT->pushBuffer[gGT->numPlyrCurrGame-1].ptrOT-4;
-
+  
   windowWidth = gGT->pushBuffer[0].rect.w;
 
   // divide by two (more zoom out)
@@ -110,7 +113,7 @@ void ParseOT(u_long* startOT)
 	  ((POLY_FT3*)header)->v0 = ((POLY_FT3*)header)->v1;
 	  ((POLY_FT3*)header)->v1 = backup;
       break;
-
+	  
 	// 0x30 PolyG3
     case 0x30:
       ((POLY_G3*)header)->x0 = (windowWidth - ((POLY_G3*)header)->x0);
@@ -196,7 +199,7 @@ void ParseOT(u_long* startOT)
 	  ((POLY_G4*)header)->b2 = backup;
 #endif
 	  break;
-
+	  
 	// 0x2C PolyFT4
     case 0x2c:
       ((POLY_FT4*)header)->x0 = (windowWidth - ((POLY_FT4*)header)->x0);
@@ -339,35 +342,11 @@ void ParseOT(u_long* startOT)
   };
 }
 
-void SwapDirection(u_int toggle)
+void DF_DrawOTag(u_long* ot)
 {
-	char normal[] = {BTN_LEFT, BTN_RIGHT};
-	char swap[] = {BTN_RIGHT, BTN_LEFT};
-	for (char i = 0; i < 2; i++)
-		data.gamepadMapBtn[i + 2].output = (toggle) ? swap[i] : normal[i];
-}
-
-void MirrorMode(u_long* startOT)
-{
-	// restore default
-	//data.hud_1P_P1[0xC].x = 286;
-	// do NOT set 2p3p4p, this is custom track 1P only
-
-	SwapDirection(0);
-
-	// no mirror
-	if (!USE_MIRROR)
-		return;
+	// only mirror track levels
+	if (USE_MIRROR && (sdata->gGT->levelID < INTRO_RACE_TODAY))
+		DF_ParseOT(ot);
 	
-	if (sdata->gGT->levelID > TURBO_TRACK)
-		return;
-
-	// flip the wumpa shine manually
-	// I know this sucks, whatever
-	//data.hud_1P_P1[0xC].x = 0xAA;
-	// do NOT set 2p3p4p, this is custom track 1P only
-
-	SwapDirection(1);
-
-	ParseOT(startOT);
+	DrawOTag(ot);
 }

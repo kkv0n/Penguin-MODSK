@@ -352,11 +352,6 @@ u_int CTR_main()
 			gGT->vSync_between_drawSync = 0;
 
 			MainFrame_RenderFrame(gGT, gGS);
-			
-			// MIRROR MODE	
-			void* ot = &gGT->pushBuffer[0].ptrOT[0x3ff];
-			void MirrorMode(u_long* ot);
-			MirrorMode(ot);
 
 			// if mask is talking in Adventure Hub
 			if (sdata->boolDraw3D_AdvMask != 0)
@@ -396,7 +391,7 @@ void StateZero()
 	ResetCallback();
 
 
-#define MEMPACK_SIZE 0x7F8800
+#define MEMPACK_SIZE 0x700000
 
 
 	MEMPACK_Init(MEMPACK_SIZE);
@@ -507,8 +502,6 @@ void StateZero()
 	PutDispEnv(&gGT->db[1].dispEnv);
 	PutDrawEnv(&gGT->db[1].drawEnv);
 	DrawSync(0);
-
-
 
 	// \SOUNDS\KART.HWL;1
 	howl_InitGlobals(data.kartHwlPath);

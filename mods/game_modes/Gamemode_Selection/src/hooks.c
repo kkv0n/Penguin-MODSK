@@ -18,6 +18,7 @@
 
 //Mirror
 #include "mirror.c"
+#include "pad_remap.c"
 
 //Stats Modifiers (Gravity, Speed, etc...)
 #include "stats_modifiers.c"
@@ -72,6 +73,9 @@ void RunUpdateHook() {
 
         initialized = true;
     }
+
+    // Remap pad if mirror
+    Remap_Mirror();
     
     // Process each driver
     for (unsigned char i = 0; i < gGT->numPlyrCurrGame; i++) {
