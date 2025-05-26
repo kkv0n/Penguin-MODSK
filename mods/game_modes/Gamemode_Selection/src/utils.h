@@ -3,6 +3,7 @@
 
 #include <common.h>
 
+extern bool USE_RETRO_FUELED;
 extern bool USE_SHORTCUTLESS;
 extern bool USE_N_VERTED;
 extern bool USE_MIRROR;

@@ -6,7 +6,8 @@
 #include "custom_ui.c"
 
 //Retro Fueled
-#include "retro_fueled.c"
+// #include "old_retro_fueled.c"
+#include "retro_fueled_bluefire.c"
 
 //Shortcutless
 #include "shortcutless.c"
@@ -24,8 +25,9 @@
 #include "stats_modifiers.c"
 
 //MK Fueled
-#include "mk_fueled.c"
+//#include "mk_fueled.c"
 
+bool USE_RETRO_FUELED = false;
 bool USE_SHORTCUTLESS = false;
 bool USE_N_VERTED = false;
 bool USE_MIRROR = false;
@@ -73,6 +75,9 @@ void RunUpdateHook() {
 
         initialized = true;
     }
+
+    // Update retro fueled
+    Update_Retro();
 
     // Remap pad if mirror
     Remap_Mirror();

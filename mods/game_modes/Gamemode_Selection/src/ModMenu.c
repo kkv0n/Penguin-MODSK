@@ -2,7 +2,7 @@
 #include "utils.h"
 
 // cheats are located in 0x80096b28
-int* cheats = (int*)0x80096B28;
+// int* cheats = (int*)0x80096B28;
 
 // --------------------- MENU STRUCTURE ---------------------
 typedef struct {
@@ -105,10 +105,16 @@ char valueBuffer[4] = "";
 // Apply effects based on menu option changes
 void ApplyMenuEffects() {
     // Retro Fueled
-    if (optionValues[0]) {
-        EnableRetroFueled();
+    // if (optionValues[0]) {
+    //     EnableRetroFueled();
+    // } else {
+    //     DisableRetroFueled();
+    // }
+    USE_RETRO_FUELED = optionValues[0];
+    if (USE_RETRO_FUELED) {
+        sdata->gGT->gameMode2 |= CHEAT_TURBOPAD;
     } else {
-        DisableRetroFueled();
+        sdata->gGT->gameMode2 &= ~CHEAT_TURBOPAD;
     }
 
     // Shortcutless
@@ -166,16 +172,16 @@ void ApplyMenuEffects() {
     // }
 
     //Disable All cheats
-    // *cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000 | 0x10000);
+    // sdata->gGT->gameMode2 &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000 | 0x10000);
 
     // Icy Tracks
     if (optionValues[5]) {
         //Enable just icy tracks cheat
-        *cheats |= CHEAT_ICY;
+        sdata->gGT->gameMode2 |= CHEAT_ICY;
         
     } else {
         //Disable just icy tracks cheat
-        *cheats &= ~CHEAT_ICY;
+        sdata->gGT->gameMode2 &= ~CHEAT_ICY;
     }
 
     // N-Verted
