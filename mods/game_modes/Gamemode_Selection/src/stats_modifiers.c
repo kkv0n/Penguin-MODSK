@@ -1,9 +1,17 @@
 #include "common.h"
 #include "utils.h"
 
+// Gravity: 0
 void SetGravity(short gravity) { 
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i <= 4; i++) {
 		data.metaPhys[0].value[i] = gravity; 
+	}
+}
+
+// Speed: 11
+void SetSpeed(int speed) { 
+	for (int i = 0; i <= 4; i++) {
+		data.metaPhys[11].value[i] = speed; 
 	}
 }
 
