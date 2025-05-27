@@ -1,9 +1,9 @@
 #include <common.h>
 #include "utils.h"
 
-//MOD MENU / UI
+//MOD MENU / UI / HUD
 #include "ModMenu.c"
-#include "custom_ui.c"
+#include "custom_hud.c"
 
 //Retro Fueled
 // #include "old_retro_fueled.c"
@@ -19,7 +19,7 @@
 
 //Mirror
 #include "mirror.c"
-#include "pad_remap.c"
+#include "mirror_pad_remap.c"
 
 //Stats Modifiers (Gravity, Speed, etc...)
 #include "stats_modifiers.c"
@@ -32,7 +32,6 @@ bool USE_SHORTCUTLESS = false;
 bool USE_N_VERTED = false;
 bool USE_MIRROR = false;
 bool USE_MOON_GRAVITY = false;
-bool USE_JUPITER_GRAVITY = false;
 
 // Default gravity value
 short gravity = 900;
@@ -62,10 +61,7 @@ void RunUpdateHook() {
 
         if(USE_MOON_GRAVITY){
             gravity = 369;
-        } else if(USE_JUPITER_GRAVITY){
-            gravity = 1800;
-        }
-        else {
+        } else {
             gravity = 900;
         }
 
@@ -136,10 +132,12 @@ void RunUpdateHook() {
 
     // Draw version info on main menu
     if (D230.MM_State == 1) {
-        DecalFont_DrawLine("UNLIMITED CTR v1.0.0", 5, 197, FONT_SMALL, LIME_GREEN);
+        DecalFont_DrawLine("MOD MASHUP v1.0.0", 5, 197, FONT_SMALL, LIME_GREEN);
         DecalFont_DrawLine(__DATE__, 5, 206, FONT_SMALL, ORANGE);
         DecalFont_DrawLine(__TIME__, 170, 206, FONT_SMALL, ORANGE);
     }
+
+    // DrawDebugString();
 }
 
 
