@@ -8,7 +8,6 @@ extern bool USE_SHORTCUTLESS;
 extern bool USE_N_VERTED;
 extern bool USE_MIRROR;
 extern bool USE_MOON_GRAVITY;
-extern bool USE_JUPITER_GRAVITY;
 
 enum QUADBLOCKFLAGS {
 
