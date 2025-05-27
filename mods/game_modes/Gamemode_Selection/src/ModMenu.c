@@ -1,3 +1,6 @@
+// Based on ModMenuV3 by Niko
+// https://github.com/CTR-tools/CTR-ModSDK/tree/main/mods/ModPacks/ModMenu_OnlyUSA
+
 #include "common.h"
 #include "utils.h"
 
