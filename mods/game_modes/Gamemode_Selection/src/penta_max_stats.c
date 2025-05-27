@@ -1,6 +1,13 @@
 #include <common.h>
 // common, exe, VehBirth_SetConsts, 0x0, src/penta_max_stats.c
 
+/*
+accel: 9
+something: 10
+speed: 11
+speedometer offset: 12
+*/
+
 void VehBirth_SetConsts(struct Driver *d)
 {
     unsigned short penta_stats[4] = {544, 1152, 13900, 15400}; //accel, something, speed, speedometer offset. Divide speed by 256 to know its kph value
