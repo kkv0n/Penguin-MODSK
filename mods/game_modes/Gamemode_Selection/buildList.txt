@@ -23,3 +23,6 @@ common, exe, VehBirth_SetConsts, 0x0, src/penta_max_stats.c
 //retro fueled
 common, exe, VehFire_Increment, 0x0, src/retro_fueled_vehfire.c
 common, exe, VehPhysProc_Driving_PhysLinear, 0x0, src/retro_fueled_physlinear.c
+
+//Flag
+common, exe, RaceFlag_DrawSelf, 0x0, src/custom_flag.c
