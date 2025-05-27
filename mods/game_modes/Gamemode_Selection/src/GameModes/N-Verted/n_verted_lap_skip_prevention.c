@@ -1,5 +1,5 @@
 #include <common.h>
-#include "utils.h"
+#include "../../utils.h"
 
 // Helper function for absolute value
 extern int abs_val(int value);

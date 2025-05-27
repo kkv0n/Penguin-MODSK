@@ -7,22 +7,22 @@
 
 //Retro Fueled
 // #include "old_retro_fueled.c"
-#include "retro_fueled_bluefire.c"
+#include "GameModes/RetroFueled/retro_fueled_bluefire.c"
 
 //Shortcutless
-#include "shortcutless.c"
+#include "GameModes/Shortcutless/shortcutless.c"
 
 //N_Verted
-#include "n_verted.c"
-#include "n_verted_driver_state.c"
-#include "n_verted_lap_skip_prevention.c"
+#include "GameModes/N-Verted/n_verted.c"
+#include "GameModes/N-Verted/n_verted_driver_state.c"
+#include "GameModes/N-Verted/n_verted_lap_skip_prevention.c"
 
 //Mirror
-#include "mirror.c"
-#include "mirror_pad_remap.c"
+#include "GameModes/MirrorMode/mirror.c"
+#include "GameModes/MirrorMode/mirror_pad_remap.c"
 
 //Stats Modifiers (Gravity, Speed, etc...)
-#include "stats_modifiers.c"
+#include "GameModes/stats_modifiers.c"
 
 //MK Fueled
 //#include "mk_fueled.c"

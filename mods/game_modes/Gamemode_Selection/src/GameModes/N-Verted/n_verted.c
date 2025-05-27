@@ -1,7 +1,7 @@
 // N-Verted by Anfrost
 
 #include <common.h>
-#include "utils.h"
+#include "../../utils.h"
 
 extern bool isJumpBlock(short levelID, short blockID, unsigned char* outFrames, unsigned char* outDelay);
 

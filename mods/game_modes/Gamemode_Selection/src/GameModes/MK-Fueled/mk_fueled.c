@@ -1,5 +1,6 @@
 // From MK-Fueled by Faraside
 // https://github.com/CTR-tools/CTR-ModSDK/tree/94abf1a4753ed7de60dcc0877ab7c1cb74d03a5e/mods/Modules/MK-Fueled
+// (Unused)
 
 #include <common.h>
 

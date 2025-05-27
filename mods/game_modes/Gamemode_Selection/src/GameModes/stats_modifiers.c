@@ -1,5 +1,5 @@
 #include "common.h"
-#include "utils.h"
+#include "../utils.h"
 
 // Gravity: 0
 void SetGravity(short gravity) { 

@@ -1,5 +1,5 @@
 #include <common.h>
-#include "utils.h"
+#include "../../utils.h"
 
 void CTR_Box_DrawWireBox(RECT* r, int* unk, u_long* ot, struct PrimMem* primMem);
 extern u_char hudptr;

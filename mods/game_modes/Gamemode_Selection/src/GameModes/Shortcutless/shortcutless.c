@@ -1,7 +1,7 @@
 // Shortcutless by Anfrost
 
 #include <common.h>
-#include "utils.h"
+#include "../../utils.h"
 
 // Track how many times each player attempts shortcuts
 int shortcutAttempts[4] = {0, 0, 0, 0};

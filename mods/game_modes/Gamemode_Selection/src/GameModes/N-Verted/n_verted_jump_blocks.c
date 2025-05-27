@@ -1,5 +1,5 @@
 #include <common.h>
-#include "utils.h"
+#include "../../utils.h"
 
 // Define structure for block and its timer
 typedef struct {
