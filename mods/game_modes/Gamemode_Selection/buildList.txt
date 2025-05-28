@@ -1,4 +1,4 @@
-//common, exe, MainInit_StringToLevID, -0x8, src/patches/hookInit.s
+common, exe, MainInit_StringToLevID, -0x8, src/patches/hookInit.s
 common, exe, BOTS_SetRotation, -0x8, src/patches/hookUpdate.s
 
 //Main hooks
@@ -26,3 +26,6 @@ common, exe, VehPhysProc_Driving_PhysLinear, 0x0, src/Gamemodes/RetroFueled/retr
 
 //Flag
 common, exe, RaceFlag_DrawSelf, 0x0, src/custom_flag.c
+
+//common, 231, RB_MinePool_Init, 0x0, src/CTR_Files/MinePool_Init.c
+//common, 231, RB_MinePool_Add, 0x0, src/CTR_Files/MinePool_Add.c

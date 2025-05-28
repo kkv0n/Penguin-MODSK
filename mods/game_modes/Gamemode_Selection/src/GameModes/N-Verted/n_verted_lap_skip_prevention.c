@@ -38,8 +38,8 @@ void PreventLapSkip(struct Driver* driver, int driverIndex) {
                 //Mask grab the player
                 MaskGrab(driver->instSelf->thread, driver);
 
-                // sprintf(debugText, "LAP SKIP BLOCKED! P%d", driverIndex+1);
-                // DecalFont_DrawLine(debugText, 0x100, 0xc8 + 10, FONT_SMALL, (JUSTIFY_CENTER | RED));
+                // sprintf(decalText, "LAP SKIP BLOCKED! P%d", driverIndex+1);
+                // DecalFont_DrawLine(decalText, 0x100, 0xc8 + 10, FONT_SMALL, (JUSTIFY_CENTER | RED));
             }
             //This conditional can be removed but will allow too broken SCs on Castle and HAS
             else if (
@@ -60,7 +60,7 @@ void PreventLapSkip(struct Driver* driver, int driverIndex) {
 }
 
 // Initialize or reset lap skip prevention system
-void initLapSkipPrevention() {
+void InitLapSkipPrevention() {
     for (unsigned char i = 0; i < 4; i++) {
         lastValid_prev[i] = NULL;
     }

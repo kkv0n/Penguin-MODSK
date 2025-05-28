@@ -47,7 +47,7 @@ void InjectRedFire()
 	}
 }
 
-void Update_Retro() {
+void HandleBlueFire(bool enabled) {
 
 	struct GameTracker* gGT;
 	struct Driver* d;
@@ -58,7 +58,7 @@ void Update_Retro() {
 
 		d = gGT->drivers[i];
 
-		if (!USE_RETRO_FUELED) {
+		if (!enabled) {
 			InjectRedFire();
 			return;
 		}
@@ -70,13 +70,5 @@ void Update_Retro() {
 			else
 				InjectRedFire();
 		}
-	}
-}
-
-void turbo_(struct Driver* d) {
-	if (((d->stepFlagSet & 2) != 0) & (USE_RETRO_FUELED)) {
-		sdata->gGT->gameMode2 |= CHEAT_TURBOPAD;
-	} else {
-		sdata->gGT->gameMode2 &= ~(CHEAT_TURBOPAD);
 	}
 }

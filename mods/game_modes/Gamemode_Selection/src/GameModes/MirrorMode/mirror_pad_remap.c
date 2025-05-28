@@ -9,7 +9,7 @@ void SwapDirection(u_int toggle)
 		data.gamepadMapBtn[i + 2].output = (toggle) ? swap[i] : normal[i];
 }
 
-void Remap_Mirror()
+void HandleMirrorInput(bool enabled)
 {
 	if ((sdata->gGT->gameMode1 & (PAUSE_1 | END_OF_RACE | MAIN_MENU)) == 0)
 		SwapDirection(USE_MIRROR);

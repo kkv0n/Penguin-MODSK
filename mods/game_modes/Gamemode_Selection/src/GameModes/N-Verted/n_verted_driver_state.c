@@ -12,7 +12,14 @@ typedef struct {
 // State for each driver
 DriverFloatState driverState[4] = {0};
 
-void initDriverStates() {
+void Init_N_Verted(bool enabled) {
+    if (!enabled) return;
+
+    InitDriverStates();
+    InitLapSkipPrevention();
+}
+
+void InitDriverStates() {
     for (unsigned char i = 0; i < 4; i++) {
         resetDriverFloatState(i);
     }
@@ -93,6 +100,34 @@ bool updateDriverFloatState(unsigned char driverIndex, struct Driver* driver) {
     }
     
     return false;
+}
+
+void Handle_N_Verted(bool enabled) {
+    if (!enabled) return;
+
+    for (unsigned char i = 0; i < gGT->numPlyrCurrGame; i++) {
+        struct Driver* driver = gGT->drivers[i];
+
+        if (driver == NULL) continue;
+        if (gGT->levelID > TURBO_TRACK) continue;
+
+        // Update driver float state
+        if (updateDriverFloatState(i, driver)) {
+            // Float the driver
+            driver->forcedJump_trampoline = 2;
+            driver->jump_unknown = 0x180;
+            driver->jump_InitialVelY = driver->const_JumpForce * 3;
+            
+            // Change tire color while floating
+            driver->tireColor = 0x2e0c0cc2;
+        } else {
+            // Reset tire color when not floating
+            driver->tireColor = 0x2e808080;
+        }
+
+        // Check for lap skips, if it happens, mask grab the player
+        PreventLapSkip(driver, i);
+    }
 }
 
 // void DrawFloatTimer(short posX, short posY, unsigned char remainingFrames, unsigned char maxFrames)

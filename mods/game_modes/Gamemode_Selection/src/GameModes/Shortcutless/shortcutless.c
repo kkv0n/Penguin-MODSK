@@ -83,8 +83,8 @@ void MaskGrab(struct Thread* t, struct Driver* d) {
     }
 }
 
-// Prevent any skip
-void PreventSkip(struct Driver* driver, int driverIndex) {
+// Prevent any shortcut
+void PreventShortcut(struct Driver* driver, int driverIndex) {
     struct GameTracker *gGT = sdata->gGT;
     
     // Continue only if driver has a valid quadblock
@@ -148,8 +148,8 @@ void PreventSkip(struct Driver* driver, int driverIndex) {
                 //Mask grab the player
                 MaskGrab(driver->instSelf->thread, driver);
 
-                // sprintf(debugText, "LAP SKIP BLOCKED! P%d", driverIndex+1);
-                // DecalFont_DrawLine(debugText, 0x100, 0xc8 + 10, FONT_SMALL, (JUSTIFY_CENTER | RED));
+                // sprintf(decalText, "LAP SKIP BLOCKED! P%d", driverIndex+1);
+                // DecalFont_DrawLine(decalText, 0x100, 0xc8 + 10, FONT_SMALL, (JUSTIFY_CENTER | RED));
             }
             // Detect other skips
             else if (
@@ -201,10 +201,45 @@ void PreventSkip(struct Driver* driver, int driverIndex) {
 }
 
 // Initialize or reset skip prevention system
-void initSkipPrevention() {
+void InitSkipPrevention() {
     for (unsigned char i = 0; i < 4; i++) {
         lastValid_prev[i] = NULL;
         prevTouchedBlock[i] = NULL;
+    }
+}
+
+void InitShortcutless(bool enabled) {
+    if (!enabled) return;
+
+    InitSkipPrevention();
+    
+    // Reset message timers
+    for (int i = 0; i < 4; i++) {
+        noShortcutMsgTimer[i] = 0;
+        shortcutAttempts[i] = 0;
+    }
+}
+
+void HandleShortcutless(bool enabled) {
+    if (!enabled) return;
+
+    for (unsigned char i = 0; i < gGT->numPlyrCurrGame; i++) {
+        struct Driver* driver = gGT->drivers[i];
+
+        if (driver == NULL) continue;
+        if (gGT->levelID > TURBO_TRACK) continue;
+        
+        PreventShortcut(driver, i);
+
+        // Display "NO SHORTCUTS!" message if timer is active
+        if (noShortcutMsgTimer[i] > 0) {
+            if (gGT->numPlyrCurrGame == 1) {
+                int msgIndex = (shortcutAttempts[i] - 1) % NUM_SHORTCUT_MESSAGES;
+                sprintf(decalText, "%s", shortcutMessages[msgIndex]);
+                DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | RED));
+            }
+            noShortcutMsgTimer[i]--;
+        }
     }
 }
 
@@ -263,6 +298,7 @@ bool NeedsMaskGrab(short blockID, short LevelID) {
     return false;
 }
 
+// Marks with Q_NV_USED flag all the quadblocks that will be hardcoded as custom mask grabs
 void RemoveOffRoadCHK(struct Level *level) {
 
     struct mesh_info* mi = level->ptr_mesh_info;

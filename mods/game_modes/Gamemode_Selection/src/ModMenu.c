@@ -60,10 +60,10 @@ MenuOption menuOptions[9] = {
         {"Disable HUD while racing", "Made by Niko"}
     },
     {
-        "Nitro Fuel 2P",
+        "UNLOCK ALL",
         "on", "off", &optionValues[4],
         NULL,
-        {"Side by side 2P splitscreen", "Requires Disable HUD"}
+        {"101", "___"}
     },
     {
         "Icy Tracks",
@@ -126,53 +126,17 @@ void ApplyMenuEffects() {
     // Disable HUD
     *(unsigned char*)0x8001B038 = optionValues[3] ? 0 : 1;
 
-    // If Disable HUD is off, turn off NF 2P
-    if (!optionValues[3]) {
-        optionValues[4] = false;
-    }
-
-    // If NF 2P is enabled, turn on Disable HUD
-    if (optionValues[4]) {
-        optionValues[3] = true;
-        *(unsigned char*)0x8001B038 = 0;
-    }
-
-    // Enable/Disable NF 2P
-    if (optionValues[4]) {
-        *(unsigned char*)0x800375A8 = 0x3;
-        *(unsigned char*)0x80037644 = 0x2;
-        *(unsigned char*)0x800427B5 = 0x1;
-        *(unsigned char*)0x800427C0 = 0x0;
-        *(unsigned char*)0x800427C1 = 0x1;
-        *(unsigned char*)0x800427D0 = 0xD8;
-        *(unsigned char*)0x800427EC = 0x1C;
-        *(unsigned char*)0x800427F1 = 0x1;
-        *(unsigned char*)0x800427F8 = 0xD8;
-        *(unsigned char*)0x80042818 = 0x1E;
-    } else {
-        *(unsigned char*)0x800375A8 = 0x2;
-        *(unsigned char*)0x80037644 = 0x3;
-        *(unsigned char*)0x800427B5 = 0x2;
-        *(unsigned char*)0x800427C0 = 0x6E;
-        *(unsigned char*)0x800427C1 = 0x0;
-        *(unsigned char*)0x800427D0 = 0x6A;
-        *(unsigned char*)0x800427EC = 0x1E;
-        *(unsigned char*)0x800427F1 = 0x2;
-        *(unsigned char*)0x800427F8 = 0x6A;
-        *(unsigned char*)0x80042818 = 0x1C;
-    }
-
     // Unlock All
-    // if (optionValues[5]) {
-    //     // 101 adventure mode
-    //     *(unsigned int*)0x8008fba4 = 0xFFFFFFFF;
-    //     *(unsigned int*)0x8008fba8 = 0xFFFFFFFF;
-    //     *(unsigned int*)0x8008fbac = 0xFFFFFFFF;
-    //     *(unsigned int*)0x8008fbb0 = 0xFFFFFFFF;
+    if (optionValues[4]) {
+        // 101 in adventure
+        *(unsigned int*)0x8008fba4 = 0xFFFFFFFF;
+        *(unsigned int*)0x8008fba8 = 0xFFFFFFFF;
+        *(unsigned int*)0x8008fbac = 0xFFFFFFFF;
+        *(unsigned int*)0x8008fbb0 = 0xFFFFFFFF;
 
-    //     // All characters, tracks, cups
-    //     *(unsigned int*)0x8008e6ec = 0xFFFFFFFF;
-    // }
+        // All characters, tracks, cups
+        *(unsigned int*)0x8008e6ec = 0xFFFFFFFF;
+    }
 
     //Disable All cheats
     // sdata->gGT->gameMode2 &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000 | 0x10000);
@@ -183,7 +147,6 @@ void ApplyMenuEffects() {
         sdata->gGT->gameMode2 |= CHEAT_ICY;
         
     } else {
-        //Disable just icy tracks cheat
         sdata->gGT->gameMode2 &= ~CHEAT_ICY;
     }
 
