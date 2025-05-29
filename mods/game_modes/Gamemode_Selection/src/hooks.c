@@ -27,6 +27,9 @@
 //Ultra Hard Mode
 #include "GameModes/UHM/difficulty_modifiers.c"
 
+//Item Modifiers
+#include "GameModes/UHM/item_modifiers.c"
+
 //MK Fueled
 //#include "mk_fueled.c"
 
@@ -92,6 +95,9 @@ void RunUpdateHook() {
         SetGravity(gravity);
         ApplyModifiers();
 
+        // Item modifiers
+        ItemModifier_Init(true);
+
         initialized = true;
     }
     // Reset flag when timer is not > 0
@@ -113,6 +119,9 @@ void RunUpdateHook() {
     
     // Handle N-VERTED logic, which involves jump blocks and prevent lap skips
     Handle_N_Verted(USE_N_VERTED);
+
+    //Handle item modifiers (Every second a random driver will trow a random item)
+    HandleItemModifiers(true);
 
     // Draw reserver metter for 1P
     if ((gGT->numPlyrCurrGame == 1) && ((gGT->gameMode1 & END_OF_RACE) == 0))
