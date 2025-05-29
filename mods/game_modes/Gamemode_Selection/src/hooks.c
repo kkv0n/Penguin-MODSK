@@ -28,7 +28,7 @@
 #include "GameModes/UHM/difficulty_modifiers.c"
 
 //Item Modifiers
-#include "GameModes/UHM/item_modifiers.c"
+#include "GameModes/UHM/item_chaos.c"
 
 //MK Fueled
 //#include "mk_fueled.c"
@@ -96,7 +96,7 @@ void RunUpdateHook() {
         ApplyModifiers();
 
         // Item modifiers
-        ItemModifier_Init(true);
+        ItemChaos_Init(true);
 
         initialized = true;
     }
@@ -120,8 +120,8 @@ void RunUpdateHook() {
     // Handle N-VERTED logic, which involves jump blocks and prevent lap skips
     Handle_N_Verted(USE_N_VERTED);
 
-    //Handle item modifiers (Every second a random driver will trow a random item)
-    HandleItemModifiers(true);
+    //Handle item chaos (Every second a random driver will trow a random item)
+    HandleItemChaos(true);
 
     // Draw reserver metter for 1P
     if ((gGT->numPlyrCurrGame == 1) && ((gGT->gameMode1 & END_OF_RACE) == 0))

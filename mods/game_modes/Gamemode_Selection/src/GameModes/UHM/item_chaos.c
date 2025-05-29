@@ -3,19 +3,37 @@
 
 int itemTimer;
 
-void ItemModifier_Init(bool enabled) {
+bool CanThrowItems(struct Driver* driver) {
+    if (driver == NULL) return false;
+    
+    // If the driver has a TNT on their head or is affected by a clock, they cannot throw items
+    if ((driver->instTntRecv != 0) || (driver->clockReceive != 0)) return false;
+
+    // Check if the driver is in a valid state to throw items
+    bool isAI = ((driver->actionsFlagSet & 0x100000) != 0);
+    if (isAI && (driver->botData.botFlags & 2) != 0) return false; // Bot is spinning or blasted
+
+    bool isHuman = !isAI;
+    if (isHuman && (driver->kartState != KS_NORMAL && driver->kartState != KS_DRIFTING)) return false;
+
+    // If its boss race and is human, don't allow to throw items
+    bool isBossRace = (gGT->gameMode1 & ADVENTURE_BOSS) != 0;
+    if (isBossRace && isHuman) return false;
+
+    return true;
+}
+
+void ItemChaos_Init(bool enabled) {
     if (!enabled) return;
 
     // Initialize item timer, wait 5 seconds to start throwing items
     itemTimer = FPS_DOUBLE(160);
 }
 
-//TODO: Check kart state for both humans and bots before throwing items
 //TODO: Sometimes a bug happens where only driver 0 will shoot items
-//TODO: Rename this, this is not a modifier, this is a game mode
 // Each second, force a random driver to throw a random item
 // All players on last lap will have 99 wumpas
-void HandleItemModifiers(bool enabled) {
+void HandleItemChaos(bool enabled) {
     if (!enabled) return;
 
     // Give all players that are in last lap 99 wumpas
@@ -34,6 +52,9 @@ void HandleItemModifiers(bool enabled) {
             // Select a random driver
             int randomDriverIndex = rand() % (gGT->numPlyrCurrGame + gGT->numBotsNextGame);
             struct Driver* randomDriver = gGT->drivers[randomDriverIndex];
+
+            // Ensure the random driver can throw items
+            if (!CanThrowItems(randomDriver)) return;
             
             if (randomDriver != NULL) {
                 // Check if a human player is in first
@@ -44,34 +65,40 @@ void HandleItemModifiers(bool enabled) {
                 }
                 
                 // Check if the random driver is in first place
-                bool isDriverInFirst = (randomDriver == firstPlaceDriver);
+                bool isDriverInFirst = randomDriver->driverRank == 0;
                 
                 // Check if it's the last lap for the leader
                 bool isLastLap = (firstPlaceDriver != NULL && 
                                   firstPlaceDriver->lapIndex == gGT->numLaps - 1);
+
+                // If is last lap reduce the timer to 15 frames
+                if (isLastLap) {
+                    itemTimer = FPS_DOUBLE(15);
+                }
                 
                 // Define item weights
-                int bombWeight = 15;
-                int missileWeight = (humanInFirst && randomDriver->driverRank == 1) ? 70 : 20;
-                int crateWeight = 70;
-                int beakerWeight = 40;
+                int bombWeight = 10;
+                int missileWeight = 30;
+                int crateWeight = 60;
+                int beakerWeight = 35;
                 int clockWeight = humanInFirst ? 7 : 2;
-                int orbWeight = humanInFirst ? 20 : 7;
-                
+                int orbWeight = humanInFirst ? 18 : 7;
+
                 // Players in first place can't shoot orb, clock or missile
-                if (isDriverInFirst) {
+                // Human player can't shoot orb, clock or missile
+                if (isDriverInFirst || (randomDriver->actionsFlagSet & 0x100000) == 0) {
                     missileWeight = 0;
                     clockWeight = 0;
                     orbWeight = 0;
                 }
-                
+
                 // Calculate total weight
                 int totalWeight = bombWeight + missileWeight + crateWeight + beakerWeight + clockWeight + orbWeight;
                 if (totalWeight == 0) {
                     // If all weights are 0, use bomb, crate and beaker only
-                    bombWeight = 15;
-                    crateWeight = 70;
-                    beakerWeight = 40;
+                    bombWeight = 10;
+                    crateWeight = 60;
+                    beakerWeight = 35;
                     totalWeight = bombWeight + crateWeight + beakerWeight;
                 }
                 
@@ -99,9 +126,18 @@ void HandleItemModifiers(bool enabled) {
                 if (humanInFirst && item == ITEM_WARP_ORB && isLastLap) {
                     randomDriver = gGT->driversInRaceOrder[1];
                 }
+
+                int flag = 0;
+
+                //if item is a crate or a breaker give a probability of 25% to trow in the air
+                if (item == ITEM_EXPLOSIVE_CRATE || item == ITEM_N_BRIO_BEAKER) {
+                    if (rand() % 4 == 0) {
+                        flag = 4;
+                    }
+                }
                 
                 // Fire the selected item
-                VehPickupItem_ShootNow(randomDriver, item, 0);
+                VehPickupItem_ShootNow(randomDriver, item, flag);
             }
         } else {
             itemTimer--;
