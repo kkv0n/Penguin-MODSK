@@ -6,6 +6,7 @@
 
 // cheats are located in 0x80096b28
 // int* cheats = (int*)0x80096B28;
+extern unsigned short* superHardAddr;
 
 // --------------------- MENU STRUCTURE ---------------------
 typedef struct {
@@ -29,9 +30,6 @@ typedef struct {
 
 // --------------------- MENU STATE ---------------------
 bool optionValues[9] = {false}; // Values for each option
-
-// Special option states
-unsigned short* superHardAddr = (unsigned short*)0x80012658;
 
 // Define menu options
 MenuOption menuOptions[9] = {
@@ -163,6 +161,20 @@ void ApplyMenuEffects() {
     USE_MIRROR = optionValues[8];
 }
 
+void HandleDifficultyTap(int tap)
+{
+    int currentLevel = *superHardAddr / 0x50;
+
+    if (tap & BTN_LEFT) {
+        currentLevel--;
+    }
+    if (tap & BTN_RIGHT) {
+        currentLevel++;
+    }
+
+    SetDifficultyLevel(currentLevel);
+}
+
 // Handle menu input
 void HandleMenuInput(struct GamepadBuffer* controller) {
     int tap = controller->buttonsTapped;
@@ -193,26 +205,7 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
     
     // Special handling for Super Hard option
     if (currentOption == 2) {
-        if (tap & BTN_LEFT) {
-            *superHardAddr = *superHardAddr - 0x50;
-            if ((*superHardAddr / 0x50) < 4) {
-                *superHardAddr = 0x140;
-            }
-        }
-        
-        if (tap & BTN_RIGHT) {
-            *superHardAddr = *superHardAddr + 0x50;
-            if ((*superHardAddr / 0x50) > 9) {
-                *superHardAddr = 0x2D0;
-            }
-        }
-        
-        // Enable/Disable SHM cheat based on value
-        if ((*superHardAddr / 0x50) > 4) {
-            *(unsigned int*)0x80096b28 |= 0x200000;
-        } else {
-            *(unsigned int*)0x80096b28 &= 0xFFDFFFFF;
-        }
+        HandleDifficultyTap(tap);
     }
 
     // Toggle boolean options
@@ -257,6 +250,7 @@ void RenderMenu() {
         
         // Draw option value
         if (i == 2) { // Super Hard (special numeric value)
+            // sprintf(valueBuffer, "%d", (sdata->gGT->arcadeDifficulty / 0x50));
             sprintf(valueBuffer, "%d", (*superHardAddr / 0x50));
             DecalFont_DrawLine(valueBuffer, 240, 30, FONT_SMALL, PERIWINKLE);
         }

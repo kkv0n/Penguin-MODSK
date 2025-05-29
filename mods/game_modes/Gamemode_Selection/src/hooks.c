@@ -24,6 +24,9 @@
 //Stats Modifiers (Gravity, Speed, etc...)
 #include "GameModes/stats_modifiers.c"
 
+//Ultra Hard Mode
+#include "GameModes/UHM/difficulty_modifiers.c"
+
 //MK Fueled
 //#include "mk_fueled.c"
 
@@ -60,7 +63,10 @@ void RunUpdateHook() {
         DecalFont_DrawLine(__TIME__, 170, 206, FONT_SMALL, ORANGE);
     }
 
-    //DrawDebugString();
+    // DrawDebugString();
+    //print the value and adress of gGT->arcadeDifficulty, use decalText as buffer
+    // sprintf(decalText, "value: %d, address: %p", gGT->arcadeDifficulty, &gGT->arcadeDifficulty);
+    // DecalFont_DrawLine(decalText, 0x100, 0xc8 - 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
 
     // if the game is not in a race then quit
 	if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
@@ -99,6 +105,7 @@ void RunUpdateHook() {
     HandleBlueFire(USE_RETRO_FUELED);
 
     // Remap pad if mirror is enabled
+    // Rest of mirror logic is injected on DF_JalDrawOTag
     HandleMirrorInput(USE_MIRROR);
 
     // Handle shortcutless logic, detect and prevent shortcuts
