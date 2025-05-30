@@ -8,6 +8,7 @@ extern bool USE_SHORTCUTLESS;
 extern bool USE_N_VERTED;
 extern bool USE_MIRROR;
 extern bool USE_MOON_GRAVITY;
+extern bool USE_ITEM_CHAOS;
 
 extern struct GameTracker *gGT;
 extern char* decalText;

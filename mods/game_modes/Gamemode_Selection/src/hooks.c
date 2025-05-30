@@ -38,6 +38,7 @@ bool USE_SHORTCUTLESS = false;
 bool USE_N_VERTED = false;
 bool USE_MIRROR = false;
 bool USE_MOON_GRAVITY = false;
+bool USE_ITEM_CHAOS = false;
 
 short gravity = 900;
 char* decalText = (char*)0x1F800000;
@@ -67,9 +68,11 @@ void RunUpdateHook() {
     }
 
     // DrawDebugString();
-    //print the value and adress of gGT->arcadeDifficulty, use decalText as buffer
     // sprintf(decalText, "value: %d, address: %p", gGT->arcadeDifficulty, &gGT->arcadeDifficulty);
     // DecalFont_DrawLine(decalText, 0x100, 0xc8 - 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+    // sprintf(decalText, "cnt: %d", CountActiveWarpOrbs());
+    // DecalFont_DrawLine(decalText, 0x100, 0xc8 - 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+
 
     // if the game is not in a race then quit
 	if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
@@ -96,7 +99,7 @@ void RunUpdateHook() {
         ApplyModifiers();
 
         // Item modifiers
-        ItemChaos_Init(true);
+        ItemChaos_Init(USE_ITEM_CHAOS);
 
         initialized = true;
     }
@@ -120,8 +123,15 @@ void RunUpdateHook() {
     // Handle N-VERTED logic, which involves jump blocks and prevent lap skips
     Handle_N_Verted(USE_N_VERTED);
 
-    //Handle item chaos (Every second a random driver will trow a random item)
-    HandleItemChaos(true);
+    // Handle item chaos (Every second a random driver will trow a random item)
+    HandleItemChaos(USE_ITEM_CHAOS);
+
+    // Special case for maximun difficulty
+    int currentLevel = *superHardAddr / 0x50;
+    if (currentLevel >= 9){
+        // Give all bots USF
+        GiveBotsUSF();
+    }
 
     // Draw reserver metter for 1P
     if ((gGT->numPlyrCurrGame == 1) && ((gGT->gameMode1 & END_OF_RACE) == 0))

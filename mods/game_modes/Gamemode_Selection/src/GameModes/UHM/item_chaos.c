@@ -2,6 +2,7 @@
 #include "../../utils.h"
 
 int itemTimer;
+int itemChaosDifficulty = 0; // 0=off, 1=easy, 2=medium, 3=hard
 
 bool CanThrowItems(struct Driver* driver) {
     if (driver == NULL) return false;
@@ -30,6 +31,28 @@ void ItemChaos_Init(bool enabled) {
     itemTimer = FPS_DOUBLE(160);
 }
 
+int CountActiveWarpOrbs() {
+    int count = 0;
+    struct Thread* warpballThread;
+    struct Instance* warpballInst;
+
+    // Loop through all threads in the TRACKING bucket
+    for (
+        warpballThread = gGT->threadBuckets[TRACKING].thread;
+        warpballThread != 0;
+        warpballThread = warpballThread->siblingThread
+    ) {
+        warpballInst = warpballThread->inst;
+
+        //If its a warpball       
+        if(warpballInst->model->id == 0x36){
+            count++;
+        }
+    }
+    
+    return count;
+}
+
 //TODO: Sometimes a bug happens where only driver 0 will shoot items
 // Each second, force a random driver to throw a random item
 // All players on last lap will have 99 wumpas
@@ -47,8 +70,35 @@ void HandleItemChaos(bool enabled) {
     // Throw items when race is active (after traffic lights)
     if (gGT->levelID <= TURBO_TRACK && gGT->trafficLightsTimer < 0) {
         if (itemTimer <= 0) {
-            itemTimer = FPS_DOUBLE(32); // Reset timer to 1 second (32 frames)
+            // Set timer based on difficulty level and lap status
+            bool isLastLap = false;
+            struct Driver* firstPlaceDriver = gGT->driversInRaceOrder[0];
+            if (firstPlaceDriver != NULL) {
+                // Check if it's the last lap for the leader
+                isLastLap = (firstPlaceDriver->lapIndex == gGT->numLaps - 1);
+            }
             
+            // Set timer based on difficulty level
+            switch (itemChaosDifficulty) {
+                case 1: // Easy
+                    itemTimer = FPS_DOUBLE(60);
+                    break;
+                case 2: // Medium
+                    itemTimer = FPS_DOUBLE(45);
+                    break;
+                case 3: // Hard
+                    itemTimer = FPS_DOUBLE(30);
+                    break;
+                default: // Default to medium if something goes wrong
+                    itemTimer = FPS_DOUBLE(45);
+                    break;
+            }
+
+            // If is last lap divide the timer by 2
+            if (isLastLap) {
+                itemTimer /= 2;
+            }
+
             // Select a random driver
             int randomDriverIndex = rand() % (gGT->numPlyrCurrGame + gGT->numBotsNextGame);
             struct Driver* randomDriver = gGT->drivers[randomDriverIndex];
@@ -59,30 +109,21 @@ void HandleItemChaos(bool enabled) {
             if (randomDriver != NULL) {
                 // Check if a human player is in first
                 bool humanInFirst = false;
-                struct Driver* firstPlaceDriver = gGT->driversInRaceOrder[0];
-                if (firstPlaceDriver != NULL && ((firstPlaceDriver->actionsFlagSet & 0x100000) == 0)) {
+
+                if (((firstPlaceDriver->actionsFlagSet & 0x100000) == 0)) {
                     humanInFirst = true;
                 }
                 
                 // Check if the random driver is in first place
                 bool isDriverInFirst = randomDriver->driverRank == 0;
                 
-                // Check if it's the last lap for the leader
-                bool isLastLap = (firstPlaceDriver != NULL && 
-                                  firstPlaceDriver->lapIndex == gGT->numLaps - 1);
-
-                // If is last lap reduce the timer to 15 frames
-                if (isLastLap) {
-                    itemTimer = FPS_DOUBLE(15);
-                }
-                
                 // Define item weights
-                int bombWeight = 10;
+                int bombWeight = 15;
                 int missileWeight = 30;
                 int crateWeight = 60;
                 int beakerWeight = 35;
-                int clockWeight = humanInFirst ? 7 : 2;
-                int orbWeight = humanInFirst ? 18 : 7;
+                int clockWeight = humanInFirst ? 4 : 2;
+                int orbWeight = humanInFirst ? 14 : 7;
 
                 // Players in first place can't shoot orb, clock or missile
                 // Human player can't shoot orb, clock or missile
@@ -119,6 +160,11 @@ void HandleItemChaos(bool enabled) {
                     item = ITEM_N_TROPY_CLOCK;
                 } else {
                     item = ITEM_WARP_ORB;
+                }
+
+                // Check if there are already 5 or more warp orbs active
+                if (item == ITEM_WARP_ORB && CountActiveWarpOrbs() >= 5) {
+                    return; // Don't shoot more orbs if there are already 5 active
                 }
                 
                 // If human in first, item is orb, and it's last lap, 
