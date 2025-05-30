@@ -24,16 +24,36 @@ void AdvAdjustDifficulty()
     BOTS_Adv_AdjustDifficulty();
 }
 
+void GiveBotsUSF(){
+    for (unsigned char i = 0; i <= gGT->numBotsNextGame; i++) {
+        struct Driver* driver = gGT->drivers[i];
+
+        if (driver == NULL) continue;
+
+        //If its a bot
+        if ((driver->actionsFlagSet & 0x100000) != 0) {
+
+            // If bot has a TNT on their head or is affected by a clock
+            if ((driver->instTntRecv != 0) || (driver->clockReceive != 0)) continue;
+            // If bot is spinning or blasted
+            if ((driver->botData.botFlags & 2) != 0) continue;
+
+            int usf_fire = 0x800;
+            VehFire_Increment(driver, 960, (TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD), usf_fire);
+        }
+    }
+}
+
 void SetDifficultyLevel(int newLevel)
 {
     // Clamp between 4 and 9
-    if (newLevel < 4) newLevel = 4;
+    // if (newLevel < 4) newLevel = 4;
     if (newLevel > 9) newLevel = 9;
 
     *superHardAddr = newLevel * 0x50;
 
     // Enable/Disable Super Hard mode based on difficulty level
-    if (newLevel > 4) {
+    if (newLevel >= 4) {
         sdata->gGT->gameMode2 |= CHEAT_SUPERHARD;
     } else {
         sdata->gGT->gameMode2 &= ~CHEAT_SUPERHARD;
