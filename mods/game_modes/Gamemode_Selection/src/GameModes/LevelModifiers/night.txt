@@ -1,0 +1,78 @@
+void NightMode(struct Level *level){
+    struct GameTracker* gGT = sdata->gGT;
+    
+    if (gGT->levelID > TURBO_TRACK) return;
+    
+    // Add stars to the sky
+    gGT->renderFlags |= 8;
+    level->stars.numStars = 768;
+    level->stars.spread = 0;
+    level->stars.seed = 65535;
+    level->stars.distance = 1022;
+
+    // Remove skybox
+    level->ptr_skybox = NULL;
+    // Enable the gradient
+    level->configFlags |= 1;
+
+    level->clearColorRGBA = 0x000000; // Set clear color to black
+    
+    // Set gradient colors (format: 0x00BBGGRR)
+    level->glowGradient[0].colorFrom = ConvertHexToBGR(0x060025);
+    level->glowGradient[0].colorTo = ConvertHexToBGR(0x1A0047);
+
+    level->glowGradient[1].colorFrom = ConvertHexToBGR(0x1A0047);
+    level->glowGradient[1].colorTo = ConvertHexToBGR(0x000013);
+
+    level->glowGradient[2].colorFrom = ConvertHexToBGR(0x000013);
+    level->glowGradient[2].colorTo = ConvertHexToBGR(0x000000);
+    
+    // Set gradient positions
+    level->glowGradient[0].pointFrom = 120;
+    level->glowGradient[0].pointTo = 90;
+
+    level->glowGradient[1].pointFrom = 90;
+    level->glowGradient[1].pointTo = 60;
+
+    level->glowGradient[2].pointFrom = 60;
+    level->glowGradient[2].pointTo = -120;
+    
+    // Darken level geometry and add blue tint
+    int brightness = 64; // 0-255 (lower = darker)
+    int blueTint = 15;   // Amount of blue to add (0-255)
+    struct mesh_info* mi = level->ptr_mesh_info;
+    struct LevVertex* verts = mi->ptrVertexArray;
+    int numV = mi->numVertex;
+    
+    for (int i = 0; i < numV; i++) {
+        unsigned char* hi = verts[i].color_hi;
+        unsigned char* lo = verts[i].color_lo;
+        
+        // Function to detect green colors (for turbo pads)
+        bool isGreen_hi = (hi[1] > 80) && (hi[1] > hi[0] + 30) && (hi[1] > hi[2] + 30);
+        bool isGreen_lo = (lo[1] > 80) && (lo[1] > lo[0] + 30) && (lo[1] > lo[2] + 30);
+        
+        // If not green, darken the hi colors and add blue tint
+        if (!isGreen_hi) {
+            // Darken red and green
+            hi[0] = (hi[0] * brightness) >> 8;
+            hi[1] = (hi[1] * brightness) >> 8;
+            
+            // Darken blue but then add blue tint
+            hi[2] = (hi[2] * brightness) >> 8;
+            hi[2] = (hi[2] + blueTint > 255) ? 255 : hi[2] + blueTint;
+        }
+        
+        // If not green, darken the lo colors and add blue tint
+        if (!isGreen_lo) {
+            // Darken red and green
+            lo[0] = (lo[0] * brightness) >> 8;
+            lo[1] = (lo[1] * brightness) >> 8;
+            
+            // Darken blue but then add blue tint
+            lo[2] = (lo[2] * brightness) >> 8;
+            lo[2] = (lo[2] + blueTint > 255) ? 255 : lo[2] + blueTint;
+        }
+    }
+}
+    

@@ -565,56 +565,9 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 			ReverseTrack(gGT->level1);
 		}
 
-		// struct mesh_info* mi = gGT->level1->ptr_mesh_info;
-		// struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
-		
-		// for (int i = 0; i < mi->numQuadBlock; i++) {
-		// 	struct QuadBlock* qb = &quadBlocks[i];
-
-		// 	//ignore TB
-		// 	if (qb->quadFlags & Q_TRIGGER_SCRIPT){
-		// 		continue;
-		// 	}
-
-		// 	//WALL RIDE
-		// 	//Mark all walls as ground
-		// 	if (qb->quadFlags & Q_WALL) {
-		// 		qb->quadFlags |= Q_GROUND;
-		// 		qb->quadFlags &= ~Q_WALL;
-		// 	}
-
-		// 	//WALL RIDE || SPEED IMPACT MODE
-		// 	// Add SpeedImpact to all ground
-		// 	if (qb->quadFlags & Q_GROUND) {
-		// 		qb->speedImpact = -127;
-		// 	}
-
-		// 	//BOUNDLESS
-		// 	//Remove Mask Grad and Out of Bounds from all quads
-		// 	qb->quadFlags &= ~(Q_MASK_GRAB | Q_OOF_BOUNDS);
-
-		// 	//Replace offroad terrains
-		// 	if (
-		// 		qb->terrain_type == TERRAIN_GRASS
-		// 		|| qb->terrain_type == TERRAIN_DIRT
-		// 		|| qb->terrain_type == TERRAIN_SNOW
-		// 		|| qb->terrain_type == TERRAIN_SLOWGRASS
-		// 		|| qb->terrain_type == TERRAIN_SLOWDIRT
-		// 		|| qb->terrain_type == TERRAIN_WATER
-		// 		|| qb->terrain_type == TERRAIN_RIVERASPHALT
-		// 		|| qb->terrain_type == TERRAIN_OCEANASPHALT
-		// 		|| qb->terrain_type == TERRAIN_STEAMASPHALT
-		// 		|| qb->terrain_type == TERRAIN_MUD
-		// 		|| qb->terrain_type == TERRAIN_TRACK
-		// 	) {
-		// 		qb->terrain_type = TERRAIN_ASPHALT;
-		// 	}
-
-		// 	//Remove collition from killplanes and invisible walls (This is removing collition on unwanted parts)
-		// 	if (qb->quadFlags & Q_INV_TRIGGERS){
-		// 		qb->quadFlags &= ~(Q_WALL | Q_GROUND);
-		// 	}
-		// }
+		// Boundless(gGT->level1);
+		// WallRide(gGT->level1);
+		NightMode(gGT->level1);
 
 		// iVar9 is set to sdata->ptrLevelFile at the top of the function
 		gGT->visMem1 = lev->visMem;

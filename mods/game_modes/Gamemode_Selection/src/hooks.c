@@ -33,6 +33,9 @@
 //MK Fueled
 //#include "mk_fueled.c"
 
+//Level Modifiers
+#include "GameModes/LevelModifiers/level_modifiers.c"
+
 bool USE_RETRO_FUELED = false;
 bool USE_SHORTCUTLESS = false;
 bool USE_N_VERTED = false;
@@ -70,7 +73,7 @@ void RunUpdateHook() {
     // DrawDebugString();
     // sprintf(decalText, "value: %d, address: %p", gGT->arcadeDifficulty, &gGT->arcadeDifficulty);
     // DecalFont_DrawLine(decalText, 0x100, 0xc8 - 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
-    // sprintf(decalText, "cnt: %d", CountActiveWarpOrbs());
+    // sprintf(decalText, "Skybox pointer: %p\n", gGT->level1->ptr_skybox);
     // DecalFont_DrawLine(decalText, 0x100, 0xc8 - 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
 
 
