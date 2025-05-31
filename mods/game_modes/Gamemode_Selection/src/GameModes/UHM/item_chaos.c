@@ -45,7 +45,7 @@ int CountActiveWarpOrbs() {
         warpballInst = warpballThread->inst;
 
         //If its a warpball       
-        if(warpballInst->model->id == 0x36){
+        if(warpballInst->model->id == DYNAMIC_WARPBALL){
             count++;
         }
     }
