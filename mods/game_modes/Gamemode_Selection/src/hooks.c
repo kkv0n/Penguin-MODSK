@@ -146,7 +146,7 @@ void RunUpdateHook() {
     // HandleRainbowColors(gGT->level1);
 
     if(USE_NIGHT_FILTER && NightFilterBrightness < 20){
-        ApplyDynamicLighting(gGT->level1, driver);
+        HandleDynamicLighting(gGT->level1);
     }
 
     // Draw reserver metter for 1P

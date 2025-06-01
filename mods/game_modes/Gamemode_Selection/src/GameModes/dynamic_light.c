@@ -2,10 +2,11 @@
 #include "../utils.h"
 
 // Constants for dynamic lighting
-#define MAX_LIGHT_RADIUS 1500    // Max lighting radius
+#define MAX_LIGHT_RADIUS 1200    // Max lighting radius
 #define MIN_LIGHT_RADIUS 10     // Inner radius for full brightness
 #define MAX_BRIGHTNESS 100      // Maximum brightness boost
 #define COLOR_MEMORY_SIZE 30000 // Number of vertices we can store colors for
+int lightRadius[8] = { 0, 0, 0, 0, 0, 0, 0, 0 }; // Store light radius for each driver
 
 // Original color storage
 static unsigned char original_colors_hi[COLOR_MEMORY_SIZE][4];
@@ -45,103 +46,154 @@ void SaveOriginalColors(struct Level* level) {
     colors_saved = true;
 }
 
-// void RestoreOriginalColors(struct Level* level) {
-//     if (!colors_saved) return;
-    
-//     struct mesh_info* mi = level->ptr_mesh_info;
-//     if (!mi || !mi->ptrVertexArray) return;
-    
-//     // Restore all tracked vertices to their original colors
-//     for (int i = 0; i < tracked_vertices_count; i++) {
-//         short vertex_index = tracked_vertex_indices[i];
-//         if (vertex_index >= 0 && vertex_index < mi->numVertex) {
-//             struct LevVertex* v = &mi->ptrVertexArray[vertex_index];
-            
-//             for (int c = 0; c < 4; c++) {
-//                 v->color_hi[c] = original_colors_hi[i][c];
-//                 v->color_lo[c] = original_colors_lo[i][c];
-//             }
-//         }
-//     }
-// }
-
-void ApplyDynamicLighting(struct Level* level, struct Driver* driver) {
+void RestoreOriginalColors(struct Level* level) {
     if (!colors_saved) return;
     
     struct mesh_info* mi = level->ptr_mesh_info;
     if (!mi || !mi->ptrVertexArray) return;
     
-    // Get player position
-    short playerX = driver->posCurr.x >> 8;
-    short playerY = driver->posCurr.y >> 8;
-    short playerZ = driver->posCurr.z >> 8;
-    
-    // Create a bounding box around the player's position
-    struct BoundingBox lightBox;
-    lightBox.min[0] = playerX - MAX_LIGHT_RADIUS;
-    lightBox.min[1] = playerY - MAX_LIGHT_RADIUS;
-    lightBox.min[2] = playerZ - MAX_LIGHT_RADIUS;
-    lightBox.max[0] = playerX + MAX_LIGHT_RADIUS;
-    lightBox.max[1] = playerY + MAX_LIGHT_RADIUS;
-    lightBox.max[2] = playerZ + MAX_LIGHT_RADIUS;
-    
-    // Process vertices
+    // Restore all tracked vertices to their original colors
     for (int i = 0; i < tracked_vertices_count; i++) {
         short vertex_index = tracked_vertex_indices[i];
         if (vertex_index >= 0 && vertex_index < mi->numVertex) {
             struct LevVertex* v = &mi->ptrVertexArray[vertex_index];
             
+            for (int c = 0; c < 4; c++) {
+                v->color_hi[c] = original_colors_hi[i][c];
+                v->color_lo[c] = original_colors_lo[i][c];
+            }
+        }
+    }
+}
+
+char prev_level_id = -1;
+bool prev_level_was_hi = true;
+
+void ResetDynamicLighting(struct Level* level) {
+    //Check if last level id and hi status match
+    bool current_level_is_hi = gGT->numPlyrCurrGame <= 2;
+    if (prev_level_id == gGT->levelID && prev_level_was_hi == current_level_is_hi) {
+        RestoreOriginalColors(level);
+    }
+
+    colors_saved = false;
+    tracked_vertices_count = 0;
+    
+    // Clear any stored data
+    for (int i = 0; i < COLOR_MEMORY_SIZE; i++) {
+        tracked_vertex_indices[i] = -1;
+        for (int c = 0; c < 4; c++) {
+            original_colors_hi[i][c] = 0;
+            original_colors_lo[i][c] = 0;
+        }
+    }
+}
+
+
+void HandleDynamicLighting(struct Level* level) {
+    if (!colors_saved) return;
+    
+    struct mesh_info* mi = level->ptr_mesh_info;
+    if (!mi || !mi->ptrVertexArray) return;
+    
+    // First reset all vertices to their original colors
+    RestoreOriginalColors(level);
+
+    // Create driver bounding boxes first
+    struct BoundingBox lightBoxes[8]; // Maximun of 8 drivers
+    unsigned char activeDrivers = 0;
+    short driverPositions[8][3];
+
+    // Prepare all driver positions and bounding boxes
+    for (unsigned char d = 0; d < gGT->numPlyrCurrGame; d++) {
+        struct Driver* driver = gGT->drivers[d];
+        if (!driver) continue;
+        // If its an AI driver skip
+        if ((driver->actionsFlagSet & 0x100000) != 0) continue;
+        
+        // Get driver position
+        driverPositions[activeDrivers][0] = driver->posCurr.x >> 8;
+        driverPositions[activeDrivers][1] = driver->posCurr.y >> 8;
+        driverPositions[activeDrivers][2] = driver->posCurr.z >> 8;
+
+        // Light radius for this driver based on the number of players
+        lightRadius[activeDrivers] = MAX_LIGHT_RADIUS / (gGT->numPlyrCurrGame);
+        
+        // Create a bounding box around the driver's position
+        lightBoxes[activeDrivers].min[0] = driverPositions[activeDrivers][0] - lightRadius[activeDrivers];
+        lightBoxes[activeDrivers].min[1] = driverPositions[activeDrivers][1] - lightRadius[activeDrivers];
+        lightBoxes[activeDrivers].min[2] = driverPositions[activeDrivers][2] - lightRadius[activeDrivers];
+        lightBoxes[activeDrivers].max[0] = driverPositions[activeDrivers][0] + lightRadius[activeDrivers];
+        lightBoxes[activeDrivers].max[1] = driverPositions[activeDrivers][1] + lightRadius[activeDrivers];
+        lightBoxes[activeDrivers].max[2] = driverPositions[activeDrivers][2] + lightRadius[activeDrivers];
+        
+        activeDrivers++;
+    }
+    
+    if (activeDrivers == 0) return;
+    
+    // Process vertices first, then check each driver's contribution
+    for (int i = 0; i < tracked_vertices_count; i++) {
+        short vertex_index = tracked_vertex_indices[i];
+        if (vertex_index < 0 || vertex_index >= mi->numVertex) continue;
+        
+        struct LevVertex* v = &mi->ptrVertexArray[vertex_index];
+        int maxBrightness = 0;
+        
+        // Check against each driver
+        for (unsigned char d = 0; d < activeDrivers; d++) {
             // Bounding box check - only process vertices inside the light box
-            if (v->pos[0] >= lightBox.min[0] && v->pos[0] <= lightBox.max[0] &&
-                v->pos[1] >= lightBox.min[1] && v->pos[1] <= lightBox.max[1] &&
-                v->pos[2] >= lightBox.min[2] && v->pos[2] <= lightBox.max[2]) {
+            if (v->pos[0] >= lightBoxes[d].min[0] && v->pos[0] <= lightBoxes[d].max[0] &&
+                v->pos[1] >= lightBoxes[d].min[1] && v->pos[1] <= lightBoxes[d].max[1] &&
+                v->pos[2] >= lightBoxes[d].min[2] && v->pos[2] <= lightBoxes[d].max[2]) {
                 
-                // Calculate actual distance from player to vertex (in 2D plane for efficiency)
-                int dx = v->pos[0] - playerX;
-                int dz = v->pos[2] - playerZ;
+                // Calculate actual distance from driver to vertex (in 2D plane for efficiency)
+                int dx = v->pos[0] - driverPositions[d][0];
+                int dz = v->pos[2] - driverPositions[d][2];
                 int distance = MATH_FastSqrt((dx * dx) + (dz * dz), 0);
                 
-                // Apply dynamic lighting based on distance
-                if (distance < MAX_LIGHT_RADIUS) {
-                    // Calculate brightness boost (closer = brighter)
+                // Calculate brightness contribution from this driver
+                if (distance < lightRadius[d]) {
                     int brightness = 0;
                     
                     if (distance < MIN_LIGHT_RADIUS) {
                         brightness = MAX_BRIGHTNESS; // Full brightness in inner radius
                     } else {
                         // Linear falloff from inner to outer radius
-                        brightness = MAX_BRIGHTNESS * (MAX_LIGHT_RADIUS - distance) / (MAX_LIGHT_RADIUS - MIN_LIGHT_RADIUS);
+                        brightness = MAX_BRIGHTNESS * (lightRadius[d] - distance) / (lightRadius[d] - MIN_LIGHT_RADIUS);
                     }
                     
-                    // Apply brightness boost to RGB components
-                    for (int c = 0; c < 3; c++) {
-                        int color_hi = original_colors_hi[i][c] + brightness;
-                        int color_lo = original_colors_lo[i][c] + brightness;
-                        
-                        // Clamp to 255
-                        v->color_hi[c] = color_hi > 255 ? 255 : color_hi;
-                        v->color_lo[c] = color_lo > 255 ? 255 : color_lo;
+                    // Keep the maximum brightness contribution from any driver
+                    if (brightness > maxBrightness) {
+                        maxBrightness = brightness;
                     }
-                } else {
-                    // Restore original colors for vertices outside light radius
-                    for (int c = 0; c < 4; c++) {
-                        v->color_hi[c] = original_colors_hi[i][c];
-                        v->color_lo[c] = original_colors_lo[i][c];
+                    
+                    // Performance optimization: If we've hit max brightness, no need to check other drivers
+                    if (maxBrightness >= MAX_BRIGHTNESS) {
+                        break;
                     }
                 }
-            } else {
-                // Vertex outside bounding box, restore original colors
-                for (int c = 0; c < 4; c++) {
-                    v->color_hi[c] = original_colors_hi[i][c];
-                    v->color_lo[c] = original_colors_lo[i][c];
-                }
+            }
+        }
+        
+        // Apply the brightness directly if there's any contribution
+        if (maxBrightness > 0) {
+            // Apply brightness boost to RGB components
+            for (int c = 0; c < 3; c++) {
+                int color_hi = original_colors_hi[i][c] + maxBrightness;
+                int color_lo = original_colors_lo[i][c] + maxBrightness;
+                
+                // Clamp to 255
+                v->color_hi[c] = color_hi > 255 ? 255 : color_hi;
+                v->color_lo[c] = color_lo > 255 ? 255 : color_lo;
             }
         }
     }
 }
 
 void InitDynamicLighting(struct Level* level) {
-    colors_saved = false;
-    tracked_vertices_count = 0;
+    ResetDynamicLighting(level);
     SaveOriginalColors(level);
+    prev_level_id = gGT->levelID;
+    prev_level_was_hi = gGT->numPlyrCurrGame <= 2;
 }
