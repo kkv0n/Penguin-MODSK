@@ -269,31 +269,37 @@ void HandleItemChaosTap(int tap)
 // Darkness (NightFilterBrightness = 5, NightFilterBlueTint = 0)
 void HandleNightFilterTap(int tap)
 {
+    short NightBrightness = 64;
+    short NightBlueTint = 15;
+
+    short DarknessBrightness = 5;
+    short DarknessBlueTint = 0;
+
     if (tap & BTN_LEFT) {
         // Cycle through states
         if (NightFilterBrightness == 255) {
-            NightFilterBrightness = 5; // Darkness
-            NightFilterBlueTint = 0; // No blue tint
-        } else if (NightFilterBrightness == 5) {
-            NightFilterBrightness = 64; // Night
-            NightFilterBlueTint = 15; // Default blue tint
+            NightFilterBrightness = DarknessBrightness; // Darkness
+            NightFilterBlueTint = DarknessBlueTint; // No blue tint
+        } else if (NightFilterBrightness == DarknessBrightness) {
+            NightFilterBrightness = NightBrightness; // Night
+            NightFilterBlueTint = NightBlueTint; // Default blue tint
         } else {
             NightFilterBrightness = 255; // Off
-            NightFilterBlueTint = 0; // No blue tint
+            NightFilterBlueTint = DarknessBlueTint; // No blue tint
         }
     }
 
     if (tap & BTN_RIGHT || tap & BTN_R2) {
         // Cycle through states in reverse
         if (NightFilterBrightness == 255) {
-            NightFilterBrightness = 64; // Night
-            NightFilterBlueTint = 15; // Default blue tint
-        } else if (NightFilterBrightness == 64) {
-            NightFilterBrightness = 5; // Darkness
-            NightFilterBlueTint = 0; // No blue tint
+            NightFilterBrightness = NightBrightness; // Night
+            NightFilterBlueTint = NightBlueTint; // Default blue tint
+        } else if (NightFilterBrightness == NightBrightness) {
+            NightFilterBrightness = DarknessBrightness; // Darkness
+            NightFilterBlueTint = DarknessBlueTint; // No blue tint
         } else {
             NightFilterBrightness = 255; // Off
-            NightFilterBlueTint = 0; // No blue tint
+            NightFilterBlueTint = DarknessBlueTint; // No blue tint
         }
     }
 
