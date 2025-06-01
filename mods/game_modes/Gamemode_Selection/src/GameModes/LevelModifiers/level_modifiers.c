@@ -147,9 +147,7 @@ bool hasAnimatedTexture(struct QuadBlock* qb) {
 int NightFilterBrightness = 255;
 int NightFilterBlueTint = 15;
 
-void NightFilter(struct Level *level, int brightness, int blueTint) {
-    struct GameTracker* gGT = sdata->gGT;
-
+void NightSkybox(struct Level *level){
     // if level is caves, sewer or labs dont modify skybox since are indoor levels
     if (gGT->levelID != SEWER_SPEEDWAY && gGT->levelID != MYSTERY_CAVES && gGT->levelID != N_GIN_LABS) {
         // Add stars to the sky
@@ -167,7 +165,7 @@ void NightFilter(struct Level *level, int brightness, int blueTint) {
         // Enable the gradient
         level->configFlags |= 1;
 
-        level->clearColorRGBA = 0x000000; // Set clear color to black
+        level->clearColorRGBA = 0x000000; // Set clear color to black (This does nothing for some reason)
 
         // Set gradient colors (format: 0x00BBGGRR)
         level->glowGradient[0].colorFrom = ConvertHexToBGR(0x060025);
@@ -189,6 +187,13 @@ void NightFilter(struct Level *level, int brightness, int blueTint) {
         level->glowGradient[2].pointFrom = 60;
         level->glowGradient[2].pointTo = -120;
     }
+}
+
+void NightFilter(struct Level *level, int brightness, int blueTint) {
+    struct GameTracker* gGT = sdata->gGT;
+
+    // Apply night skybox
+    NightSkybox(level);
 
     struct mesh_info* mi = level->ptr_mesh_info;
     struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
