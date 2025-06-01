@@ -7,6 +7,11 @@ extern void RemoveOffRoadCHK(struct Level *level);
 //N_Verted
 extern void ReverseTrack(struct Level *level);
 
+//Night Filter
+extern int NightFilterBrightness;
+extern int NightFilterBlueTint;
+extern void NightFilter(struct Level *level, int brightness, int blueTint);
+
 void CDSYS_XAPauseRequest();
 void MEMPACK_PopToState(int id);
 void LOAD_Callback_PatchMem(struct LoadQueueSlot* lqs);
@@ -567,7 +572,11 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 
 		// Boundless(gGT->level1);
 		// WallRide(gGT->level1);
-		NightMode(gGT->level1);
+
+		if(USE_NIGHT_FILTER && gGT->levelID < INTRO_RACE_TODAY)
+		{
+			NightFilter(gGT->level1, NightFilterBrightness, NightFilterBlueTint);
+		}
 
 		// iVar9 is set to sdata->ptrLevelFile at the top of the function
 		gGT->visMem1 = lev->visMem;

@@ -9,6 +9,7 @@ extern bool USE_N_VERTED;
 extern bool USE_MIRROR;
 extern bool USE_MOON_GRAVITY;
 extern bool USE_ITEM_CHAOS;
+extern bool USE_NIGHT_FILTER;
 
 extern struct GameTracker *gGT;
 extern char* decalText;

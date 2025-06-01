@@ -36,12 +36,15 @@
 //Level Modifiers
 #include "GameModes/LevelModifiers/level_modifiers.c"
 
+#include "GameModes/dynamic_light.c"
+
 bool USE_RETRO_FUELED = false;
 bool USE_SHORTCUTLESS = false;
 bool USE_N_VERTED = false;
 bool USE_MIRROR = false;
 bool USE_MOON_GRAVITY = false;
 bool USE_ITEM_CHAOS = false;
+bool USE_NIGHT_FILTER = false;
 
 short gravity = 900;
 char* decalText = (char*)0x1F800000;
@@ -104,6 +107,10 @@ void RunUpdateHook() {
         // Item modifiers
         ItemChaos_Init(USE_ITEM_CHAOS);
 
+        if(USE_NIGHT_FILTER && NightFilterBrightness < 20){
+            InitDynamicLighting(gGT->level1);
+        }
+
         initialized = true;
     }
     // Reset flag when timer is not > 0
@@ -134,6 +141,10 @@ void RunUpdateHook() {
     if (currentLevel >= 9){
         // Give all bots USF
         GiveBotsUSF();
+    }
+
+    if(USE_NIGHT_FILTER && NightFilterBrightness < 20){
+        ApplyDynamicLighting(gGT->level1, driver);
     }
 
     // Draw reserver metter for 1P

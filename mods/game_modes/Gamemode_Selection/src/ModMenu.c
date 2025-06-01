@@ -9,6 +9,9 @@
 extern unsigned short* superHardAddr;
 extern int itemChaosDifficulty;
 
+extern int NightFilterBrightness;
+extern int NightFilterBlueTint;
+
 // --------------------- MENU STRUCTURE ---------------------
 typedef struct {
     char* title;
@@ -84,10 +87,11 @@ MenuOption menuOptions[18] = {
         {"All shortcuts are banned", "by Anfrost"}
     },
     {
-        "", // Empty slot for page 1
-        "", "", &optionValues[8],
+        "lightning",
+        NULL, NULL, NULL, // Special handling
         NULL,
-        {"", ""}
+        {"Normal - Night - Darkness", "Swap with d-pad - by Anfrost"}
+
     },
     
     // PAGE 2
@@ -193,6 +197,9 @@ void ApplyMenuEffects() {
     
     // Shortcutless (Page 1, index 7)
     USE_SHORTCUTLESS = optionValues[7];
+
+    // Night Filter (Page 1, index 8)
+    USE_NIGHT_FILTER = (NightFilterBrightness < 255);
     
     // UNLOCK ALL (Page 2, index 0)
     if (optionValues[9]) {
@@ -256,6 +263,44 @@ void HandleItemChaosTap(int tap)
     USE_ITEM_CHAOS = (itemChaosDifficulty > 0);
 }
 
+// Night filter has 3 states:
+// Off (default)
+// Night (NightFilterBrightness = 64, NightFilterBlueTint = 15)
+// Darkness (NightFilterBrightness = 5, NightFilterBlueTint = 0)
+void HandleNightFilterTap(int tap)
+{
+    if (tap & BTN_LEFT) {
+        // Cycle through states
+        if (NightFilterBrightness == 255) {
+            NightFilterBrightness = 5; // Darkness
+            NightFilterBlueTint = 0; // No blue tint
+        } else if (NightFilterBrightness == 5) {
+            NightFilterBrightness = 64; // Night
+            NightFilterBlueTint = 15; // Default blue tint
+        } else {
+            NightFilterBrightness = 255; // Off
+            NightFilterBlueTint = 0; // No blue tint
+        }
+    }
+
+    if (tap & BTN_RIGHT || tap & BTN_R2) {
+        // Cycle through states in reverse
+        if (NightFilterBrightness == 255) {
+            NightFilterBrightness = 64; // Night
+            NightFilterBlueTint = 15; // Default blue tint
+        } else if (NightFilterBrightness == 64) {
+            NightFilterBrightness = 5; // Darkness
+            NightFilterBlueTint = 0; // No blue tint
+        } else {
+            NightFilterBrightness = 255; // Off
+            NightFilterBlueTint = 0; // No blue tint
+        }
+    }
+
+    // Update the USE_NIGHT_FILTER flag based on brightness
+    USE_NIGHT_FILTER = (NightFilterBrightness < 255);
+}
+
 // Handle menu input
 void HandleMenuInput(struct GamepadBuffer* controller) {
     int tap = controller->buttonsTapped;
@@ -308,6 +353,12 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
     else if (gameMenu.currentPage == 0 && gameMenu.selectedIndex == 6) {
         HandleItemChaosTap(tap);
     }
+
+    // Special handling for Night Filter option (Page 1, index 8)
+    else if (gameMenu.currentPage == 0 && gameMenu.selectedIndex == 8) {
+        HandleNightFilterTap(tap);
+    }
+
     // Toggle boolean options
     else if (tap & BTN_R2) {
         // Toggle the boolean value for standard options
@@ -382,6 +433,19 @@ void RenderMenu() {
             DecalFont_DrawLine(chaosText, 240, 10 + i * 10, FONT_SMALL, 
                             itemChaosDifficulty > 0 ? CRASH_BLUE : CORTEX_RED);
         }
+
+        else if (gameMenu.currentPage == 0 && i == 8) { // Night Filter (special numeric value)
+            const char* nightText;
+            if (NightFilterBrightness == 255) {
+                nightText = "NORMAL";
+            } else if (NightFilterBrightness == 64) {
+                nightText = "NIGHT";
+            } else {
+                nightText = "DARKNESS";
+            }
+            DecalFont_DrawLine(nightText, 240, 10 + i * 10, FONT_SMALL, CRASH_BLUE);
+        }
+
         else if (option->valuePtr != NULL) { // Standard toggle options
             DecalFont_DrawLine(
                 *(option->valuePtr) ? option->onText : option->offText,

@@ -140,52 +140,61 @@ bool hasAnimatedTexture(struct QuadBlock* qb) {
     return false;
 }
 
-void NightMode(struct Level *level){
+// Night filter -> Change skybox, and apply a color filter to the levels, Made by Anfrost
+//0-255 (lower = darker) (default: 64)
+//Amount of blue to add (0-255) (default: 15)
+
+int NightFilterBrightness = 255;
+int NightFilterBlueTint = 15;
+
+void NightFilter(struct Level *level, int brightness, int blueTint) {
     struct GameTracker* gGT = sdata->gGT;
-    if (gGT->levelID > TURBO_TRACK) return;
 
-    // Add stars to the sky
-    gGT->renderFlags |= 8;
-    level->stars.numStars = 768;
-    level->stars.spread = 0;
-    level->stars.seed = 65535;
-    level->stars.distance = 1022;
+    // if level is caves, sewer or labs dont modify skybox since are indoor levels
+    if (gGT->levelID != SEWER_SPEEDWAY && gGT->levelID != MYSTERY_CAVES && gGT->levelID != N_GIN_LABS) {
+        // Add stars to the sky
+        // If mirror mode is enabled don't add stars
+        if(!USE_MIRROR){
+            gGT->renderFlags |= 8;
+            level->stars.numStars = 768;
+            level->stars.spread = 0;
+            level->stars.seed = 65535;
+            level->stars.distance = 1022;
+        }
 
-    // Remove skybox
-    level->ptr_skybox = NULL;
-    // Enable the gradient
-    level->configFlags |= 1;
+        // Remove skybox
+        level->ptr_skybox = NULL;
+        // Enable the gradient
+        level->configFlags |= 1;
 
-    level->clearColorRGBA = 0x000000; // Set clear color to black
+        level->clearColorRGBA = 0x000000; // Set clear color to black
 
-    // Set gradient colors (format: 0x00BBGGRR)
-    level->glowGradient[0].colorFrom = ConvertHexToBGR(0x060025);
-    level->glowGradient[0].colorTo = ConvertHexToBGR(0x1A0047);
+        // Set gradient colors (format: 0x00BBGGRR)
+        level->glowGradient[0].colorFrom = ConvertHexToBGR(0x060025);
+        level->glowGradient[0].colorTo = ConvertHexToBGR(0x1A0047);
 
-    level->glowGradient[1].colorFrom = ConvertHexToBGR(0x1A0047);
-    level->glowGradient[1].colorTo = ConvertHexToBGR(0x000013);
+        level->glowGradient[1].colorFrom = ConvertHexToBGR(0x1A0047);
+        level->glowGradient[1].colorTo = ConvertHexToBGR(0x000013);
 
-    level->glowGradient[2].colorFrom = ConvertHexToBGR(0x000013);
-    level->glowGradient[2].colorTo = ConvertHexToBGR(0x000000);
+        level->glowGradient[2].colorFrom = ConvertHexToBGR(0x000013);
+        level->glowGradient[2].colorTo = ConvertHexToBGR(0x000000);
 
-    // Set gradient positions
-    level->glowGradient[0].pointFrom = 120;
-    level->glowGradient[0].pointTo = 90;
+        // Set gradient positions
+        level->glowGradient[0].pointFrom = 120;
+        level->glowGradient[0].pointTo = 90;
 
-    level->glowGradient[1].pointFrom = 90;
-    level->glowGradient[1].pointTo = 60;
+        level->glowGradient[1].pointFrom = 90;
+        level->glowGradient[1].pointTo = 60;
 
-    level->glowGradient[2].pointFrom = 60;
-    level->glowGradient[2].pointTo = -120;
+        level->glowGradient[2].pointFrom = 60;
+        level->glowGradient[2].pointTo = -120;
+    }
 
-    int brightness = 64; // 0-255 (lower = darker) (default: 64)
-    int blueTint = 15;   // Amount of blue to add (0-255) (default: 15)
     struct mesh_info* mi = level->ptr_mesh_info;
     struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
     int numQB = mi->numQuadBlock;
     
     // Create a bitmap where each bit represents a vertex
-    // PS1 memory limitation workaround
     #define BITMAP_SIZE (mi->numVertex / 8 + 1)
     unsigned char vertexBitmap[BITMAP_SIZE];
     
@@ -198,7 +207,7 @@ void NightMode(struct Level *level){
     for (int i = 0; i < numQB; i++) {
         struct QuadBlock* qb = &quadBlocks[i];
         
-        // Ignore animated textures
+        // Ignore animated textures (Turbo pads, cascades, oxide station "lights", etc.)
         if (hasAnimatedTexture(qb)) {
             continue;
         }
@@ -223,26 +232,46 @@ void NightMode(struct Level *level){
 
         // Detect green colors (for turbo pads)
         int isGreen_hi = (hi[1] > 80) && (hi[1] > hi[0] + 30) && (hi[1] > hi[2] + 30);
-        int isGreen_lo = (lo[1] > 80) && (lo[1] > lo[0] + 30) && (lo[1] > lo[2] + 30);
 
-        // If not green, darken the hi colors and add blue tint
+        // If not green, darken the colors and add blue tint
         if (!isGreen_hi) {
             hi[0] = (hi[0] * brightness) >> 8;
             hi[1] = (hi[1] * brightness) >> 8;
             hi[2] = (hi[2] * brightness) >> 8;
             hi[2] = (hi[2] + blueTint > 255) ? 255 : hi[2] + blueTint;
-        }
 
-        // If not green, darken the lo colors and add blue tint
-        if (!isGreen_lo) {
             lo[0] = (lo[0] * brightness) >> 8;
             lo[1] = (lo[1] * brightness) >> 8;
             lo[2] = (lo[2] * brightness) >> 8;
             lo[2] = (lo[2] + blueTint > 255) ? 255 : lo[2] + blueTint;
         }
     }
-}
 
+    // Process SCVert elements (scenery vertices) (For some reason this doesnt work)
+    // if (level->numSCVert > 0 && level->ptrSCVert != NULL) {
+    //     struct SCVert* scVertices = (struct SCVert*)level->ptrSCVert;
+        
+    //     for (int i = 0; i < level->numSCVert; i++) {
+    //         struct SCVert* scv = &scVertices[i];
+    //         if (scv->v == NULL) continue;
+            
+    //         struct LevVertex* v = scv->v;
+    //         unsigned char* hi = v->color_hi;
+    //         unsigned char* lo = v->color_lo;
+
+    //         hi[0] = (hi[0] * brightness) >> 8;
+    //         hi[1] = (hi[1] * brightness) >> 8;
+    //         hi[2] = (hi[2] * brightness) >> 8;
+    //         hi[2] = (hi[2] + blueTint > 255) ? 255 : hi[2] + blueTint;
+
+    //         lo[0] = (lo[0] * brightness) >> 8;
+    //         lo[1] = (lo[1] * brightness) >> 8;
+    //         lo[2] = (lo[2] * brightness) >> 8;
+    //         lo[2] = (lo[2] + blueTint > 255) ? 255 : lo[2] + blueTint;
+    //     }
+    // }
+
+    
     // Darken skybox (if available)
     // struct Skybox* sb = level->ptr_skybox;
     // if (sb && sb->ptrVertex) {
@@ -259,4 +288,4 @@ void NightMode(struct Level *level){
     //     }
     // }
 
-
+}
