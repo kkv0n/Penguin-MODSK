@@ -1,0 +1,59 @@
+// static int colorChangeCounter = 0;
+
+// // Make each vertex of the track be a color of the rainbow with smooth transition
+// void HandleRainbowColors(struct Level* level) {
+//     // Increment counter every frame
+//     colorChangeCounter++;
+    
+//     struct mesh_info* mi = level->ptr_mesh_info;
+//     if (!mi || !mi->ptrVertexArray) return;
+    
+//     // Define rainbow colors (R, G, B)
+//     static const unsigned char rainbowColors[][3] = {
+//         {255, 0, 0},    // Red
+//         {255, 127, 0},  // Orange
+//         {255, 255, 0},  // Yellow
+//         {0, 255, 0},    // Green
+//         {0, 127, 255},  // Blue
+//         {75, 0, 130},   // Indigo
+//         {148, 0, 211}   // Violet
+//     };
+//     #define NUM_RAINBOW_COLORS 7
+//     #define FRAMES_PER_COLOR 32
+    
+//     // Calculate position in the rainbow cycle
+//     int cycleDuration = FRAMES_PER_COLOR * NUM_RAINBOW_COLORS;
+//     int cyclePosition = colorChangeCounter % cycleDuration;
+    
+//     // Calculate which two colors we're between
+//     int colorIndex = cyclePosition / FRAMES_PER_COLOR;
+//     int nextColorIndex = (colorIndex + 1) % NUM_RAINBOW_COLORS;
+    
+//     // Calculate blend factor using fixed-point math (0-256 range)
+//     // This avoids floating point precision issues
+//     int framePositionInTransition = cyclePosition % FRAMES_PER_COLOR;
+//     int blendFactor256 = (framePositionInTransition * 256) / FRAMES_PER_COLOR;
+//     int invBlendFactor256 = 256 - blendFactor256;
+    
+//     // Calculate the blended rainbow color using fixed-point math
+//     unsigned char blendedRainbow[3];
+//     for (int c = 0; c < 3; c++) {
+//         // Use 256-based fixed-point math for smoother blending
+//         int blended = (rainbowColors[colorIndex][c] * invBlendFactor256 + 
+//                        rainbowColors[nextColorIndex][c] * blendFactor256) >> 8;
+                       
+//         blendedRainbow[c] = (unsigned char)blended;
+//     }
+    
+//     // Apply rainbow effect to all vertices in the mesh
+//     for (int i = 0; i < mi->numVertex; i++) {
+//         struct LevVertex* v = &mi->ptrVertexArray[i];
+        
+//         // Apply rainbow colors directly
+//         for (int c = 0; c < 3; c++) {
+//             v->color_hi[c] = blendedRainbow[c];
+//             v->color_lo[c] = blendedRainbow[c];
+//         }
+//         // Don't modify alpha component
+//     }
+// }
