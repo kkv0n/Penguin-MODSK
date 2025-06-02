@@ -91,39 +91,38 @@ MenuOption menuOptions[18] = {
         NULL, NULL, NULL, // Special handling
         NULL,
         {"Normal - Night - Darkness", "Swap with d-pad - by Anfrost"}
-
     },
     
     // PAGE 2
     {
-        "UNLOCK ALL",
+        "Boundless",
         "on", "off", &optionValues[9],
+        NULL,
+        {"Dissable invisible walls, killplanes and offroad", "by Anfrost"}
+    },
+    {
+        "Wall Ride",
+        "on", "off", &optionValues[10],
+        NULL,
+        {"Alows driving on any wall", "by penta3"}
+    },
+    {
+        "Speedway Phys",
+        "on", "off", &optionValues[11],
+        NULL,
+        {"Use sewer speedway physics everywhere", "___"}
+    },
+    {
+        "UNLOCK ALL",
+        "on", "off", &optionValues[12],
         NULL,
         {"101", "___"}
     },
     {
         "Disable HUD",
-        "on", "off", &optionValues[10],
+        "on", "off", &optionValues[13],
         NULL,
         {"Disable HUD while racing", "by Niko"}
-    },
-    {
-        "", // Empty slot
-        "", "", &optionValues[11],
-        NULL,
-        {"", ""}
-    },
-    {
-        "", // Empty slot
-        "", "", &optionValues[12],
-        NULL,
-        {"", ""}
-    },
-    {
-        "", // Empty slot
-        "", "", &optionValues[13],
-        NULL,
-        {"", ""}
     },
     {
         "", // Empty slot
@@ -201,8 +200,17 @@ void ApplyMenuEffects() {
     // Night Filter (Page 1, index 8)
     USE_NIGHT_FILTER = (NightFilterBrightness < 255);
     
-    // UNLOCK ALL (Page 2, index 0)
-    if (optionValues[9]) {
+    // Boundless (Page 2, index 0)
+    USE_BOUNDLESS = optionValues[9];
+    
+    // Wall Ride (Page 2, index 1)
+    USE_WALL_RIDE = optionValues[10];
+
+    // Speedway Physics (Page 2, index 2)
+    USE_SPEEDWAY_PHYSICS = optionValues[11];
+    
+    // UNLOCK ALL (Page 2, index 3)
+    if (optionValues[12]) {
         // 101 in adventure
         *(unsigned int*)0x8008fba4 = 0xFFFFFFFF;
         *(unsigned int*)0x8008fba8 = 0xFFFFFFFF;
@@ -213,8 +221,8 @@ void ApplyMenuEffects() {
         *(unsigned int*)0x8008e6ec = 0xFFFFFFFF;
     }
     
-    // Disable HUD (Page 2, index 1)
-    *(unsigned char*)0x8001B038 = optionValues[10] ? 0 : 1;
+    // Disable HUD (Page 2, index 4)
+    *(unsigned char*)0x8001B038 = optionValues[13] ? 0 : 1;
 }
 
 void HandleDifficultyTap(int tap)

@@ -45,6 +45,9 @@ bool USE_MIRROR = false;
 bool USE_MOON_GRAVITY = false;
 bool USE_ITEM_CHAOS = false;
 bool USE_NIGHT_FILTER = false;
+bool USE_BOUNDLESS = false;
+bool USE_WALL_RIDE = false;
+bool USE_SPEEDWAY_PHYSICS = false;
 
 short gravity = 900;
 char* decalText = (char*)0x1F800000;

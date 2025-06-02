@@ -570,12 +570,21 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 			ReverseTrack(gGT->level1);
 		}
 
-		// Boundless(gGT->level1);
-		// WallRide(gGT->level1);
-
 		if(USE_NIGHT_FILTER && gGT->levelID < INTRO_RACE_TODAY)
 		{
 			NightFilter(gGT->level1, NightFilterBrightness, NightFilterBlueTint);
+		}
+
+		if(USE_BOUNDLESS && gGT->levelID < INTRO_RACE_TODAY){
+			Boundless(gGT->level1);
+		}
+
+		if(USE_WALL_RIDE && gGT->levelID < INTRO_RACE_TODAY){
+			WallRide(gGT->level1);
+		}
+
+		if(USE_SPEEDWAY_PHYSICS && gGT->levelID){
+			SpeedwayPhys(gGT->level1);
 		}
 
 		// iVar9 is set to sdata->ptrLevelFile at the top of the function

@@ -2,58 +2,6 @@
 
 #include "../../utils.h"
 
-
-// struct mesh_info* mi = gGT->level1->ptr_mesh_info;
-// struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
-
-// for (int i = 0; i < mi->numQuadBlock; i++) {
-// 	struct QuadBlock* qb = &quadBlocks[i];
-
-// 	//ignore TB
-// 	if (qb->quadFlags & Q_TRIGGER_SCRIPT){
-// 		continue;
-// 	}
-
-// 	//WALL RIDE
-// 	//Mark all walls as ground
-// 	if (qb->quadFlags & Q_WALL) {
-// 		qb->quadFlags |= Q_GROUND;
-// 		qb->quadFlags &= ~Q_WALL;
-// 	}
-
-// 	//WALL RIDE || SPEED IMPACT MODE
-// 	// Add SpeedImpact to all ground
-// 	if (qb->quadFlags & Q_GROUND) {
-// 		qb->speedImpact = -127;
-// 	}
-
-// 	//BOUNDLESS
-// 	//Remove Mask Grad and Out of Bounds from all quads
-// 	qb->quadFlags &= ~(Q_MASK_GRAB | Q_OOF_BOUNDS);
-
-// 	//Replace offroad terrains
-// 	if (
-// 		qb->terrain_type == TERRAIN_GRASS
-// 		|| qb->terrain_type == TERRAIN_DIRT
-// 		|| qb->terrain_type == TERRAIN_SNOW
-// 		|| qb->terrain_type == TERRAIN_SLOWGRASS
-// 		|| qb->terrain_type == TERRAIN_SLOWDIRT
-// 		|| qb->terrain_type == TERRAIN_WATER
-// 		|| qb->terrain_type == TERRAIN_RIVERASPHALT
-// 		|| qb->terrain_type == TERRAIN_OCEANASPHALT
-// 		|| qb->terrain_type == TERRAIN_STEAMASPHALT
-// 		|| qb->terrain_type == TERRAIN_MUD
-// 		|| qb->terrain_type == TERRAIN_TRACK
-// 	) {
-// 		qb->terrain_type = TERRAIN_ASPHALT;
-// 	}
-
-// 	//Remove collition from killplanes and invisible walls (This is removing collition on unwanted parts)
-// 	if (qb->quadFlags & Q_INV_TRIGGERS){
-// 		qb->quadFlags &= ~(Q_WALL | Q_GROUND);
-// 	}
-// }
-
 void WallRide(struct Level *level){
     struct mesh_info* mi = level->ptr_mesh_info;
     struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
@@ -90,6 +38,11 @@ void Boundless(struct Level *level){
             continue;
         }
 
+        //ignore kickers2 (idk why but this break some killplanes in n gin labs)
+        if (gGT->levelID == N_GIN_LABS && qb->quadFlags & Q_KICKERS2) {
+            continue;
+        }
+
         //Remove Mask Grad and Out of Bounds from all quads
         qb->quadFlags &= ~(Q_MASK_GRAB | Q_OOF_BOUNDS);
 
@@ -98,7 +51,12 @@ void Boundless(struct Level *level){
             if(
                 qb->terrain_type != TERRAIN_MUD //Avoid holes in tiny arena
                 && qb->weather_intensity == 0 //Avoid holes on weather quadblocks
-                && !(gGT->levelID == CRASH_COVE && (qb->quadFlags & Q_GROUND)) //Don't remove ground flags in Crash Cove
+                && !((
+                    gGT->levelID == CRASH_COVE
+                    || gGT->levelID == MYSTERY_CAVES
+                    || gGT->levelID == N_GIN_LABS
+                    || gGT->levelID == CORTEX_CASTLE
+                ) && (qb->quadFlags & Q_GROUND)) //Don't remove ground flags in these levels, it makes holes
             ){ 
                 qb->quadFlags &= ~(Q_WALL | Q_GROUND);
             }     
@@ -111,13 +69,27 @@ void Boundless(struct Level *level){
             || qb->terrain_type == TERRAIN_SLOWGRASS
             || qb->terrain_type == TERRAIN_SLOWDIRT
             || qb->terrain_type == TERRAIN_WATER
-            || qb->terrain_type == TERRAIN_RIVERASPHALT
-            || qb->terrain_type == TERRAIN_OCEANASPHALT
-            || qb->terrain_type == TERRAIN_STEAMASPHALT
+            // || qb->terrain_type == TERRAIN_RIVERASPHALT
+            // || qb->terrain_type == TERRAIN_OCEANASPHALT
+            // || qb->terrain_type == TERRAIN_STEAMASPHALT
             || qb->terrain_type == TERRAIN_MUD
             || qb->terrain_type == TERRAIN_TRACK
         ) {
             qb->terrain_type = TERRAIN_ASPHALT;
+        }
+    }
+}
+
+void SpeedwayPhys(struct Level *level){
+    struct mesh_info* mi = level->ptr_mesh_info;
+    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
+
+    for (int i = 0; i < mi->numQuadBlock; i++) {
+        struct QuadBlock* qb = &quadBlocks[i];
+
+        // Add SpeedImpact to all ground
+        if (qb->quadFlags & Q_GROUND) {
+            qb->speedImpact = -127;
         }
     }
 }
@@ -251,31 +223,6 @@ void NightFilter(struct Level *level, int brightness, int blueTint) {
             lo[2] = (lo[2] + blueTint > 255) ? 255 : lo[2] + blueTint;
         }
     }
-
-    // Process SCVert elements (scenery vertices) (For some reason this doesnt work)
-    // if (level->numSCVert > 0 && level->ptrSCVert != NULL) {
-    //     struct SCVert* scVertices = (struct SCVert*)level->ptrSCVert;
-        
-    //     for (int i = 0; i < level->numSCVert; i++) {
-    //         struct SCVert* scv = &scVertices[i];
-    //         if (scv->v == NULL) continue;
-            
-    //         struct LevVertex* v = scv->v;
-    //         unsigned char* hi = v->color_hi;
-    //         unsigned char* lo = v->color_lo;
-
-    //         hi[0] = (hi[0] * brightness) >> 8;
-    //         hi[1] = (hi[1] * brightness) >> 8;
-    //         hi[2] = (hi[2] * brightness) >> 8;
-    //         hi[2] = (hi[2] + blueTint > 255) ? 255 : hi[2] + blueTint;
-
-    //         lo[0] = (lo[0] * brightness) >> 8;
-    //         lo[1] = (lo[1] * brightness) >> 8;
-    //         lo[2] = (lo[2] * brightness) >> 8;
-    //         lo[2] = (lo[2] + blueTint > 255) ? 255 : lo[2] + blueTint;
-    //     }
-    // }
-
     
     // Darken skybox (if available)
     // struct Skybox* sb = level->ptr_skybox;

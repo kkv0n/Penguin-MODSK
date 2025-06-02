@@ -10,6 +10,9 @@ extern bool USE_MIRROR;
 extern bool USE_MOON_GRAVITY;
 extern bool USE_ITEM_CHAOS;
 extern bool USE_NIGHT_FILTER;
+extern bool USE_BOUNDLESS;
+extern bool USE_WALL_RIDE;
+extern bool USE_SPEEDWAY_PHYSICS;
 
 extern struct GameTracker *gGT;
 extern char* decalText;
