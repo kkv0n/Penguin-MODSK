@@ -62,7 +62,8 @@ void RunInitHook() {
 
 //Code to run each frame
 void RunUpdateHook() {
-    struct Driver* driver = sdata->gGT->drivers[0];
+    //Only run if game is not paused
+    if ((gGT->gameMode1 & PAUSE_ALL) != 0) return;
 
     // Handle mod menu input and rendering
     struct GamepadBuffer* controller = &sdata->gGamepads->gamepad[0];
@@ -86,6 +87,8 @@ void RunUpdateHook() {
     // if the game is not in a race then quit
 	if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
 		return;
+
+    struct Driver* driver = sdata->gGT->drivers[0];
 
     // Run once before the race starts (should be replaced with a hook injection)
     // ---------------------------------------------------------------------------------------------
