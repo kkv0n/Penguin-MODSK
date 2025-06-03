@@ -6,11 +6,11 @@
 #define USE_ALTMODS	// Enable this before ANY other mods
 
 // 2mb
-//#define USE_60FPS		// 60 frames per second
-//#define USE_16BY9		// Widescreen
-//#define USE_NEW2P		// Requires 16BY9: Side-By-Side 2P
-//#define USE_OXIDE		// Unlock Oxide
-//#define USE_PENTA		// Penta Max Stats
+// #define USE_60FP0S	// 60 frames per second
+#define USE_16BY9		// Widescreen
+#define USE_NEW2P		// Requires 16BY9: Side-By-Side 2P
+#define USE_OXIDE		// Unlock Oxide
+#define USE_PENTA		// Penta Max Stats
 //#define USE_HARDER	// Difficulty Selector (Arcade)
 //#define USE_NEWCUPS	// Cup Randomizer
 //#define USE_DECALMP	// OG game Render Targets
@@ -24,6 +24,7 @@
 //#define USE_DRIVERLOD // Requires BIGQUEUE: High Driver LODs
 //#define USE_DRIVERRND // Requiers DRIVERLOD: Character Randomizer
 //#define USE_LEVELDISC // New Level on Disc
+#define USE_BETTER_SPEEDO
 
 // 2mb: On-Boot preload 8 custom characters
 // 8mb: On-Boot preload 16 CTR drivers
@@ -32,9 +33,9 @@
 //#define USE_PRELOAD
 
 // 8mb
-//#define USE_RAMEX		// 8mb RAM expansion
+#define USE_RAMEX		// 8mb RAM expansion
 //#define USE_ONLINE	// Online Multiplayer
-//#define USE_HIGHMP	// Multiplayer Maxed mod
+#define USE_HIGHMP	// Multiplayer Maxed mod
 //#define USE_LEVELDEV	// Level with hot-reload
 
 // PC only
@@ -104,6 +105,7 @@ enum HotReloadSteps
 #define USE_RAMEX
 #define USE_BIGQUEUE
 #define USE_DRIVERLOD
+#define USE_BETTER_SPEEDO
 #define USE_ALTMODS
 
 //note: if you disable this, you'll need to fix anything related to the `ROOM_...` defines in global.h
