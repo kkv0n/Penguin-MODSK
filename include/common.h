@@ -49,9 +49,9 @@
 // Multiplayer Maxed Mod
 #ifdef USE_HIGHMP
 #define USE_RAMEX
-#define USE_BIGQUEUE
-#define USE_DRIVERLOD
-#define USE_MOREPRIM
+//#define USE_BIGQUEUE //this is related to load queue
+//#define USE_DRIVERLOD //this is to load the high quality driver models
+//#define USE_MOREPRIM //expand prim mem, fixes flickering with the render
 #endif
 
 

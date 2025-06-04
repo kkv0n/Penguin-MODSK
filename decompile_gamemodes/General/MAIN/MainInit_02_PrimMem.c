@@ -45,10 +45,10 @@ void DECOMP_MainInit_PrimMem(
 		// is past all the level load+callback
 		if (gGT->levelID <= CITADEL_CITY)
 		{
-			#ifdef USE_LEVELDEV
+			//fix custom tracks crashing
 			// store the memory here, past the level
 			sdata->PtrMempack->firstFreeByte = 0x80400000;
-			#endif
+
 				
 			int newSize = (DECOMP_MEMPACK_GetFreeBytes()/2);
 			
