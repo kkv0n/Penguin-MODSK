@@ -17,7 +17,7 @@
 //#define USE_BOOSTBAR	// Super's reserve bar
 //#define USE_PROFILER	// Debug profiler from PizzaHut
 //#define USE_4PADTEST	// 1 controller for all 4 players
-//#define USE_MOREPRIM  // Bonus Primitive Memory
+#define USE_MOREPRIM  // Bonus Primitive Memory
 //#define USE_FASTANIM	// Decompress animations
 //#define USE_REAL60PS1	// Requires Profiler, Only for NGin Labs
 //#define USE_BIGQUEUE	// Allow LOAD queue to be more than 8
@@ -48,7 +48,7 @@
 
 // Multiplayer Maxed Mod
 #ifdef USE_HIGHMP
-#define USE_RAMEX
+//#define USE_RAMEX
 //#define USE_BIGQUEUE //this is related to load queue
 //#define USE_DRIVERLOD //this is to load the high quality driver models
 //#define USE_MOREPRIM //expand prim mem, fixes flickering with the render
