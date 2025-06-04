@@ -1269,6 +1269,35 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 		pushBuffer = &gGT->pushBuffer[i];
 
 		CTR_ClearRenderLists_1P2P(gGT, 1);
+
+		if(USE_BOUNDLESS && gGT->numPlyrCurrGame == 1){
+			int numLeaf = (gGT->level1->ptr_mesh_info->numBspNodes + 31) / 32;
+			int numFace = (gGT->level1->ptr_mesh_info->numQuadBlock + 31) / 32;
+
+			for (unsigned char i = 0; i < 4; i++)
+			{
+				int* leaf = level1->visMem->visLeafList[i];
+				int* face = gGT->visMem1->visFaceList[i];
+
+
+				if (leaf != NULL)
+				{
+					for (int j = 0; j < numLeaf; j++)
+					{
+						leaf[j] = 0xFFFFFFFF;
+					}
+				}
+
+				if (face != NULL)
+				{
+					for (int j = 0; j < numFace; j++)
+					{
+						face[j] = 0xFFFFFFFF;
+					}
+				}
+				
+			}
+		}
 				
 		RenderLists_PreInit();
 
