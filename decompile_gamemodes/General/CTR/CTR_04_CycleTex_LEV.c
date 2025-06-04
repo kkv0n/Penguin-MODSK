@@ -2,6 +2,8 @@
 
 void DECOMP_CTR_CycleTex_LEV(struct AnimTex* animtex, int timer)
 {
+	if(animtex == 0) return;
+	
 	int frameCurr;
 	struct AnimTex* curAnimTex = animtex;
 	

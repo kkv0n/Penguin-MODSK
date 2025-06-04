@@ -10,8 +10,13 @@ void DECOMP_UI_Map_DrawMap(struct Icon* mapTop, struct Icon* mapBottom, short po
 	POLY_FT4* p;
 	u_int color;
 	struct GameTracker* gGT;
+	
+
 
 	gGT = sdata->gGT;
+	
+  //custom track fix in gamemode mashup
+  if (gGT->levelID == ROO_TUBES) return;
 
 	iVar9 = 0;
 
@@ -87,6 +92,9 @@ void UI_Map_DrawMap_ExtraFunc(struct Icon* icon, POLY_FT4* p, short posX, short 
 	short leftX;
 	short sizeX;
 	
+  //custom track fix in gamemode mashup
+  if (sdata->gGT->levelID == ROO_TUBES) return;
+  
 	sizeX = icon->texLayout.u1 - icon->texLayout.u0;
 	
 	// posX is the right side,

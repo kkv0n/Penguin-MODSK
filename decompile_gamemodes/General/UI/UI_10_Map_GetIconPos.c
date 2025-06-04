@@ -26,6 +26,9 @@ void DECOMP_UI_Map_GetIconPos(short* m,int* posX,int* posY)
   int addY;
   int worldRangeX;
   int worldRangeY;
+  
+    //custom track fix in gamemode mashup
+  if (sdata->gGT->levelID == ROO_TUBES) return;
 
   struct Map* map = (struct Map*)m;
 

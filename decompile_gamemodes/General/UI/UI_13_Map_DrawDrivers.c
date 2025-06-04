@@ -7,6 +7,9 @@ void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
   int iconID;
   struct Driver* d;
   struct GameTracker* gGT = sdata->gGT;
+  
+  //custom track fix in gamemode mashup
+  if (gGT->levelID == ROO_TUBES) return;
 
   // if 2P or 4P
   if((gGT->numPlyrCurrGame & 1) == 0)

@@ -10,6 +10,9 @@ void DECOMP_UI_Map_DrawRawIcon(
   int posY;
   int *ptrColor;
   struct GameTracker* gGT = sdata->gGT;
+  
+  //custom track fix in gamemode mashup
+  if (gGT->levelID == ROO_TUBES) return;
 
   posX = param_2[0];
   posY = param_2[2];

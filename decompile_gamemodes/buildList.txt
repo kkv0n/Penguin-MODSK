@@ -6,6 +6,11 @@ common, iso, 0x80700000, 0x0, ../mods/game_modes/Gamemode_Selection/src/hooks.c
 //Flag
 common, exe, RaceFlag_DrawSelf, 0x0, ../mods/game_modes/Gamemode_Selection/src/custom_flag.c
 
+
+//replace roo tubes with green hill
+common, bigfilelevelstrackstube11Pdatavrm, 0x0, 0x0, ..\mods\_custom_tracks\Custom_Adventure\custom_tracks\n_sanity_boss.vrm
+common, bigfilelevelstrackstube11Pdatalev, 0x0, 0x0, ..\mods\_custom_tracks\Custom_Adventure\custom_tracks\n_sanity_boss.lev
+
 //---------------------------------------------------------------------------------
 
 
