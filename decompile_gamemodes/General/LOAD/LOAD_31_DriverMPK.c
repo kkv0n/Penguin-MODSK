@@ -72,6 +72,16 @@ void highLOD_DriverMPK(int numDrivers)
 {	
 	#ifdef USE_DRIVERRND
 	ChRand_SetCharacters();
+	#else
+    // For arcade modes, we need to assign AI characters first
+    if(numDrivers == 8) {
+        // Single player arcade mode - set AI characters
+        DECOMP_LOAD_Robots1P(data.characterIDs[0]);
+    }
+    else if(numDrivers == 6) {
+        // Two player arcade mode - set AI characters
+        DECOMP_LOAD_Robots2P(data.characterIDs[0], data.characterIDs[1]);
+    }
 	#endif
 	
 	// TODO: Should restore Purple Gem Cup
