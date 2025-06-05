@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
 void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 {
@@ -87,6 +88,19 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
         for (i = numPlyrCurrGame; i < numDrivers; i++)
         {
             // spawn an AI at this character index
+			// #ifdef USE_CUSTOM_TRACKS
+			// // On custom tracks disable AIs to spawn
+			// if(
+			// 	gGT->levelID >= NITRO_COURT && gGT->levelID <= LAB_BASEMENT
+			// 	&& (gGT->gameMode1 & (BATTLE_MODE)) == 0 // Not in Battle Mode
+			// ){
+			// 	continue;
+			// }
+			// #endif
+
+			// Bots wont work in N-Verted mode
+			if(USE_N_VERTED) continue;
+
             BOTS_Driver_Init(i);
         }
     }
