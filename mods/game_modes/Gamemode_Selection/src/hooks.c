@@ -63,24 +63,53 @@ short gravity = 900;
 char* decalText = (char*)0x1F800000;
 struct GameTracker *gGT;
 
+static bool init_initialized = false;
 static bool initialized = false;
+
+#ifdef USE_CUSTOM_TRACKS
+int BOTS_ThTick_Drive_op;
+#endif
 
 // Code to run once on game init
 void RunInitHook() {
+    if (init_initialized) return;
     gGT = sdata->gGT;
+
     #ifdef USE_CUSTOM_TRACKS
+    BOTS_ThTick_Drive_op = *(int*)0x800150C0; //BOTS_ThTick_Drive
+
     //disable player to bot swap, fixes crash at the end of the race on tile trauma
     // Comment this code if tile trauma its not included
     *(int*)0x80017318 = 0x3E00008;
     *(int*)0x8001731c = 0;
-
-    // required for AI Nav, 
-    *(int*)0x800150c0 = 0;
+    
     #endif
+
+    init_initialized = true;
 }
 
 //Code to run each frame
 void RunUpdateHook() {
+
+    #ifdef USE_CUSTOM_TRACKS
+    // WARNING: This solutions stinks a lot
+
+    // USE_HIGHMP will bug the oxide and tropy ghosts (they will act as AI and will crash the game)
+    // so we have to patch the ai nav to avoid the crash (Note: this doesnt fix the bot thing)
+    // Also this patch is needed on tile trauma
+    // This patches the ai nav only on time trial or a custom track
+    if ((
+        sdata->gGT->gameMode1 & TIME_TRIAL) != 0
+        || (gGT->levelID >= NITRO_COURT && 
+            gGT->levelID <= LAB_BASEMENT && 
+            (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0)
+    ) {
+        *(int*)0x800150C0 = 0; //Disable original instruction
+    } else {
+        *(int*)0x800150C0 = BOTS_ThTick_Drive_op; //Restore original instruction
+    }
+    #endif
+
     //Only run if game is not paused
     if ((gGT->gameMode1 & PAUSE_ALL) != 0) return;
 
