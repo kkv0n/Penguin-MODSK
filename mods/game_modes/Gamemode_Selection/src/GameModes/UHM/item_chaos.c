@@ -68,7 +68,7 @@ void HandleItemChaos(bool enabled) {
     }
 
     // Throw items when race is active (after traffic lights)
-    if (gGT->levelID <= TURBO_TRACK && gGT->trafficLightsTimer < 0) {
+    if (gGT->levelID <= LAB_BASEMENT && gGT->trafficLightsTimer < 0) {
         if (itemTimer <= 0) {
             // Set timer based on difficulty level and lap status
             bool isLastLap = false;

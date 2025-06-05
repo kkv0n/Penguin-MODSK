@@ -38,6 +38,16 @@
 
 #include "GameModes/dynamic_light.c"
 
+const char* CUSTOM_TRACK_NAMES[] = {
+    "ELECTRON AVENUE",
+    "GREEN HILL RACEWAY",
+    "DARK RUINS",
+    "PIPE PLAYGROUND",
+    "ROC POD",
+    "FROZEN DEPTHS",
+    "TILE TRAUMA"
+};
+
 bool USE_RETRO_FUELED = false;
 bool USE_SHORTCUTLESS = false;
 bool USE_N_VERTED = false;
@@ -58,6 +68,15 @@ static bool initialized = false;
 // Code to run once on game init
 void RunInitHook() {
     gGT = sdata->gGT;
+    #ifdef USE_CUSTOM_TRACKS
+    //disable player to bot swap, fixes crash at the end of the race on tile trauma
+    // Comment this code if tile trauma its not included
+    *(int*)0x80017318 = 0x3E00008;
+    *(int*)0x8001731c = 0;
+
+    // required for AI Nav, 
+    *(int*)0x800150c0 = 0;
+    #endif
 }
 
 //Code to run each frame
@@ -72,7 +91,7 @@ void RunUpdateHook() {
 
     // Draw version info on main menu
     if (D230.MM_State == 1) {
-        DecalFont_DrawLine("MOD MASHUP v0.8.0", 5, 197, FONT_SMALL, LIME_GREEN);
+        DecalFont_DrawLine("CTR UNLEASHED v0.9.0", 5, 197, FONT_SMALL, LIME_GREEN);
         DecalFont_DrawLine(__DATE__, 5, 206, FONT_SMALL, ORANGE);
         DecalFont_DrawLine(__TIME__, 170, 206, FONT_SMALL, ORANGE);
     }

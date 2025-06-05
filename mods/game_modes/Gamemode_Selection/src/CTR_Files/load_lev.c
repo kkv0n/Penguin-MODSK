@@ -566,7 +566,7 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 			RemoveOffRoadCHK(gGT->level1);
 		}
 
-		if (USE_N_VERTED && gGT->levelID <= TURBO_TRACK){
+		if (USE_N_VERTED && gGT->levelID <= LAB_BASEMENT){
 			ReverseTrack(gGT->level1);
 		}
 
@@ -583,7 +583,7 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 			WallRide(gGT->level1);
 		}
 
-		if(USE_SPEEDWAY_PHYSICS && gGT->levelID){
+		if(USE_SPEEDWAY_PHYSICS && gGT->levelID < INTRO_RACE_TODAY){
 			SpeedwayPhys(gGT->level1);
 		}
 
