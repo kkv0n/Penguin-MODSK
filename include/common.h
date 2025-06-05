@@ -17,7 +17,7 @@
 //#define USE_BOOSTBAR	// Super's reserve bar
 //#define USE_PROFILER	// Debug profiler from PizzaHut
 //#define USE_4PADTEST	// 1 controller for all 4 players
-#define USE_MOREPRIM  // Bonus Primitive Memory
+// #define USE_MOREPRIM  // Bonus Primitive Memory
 //#define USE_FASTANIM	// Decompress animations
 //#define USE_REAL60PS1	// Requires Profiler, Only for NGin Labs
 //#define USE_BIGQUEUE	// Allow LOAD queue to be more than 8
@@ -25,6 +25,7 @@
 //#define USE_DRIVERRND // Requiers DRIVERLOD: Character Randomizer
 //#define USE_LEVELDISC // New Level on Disc
 #define USE_BETTER_SPEEDO
+#define USE_CUSTOM_TRACKS
 
 // 2mb: On-Boot preload 8 custom characters
 // 8mb: On-Boot preload 16 CTR drivers
@@ -43,15 +44,17 @@
 //#define USE_PCDRV		// File Read/Write to PC (needs USE_ALTMODS)
 // ...
 
-
-
+// Since custom tracks replacs low lod variants we need to ensure having high lods
+#ifdef USE_CUSTOM_TRACKS
+#define USE_HIGHMP
+#endif
 
 // Multiplayer Maxed Mod
 #ifdef USE_HIGHMP
-//#define USE_RAMEX
-//#define USE_BIGQUEUE //this is related to load queue
-//#define USE_DRIVERLOD //this is to load the high quality driver models
-//#define USE_MOREPRIM //expand prim mem, fixes flickering with the render
+#define USE_RAMEX
+//#define USE_BIGQUEUE
+//#define USE_DRIVERLOD
+#define USE_MOREPRIM
 #endif
 
 

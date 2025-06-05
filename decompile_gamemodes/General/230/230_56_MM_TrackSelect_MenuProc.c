@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_CUSTOM_TRACKS
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+#endif
+
 void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 {
 	char bVar1;
@@ -133,13 +137,26 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 	numTracks = 18;
 
 	// #ifdef USE_HIGHMP
-	// numTracks = 23;
+	#ifdef USE_CUSTOM_TRACKS
+	// if not time trial (Some custom tracks crashes on TT due to ghosts)
+	if((gGT->gameMode1 & TIME_TRIAL) == 0){
+		numTracks = 25;
+
+		D230.battleTracks[0].levID = NITRO_COURT;
+		D230.battleTracks[1].levID = RAMPAGE_RUINS;
+		D230.battleTracks[2].levID = PARKING_LOT;
+		D230.battleTracks[3].levID = SKULL_ROCK;
+		D230.battleTracks[4].levID = THE_NORTH_BOWL;
+		D230.battleTracks[5].levID = ROCKY_ROAD;
+		D230.battleTracks[6].levID = LAB_BASEMENT;
+	}
+
 	// D230.battleTracks[0].levID = 0x19;
 	// D230.battleTracks[1].levID = 0x1a;
 	// D230.battleTracks[2].levID = 0x1b;
 	// D230.battleTracks[3].levID = 0x1c;
 	// D230.battleTracks[4].levID = 0x1d;
-	// #endif
+	#endif
 
 	// if you are in battle mode
 	if ((gGT->gameMode1 & BATTLE_MODE) != 0)
@@ -482,6 +499,38 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 		// and so on
 
 		// Draw string
+		#ifdef USE_CUSTOM_TRACKS
+		// Check if this is a custom track and not in Battle/Adventure mode
+        if (selectMenu[iVar10].levID >= NITRO_COURT && 
+            selectMenu[iVar10].levID <= LAB_BASEMENT && 
+            (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
+			// if not time trial (Some custom tracks crashes on TT due to ghosts)
+			&& (gGT->gameMode1 & TIME_TRIAL) == 0)
+        {
+            // Use custom track name from array
+            // Subtract NITRO_COURT to get the right index (0-based array)
+            const char* trackName = CUSTOM_TRACK_NAMES[selectMenu[iVar10].levID - NITRO_COURT];
+            
+            DECOMP_DecalFont_DrawLine
+            (
+                trackName,
+                (iVar11 + 8),
+                (iVar9 + 0x65),
+                FONT_BIG, ORANGE
+            );
+        }
+        else
+        {
+            // Original behavior for standard tracks
+            DECOMP_DecalFont_DrawLine
+            (
+                sdata->lngStrings[data.metaDataLEV[selectMenu[iVar10].levID].name_LNG],
+                (iVar11 + 8),
+                (iVar9 + 0x65),
+                FONT_BIG, ORANGE
+            );
+        }
+		#else
 		DECOMP_DecalFont_DrawLine
 		(
 			sdata->lngStrings[data.metaDataLEV[selectMenu[iVar10].levID].name_LNG],
@@ -489,6 +538,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 			(iVar9 + 0x65),
 			FONT_BIG, ORANGE
 		);
+		#endif
 
 		if ((D230.trackSel_changeTrack_frameCount == 0) && ((short)iVar18 == 4))
 		{
@@ -573,6 +623,8 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 			// If the lap selection menu is closed
 			if (D230.trackSel_boolOpenLapBox == 0)
 			{
+
+				#ifndef USE_CUSTOM_TRACKS
 				// "SELECT"
 				DECOMP_DecalFont_DrawLine
 				(
@@ -590,6 +642,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 					(D230.transitionMeta_trackSel[3].currY + (u_int)p.y + 0x10),
 					FONT_BIG, (JUSTIFY_CENTER | ORANGE)
 				);
+				#endif
 			}
 
 			// next, draw the map icon, below "SELECT LEVEL",
@@ -663,6 +716,16 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 					);
 				}
 			}
+
+			#ifdef USE_CUSTOM_TRACKS
+			// Skip video draw for custom tracks 
+            if (selectMenu[menu->rowSelected].levID >= NITRO_COURT && 
+                selectMenu[menu->rowSelected].levID <= LAB_BASEMENT && 
+                (gGT->gameMode1 & BATTLE_MODE) == 0) {
+                // Return early to avoid drawing track video for custom tracks
+                return;
+            }
+			#endif
 
 			DECOMP_MM_TrackSelect_Video_Draw
 			(

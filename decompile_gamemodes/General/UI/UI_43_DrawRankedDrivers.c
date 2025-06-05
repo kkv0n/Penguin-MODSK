@@ -53,7 +53,18 @@ int DriverIndex_GetDamageColor(int iVar14)
 }
 
 void DECOMP_UI_DrawRankedDrivers(void)
-{
+{	
+	#ifdef USE_CUSTOM_TRACKS
+	if (
+		sdata->gGT->levelID >= NITRO_COURT && sdata->gGT->levelID <= LAB_BASEMENT
+		// If only 1 player and its arcade
+		&& (sdata->gGT->numPlyrCurrGame == 1)
+		&& (sdata->gGT->gameMode1 & ARCADE_MODE) != 0
+	){
+		return;
+	};
+	#endif
+
     u_short uVar1;
     char bVar2;
     int iVar3;

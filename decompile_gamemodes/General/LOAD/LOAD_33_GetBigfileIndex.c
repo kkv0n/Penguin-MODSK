@@ -5,7 +5,11 @@ int DECOMP_LOAD_GetBigfileIndex(unsigned int levelID, int lod)
 	// === Wow we need a bigfile enum ===
 
 #ifdef USE_HIGHMP
+	#ifdef USE_CUSTOM_TRACKS
+	lod = (levelID >= NITRO_COURT && levelID <= LAB_BASEMENT) ? lod : 1;
+	#else
 	lod = 1;
+	#endif
 #endif
 
 #ifdef USE_REAL60PS1

@@ -11,9 +11,11 @@ void DECOMP_UI_Map_DrawRawIcon(
   int *ptrColor;
   struct GameTracker* gGT = sdata->gGT;
   
+  #ifdef USE_CUSTOM_TRACKS
   //custom track fix in gamemode mashup
-  if (gGT->levelID == ROO_TUBES) return;
-
+  if (gGT->levelID >= NITRO_COURT && gGT->levelID <= LAB_BASEMENT) return;
+  #endif
+  
   posX = param_2[0];
   posY = param_2[2];
 

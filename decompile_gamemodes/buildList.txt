@@ -6,10 +6,27 @@ common, iso, 0x80700000, 0x0, ../mods/game_modes/Gamemode_Selection/src/hooks.c
 //Flag
 common, exe, RaceFlag_DrawSelf, 0x0, ../mods/game_modes/Gamemode_Selection/src/custom_flag.c
 
+//Custom tracks
+common, bigfilelevelsbattlenitro_court3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/citadel_1.vrm
+common, bigfilelevelsbattlenitro_court3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/citadel_1.lev
 
-//replace roo tubes with green hill
-common, bigfilelevelstrackstube11Pdatavrm, 0x0, 0x0, ..\mods\_custom_tracks\Custom_Adventure\custom_tracks\n_sanity_boss.vrm
-common, bigfilelevelstrackstube11Pdatalev, 0x0, 0x0, ..\mods\_custom_tracks\Custom_Adventure\custom_tracks\n_sanity_boss.lev
+common, bigfilelevelsbattlerampage_ruins3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/n_sanity_boss.vrm
+common, bigfilelevelsbattlerampage_ruins3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/n_sanity_boss.lev
+
+common, bigfilelevelsbattleparking_lot3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/lost_ruins_boss.vrm
+common, bigfilelevelsbattleparking_lot3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/lost_ruins_boss.lev
+
+common, bigfilelevelsbattleskull_rock3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/glacier_boss.vrm
+common, bigfilelevelsbattleskull_rock3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/glacier_boss.lev
+
+common, bigfilelevelsbattlenorth_bowl3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/citadel_boss.vrm
+common, bigfilelevelsbattlenorth_bowl3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/citadel_boss.lev
+
+common, bigfilelevelsbattlerocky_road3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/glacier_1.vrm
+common, bigfilelevelsbattlerocky_road3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/glacier_1.lev
+
+common, bigfilelevelsbattlelab_basement3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/final_boss.vrm
+common, bigfilelevelsbattlelab_basement3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/final_boss.lev
 
 //---------------------------------------------------------------------------------
 
