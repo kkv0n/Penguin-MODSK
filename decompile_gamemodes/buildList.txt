@@ -25,8 +25,8 @@ common, bigfilelevelsbattlenorth_bowl3datalev, 0x0, 0x0, ../mods/_custom_tracks/
 common, bigfilelevelsbattlerocky_road3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/glacier_1.vrm
 common, bigfilelevelsbattlerocky_road3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/glacier_1.lev
 
-common, bigfilelevelsbattlelab_basement3datavrm, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/final_boss.vrm
-common, bigfilelevelsbattlelab_basement3datalev, 0x0, 0x0, ../mods/_custom_tracks/Custom_Adventure/custom_tracks/final_boss.lev
+common, bigfilelevelsbattlelab_basement3datavrm, 0x0, 0x0, custom_tracks/track_7.vrm
+common, bigfilelevelsbattlelab_basement3datalev, 0x0, 0x0, custom_tracks/track_7.lev
 
 //---------------------------------------------------------------------------------
 
