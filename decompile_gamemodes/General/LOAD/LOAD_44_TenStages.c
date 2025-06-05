@@ -659,7 +659,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 				WallRide(gGT->level1);
 			}
 
-			if(USE_SPEEDWAY_PHYSICS && gGT->levelID){
+			if(USE_SPEEDWAY_PHYSICS && gGT->levelID <= LAB_BASEMENT){
 				SpeedwayPhys(gGT->level1);
 			}
 
@@ -668,9 +668,10 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			// if(
 			// 	gGT->levelID >= NITRO_COURT
 			// 	&& gGT->levelID <= LAB_BASEMENT
-			// 	&& (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE | TIME_TRIAL) == 0)
-			// 	&& gGT->numPlyrCurrGame > 1
+			// 	&& (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE) == 0)
+			// 	&& gGT->numPlyrNextGame > 1
 			// ){
+
 			// 	// Check if at least 2 spawns are in the same position
             //     int needsSpread = 0;
                 
