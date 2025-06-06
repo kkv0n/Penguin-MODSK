@@ -39,13 +39,13 @@
 #include "GameModes/dynamic_light.c"
 
 const char* CUSTOM_TRACK_NAMES[] = {
-    "ELECTRON AVENUE",
-    "GREEN HILL RACEWAY",
+    "BREEZE HARBOR",
+    "LOST CITY",
+    "DREAMY HEIGHTS",
     "DARK RUINS",
-    "PIPE PLAYGROUND",
-    "ROC POD",
     "FROZEN DEPTHS",
-    "TILE TRAUMA"
+    "CROWD FOREST",
+    "NUKE REACTOR"
 };
 
 bool USE_RETRO_FUELED = false;
