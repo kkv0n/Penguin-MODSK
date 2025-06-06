@@ -10,7 +10,7 @@
 #define USE_16BY9		// Widescreen
 #define USE_NEW2P		// Requires 16BY9: Side-By-Side 2P
 #define USE_OXIDE		// Unlock Oxide
-#define USE_PENTA		// Penta Max Stats
+// #define USE_PENTA	// Penta Max Stats
 //#define USE_HARDER	// Difficulty Selector (Arcade)
 //#define USE_NEWCUPS	// Cup Randomizer
 //#define USE_DECALMP	// OG game Render Targets
@@ -26,6 +26,7 @@
 //#define USE_LEVELDISC // New Level on Disc
 #define USE_BETTER_SPEEDO
 #define USE_CUSTOM_TRACKS
+#define USE_BETTER_STATS
 
 // 2mb: On-Boot preload 8 custom characters
 // 8mb: On-Boot preload 16 CTR drivers
