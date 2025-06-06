@@ -53,6 +53,108 @@ int CountActiveWarpOrbs() {
     return count;
 }
 
+int lastCheckpointForWeaponRoulette[8] = {-1, -1, -1, -1, -1, -1, -1, -1}; // Store last checkpoint for each driver
+
+// Check if we need to give a weapon based on checkpoint progress
+void HandleWeaponRoulette(bool enabled) {
+    if (!enabled) return;
+
+    // Only run if there are no bots and more than one player
+    if (gGT->numBotsNextGame > 0 || gGT->numPlyrCurrGame <= 1) {
+        return;
+    }
+    
+    int totalCheckpoints = gGT->level1->cnt_restart_points;
+    if (totalCheckpoints <= 0) return;
+    
+    // Calculate checkpoint intervals (20% increments)
+    int interval = totalCheckpoints / 5;
+    if (interval <= 0) interval = 1; // Ensure minimum interval
+    
+    // Check each player to see if they crossed an interval boundary
+    for (unsigned char i = 0; i < gGT->numPlyrCurrGame; i++) {
+        struct Driver* driver = gGT->drivers[i];
+        if (driver == NULL || driver->underDriver == NULL) continue;
+        
+        int currentCheckpoint = driver->underDriver->checkpointIndex;
+
+        // skip if checkpoint is last checkpoint
+        if (currentCheckpoint == totalCheckpoints - 1) continue;
+        
+        // Skip if the checkpoint hasn't changed
+        if (currentCheckpoint == lastCheckpointForWeaponRoulette[i]) continue;
+        
+        // Check if player crossed an interval boundary
+        for (int j = 1; j <= 4; j++) { // 20%, 40%, 60%, 80%
+            int checkpointThreshold = j * interval;
+            
+            // If the previous checkpoint was before the threshold and 
+            // the current checkpoint is at or past the threshold
+            if (lastCheckpointForWeaponRoulette[i] < checkpointThreshold && 
+                currentCheckpoint >= checkpointThreshold) {
+                // Give player a weapon
+                WeaponRoulette(driver);
+                break;
+            }
+        }
+        
+        // Update the last checkpoint
+        lastCheckpointForWeaponRoulette[i] = currentCheckpoint;
+    }
+}
+
+
+// Give a weapon to a driver at checkpoint intervals
+void WeaponRoulette(struct Driver* driver) {
+    // If driver already has a weapon, quit
+    if ((driver->heldItemID != 0xF) && (driver->noItemTimer == 0)) {
+        return;
+    }
+
+    // Held item count
+    if (driver->numHeldItems != 0) {
+        return;
+    }
+
+    // If driver is firing weapon, quit
+    if ((driver->actionsFlagSet & 0x8000) != 0) {
+        return;
+    }
+
+    // If driver has raincloud and weapon is shuffling, quit
+    if (driver->thCloud != 0) {
+        struct RainCloud* rainCloud = (struct RainCloud*)driver->thCloud->object;
+        if (rainCloud->boolScrollItem == 1) {
+            return;
+        }
+    }
+
+    // If driver is influenced by clock weapon, quit
+    if (driver->clockReceive != 0) {
+        return;
+    }
+
+    // Set weapon to roulette
+    driver->heldItemID = 0x10;
+
+    // Increment
+    driver->numTimesHitWeaponBox++;
+
+    // Timer for weapon roulette
+    driver->itemRollTimer = FPS_DOUBLE(90);
+
+    // If no roulette is active
+    if ((gGT->gameMode1 & ROLLING_ITEM) == 0) {
+        // Start sound
+        OtherFX_Play(0x5D, 0);
+        
+        // Set rolling item flag
+        gGT->gameMode1 |= ROLLING_ITEM;
+    }
+
+    driver->noItemTimer = 0;
+}
+
 //TODO: Sometimes a bug happens where only driver 0 will shoot items
 // Each second, force a random driver to throw a random item
 // All players on last lap will have 99 wumpas
