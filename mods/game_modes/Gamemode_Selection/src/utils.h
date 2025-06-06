@@ -333,4 +333,12 @@ enum CUSTOM_TRACK_IDS {
 
 extern const char* CUSTOM_TRACK_NAMES[];
 
+// ModMenu functions
+extern void ShowModMenuInTrackSelect();
+extern void HandleModMenuContinue();
+extern void CancelModMenuTrackSelect();
+extern void CleanupModMenuTrackSelect();
+extern bool showingModMenuInTrackSelect;
+extern bool continueToTrackSelection;
+
 #endif

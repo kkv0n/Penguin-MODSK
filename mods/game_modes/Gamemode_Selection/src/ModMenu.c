@@ -315,17 +315,88 @@ void HandleNightFilterTap(int tap)
     USE_NIGHT_FILTER = (NightFilterBrightness < 255);
 }
 
+bool showingModMenuInTrackSelect = false;
+bool continueToTrackSelection = false;
+
+// Function to show ModMenu in track selection context
+void ShowModMenuInTrackSelect() {
+    gameMenu.visible = true;
+    showingModMenuInTrackSelect = true;
+    continueToTrackSelection = false; // Reset this flag
+    
+    // Show a special footer message
+    gameMenu.footerText = "Press X/O to continue, Triangle to cancel";
+    
+    // Apply effects immediately so mods are active
+    ApplyMenuEffects();
+}
+
+// Function to handle continuing from ModMenu to track selection
+void HandleModMenuContinue() {
+    struct GameTracker *gGT = sdata->gGT;
+    
+    // if not Battle or Time Trial, open LapSelectMenu
+    if ((gGT->gameMode1 & (BATTLE_MODE | TIME_TRIAL)) == 0) {
+        // open lap select menu
+        D230.trackSel_boolOpenLapBox = D230.trackSel_transitionState;
+    } else {
+        // if Battle or Time Trial, skip straight to level
+        D230.trackSel_StartRaceAfterFadeOut = D230.trackSel_transitionState;
+        D230.trackSel_transitionState = EXITING_MENU;
+    }
+    
+    // Reset the footer text and hide the menu
+    CleanupModMenuTrackSelect();
+}
+
+// New function to cancel and go back to track selection
+void CancelModMenuTrackSelect() {
+    // Reset the flag to allow track navigation again
+    showingModMenuInTrackSelect = false;
+    
+    // Reset the footer text and hide the menu
+    CleanupModMenuTrackSelect();
+    
+    // Play "go back" sound
+    DECOMP_OtherFX_Play(2, 1);
+}
+
+// Helper function to clean up the mod menu state
+void CleanupModMenuTrackSelect() {
+    // Reset the menu state
+    gameMenu.footerText = "Mod menu selector";
+    gameMenu.visible = false;
+    showingModMenuInTrackSelect = false;
+}
+
 // Handle menu input
 void HandleMenuInput(struct GamepadBuffer* controller) {
     int tap = controller->buttonsTapped;
     
-    // Toggle menu visibility with Select button
-    if (tap & BTN_SELECT) {
+    // Toggle menu visibility with Select button (only if not in track selection context)
+    if (tap & BTN_SELECT && !showingModMenuInTrackSelect) {
         gameMenu.visible = !gameMenu.visible;
         return;
     }
 
     if (!gameMenu.visible) return;
+    
+    // Special handling for track selection context
+    if (showingModMenuInTrackSelect) {
+        // If Triangle is pressed, exit the mod menu without proceeding
+        if (tap & (BTN_TRIANGLE | BTN_SQUARE_one)) {
+            CancelModMenuTrackSelect();
+            return;
+        }
+        
+        // If X or Circle is pressed in this mode, continue to track selection
+        if (tap & (BTN_CROSS_one | BTN_CIRCLE)) {
+            continueToTrackSelection = true;
+            // Play the confirm sound
+            DECOMP_OtherFX_Play(1, 1);
+            return;  // Let the track selection code handle the rest
+        }
+    }
 
     // Page navigation with L1/R1
     if (tap & BTN_L1) {
@@ -400,7 +471,13 @@ void RenderMenu() {
     RECTMENU_DrawInnerRect(&gameMenu.descRect, 0, sdata->gGT->backBuffer->otMem.startPlusFour);
     
     // Draw menu title and instructions
-    DecalFont_DrawLine("Press Select to Hide", 20, 110, FONT_SMALL, PERIWINKLE);
+    if (showingModMenuInTrackSelect) {
+        DecalFont_DrawLine("Configure Mods Before Racing", 20, 110, FONT_SMALL, PAPU_YELLOW);
+        DecalFont_DrawLine("X/O: Continue", 240, 100, FONT_SMALL, TINY_GREEN);
+        DecalFont_DrawLine("Triangle: Cancel", 240, 110, FONT_SMALL, CORTEX_RED);
+    } else {
+        DecalFont_DrawLine("Press Select to Hide", 20, 110, FONT_SMALL, PERIWINKLE);
+    }
     
     // Calculate page offset
     int pageOffset = gameMenu.currentPage * gameMenu.numOptions;

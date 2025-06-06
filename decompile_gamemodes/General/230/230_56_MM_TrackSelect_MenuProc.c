@@ -4,6 +4,11 @@
 #include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 #endif
 
+extern bool showingModMenuInTrackSelect;
+extern bool continueToTrackSelection;
+extern void ShowModMenuInTrackSelect();
+extern void HandleModMenuContinue();
+
 void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 {
 	char bVar1;
@@ -176,6 +181,17 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 	currTrack = menu->rowSelected;
 	sdata->trackSelBackup = currTrack;
 
+	// Check at the start of each frame if we need to proceed from mod menu
+	if (showingModMenuInTrackSelect && continueToTrackSelection)
+	{
+		// Handle continuing to track selection
+		HandleModMenuContinue();
+		
+		// Reset flags
+		showingModMenuInTrackSelect = false;
+		continueToTrackSelection = false;
+	}
+	
 	// if lap selection menu is closed
 	if (D230.trackSel_boolOpenLapBox == 0)
 	{
@@ -191,7 +207,10 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 				(D230.trackSel_transitionState == IN_MENU) &&
 
 				// desired button pressed
-				(importantButton != 0)
+				(importantButton != 0) &&
+                
+                // Skip input processing if mod menu is showing
+                !showingModMenuInTrackSelect
 			)
 		{
 			switch (importantButton)
@@ -245,17 +264,13 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 				// "enter/confirm" sound
 				DECOMP_OtherFX_Play(1, 1);
 
-				// if not Battle or Time Trial, open LapSelectMenu
-				if ((gGT->gameMode1 & (BATTLE_MODE | TIME_TRIAL)) == 0)
-				{
-					// open lap select menu
-					D230.trackSel_boolOpenLapBox = D230.trackSel_transitionState;
-					break;
-				}
-
-				// if Battle or Time Trial, skip straight to level
-				D230.trackSel_StartRaceAfterFadeOut = D230.trackSel_transitionState;
-				D230.trackSel_transitionState = EXITING_MENU;
+                // Show ModMenu before proceeding
+                if (!showingModMenuInTrackSelect)
+                {
+                    ShowModMenuInTrackSelect();
+                    break;
+                }
+                
 				break;
 
 			case BTN_TRIANGLE:
