@@ -143,7 +143,9 @@ void RunUpdateHook() {
     if (gGT->trafficLightsTimer > 0 && !initialized) {
 
         // Reset timers and skip prevention structs
-        InitShortcutless(USE_SHORTCUTLESS);
+        if(!USE_N_VERTED){
+            InitShortcutless(USE_SHORTCUTLESS);
+        }
 
         // Init driver floating states and lap skip prevention
         Init_N_Verted(USE_N_VERTED);
@@ -182,13 +184,25 @@ void RunUpdateHook() {
     HandleMirrorInput(USE_MIRROR);
 
     // Handle shortcutless logic, detect and prevent shortcuts
-    HandleShortcutless(USE_SHORTCUTLESS);
+    if(!USE_N_VERTED){
+        HandleShortcutless(USE_SHORTCUTLESS);
+    }
     
     // Handle N-VERTED logic, which involves jump blocks and prevent lap skips
     Handle_N_Verted(USE_N_VERTED);
 
     // Handle item chaos (Every second a random driver will trow a random item)
     HandleItemChaos(USE_ITEM_CHAOS);
+
+    #ifdef USE_CUSTOM_TRACKS
+    if (
+        gGT->levelID >= NITRO_COURT && 
+        gGT->levelID <= LAB_BASEMENT && 
+        (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
+    ){
+        HandleWeaponRoulette(true);
+    }
+    #endif
 
     // Special case for maximun difficulty
     int currentLevel = *superHardAddr / 0x50;
