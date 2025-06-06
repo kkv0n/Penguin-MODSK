@@ -6,6 +6,7 @@
 
 extern bool showingModMenuInTrackSelect;
 extern bool continueToTrackSelection;
+extern bool justCanceledModMenu;
 extern void ShowModMenuInTrackSelect();
 extern void HandleModMenuContinue();
 
@@ -190,8 +191,31 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 		// Reset flags
 		showingModMenuInTrackSelect = false;
 		continueToTrackSelection = false;
+        
+        // Force clear input to prevent ghost input in lap selection
+        DECOMP_RECTMENU_ClearInput();
+        
+        // Break out early to give the lap selection menu a fresh start next frame
+        // This prevents the immediate auto-selection of the first option
+        if (D230.trackSel_boolOpenLapBox != 0)
+        {
+            return;
+        }
 	}
 	
+	// Check at the start of each frame if we just canceled the mod menu
+	if (justCanceledModMenu)
+	{
+		// Reset the flag immediately
+		justCanceledModMenu = false;
+		
+		// Force clear input one more time
+		DECOMP_RECTMENU_ClearInput();
+		
+		// Process the rest of the function but skip button handling this frame
+		// to prevent exiting track selection
+	}
+
 	// if lap selection menu is closed
 	if (D230.trackSel_boolOpenLapBox == 0)
 	{
@@ -210,7 +234,10 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 				(importantButton != 0) &&
                 
                 // Skip input processing if mod menu is showing
-                !showingModMenuInTrackSelect
+                !showingModMenuInTrackSelect &&
+                
+                // Skip input processing if we just canceled the mod menu
+                !justCanceledModMenu
 			)
 		{
 			switch (importantButton)
@@ -302,7 +329,25 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 		// If you're in track selection menu
 		if (D230.trackSel_transitionState == IN_MENU)
 		{
-			lapSelTransitionState = DECOMP_RECTMENU_ProcessInput(&D230.menuLapSel);
+            // Check if this is the first frame the lap menu is open,
+            // if so, don't process input
+            static int lapMenuFirstFrame = 0;
+            
+            if (lapMenuFirstFrame == 0) {
+                lapMenuFirstFrame = 1;
+                lapSelTransitionState = 0; // Force no action on first frame
+                
+                // Clear input again to be super safe
+                DECOMP_RECTMENU_ClearInput();
+            } else {
+                // Process input normally
+                lapSelTransitionState = DECOMP_RECTMENU_ProcessInput(&D230.menuLapSel);
+            }
+            
+            // Reset the first frame flag when menu is closed
+            if (D230.trackSel_boolOpenLapBox == 0) {
+                lapMenuFirstFrame = 0;
+            }
 		}
 
 		DECOMP_RECTMENU_DrawSelf

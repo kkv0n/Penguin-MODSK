@@ -317,6 +317,7 @@ void HandleNightFilterTap(int tap)
 
 bool showingModMenuInTrackSelect = false;
 bool continueToTrackSelection = false;
+bool justCanceledModMenu = false;
 
 // Function to show ModMenu in track selection context
 void ShowModMenuInTrackSelect() {
@@ -339,6 +340,14 @@ void HandleModMenuContinue() {
     if ((gGT->gameMode1 & (BATTLE_MODE | TIME_TRIAL)) == 0) {
         // open lap select menu
         D230.trackSel_boolOpenLapBox = D230.trackSel_transitionState;
+        
+        // Clear input to prevent the lap menu from immediately detecting the X/O press
+        DECOMP_RECTMENU_ClearInput();
+        
+        // Explicitly clear the button tap arrays to be extra safe
+        for (int i = 0; i < 8; i++) {
+            sdata->buttonTapPerPlayer[i] = 0;
+        }
     } else {
         // if Battle or Time Trial, skip straight to level
         D230.trackSel_StartRaceAfterFadeOut = D230.trackSel_transitionState;
@@ -359,6 +368,18 @@ void CancelModMenuTrackSelect() {
     
     // Play "go back" sound
     DECOMP_OtherFX_Play(2, 1);
+    
+    // Set flag to indicate we just canceled the mod menu
+    // This prevents the track selection menu from also processing this Triangle press
+    justCanceledModMenu = true;
+    
+    // Thoroughly clear input to prevent the button press from being detected again
+    DECOMP_RECTMENU_ClearInput();
+    
+    // Clear button arrays
+    for (int i = 0; i < 8; i++) {
+        sdata->buttonTapPerPlayer[i] = 0;
+    }
 }
 
 // Helper function to clean up the mod menu state
@@ -386,6 +407,9 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
         // If Triangle is pressed, exit the mod menu without proceeding
         if (tap & (BTN_TRIANGLE | BTN_SQUARE_one)) {
             CancelModMenuTrackSelect();
+            
+            // Clear input to prevent issues
+            DECOMP_RECTMENU_ClearInput();
             return;
         }
         
@@ -394,6 +418,9 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
             continueToTrackSelection = true;
             // Play the confirm sound
             DECOMP_OtherFX_Play(1, 1);
+            
+            // Clear tap input to prevent it from affecting the lap selection menu
+            controller->buttonsTapped &= ~(BTN_CROSS_one | BTN_CIRCLE);
             return;  // Let the track selection code handle the rest
         }
     }

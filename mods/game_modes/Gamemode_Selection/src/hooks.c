@@ -44,7 +44,7 @@ const char* CUSTOM_TRACK_NAMES[] = {
     "DREAMY HEIGHTS",
     "DARK RUINS",
     "FROZEN DEPTHS",
-    "CROWD FOREST",
+    "CROW FOREST",
     "NUKE REACTOR"
 };
 

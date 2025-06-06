@@ -340,5 +340,6 @@ extern void CancelModMenuTrackSelect();
 extern void CleanupModMenuTrackSelect();
 extern bool showingModMenuInTrackSelect;
 extern bool continueToTrackSelection;
+extern bool justCanceledModMenu;
 
 #endif
