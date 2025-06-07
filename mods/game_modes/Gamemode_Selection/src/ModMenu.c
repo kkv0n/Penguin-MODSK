@@ -4,6 +4,10 @@
 #include "common.h"
 #include "utils.h"
 
+// Global menu position constants
+#define MENU_BASE_X 230
+#define MENU_BASE_Y 25
+
 // cheats are located in 0x80096b28
 // int* cheats = (int*)0x80096B28;
 extern unsigned short* superHardAddr;
@@ -42,7 +46,7 @@ MenuOption menuOptions[18] = {
         "Retro Fueled",
         "on", "off", &optionValues[0],
         NULL,
-        {"NF Blue fire and u-turn", "Made by Redhot"}
+        {"NF Blue fire and u-turn", "by Redhot"}
     },
     {
         "Moon Gravity",
@@ -54,7 +58,7 @@ MenuOption menuOptions[18] = {
         "Mirror Mode",
         "on", "off", &optionValues[2],
         NULL,
-        {"Swap left and right", "by Niko"}
+        {"Mirror the entire track", "left-right by Niko"}
     },
     {
         "N-Verted",
@@ -90,7 +94,7 @@ MenuOption menuOptions[18] = {
         "lightning",
         NULL, NULL, NULL, // Special handling
         NULL,
-        {"Normal - Night - Darkness", "Swap with d-pad - by Anfrost"}
+        {"Normal - Night - U-Dark", "Swap with d-pad - by Anfrost"}
     },
     
     // PAGE 2
@@ -98,19 +102,19 @@ MenuOption menuOptions[18] = {
         "Boundless",
         "on", "off", &optionValues[9],
         NULL,
-        {"Dissable invisible walls, killplanes and offroad", "by Anfrost"}
+        {"Dissable invisible walls,", "killplanes and offroad"}
     },
     {
         "Wall Ride",
         "on", "off", &optionValues[10],
         NULL,
-        {"Alows driving on any wall", "by penta3"}
+        {"Allows driving on any wall", "by penta3"}
     },
     {
         "Speedway Phys",
         "on", "off", &optionValues[11],
         NULL,
-        {"Use sewer speedway physics everywhere", "___"}
+        {"Sewer speedway physics everywhere", "___"}
     },
     {
         "UNLOCK ALL",
@@ -153,8 +157,8 @@ MenuOption menuOptions[18] = {
 Menu gameMenu = {
     0,              // selectedIndex
     true,           // visible
-    {0, 0, 350, 130}, // bgRect
-    {0, 150, 480, 64}, // descRect
+    {MENU_BASE_X, MENU_BASE_Y, 275, 110}, // bgRect position using compile-time constants
+    {MENU_BASE_X, MENU_BASE_Y + 120, 275, 45}, // descRect position using compile-time constants
     9,              // numOptions
     menuOptions,    // options
     "Mod menu selector", // footerText
@@ -237,6 +241,8 @@ void HandleDifficultyTap(int tap)
         else if (currentLevel == 8) currentLevel = 4;   // U-HARD -> S-HARD
         else if (currentLevel == 9) currentLevel = 8;   // USF -> U-HARD
         else currentLevel = 1;                          // Default -> EASY
+
+        DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
     
     if (tap & BTN_RIGHT || tap & BTN_R2) {
@@ -247,6 +253,8 @@ void HandleDifficultyTap(int tap)
         else if (currentLevel == 8) currentLevel = 9;   // U-HARD -> USF
         else if (currentLevel == 9) currentLevel = 1;   // USF -> EASY
         else currentLevel = 1;                          // Default -> EASY
+
+        DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
 
     // No need to clamp values since we're explicitly setting them
@@ -260,11 +268,13 @@ void HandleItemChaosTap(int tap)
     if (tap & BTN_LEFT) {
         itemChaosDifficulty--;
         if (itemChaosDifficulty < 0) itemChaosDifficulty = 3;
+        DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
     
     if (tap & BTN_RIGHT || tap & BTN_R2) {
         itemChaosDifficulty++;
         if (itemChaosDifficulty > 3) itemChaosDifficulty = 0;
+        DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
     
     // Update the USE_ITEM_CHAOS flag based on difficulty
@@ -295,6 +305,7 @@ void HandleNightFilterTap(int tap)
             NightFilterBrightness = 255; // Off
             NightFilterBlueTint = DarknessBlueTint; // No blue tint
         }
+        DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
 
     if (tap & BTN_RIGHT || tap & BTN_R2) {
@@ -309,6 +320,7 @@ void HandleNightFilterTap(int tap)
             NightFilterBrightness = 255; // Off
             NightFilterBlueTint = DarknessBlueTint; // No blue tint
         }
+        DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
 
     // Update the USE_NIGHT_FILTER flag based on brightness
@@ -430,6 +442,7 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
         if (gameMenu.currentPage > 0) {
             gameMenu.currentPage--;
             gameMenu.selectedIndex = 0; // Reset selection when changing pages
+            DECOMP_OtherFX_Play(fx_menu_selection_change, 1);
         }
     }
     
@@ -437,6 +450,7 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
         if (gameMenu.currentPage < 1) { // We have 2 pages (0 and 1)
             gameMenu.currentPage++;
             gameMenu.selectedIndex = 0; // Reset selection when changing pages
+            DECOMP_OtherFX_Play(fx_menu_selection_change, 1);
         }
     }
 
@@ -444,12 +458,14 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
     if (tap & BTN_UP) {
         if (gameMenu.selectedIndex > 0) {
             gameMenu.selectedIndex--;
+            DECOMP_OtherFX_Play(fx_menu_selection_change, 1);
         }
     }
 
     if (tap & BTN_DOWN) {
         if (gameMenu.selectedIndex < gameMenu.numOptions - 1) {
             gameMenu.selectedIndex++;
+            DECOMP_OtherFX_Play(fx_menu_selection_change, 1);
         }
     }
 
@@ -482,6 +498,7 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
             if (gameMenu.options[actualOptionIndex].onChange != NULL) {
                 gameMenu.options[actualOptionIndex].onChange(*valuePtr);
             }
+            DECOMP_OtherFX_Play(fx_letter_del, 1);
         }
     }
     
@@ -498,19 +515,18 @@ void RenderMenu() {
     RECTMENU_DrawInnerRect(&gameMenu.descRect, 0, sdata->gGT->backBuffer->otMem.startPlusFour);
     
     // Draw menu title and instructions
-    if (showingModMenuInTrackSelect) {
-        DecalFont_DrawLine("Configure Mods Before Racing", 20, 110, FONT_SMALL, PAPU_YELLOW);
-        DecalFont_DrawLine("X/O: Continue", 240, 100, FONT_SMALL, TINY_GREEN);
-        DecalFont_DrawLine("Triangle: Cancel", 240, 110, FONT_SMALL, CORTEX_RED);
-    } else {
-        DecalFont_DrawLine("Press Select to Hide", 20, 110, FONT_SMALL, PERIWINKLE);
-    }
+    // if (showingModMenuInTrackSelect) {
+    //     DecalFont_DrawLine("Configure Mods Before Racing", MENU_BASE_X + 10, MENU_BASE_Y + 100, FONT_SMALL, PAPU_YELLOW);
+    //     DecalFont_DrawLine("X/O: Continue", MENU_BASE_X + 235, MENU_BASE_Y + 90, FONT_SMALL, TINY_GREEN);
+    //     DecalFont_DrawLine("Triangle: Cancel", MENU_BASE_X + 235, MENU_BASE_Y + 100, FONT_SMALL, CORTEX_RED);
+    // } else {
+    //     DecalFont_DrawLine("Press Select to Hide", MENU_BASE_X + 235, MENU_BASE_Y + 100, FONT_SMALL, PERIWINKLE);
+    // }
+
+    DecalFont_DrawLine("ON/OFF with R2", MENU_BASE_X + 10, MENU_BASE_Y + 100, FONT_SMALL, PAPU_YELLOW);
     
-    // Calculate page offset
+    // Page offset
     int pageOffset = gameMenu.currentPage * gameMenu.numOptions;
-    
-    // Draw selection arrow
-    DecalFont_DrawLine("-", 20, 10 + (gameMenu.selectedIndex * 10), FONT_SMALL, TINY_GREEN);
     
     // Draw options for the current page
     int i;
@@ -521,10 +537,11 @@ void RenderMenu() {
         // Skip empty options
         if (option->title[0] == '\0') continue;
         
-        // Draw option title
-        DecalFont_DrawLine(option->title, 40, 10 + (i * 10), FONT_SMALL, PAPU_YELLOW);
+        // Draw option title - highlight selection with green color
+        int textColor = (i == gameMenu.selectedIndex) ? PAPU_YELLOW : ORANGE;
+        DecalFont_DrawLine(option->title, MENU_BASE_X + 10, MENU_BASE_Y + 5 + (i * 10), FONT_SMALL, textColor);
         
-        // Draw option value
+        // Draw option value 
         if (gameMenu.currentPage == 0 && i == 5) { // Super Hard (special numeric value)
             int diffLevel = (*superHardAddr / 0x50);
             const char* diffText;
@@ -537,7 +554,7 @@ void RenderMenu() {
                 case 9: diffText = "USF"; break;
                 default: diffText = "???"; break;
             }
-            DecalFont_DrawLine(diffText, 240, 10 + i * 10, FONT_SMALL, CRASH_BLUE);
+            DecalFont_DrawLine(diffText, MENU_BASE_X + 210, MENU_BASE_Y + 5 + i * 10, FONT_SMALL, CRASH_BLUE);
         }
         else if (gameMenu.currentPage == 0 && i == 6) { // Item Chaos (special numeric value)
             const char* chaosText;
@@ -548,10 +565,9 @@ void RenderMenu() {
                 case 3: chaosText = "RAGE"; break;
                 default: chaosText = "???"; break;
             }
-            DecalFont_DrawLine(chaosText, 240, 10 + i * 10, FONT_SMALL, 
+            DecalFont_DrawLine(chaosText, MENU_BASE_X + 210, MENU_BASE_Y + 5 + i * 10, FONT_SMALL, 
                             itemChaosDifficulty > 0 ? CRASH_BLUE : CORTEX_RED);
         }
-
         else if (gameMenu.currentPage == 0 && i == 8) { // Night Filter (special numeric value)
             const char* nightText;
             if (NightFilterBrightness == 255) {
@@ -559,30 +575,28 @@ void RenderMenu() {
             } else if (NightFilterBrightness == 64) {
                 nightText = "NIGHT";
             } else {
-                nightText = "DARKNESS";
+                nightText = "U-DARK";
             }
-            DecalFont_DrawLine(nightText, 240, 10 + i * 10, FONT_SMALL, CRASH_BLUE);
+            DecalFont_DrawLine(nightText, MENU_BASE_X + 210, MENU_BASE_Y + 5 + i * 10, FONT_SMALL, CRASH_BLUE);
         }
-
         else if (option->valuePtr != NULL) { // Standard toggle options
             DecalFont_DrawLine(
                 *(option->valuePtr) ? option->onText : option->offText,
-                240,
-                10 + i * 10,
+                MENU_BASE_X + 210,
+                MENU_BASE_Y + 5 + i * 10,
                 FONT_SMALL,
                 *(option->valuePtr) ? TINY_GREEN : CORTEX_RED
             );
         }
     }
     
-    // Draw description for selected option
+    // Draw description for selected option in the description box
     int selectedOptionIndex = gameMenu.selectedIndex + pageOffset;
     MenuOption* selectedOption = &gameMenu.options[selectedOptionIndex];
-    DecalFont_DrawLine(selectedOption->description[0], 20, 160, FONT_SMALL, PAPU_YELLOW);
-    DecalFont_DrawLine(selectedOption->description[1], 20, 170, FONT_SMALL, PAPU_YELLOW);
+    DecalFont_DrawLine(selectedOption->description[0], MENU_BASE_X + 10, MENU_BASE_Y + 125, FONT_SMALL, ORANGE);
+    DecalFont_DrawLine(selectedOption->description[1], MENU_BASE_X + 10, MENU_BASE_Y + 135, FONT_SMALL, ORANGE);
     
-    // Draw footer);
-    // DecalFont_DrawLine(gameMenu.footerText, 20, 200, FONT_SMALL, PERIWINKLE);
+    // Draw footer with right justification (moved to the bottom of the description box)
     sprintf(decalText, "Page %d/2 (L1/R1)", gameMenu.currentPage + 1);
-    DecalFont_DrawLine(decalText, 20, 200, FONT_SMALL, PAPU_YELLOW);
+    DecalFont_DrawLine(decalText, MENU_BASE_X + 10, MENU_BASE_Y + 155, FONT_SMALL, PAPU_YELLOW);
 }

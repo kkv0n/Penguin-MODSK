@@ -740,11 +740,14 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 				{
 					iVar10 = ((((u_int)bVar1 - (u_int)bVar2) + (u_int)bVar3) - (u_int)bVar4);
 
-					DECOMP_UI_Map_DrawMap
-					(
-						// top half
-						iconMap0,
-
+					// Skip drawing if the mod menu is showing
+					if(!showingModMenuInTrackSelect){
+						
+						DECOMP_UI_Map_DrawMap
+						(
+							// top half
+							iconMap0,
+							
 						// bottom half
 						iconMap1,
 
@@ -754,28 +757,29 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 									(D230.transitionMeta_trackSel[2].currX - D230.transitionMeta_trackSel[1].currX) +
 									(0xb0 >> 1) +
 									(iVar9 >> 1),
-
-						// Y
-						D230.drawMapOffset[iVar18].offsetY +
+									
+									// Y
+									D230.drawMapOffset[iVar18].offsetY +
 									p.y +
 									(D230.transitionMeta_trackSel[2].currY - D230.transitionMeta_trackSel[1].currY) +
 									0x49+0x22+
 									0x10 + // idk how bitshifting pulls 0x10 in ghidra, but that's it
 									(iVar10 >> 1),
-
-						// pointer to PrimMem struct
-						&gGT->backBuffer->primMem,
-
-						// pointer to OT mem
-						gGT->pushBuffer_UI.ptrOT,
-
-						// 1 = draw map with regular color (white) - used for the main layer of the minimap in the track select screen
-						// 2 = draw map blue - used for the outline of the minimap in the track select screen
-						// 3 = draw map black - used for the shadow of the minimap in the track select screen
-						D230.drawMapOffset[iVar18].type
-					);
-				}
-			}
+									
+									// pointer to PrimMem struct
+									&gGT->backBuffer->primMem,
+									
+									// pointer to OT mem
+									gGT->pushBuffer_UI.ptrOT,
+									
+									// 1 = draw map with regular color (white) - used for the main layer of the minimap in the track select screen
+									// 2 = draw map blue - used for the outline of the minimap in the track select screen
+									// 3 = draw map black - used for the shadow of the minimap in the track select screen
+									D230.drawMapOffset[iVar18].type
+								);
+							}
+						}
+					}
 
 			#ifdef USE_CUSTOM_TRACKS
 			// Skip video draw for custom tracks 
@@ -786,6 +790,9 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
                 return;
             }
 			#endif
+
+			//Skip video draw if mod menu is showing
+			if(showingModMenuInTrackSelect) return;
 
 			DECOMP_MM_TrackSelect_Video_Draw
 			(
