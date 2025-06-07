@@ -10,9 +10,9 @@ void WallRide(struct Level *level){
         struct QuadBlock* qb = &quadBlocks[i];
 
         // Add SpeedImpact to all walls
-        if (qb->quadFlags & Q_WALL) {
-            qb->speedImpact = -127;
-        }
+        // if (qb->quadFlags & Q_WALL) {
+        //     qb->speedImpact = -127;
+        // }
 
         //Mark all walls as ground
         if (qb->quadFlags & Q_WALL) {
@@ -87,8 +87,8 @@ void SpeedwayPhys(struct Level *level){
     for (int i = 0; i < mi->numQuadBlock; i++) {
         struct QuadBlock* qb = &quadBlocks[i];
 
-        // Add SpeedImpact to all ground
-        if (qb->quadFlags & Q_GROUND) {
+        // Add SpeedImpact
+        if (qb->quadFlags & (Q_GROUND | Q_WALL)) {
             qb->speedImpact = -127;
         }
     }
