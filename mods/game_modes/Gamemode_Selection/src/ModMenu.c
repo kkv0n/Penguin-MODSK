@@ -52,7 +52,7 @@ MenuOption menuOptions[18] = {
         "Moon Gravity",
         "on", "off", &optionValues[1],
         NULL,
-        {"Low gravity everywhere", "___"}
+        {"Low gravity everywhere", ""}
     },
     {
         "Mirror Mode",
@@ -64,13 +64,13 @@ MenuOption menuOptions[18] = {
         "N-Verted",
         "on", "off", &optionValues[3],
         NULL,
-        {"Race tracks in backwads", "by Anfrost"}
+        {"Race tracks in backwards", "by Anfrost"}
     },
     {
         "Icy Tracks",
         "on", "off", &optionValues[4],
         NULL,
-        {"Enable icy tracks cheatcode", "____"}
+        {"Enable icy tracks cheatcode", ""}
     },
     {
         "Difficulty",
@@ -114,7 +114,7 @@ MenuOption menuOptions[18] = {
         "Speedway Phys",
         "on", "off", &optionValues[11],
         NULL,
-        {"Sewer speedway physics everywhere", "___"}
+        {"Sewer speedway physics everywhere", ""}
     },
     {
         "UNLOCK ALL",
@@ -156,7 +156,7 @@ MenuOption menuOptions[18] = {
 
 Menu gameMenu = {
     0,              // selectedIndex
-    true,           // visible
+    false,           // visible
     {MENU_BASE_X, MENU_BASE_Y, 275, 110}, // bgRect position using compile-time constants
     {MENU_BASE_X, MENU_BASE_Y + 120, 275, 45}, // descRect position using compile-time constants
     9,              // numOptions
@@ -407,10 +407,10 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
     int tap = controller->buttonsTapped;
     
     // Toggle menu visibility with Select button (only if not in track selection context)
-    if (tap & BTN_SELECT && !showingModMenuInTrackSelect) {
-        gameMenu.visible = !gameMenu.visible;
-        return;
-    }
+    // if (tap & BTN_SELECT && !showingModMenuInTrackSelect) {
+    //     gameMenu.visible = !gameMenu.visible;
+    //     return;
+    // }
 
     if (!gameMenu.visible) return;
     
