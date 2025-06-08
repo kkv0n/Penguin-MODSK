@@ -565,7 +565,8 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
             selectMenu[iVar10].levID <= LAB_BASEMENT && 
             (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
 			// if not time trial (Some custom tracks crashes on TT due to ghosts)
-			&& (gGT->gameMode1 & TIME_TRIAL) == 0)
+			&& (gGT->gameMode1 & TIME_TRIAL) == 0
+			)
         {
             // Use custom track name from array
             // Subtract NITRO_COURT to get the right index (0-based array)
