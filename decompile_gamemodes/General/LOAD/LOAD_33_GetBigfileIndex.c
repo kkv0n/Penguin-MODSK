@@ -5,11 +5,36 @@ int DECOMP_LOAD_GetBigfileIndex(unsigned int levelID, int lod)
 	// === Wow we need a bigfile enum ===
 
 #ifdef USE_HIGHMP
-	#ifdef USE_CUSTOM_TRACKS
-	lod = (levelID >= NITRO_COURT && levelID <= LAB_BASEMENT) ? lod : 1;
-	#else
+
+#ifdef USE_CUSTOM_TRACKS
+// if custom track use lod parameter
+// Note that this wont allow custom tracks on time trial
+if (
+	levelID >= NITRO_COURT && levelID <= LAB_BASEMENT
+	&& (sdata->gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
+) {
+	lod = lod;
+}
+
+else if ((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0){
+	lod = 8;
+}
+
+else {
 	lod = 1;
-	#endif
+}
+#else
+
+// Always load lod 1 except for time trial/relic race which have special lod 8
+if ((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0){
+	lod = 8;
+}
+
+else {
+	lod = 1;
+}
+
+#endif
 #endif
 
 #ifdef USE_REAL60PS1
