@@ -142,7 +142,7 @@
 // }
 
 
-// This dissables the video from playing
+// This disables the video from playing
 // Its a lazy way to fix video glitching when using mod menu
 // I tried many things an none of them worked
 #include <common.h>
