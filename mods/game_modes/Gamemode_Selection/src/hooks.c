@@ -68,6 +68,9 @@ static bool initialized = false;
 
 #ifdef USE_CUSTOM_TRACKS
 int BOTS_ThTick_Drive_op;
+unsigned int unk_op1;
+unsigned int unk_op2;
+unsigned short unk_op3;
 #endif
 
 // Code to run once on game init
@@ -76,12 +79,19 @@ void RunInitHook() {
     gGT = sdata->gGT;
 
     #ifdef USE_CUSTOM_TRACKS
-    BOTS_ThTick_Drive_op = *(int*)0x800150C0; //BOTS_ThTick_Drive
-
+    
     //disable player to bot swap, fixes crash at the end of the race on tile trauma
+    //This will also dissable demos and ghosts bot swap
     // Comment this code if tile trauma its not included
-    *(int*)0x80017318 = 0x3E00008;
-    *(int*)0x8001731c = 0;
+    // *(int*)0x80017318 = 0x3E00008; //BOTS_Driver_Convert
+    // *(int*)0x8001731c = 0; //??
+    
+    // AI nav patches
+    // Store original values for AI nav patches that we'll apply conditionally
+    BOTS_ThTick_Drive_op = *(int*)0x800150C0; //BOTS_ThTick_Drive <- needed for tile trauma bots
+    unk_op1 = *(unsigned int*)0x800277c8; // GAMEPAD_ProcessAnyoneVars ??
+    unk_op2 = *(unsigned int*)0x800277d0;
+    unk_op3 = *(unsigned short*)0x800277f2;
     
     #endif
 
@@ -92,21 +102,29 @@ void RunInitHook() {
 void RunUpdateHook() {
 
     #ifdef USE_CUSTOM_TRACKS
-    // WARNING: This solutions stinks a lot
+    // WARNING: This solutions sucks
+    // This was an attempt to avoid crashes on time trial custom tracks but still crashes
 
-    // USE_HIGHMP will bug the oxide and tropy ghosts (they will act as AI and will crash the game)
-    // so we have to patch the ai nav to avoid the crash (Note: this doesnt fix the bot thing)
-    // Also this patch is needed on tile trauma
-    // This patches the ai nav only on time trial or a custom track
-    if ((
-        sdata->gGT->gameMode1 & TIME_TRIAL) != 0
-        || (gGT->levelID >= NITRO_COURT && 
-            gGT->levelID <= LAB_BASEMENT && 
-            (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0)
-    ) {
-        *(int*)0x800150C0 = 0; //Disable original instruction
+    // Check if we're in Time Trial AND on a custom track
+    bool isTimeTrialAndCustomTrack = 
+        ((gGT->gameMode1 & TIME_TRIAL) != 0) &&
+        (gGT->levelID >= NITRO_COURT && 
+         gGT->levelID <= LAB_BASEMENT && 
+         (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0);
+
+    // Apply patches conditionally
+    if (isTimeTrialAndCustomTrack) {
+        // Disable original instructions
+        *(int*)0x800150C0 = 0; 
+        *(unsigned int*)0x800277c8 = 0;
+        *(unsigned int*)0x800277d0 = 0;
+        *(unsigned short*)0x800277f2 = 0x800;
     } else {
-        *(int*)0x800150C0 = BOTS_ThTick_Drive_op; //Restore original instruction
+        // Restore original instructions
+        *(int*)0x800150C0 = BOTS_ThTick_Drive_op;  
+        *(unsigned int*)0x800277c8 = unk_op1;
+        *(unsigned int*)0x800277d0 = unk_op2;
+        *(unsigned short*)0x800277f2 = unk_op3;
     }
     #endif
 
@@ -120,7 +138,7 @@ void RunUpdateHook() {
 
     // Draw version info on main menu
     if (D230.MM_State == 1) {
-        DecalFont_DrawLine("CTR UNLIMITED v0.9.0", 5, 197, FONT_SMALL, LIME_GREEN);
+        DecalFont_DrawLine("CTR UNLIMITED v0.9.1", 5, 197, FONT_SMALL, LIME_GREEN);
         DecalFont_DrawLine(__DATE__, 5, 206, FONT_SMALL, ORANGE);
         DecalFont_DrawLine(__TIME__, 170, 206, FONT_SMALL, ORANGE);
     }
