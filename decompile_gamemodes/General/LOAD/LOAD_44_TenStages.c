@@ -578,7 +578,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			}else{
 
 			// base index of the group
-			uVar16 = DECOMP_LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD);
+			uVar16 = DECOMP_LOAD_GetBigfileIndex(gGT->levelID, 1);
 
 			// add VRAM to loading queue
 			DECOMP_LOAD_AppendQueue(
