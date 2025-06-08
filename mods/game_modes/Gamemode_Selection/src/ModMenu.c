@@ -91,7 +91,7 @@ MenuOption menuOptions[18] = {
         {"All shortcuts are banned", "by Anfrost"}
     },
     {
-        "lightning",
+        "lighting",
         NULL, NULL, NULL, // Special handling
         NULL,
         {"Normal - Night - U-Dark", "Swap with d-pad - by Anfrost"}
@@ -102,7 +102,7 @@ MenuOption menuOptions[18] = {
         "Boundless",
         "on", "off", &optionValues[9],
         NULL,
-        {"Dissable invisible walls,", "killplanes and offroad"}
+        {"Disable invisible walls,", "killplanes and offroad"}
     },
     {
         "Wall Ride",
@@ -114,7 +114,7 @@ MenuOption menuOptions[18] = {
         "Speedway Phys",
         "on", "off", &optionValues[11],
         NULL,
-        {"Sewer speedway physics everywhere", ""}
+        {"Sewer speedway physics", "everywhere"}
     },
     {
         "UNLOCK ALL",
