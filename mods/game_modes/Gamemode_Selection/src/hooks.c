@@ -120,7 +120,7 @@ void RunUpdateHook() {
 
     // Draw version info on main menu
     if (D230.MM_State == 1) {
-        DecalFont_DrawLine("CTR UNLEASHED v0.9.0", 5, 197, FONT_SMALL, LIME_GREEN);
+        DecalFont_DrawLine("CTR UNLIMITED v0.9.0", 5, 197, FONT_SMALL, LIME_GREEN);
         DecalFont_DrawLine(__DATE__, 5, 206, FONT_SMALL, ORANGE);
         DecalFont_DrawLine(__TIME__, 170, 206, FONT_SMALL, ORANGE);
     }
@@ -150,11 +150,7 @@ void RunUpdateHook() {
         // Init driver floating states and lap skip prevention
         Init_N_Verted(USE_N_VERTED);
 
-        if(USE_MOON_GRAVITY){
-            gravity = 369;
-        } else {
-            gravity = 900;
-        }
+        gravity = USE_MOON_GRAVITY ? 369 : 900;
 
         // Stats modifiers
         SetGravity(gravity);
@@ -215,6 +211,15 @@ void RunUpdateHook() {
 
     if(USE_NIGHT_FILTER && NightFilterBrightness < 20){
         HandleDynamicLighting(gGT->level1);
+    }
+
+    // Fly cheat
+    if (((controller->buttonsHeldCurrFrame & BTN_L1) != 0) && ((controller->buttonsHeldCurrFrame & BTN_TRIANGLE) != 0))
+    {
+    	controller->buttonsHeldCurrFrame |= BTN_CROSS;
+    	driver->forcedJump_trampoline = 2;
+    	driver->jump_unknown = 0x180;
+    	driver->jump_InitialVelY = driver->const_JumpForce * 3;
     }
 
     // Draw reserver metter for 1P
