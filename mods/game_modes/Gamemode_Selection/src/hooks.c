@@ -73,6 +73,8 @@ unsigned int unk_op2;
 unsigned short unk_op3;
 #endif
 
+extern Menu gameMenu;
+
 // Code to run once on game init
 void RunInitHook() {
     if (init_initialized) return;
@@ -195,7 +197,12 @@ void RunUpdateHook() {
 
     // Remap pad if mirror is enabled
     // Rest of mirror logic is injected on DF_JalDrawOTag
-    HandleMirrorInput(USE_MIRROR);
+    if(!gameMenu.visible){
+        HandleMirrorInput(USE_MIRROR);
+    }else{
+        // If the mod menu is visible, disable mirror input
+        SwapDirection(false);
+    }
 
     // Handle shortcutless logic, detect and prevent shortcuts
     if(!USE_N_VERTED){
@@ -245,6 +252,11 @@ void RunUpdateHook() {
 	// {
 	// 	DrawReservesMeter(data.hud_1P_P1[0x8].x, data.hud_1P_P1[0x8].y + 5, (struct Driver*)sdata->gGT->threadBuckets[0].thread->object);
 	// }
+
+    // Draw Mod menu info only on adveture arena
+    if (gGT->gameMode1 & ADVENTURE_ARENA) {
+        DecalFont_DrawLine("Press SELECT to toggle gamemode menu", 5, 200, FONT_SMALL, ORANGE);
+    }
 
     //Draw fps
     char* string;

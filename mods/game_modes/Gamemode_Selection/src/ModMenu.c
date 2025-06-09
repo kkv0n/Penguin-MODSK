@@ -16,6 +16,12 @@ extern int itemChaosDifficulty;
 extern int NightFilterBrightness;
 extern int NightFilterBlueTint;
 
+extern void* PlayerDrivingFuncTable[13];
+extern void* PlayerFreezeFuncTable[13];
+
+bool functionsDisabled = false;
+
+
 // --------------------- MENU STRUCTURE ---------------------
 typedef struct {
     char* title;
@@ -76,7 +82,7 @@ MenuOption menuOptions[18] = {
         "Difficulty",
         NULL, NULL, NULL, // Special handling
         NULL,
-        {"Swap speed of the bots", "Swap with d-pad - by Niko"}
+        {"Select speed of the bots", "Swap with d-pad - by Niko"}
     },
     {
         "Item Chaos",
@@ -169,6 +175,36 @@ char valueBuffer[4] = "";
 
 // --------------------- MENU FUNCTIONS ---------------------
 
+// Function to disable kart controls
+void DisableKartControls() {
+    struct Driver* driver = sdata->gGT->drivers[0];
+    
+    // Only disable if we haven't already and driver exists
+    if (!functionsDisabled && driver != NULL) {
+        // Use freeze functions instead of NULL
+        for (int i = 0; i < 13; i++) {
+            driver->funcPtrs[i] = PlayerFreezeFuncTable[i];
+        }
+        
+        functionsDisabled = true;
+    }
+}
+
+// Function to restore kart controls
+void RestoreKartControls() {
+    struct Driver* driver = sdata->gGT->drivers[0];
+    
+    // Only restore if we previously disabled and driver exists
+    if (functionsDisabled && driver != NULL) {
+        // Restore original function pointers
+        for (int i = 0; i < 13; i++) {
+            driver->funcPtrs[i] = PlayerDrivingFuncTable[i];
+        }
+        
+        functionsDisabled = false;
+    }
+}
+
 // Apply effects based on menu option changes
 void ApplyMenuEffects() {
     // Retro Fueled (Page 1, index 0)
@@ -245,7 +281,7 @@ void HandleDifficultyTap(int tap)
         DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
     
-    if (tap & BTN_RIGHT || tap & BTN_R2) {
+    if (tap & BTN_RIGHT) {
         if (currentLevel == 1) currentLevel = 2;        // EASY -> MED
         else if (currentLevel == 2) currentLevel = 3;   // MED -> HARD
         else if (currentLevel == 3) currentLevel = 4;   // HARD -> S-HARD
@@ -271,7 +307,7 @@ void HandleItemChaosTap(int tap)
         DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
     
-    if (tap & BTN_RIGHT || tap & BTN_R2) {
+    if (tap & BTN_RIGHT) {
         itemChaosDifficulty++;
         if (itemChaosDifficulty > 3) itemChaosDifficulty = 0;
         DECOMP_OtherFX_Play(fx_letter_del, 1);
@@ -308,7 +344,7 @@ void HandleNightFilterTap(int tap)
         DECOMP_OtherFX_Play(fx_letter_del, 1);
     }
 
-    if (tap & BTN_RIGHT || tap & BTN_R2) {
+    if (tap & BTN_RIGHT) {
         // Cycle through states in reverse
         if (NightFilterBrightness == 255) {
             NightFilterBrightness = NightBrightness; // Night
@@ -331,11 +367,29 @@ bool showingModMenuInTrackSelect = false;
 bool continueToTrackSelection = false;
 bool justCanceledModMenu = false;
 
+// New variables for adventure New/Load screen
+bool showingModMenuInNewLoad = false;
+bool continueToAdventure = false;
+bool justCanceledModMenuNewLoad = false;
+
 // Function to show ModMenu in track selection context
 void ShowModMenuInTrackSelect() {
     gameMenu.visible = true;
     showingModMenuInTrackSelect = true;
     continueToTrackSelection = false; // Reset this flag
+    
+    // Show a special footer message
+    gameMenu.footerText = "Press X/O to continue, Triangle to cancel";
+    
+    // Apply effects immediately so mods are active
+    ApplyMenuEffects();
+}
+
+// New function to show ModMenu in New/Load adventure context
+void ShowModMenuInNewLoad() {
+    gameMenu.visible = true;
+    showingModMenuInNewLoad = true;
+    continueToAdventure = false; // Reset this flag
     
     // Show a special footer message
     gameMenu.footerText = "Press X/O to continue, Triangle to cancel";
@@ -402,15 +456,99 @@ void CleanupModMenuTrackSelect() {
     showingModMenuInTrackSelect = false;
 }
 
+// Function to handle continuing from ModMenu to adventure
+void HandleModMenuContinueToAdventure() {
+    // Allow the MM_State transition to happen
+    continueToAdventure = true;
+    
+    // Reset the footer text and hide the menu
+    CleanupModMenuNewLoad();
+    
+    // Explicitly trigger the transition to adventure mode
+    D230.MM_State = 2; // MM_Title transitioning out
+    
+    // Clear input to prevent it from affecting the next menu
+    DECOMP_RECTMENU_ClearInput();
+    
+    // Clear button arrays
+    for (int i = 0; i < 8; i++) {
+        sdata->buttonTapPerPlayer[i] = 0;
+    }
+}
+
+// New function to cancel and go back to New/Load selection
+void CancelModMenuNewLoad() {
+    // Reset the flag to allow navigation again
+    showingModMenuInNewLoad = false;
+    
+    // Reset the footer text and hide the menu
+    CleanupModMenuNewLoad();
+    
+    // Play "go back" sound
+    DECOMP_OtherFX_Play(2, 1);
+    
+    // Set flag to indicate we just canceled the mod menu
+    justCanceledModMenuNewLoad = true;
+    
+    // Thoroughly clear input to prevent the button press from being detected again
+    DECOMP_RECTMENU_ClearInput();
+    
+    // Clear button arrays
+    for (int i = 0; i < 8; i++) {
+        sdata->buttonTapPerPlayer[i] = 0;
+    }
+}
+
+// Helper function to clean up the mod menu state for New/Load
+void CleanupModMenuNewLoad() {
+    // Reset the menu state
+    gameMenu.footerText = "Mod menu selector";
+    gameMenu.visible = false;
+    showingModMenuInNewLoad = false;
+}
+
 // Handle menu input
 void HandleMenuInput(struct GamepadBuffer* controller) {
     int tap = controller->buttonsTapped;
     
-    // Toggle menu visibility with Select button (only if not in track selection context)
-    // if (tap & BTN_SELECT && !showingModMenuInTrackSelect) {
-    //     gameMenu.visible = !gameMenu.visible;
-    //     return;
-    // }
+    // Toggle menu visibility with Select button (with additional checks)
+    if (tap & BTN_SELECT && gGT->gameMode1 & ADVENTURE_ARENA && !showingModMenuInTrackSelect && !showingModMenuInNewLoad) {
+        struct Driver* driver = sdata->gGT->drivers[0];
+        
+        // Don't open menu if kart is frozen or in warp pad state
+        if (!gameMenu.visible && driver != NULL && (driver->kartState == KS_FREEZE || driver->kartState == KS_WARP_PAD)) {
+            return;
+        }
+        
+        gameMenu.visible = !gameMenu.visible;
+        
+        // Disable or restore kart controls based on menu visibility
+        if (gameMenu.visible) {
+            DisableKartControls();
+        } else {
+            RestoreKartControls();
+        }
+        
+        return;
+    }
+
+    // If kart state is warp pad close the menu
+    if (sdata->gGT->drivers[0] != NULL && sdata->gGT->drivers[0]->kartState == KS_WARP_PAD) {
+        if (gameMenu.visible) {
+            gameMenu.visible = false;
+            functionsDisabled = false;
+        }
+        return;
+    }
+
+    // If game is loading close the menu
+    if (sdata->load_inProgress != 0){
+        if (gameMenu.visible) {
+            gameMenu.visible = false;
+            RestoreKartControls(); // Restore controls when closing the menu
+        }
+        return;
+    }
 
     if (!gameMenu.visible) return;
     
@@ -437,6 +575,29 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
         }
     }
 
+    // NEW: Special handling for New/Load adventure context
+    if (showingModMenuInNewLoad) {
+        // If Triangle is pressed, exit the mod menu without proceeding
+        if (tap & (BTN_TRIANGLE | BTN_SQUARE_one)) {
+            CancelModMenuNewLoad();
+            
+            // Clear input to prevent issues
+            DECOMP_RECTMENU_ClearInput();
+            return;
+        }
+        
+        // If X or Circle is pressed in this mode, continue to adventure
+        if (tap & (BTN_CROSS_one | BTN_CIRCLE)) {
+            HandleModMenuContinueToAdventure();
+            // Play the confirm sound
+            DECOMP_OtherFX_Play(1, 1);
+            
+            // Clear tap input
+            controller->buttonsTapped &= ~(BTN_CROSS_one | BTN_CIRCLE);
+            return;
+        }
+    }
+    
     // Page navigation with L1/R1
     if (tap & BTN_L1) {
         if (gameMenu.currentPage > 0) {
@@ -488,7 +649,7 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
     }
 
     // Toggle boolean options
-    else if (tap & BTN_R2) {
+    else if (tap & BTN_RIGHT || tap & BTN_LEFT) {
         // Toggle the boolean value for standard options
         if (gameMenu.options[actualOptionIndex].valuePtr != NULL) {
             bool* valuePtr = gameMenu.options[actualOptionIndex].valuePtr;
@@ -523,7 +684,7 @@ void RenderMenu() {
     //     DecalFont_DrawLine("Press Select to Hide", MENU_BASE_X + 235, MENU_BASE_Y + 100, FONT_SMALL, PERIWINKLE);
     // }
 
-    DecalFont_DrawLine("ON/OFF with R2", MENU_BASE_X + 10, MENU_BASE_Y + 100, FONT_SMALL, PAPU_YELLOW);
+    DecalFont_DrawLine("ON/OFF with D-Pad", MENU_BASE_X + 10, MENU_BASE_Y + 100, FONT_SMALL, PAPU_YELLOW);
     
     // Page offset
     int pageOffset = gameMenu.currentPage * gameMenu.numOptions;
