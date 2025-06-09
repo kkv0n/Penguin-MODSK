@@ -11,8 +11,11 @@ void SwapDirection(u_int toggle)
 
 void HandleMirrorInput(bool enabled)
 {
-	if ((sdata->gGT->gameMode1 & (PAUSE_1 | END_OF_RACE | MAIN_MENU)) == 0)
+	if ((sdata->gGT->gameMode1 & (PAUSE_1 | END_OF_RACE | MAIN_MENU)) == 0){
+
 		SwapDirection(USE_MIRROR);
-	else
-		SwapDirection(0);
+	}
+	else{
+		SwapDirection(false);
+	}
 }
