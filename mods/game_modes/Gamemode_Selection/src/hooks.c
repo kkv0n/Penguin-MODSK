@@ -58,6 +58,7 @@ bool USE_NIGHT_FILTER = false;
 bool USE_BOUNDLESS = false;
 bool USE_WALL_RIDE = false;
 bool USE_SPEEDWAY_PHYSICS = false;
+bool USE_FLY_CHEAT = false;
 
 short gravity = 900;
 char* decalText = (char*)0x1F800000;
@@ -239,12 +240,20 @@ void RunUpdateHook() {
     }
 
     // Fly cheat
-    if (((controller->buttonsHeldCurrFrame & BTN_L1) != 0) && ((controller->buttonsHeldCurrFrame & BTN_TRIANGLE) != 0))
-    {
-    	controller->buttonsHeldCurrFrame |= BTN_CROSS;
-    	driver->forcedJump_trampoline = 2;
-    	driver->jump_unknown = 0x180;
-    	driver->jump_InitialVelY = driver->const_JumpForce * 3;
+    if (USE_FLY_CHEAT) {
+        int i;
+        for (i = 0; i < gGT->numPlyrCurrGame; i++) {
+            struct Driver* playerDriver = sdata->gGT->drivers[i];
+            struct GamepadBuffer* playerController = &sdata->gGamepads->gamepad[i];
+            
+            if (((playerController->buttonsHeldCurrFrame & BTN_L1) != 0) && 
+                ((playerController->buttonsHeldCurrFrame & BTN_TRIANGLE) != 0)) {
+                playerController->buttonsHeldCurrFrame |= BTN_CROSS;
+                playerDriver->forcedJump_trampoline = 2;
+                playerDriver->jump_unknown = 0x180;
+                playerDriver->jump_InitialVelY = playerDriver->const_JumpForce * 3;
+            }
+        }
     }
 
     // Draw reserver metter for 1P

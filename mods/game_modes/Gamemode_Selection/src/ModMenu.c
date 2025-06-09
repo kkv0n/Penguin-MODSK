@@ -135,10 +135,10 @@ MenuOption menuOptions[18] = {
         {"Disable HUD while racing", "by Niko"}
     },
     {
-        "", // Empty slot
-        "", "", &optionValues[14],
+        "Fly Cheat",
+        "on", "off", &optionValues[14],
         NULL,
-        {"", ""}
+        {"Hold L1+^ to fly", ""}
     },
     {
         "", // Empty slot
@@ -263,6 +263,9 @@ void ApplyMenuEffects() {
     
     // Disable HUD (Page 2, index 4)
     *(unsigned char*)0x8001B038 = optionValues[13] ? 0 : 1;
+    
+    // Fly Cheat (Page 2, index 5)
+    USE_FLY_CHEAT = optionValues[14];
 }
 
 void HandleDifficultyTap(int tap)
@@ -671,10 +674,6 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
 void RenderMenu() {
     if (!gameMenu.visible) return;
     
-    // Draw background rectangles
-    RECTMENU_DrawInnerRect(&gameMenu.bgRect, 0, sdata->gGT->backBuffer->otMem.startPlusFour);
-    RECTMENU_DrawInnerRect(&gameMenu.descRect, 0, sdata->gGT->backBuffer->otMem.startPlusFour);
-    
     // Draw menu title and instructions
     // if (showingModMenuInTrackSelect) {
     //     DecalFont_DrawLine("Configure Mods Before Racing", MENU_BASE_X + 10, MENU_BASE_Y + 100, FONT_SMALL, PAPU_YELLOW);
@@ -757,7 +756,11 @@ void RenderMenu() {
     DecalFont_DrawLine(selectedOption->description[0], MENU_BASE_X + 10, MENU_BASE_Y + 125, FONT_SMALL, ORANGE);
     DecalFont_DrawLine(selectedOption->description[1], MENU_BASE_X + 10, MENU_BASE_Y + 135, FONT_SMALL, ORANGE);
     
-    // Draw footer with right justification (moved to the bottom of the description box)
+    // Draw footer
     sprintf(decalText, "Page %d/2 (L1/R1)", gameMenu.currentPage + 1);
     DecalFont_DrawLine(decalText, MENU_BASE_X + 10, MENU_BASE_Y + 155, FONT_SMALL, PAPU_YELLOW);
+
+    // Draw background rectangles
+    RECTMENU_DrawInnerRect(&gameMenu.bgRect, 0, sdata->gGT->backBuffer->otMem.startPlusFour);
+    RECTMENU_DrawInnerRect(&gameMenu.descRect, 0, sdata->gGT->backBuffer->otMem.startPlusFour);
 }
