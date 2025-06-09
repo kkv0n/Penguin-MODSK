@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
 void DECOMP_RB_MinePool_Init(void)
 {
@@ -8,12 +9,16 @@ void DECOMP_RB_MinePool_Init(void)
 	int gameMode;
 
 	DECOMP_LIST_Clear(&D231.minePoolTaken);
-	DECOMP_LIST_Clear(&D231.minePoolFree);
+	DECOMP_LIST_Clear(&D231.minePoolFree); 
 	
 	gameMode = sdata->gGT->gameMode1;
 	
 	// default
-	numMines = 10;
+	if(USE_ITEM_CHAOS){
+		numMines = 30; 
+	}else{
+		numMines = 15; // retail default: 10
+	}
 	
 	if ((gameMode & CRYSTAL_CHALLENGE) != 0)
 	{
