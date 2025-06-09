@@ -35,6 +35,8 @@ struct MenuRow adventure_row[2] =
 void custom_adventure(unsigned char levelID, bool boss)
 {
 	unsigned char i;
+	
+	prev_levID = levelID; //save the original warp pad level to fix slide col & turbo track bug
 
 	//just in case
 	if ((sdata->gGT->gameMode1 & (CRYSTAL_CHALLENGE | RELIC_RACE)) != 0)

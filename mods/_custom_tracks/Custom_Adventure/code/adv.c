@@ -16,6 +16,7 @@ unsigned char LAP_COUNT_TIMER;
 unsigned char desired_driver;
 unsigned char delaytimer[16];
 unsigned char single_item[4];
+unsigned char prev_levID;
 
 void CTR_Box_DrawWireBox(RECT* r, int* unk, u_long* ot, struct PrimMem* primMem);
 
@@ -29,6 +30,7 @@ unsigned char task = 0;
 
 void DrawReservesMeter(short posX, short posY, struct Driver* d)
 {
+	
 	u_int colorAndCode;
 	short reservesMeter;
 	struct DB* backDB;
@@ -325,9 +327,12 @@ void quad_main()
 	GT = sdata->gGT;
 
 	timer();
+	
+	if (GT->levelID >= GEM_STONE_VALLEY)
+		return;
 
-#define show_reserves (GT->levelID != ADVENTURE_GARAGE && GT->levelID < GEM_STONE_VALLEY)
-	if ((GT->numPlyrCurrGame == 1) && ((GT->gameMode1 & END_OF_RACE) == 0) && show_reserves)
+        
+	if ((GT->numPlyrCurrGame == 1) && ((GT->gameMode1 & END_OF_RACE) == 0) && (sdata->RaceFlag_Position != 0))
 		DrawReservesMeter(data.hud_1P_P1[0x8].x, data.hud_1P_P1[0x8].y + 5, (struct Driver*)sdata->gGT->threadBuckets[0].thread->object);
 
 	for (i = 0; i < GT->numPlyrCurrGame; i++)
@@ -335,7 +340,7 @@ void quad_main()
 		if (GT->drivers[i] != NULL)
 		{
 			driver[i] = GT->drivers[i];
-			quadblock[i] = driver[i]->underDriver;
+			quadblock[i] = driver[i]->currBlockTouching;
 		}
 		else
 		{
@@ -343,7 +348,7 @@ void quad_main()
 		}
 
 
-		if (driver[i]->underDriver) //idk i think this is a flag/boolean (?) in any case ill leave it here
+		if (driver[i]->currBlockTouching) //this just checks if is not null
 		{
 
 			for (j = 0; j < MAX_EFFECTS; j++)
@@ -366,7 +371,7 @@ void quad_main()
 
 					//these lines can be improved
 					driver[desired_driver] = GT->drivers[desired_driver];
-					quadblock[desired_driver] = driver[desired_driver]->underDriver;
+					quadblock[desired_driver] = driver[desired_driver]->currBlockTouching;
 
 					check_effect(task); //call this if the player is driving in the specified terrain
 				}
@@ -539,4 +544,102 @@ void call_hazards(unsigned char s_hazard)
 		if (spawn_clock) driver[desired_driver]->clockReceive = 0x1e00;
 	}
 
+}
+
+
+//load driver models in race tracks or adv hubs
+
+void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, void* callback)
+{
+	unsigned char i;
+	int gameMode1;
+    short MODEL_QUALITY;
+	short MPK_QUALITY;
+	
+    struct GameTracker* gGT = sdata->gGT;
+	
+	unsigned char drivers = (gGT->numPlyrCurrGame > 2) ?
+	gGT->numPlyrCurrGame - 1 : gGT->numPlyrCurrGame + gGT->numBotsCurrGame - 1; 
+	
+	unsigned char lastIndex = (drivers == 0) ? 1 : drivers;
+	
+	gameMode1 = gGT->gameMode1;
+	
+	
+	//Decides which model quality should be used
+	switch(levelLOD)
+	{
+		default:
+		case 1:
+		{
+            MODEL_QUALITY = BI_RACERMODELHI;
+	        MPK_QUALITY = BI_TIMETRIALPACK;
+			break;
+		}
+		case 2:
+		{
+			MODEL_QUALITY = BI_RACERMODELMED;
+	        MPK_QUALITY = BI_2PARCADEPACK;
+			break;
+		}
+		case 3:
+		case 4:
+		{
+			MODEL_QUALITY = BI_RACERMODELLOW;
+	        MPK_QUALITY = BI_4PARCADEPACK;
+			break;
+		}
+		
+	}
+
+
+
+
+	if(
+			// If you are in Adventure cup
+			((gameMode1 & ADVENTURE_CUP) != 0) &&
+
+			// purple gem cup
+			(gGT->cup.cupID == 4)
+		)
+	{
+		data.characterIDs[1] = 0xA;
+		data.characterIDs[2] = 0x9;
+		data.characterIDs[3] = 0xB;
+		data.characterIDs[4] = 0x8;
+		lastIndex = 4;
+
+	}
+	else if ((gameMode1 & TIME_TRIAL) != 0) 
+	{
+		lastIndex = 1; //just in case
+	}
+
+
+	if(((gameMode1 & (ADVENTURE_MODE | ARCADE_MODE)) != 0) && (levelLOD == 1))
+		 LOAD_Robots1P(data.characterIDs[0]);
+
+
+
+            for(i = 0; i < lastIndex; i++)
+		   {
+			// CTR model
+			 LOAD_AppendQueue(bigfile, 2,
+				MODEL_QUALITY + data.characterIDs[i],
+				&data.driverModelExtras[i],0xfffffffe);
+		   }
+		   
+
+		   	if(((gameMode1 & ARCADE_MODE) != 0) && (levelLOD == 2))
+		   {
+			   	LOAD_Robots2P(bigfile, data.characterIDs[0], data.characterIDs[1], callback);
+				return;
+		   }
+			
+     //mpk
+	 LOAD_AppendQueue(
+		bigfile, 2,
+		MPK_QUALITY + data.characterIDs[i],
+		NULL, callback);
+	
 }

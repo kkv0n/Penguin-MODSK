@@ -1,4 +1,5 @@
 #include <common.h>
+#include "adventure.h"
 
 short* AH_WarpPad_GetSpawnPosRot(short* posData)
 {
@@ -23,7 +24,7 @@ short* AH_WarpPad_GetSpawnPosRot(short* posData)
 		// if warppad found that matches level exited
 		if (
 			((struct WarpPad*)t->object)->levelID ==
-			gGT->prevLEV
+			prev_levID
 			)
 		{
 			// end loop

@@ -397,7 +397,7 @@ void StateZero()
 	ResetCallback();
 
 
-#define MEMPACK_SIZE 0x7F8800 // 8mb - 30kb
+#define MEMPACK_SIZE 0x7F1000 // 8mb - 60kb (?)
 
 
 	MEMPACK_Init(MEMPACK_SIZE);
@@ -411,7 +411,7 @@ void StateZero()
 
 
 	//load adventure code
-	LOAD_XnfFile("\\ADVC.BIN;1", (void*)0x807F8800, &vramSize);
+	LOAD_XnfFile("\\ADVC.BIN;1", (void*)0x807F1000, &vramSize);
 
 	MainInit_VRAMClear();
 

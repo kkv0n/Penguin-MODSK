@@ -131,7 +131,7 @@ common, 233, CS_Credits_End, 0x0, code/credits_end.c
 
 
 //i just need bytebudget lul
-common, custom_adventure, 0x807F8800, 0x0, code/adv.c
+common, custom_adventure, 0x807F1000, 0x0, code/adv.c
 
 
 

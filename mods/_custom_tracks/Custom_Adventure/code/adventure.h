@@ -10,6 +10,7 @@
 
 extern unsigned char load_track;
 extern unsigned char current_track;
+extern unsigned char prev_levID;
 extern bool show_stars;
 
 #define battle_levels_ (current_track == N_SANITY_4 || current_track == LOST_RUINS_4 || current_track == GLACIER_4 || current_track == CITADEL_4)

@@ -399,7 +399,19 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 		data.driverModelExtras[0] = 0;
 		data.driverModelExtras[1] = 0;
 		data.driverModelExtras[2] = 0;
-		LOAD_DriverMPK((unsigned int)bigfile, sdata->levelLOD, &LOAD_Callback_DriverModels);
+		
+		//use og function if not in a race track
+		if (gGT->levelID > CITADEL_CITY)
+		{
+			//i dont want to deal with decomp code breaking stuff (im tired)
+		  LOAD_DriverMPK((unsigned int)bigfile, sdata->levelLOD, &LOAD_Callback_DriverModels);
+		}
+	     else
+		 {
+			 //always load high lod models in race tracks
+			 void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, void* callback);
+			 LOAD_Custom_LOD_Driver(bigfile, 1, &LOAD_Callback_DriverModels);
+		 }
 		break;
 	}
 	case 5:
@@ -455,7 +467,7 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 		// == banks are done parsing ===
 
 
-#define NUM_CHECK 8 // modding: 8 drivers
+#define NUM_CHECK 1 // modding: 8 drivers
 
 
 // loop through models
