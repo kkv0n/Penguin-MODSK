@@ -10,6 +10,8 @@ bool slidec_finished;
 bool _endgame;
 bool show_stars;
 
+extern const char* character_names[NUM_CHARACTERS];
+
 void adventure_options();
 
 //main menu
@@ -343,10 +345,7 @@ void adventure_main()
 	}
 
 
-	//lng backup
-	const char* character_names[NUM_CHARACTERS] = { "CRASH BANDICOOT", "DR. NEO CORTEX", "TINY TIGER", "COCO BANDICOOT",
-	"N. GIN", "DINGODILE", "POLAR", "PURA", "PINSTRIPE", "PAPU PAPU", "RIPPER ROO", "KOMODO JOE",
-	"DR. N. TROPY", "PENTA PENGUIN", "FAKE CRASH", "N. OXIDE" };
+
 
 	unsigned char character_engines[NUM_CHARACTERS] = { INTERMEDIATE, INTERMEDIATE, ADVANCED, SKILLED,
 	SKILLED, ADVANCED, BEGINNER, BEGINNER, SKILLED, ADVANCED, BEGINNER, INTERMEDIATE,

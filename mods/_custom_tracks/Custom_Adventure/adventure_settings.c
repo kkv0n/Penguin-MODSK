@@ -18,6 +18,23 @@ LANGUAGES:
 	"NEDERLANDS"
 */
 
+//CHARACTER NAMES IN ADV GARAGE
+const char* character_names[NUM_CHARACTERS] = { 	//lng backup
+	"CRASH BANDICOOT",
+	"DR. NEO CORTEX",
+	"TINY TIGER",
+	"COCO BANDICOOT",
+	"N. GIN",
+	"DINGODILE",
+	"POLAR", "PURA",
+	"PINSTRIPE",
+	"PAPU PAPU",
+	"RIPPER ROO",
+	"KOMODO JOE",
+	"DR. N. TROPY",
+	"PENTA PENGUIN",
+	"FAKE CRASH",
+	"N. OXIDE" };
 
 const char* track_names[MAX_TRACKS] = {
 "TRACK1", // CRASH COVE

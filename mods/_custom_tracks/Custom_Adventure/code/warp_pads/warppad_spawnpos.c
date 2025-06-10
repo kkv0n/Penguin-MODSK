@@ -1,5 +1,5 @@
 #include <common.h>
-#include "adventure.h"
+#include "../adventure.h"
 
 short* AH_WarpPad_GetSpawnPosRot(short* posData)
 {

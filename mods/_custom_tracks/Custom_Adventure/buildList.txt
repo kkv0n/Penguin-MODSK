@@ -1,5 +1,7 @@
 //--beginning of custom tracks files-- //
 
+
+
 //n sanity beach
 common, bigfilelevelstracksisland1relicdatavrm, 0x0, 0x0, custom_tracks/n_sanity_1.vrm
 common, bigfilelevelstracksisland1relicdatalev, 0x0, 0x0, custom_tracks/n_sanity_1.lev
@@ -93,17 +95,24 @@ common, bigfilelevelstracksspace1Pdatalev, 0x0, 0x0, custom_tracks/final_boss.le
 //fixes
 common, exe, MainFrame_RenderFrame, 0x0, code/renderframe.c
 common, exe, UI_DrawRaceClock, 0x0, code/drawraceclock.c
-common, exe, BOTS_Driver_Init, 0x0, code/bots_init
+common, exe, BOTS_Driver_Init, 0x0, code/fixes/bots_init
 common, exe, PlayLevel_UpdateLapStats, 0x0, code/laps.c
-common, exe, UI_RaceStart_IntroText1P, 0x0, code/intro.c
-common, exe, CTR_CycleTex_LEV, 0x0, code/cicle.c
-common, exe, UI_INSTANCE_InitAll, 0x0, code/nopos.c
-common, exe, UI_DrawPosSuffix, 0x0, code/uifix1.c
-common, exe, MainInit_OTMem, 0x0, code/otmem.c
-common, exe, MainInit_PrimMem, 0x0, code/primem.c
-common, exe, UI_DrawRankedDrivers, 0x0, code/ui_driver.c
+common, exe, UI_RaceStart_IntroText1P, 0x0, code/fixes/intro.c
+common, exe, CTR_CycleTex_LEV, 0x0, code/fixes/cicle.c
+common, exe, UI_INSTANCE_InitAll, 0x0, code/fixes/nopos.c
+common, exe, UI_DrawPosSuffix, 0x0, code/fixes/uifix1.c
+common, exe, MainInit_OTMem, 0x0, code/fixes/otmem.c
+common, exe, MainInit_PrimMem, 0x0, code/fixes/primem.c
+common, exe, UI_DrawRankedDrivers, 0x0, code/fixes/ui_driver.c
 common, exe, main, 0x0, code/mainmain_ctr.c
 common, 230, MM_MenuProc_Main, 0x0, code/ctr_main_menu.c
+
+//fix for custom character animation being stuck
+common, exe, VehPhysProc_SlamWall_Init, 0x0, code/fixes/wall/wall_init.c
+common, exe, VehPhysProc_SlamWall_Animate, 0x0, code/fixes/wall/wall_anim.c
+common, exe, VehPhysProc_SlamWall_Update, 0x0, code/fixes/wall/wall_update.c
+common, exe, VehPhysProc_SlamWall_PhysLinear, 0x0, code/fixes/wall/wall_physlinear.c
+common, exe, VehPhysProc_SlamWall_PhysAngular, 0x0, code/fixes/wall/wall_physangular.c
 
 
 //custom track code
@@ -112,15 +121,15 @@ common, exe, rdata_free, 0x0, code/adventure_main.c
 
 
 //adventure mode
-common, 232, AH_Garage_ThTick, 0x0, code/garage_thtick.c
-common, 232, AH_Garage_LInB, 0x0, code/garage_linb.c
-common, 232, AH_WarpPad_ThDestroy, 0x0, code/warppad_destroy.c
-common, 232, AH_WarpPad_SpinRewards, 0x0, code/warppad_reward.c
-common, 232, AH_WarpPad_MenuProc, 0x0, code/warppad_menu.c
-common, 232, AH_WarpPad_GetSpawnPosRot, 0x0, code/warppad_spawnpos.c
-common, 232, AH_WarpPad_AllWarppadNum, 0x0, code/warppad_num.c
-common, 232, AH_WarpPad_LInB, 0x0, code/warppad_linb.c
-common, 232, AH_WarpPad_ThTick, 0x0, code/warppad_thtick.c
+common, 232, AH_Garage_ThTick, 0x0, code/boss_garage/garage_thtick.c
+common, 232, AH_Garage_LInB, 0x0, code/boss_garage/garage_linb.c
+common, 232, AH_WarpPad_ThDestroy, 0x0, code/warp_pads/warppad_destroy.c
+common, 232, AH_WarpPad_SpinRewards, 0x0, code/warp_pads/warppad_reward.c
+common, 232, AH_WarpPad_MenuProc, 0x0, code/warp_pads/warppad_menu.c
+common, 232, AH_WarpPad_GetSpawnPosRot, 0x0, code/warp_pads/warppad_spawnpos.c
+common, 232, AH_WarpPad_AllWarppadNum, 0x0, code/warp_pads/warppad_num.c
+common, 232, AH_WarpPad_LInB, 0x0, code/warp_pads/warppad_linb.c
+common, 232, AH_WarpPad_ThTick, 0x0, code/warp_pads/warppad_thtick.c
 
 
 //custom itemset
