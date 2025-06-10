@@ -250,6 +250,104 @@ JumpBlock OXIDE_STATION_blocks[] = {
     {2246, 4, 3}
 };
 
+// ---------- CUSTOM TRACKS JUMP BLOCKS ----------
+#ifdef USE_CUSTOM_TRACKS
+
+JumpBlock TRACK_1_blocks[] = {
+    {588, 1, 0},
+    {596, 1, 0},
+    {595, 1, 0},
+
+    {553, 2, 0},
+    {552, 2, 0},
+
+    {414, 1, 0},
+
+    {383, 10, 0},
+    {320, 10, 0},
+
+    {62, 3, 0},
+    {60, 3, 0},
+
+    {1228, 7, 0},
+    {1225, 7, 0},
+
+    {1560, 7, 0},
+    {1493, 7, 0},
+    {1495, 7, 0},
+
+    {1507, 10, 8}
+};
+
+JumpBlock TRACK_2_blocks[] = {
+    {2079, 70, 10},
+
+    {430, 2, 0},
+
+    {404, 25, 0},
+
+    {748, 11, 0},
+    {754, 11, 0},
+    {752, 11, 0}
+};
+
+JumpBlock TRACK_3_blocks[] = {
+    {2056, 6, 0},
+    {2638, 6, 0},
+    {2637, 6, 0},
+
+    {1160, 65, 0},
+    {1167, 65, 0},
+    {1166, 65, 0}
+};
+
+JumpBlock TRACK_4_blocks[] = {
+    {103, 60, 0},
+    {104, 60, 0},
+
+    {655, 18, 0},
+    {396, 18, 0},
+
+    {417, 5, 0},
+    {418, 5, 0}
+};
+
+JumpBlock TRACK_5_blocks[] = {
+    {765, 2, 3},
+    {704, 2, 3},
+    {766, 1, 0},
+    {767, 1, 0},
+
+    {656, 5, 2}
+};
+
+JumpBlock TRACK_6_blocks[] = {
+    {1463, 35, 0},
+    {1600, 35, 0},
+
+    {3500, 35, 0},
+    {3499, 35, 0},
+
+    {3911, 37, 0},
+    {3906, 37, 0},
+    {3856, 37, 0},
+
+    {2809, 2, 2},
+    {2810, 2, 2}, 
+
+    {2573, 2, 0},
+    {2574, 2, 0},
+
+    {3126, 5, 0},
+    {2549, 5, 0}
+};
+
+JumpBlock TRACK_7_blocks[] = {
+    {1268, 20, 0},
+    {1228, 20, 0}
+};
+#endif
+
 // Check if a quadblock is a jump block, also return the frame count and delay
 bool isJumpBlock(short levelID, short blockID, unsigned char* outFrames, unsigned char* outDelay) {
     JumpBlock* blocksArray = NULL;
@@ -297,6 +395,36 @@ bool isJumpBlock(short levelID, short blockID, unsigned char* outFrames, unsigne
             blocksArray = OXIDE_STATION_blocks;
             blockCount = sizeof(OXIDE_STATION_blocks) / sizeof(JumpBlock);
             break;
+        #ifdef USE_CUSTOM_TRACKS
+        case TRACK_1:
+            blocksArray = TRACK_1_blocks;
+            blockCount = sizeof(TRACK_1_blocks) / sizeof(JumpBlock);
+            break;
+        case TRACK_2:
+            blocksArray = TRACK_2_blocks;
+            blockCount = sizeof(TRACK_2_blocks) / sizeof(JumpBlock);
+            break;
+        case TRACK_3:
+            blocksArray = TRACK_3_blocks;
+            blockCount = sizeof(TRACK_3_blocks) / sizeof(JumpBlock);
+            break;
+        case TRACK_4:
+            blocksArray = TRACK_4_blocks;
+            blockCount = sizeof(TRACK_4_blocks) / sizeof(JumpBlock);
+            break;
+        case TRACK_5:
+            blocksArray = TRACK_5_blocks;
+            blockCount = sizeof(TRACK_5_blocks) / sizeof(JumpBlock);
+            break;
+        case TRACK_6:
+            blocksArray = TRACK_6_blocks;
+            blockCount = sizeof(TRACK_6_blocks) / sizeof(JumpBlock);
+            break;
+        case TRACK_7:
+            blocksArray = TRACK_7_blocks;
+            blockCount = sizeof(TRACK_7_blocks) / sizeof(JumpBlock);
+            break;
+        #endif
         default:
             // Level ID not found, variables already set to NULL/0
             break;
