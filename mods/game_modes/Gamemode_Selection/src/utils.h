@@ -322,17 +322,59 @@ enum SOUNDFX
 	fx_mask_gone
 };
 
-enum CUSTOM_TRACK_IDS {
-    TRACK_1=NITRO_COURT,
-	TRACK_2=RAMPAGE_RUINS,
-	TRACK_3=PARKING_LOT,
-	TRACK_4=SKULL_ROCK,
-	TRACK_5=THE_NORTH_BOWL,
-	TRACK_6=ROCKY_ROAD,
-	TRACK_7=LAB_BASEMENT,
+#ifdef USE_CUSTOM_TRACKS
+
+// extern typedef 
+extern struct CustomTrack {
+	short levelID; // The level ID of the custom track
+	short lod;     // The level of detail for the custom track
 };
 
-extern const char* CUSTOM_TRACK_NAMES[];
+extern struct CustomTrack CUSTOM_TRACK_TO_LOAD;
+
+enum CUSTOM_TRACKS_ID {
+	CUSTOM_TRACK_1 = NITRO_COURT,
+	CUSTOM_TRACK_2 = RAMPAGE_RUINS,
+	CUSTOM_TRACK_3 = PARKING_LOT,
+	CUSTOM_TRACK_4 = SKULL_ROCK,
+	CUSTOM_TRACK_5 = THE_NORTH_BOWL,
+	CUSTOM_TRACK_6 = ROCKY_ROAD,
+	CUSTOM_TRACK_7 = LAB_BASEMENT,
+};
+
+#define CUSTOM_TRACKS_COUNT 7
+#define FIRST_CUSTOM_TRACK_ID CUSTOM_TRACK_1
+#define LAST_CUSTOM_TRACK_ID CUSTOM_TRACK_7
+
+extern const char* CUSTOM_TRACK_NAMES[CUSTOM_TRACKS_COUNT];
+extern const short CUSTOM_TRACK_IDS[CUSTOM_TRACKS_COUNT];
+extern const short CUSTOM_TRACK_LODS[CUSTOM_TRACKS_COUNT];
+
+// Function to check if a track is a custom track
+#define IS_CUSTOM_TRACK_ID(levelID) \
+	((levelID) >= FIRST_CUSTOM_TRACK_ID && (levelID) <= LAST_CUSTOM_TRACK_ID)
+
+// Function to get the custom track index
+#define GET_CUSTOM_TRACK_INDEX(levelID) \
+	((levelID) >= FIRST_CUSTOM_TRACK_ID && (levelID) <= LAST_CUSTOM_TRACK_ID ? \
+		((levelID) - FIRST_CUSTOM_TRACK_ID) : -1)
+
+// Function to get the custom track name
+#define GET_CUSTOM_TRACK_NAME(levelID) \
+	((levelID) >= FIRST_CUSTOM_TRACK_ID && (levelID) <= LAST_CUSTOM_TRACK_ID ? \
+		CUSTOM_TRACK_NAMES[(levelID) - FIRST_CUSTOM_TRACK_ID] : "Unknown")
+
+// Function to get the level ID for a custom track
+#define GET_CUSTOM_TRACK_ID(levelID) \
+	((levelID) >= FIRST_CUSTOM_TRACK_ID && (levelID) <= LAST_CUSTOM_TRACK_ID ? \
+		CUSTOM_TRACK_IDS[(levelID) - FIRST_CUSTOM_TRACK_ID] : 0)
+
+// Function to get the LOD for a custom track
+#define GET_CUSTOM_TRACK_LOD(levelID) \
+	((levelID) >= FIRST_CUSTOM_TRACK_ID && (levelID) <= LAST_CUSTOM_TRACK_ID ? \
+		CUSTOM_TRACK_LODS[(levelID) - FIRST_CUSTOM_TRACK_ID] : 1)
+
+#endif
 
 // ModMenu functions
 extern void ShowModMenuInTrackSelect();

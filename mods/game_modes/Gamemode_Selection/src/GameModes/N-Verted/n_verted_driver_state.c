@@ -110,7 +110,7 @@ void Handle_N_Verted(bool enabled) {
 
         if (driver == NULL) continue;
         #ifdef USE_CUSTOM_TRACKS
-        if (gGT->levelID > TRACK_7) continue;
+        if (gGT->levelID > LAST_CUSTOM_TRACK_ID) continue;
         #else
         if (gGT->levelID > TURBO_TRACK) continue;
 
@@ -119,7 +119,7 @@ void Handle_N_Verted(bool enabled) {
         #ifdef USE_CUSTOM_TRACKS
         if ((gGT->gameMode1 & BATTLE_MODE) != 0) continue; // skip battle
         //skip adventure if level is between tracks 1 and 7
-        if ((gGT->gameMode1 & ADVENTURE_MODE) != 0 && gGT->levelID >= TRACK_1 && gGT->levelID <= TRACK_7) continue;
+        if ((gGT->gameMode1 & ADVENTURE_MODE) != 0 && gGT->levelID >= FIRST_CUSTOM_TRACK_ID && gGT->levelID <= LAST_CUSTOM_TRACK_ID) continue;
         #endif
 
         // Update driver float state

@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_CUSTOM_TRACKS
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+#endif
+
 void UI_Map_DrawMap_ExtraFunc(struct Icon* icon, POLY_FT4* p, short posX, short empty, struct PrimMem* primMem, u_long* otMem, u_int colorID);
 
 void DECOMP_UI_Map_DrawMap(struct Icon* mapTop, struct Icon* mapBottom, short posX, short posY, struct PrimMem* primMem, u_long* otMem, u_int colorID)
@@ -17,7 +21,7 @@ void DECOMP_UI_Map_DrawMap(struct Icon* mapTop, struct Icon* mapBottom, short po
 
 	#ifdef USE_CUSTOM_TRACKS
 	//custom track fix in gamemode mashup
-	if (gGT->levelID >= NITRO_COURT && gGT->levelID <= LAB_BASEMENT) return;
+	if (gGT->levelID >= FIRST_CUSTOM_TRACK_ID && gGT->levelID <= LAST_CUSTOM_TRACK_ID) return;
 	#endif
 
 	iVar9 = 0;
@@ -95,7 +99,7 @@ void UI_Map_DrawMap_ExtraFunc(struct Icon* icon, POLY_FT4* p, short posX, short 
 	short sizeX;
 	
 	#ifdef USE_CUSTOM_TRACKS
-	if (sdata->gGT->levelID >= NITRO_COURT && sdata->gGT->levelID <= LAB_BASEMENT) return;
+	if (sdata->gGT->levelID >= FIRST_CUSTOM_TRACK_ID && sdata->gGT->levelID <= LAST_CUSTOM_TRACK_ID) return;
 	#endif
 	
 	sizeX = icon->texLayout.u1 - icon->texLayout.u0;

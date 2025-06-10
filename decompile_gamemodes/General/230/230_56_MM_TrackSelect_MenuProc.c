@@ -146,15 +146,15 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 	#ifdef USE_CUSTOM_TRACKS
 	// if not time trial (Some custom tracks crashes on TT due to ghosts)
 	if((gGT->gameMode1 & TIME_TRIAL) == 0){
-		numTracks = 25;
+		numTracks = 18 + CUSTOM_TRACKS_COUNT;
 
-		D230.battleTracks[0].levID = NITRO_COURT;
-		D230.battleTracks[1].levID = RAMPAGE_RUINS;
-		D230.battleTracks[2].levID = PARKING_LOT;
-		D230.battleTracks[3].levID = SKULL_ROCK;
-		D230.battleTracks[4].levID = THE_NORTH_BOWL;
-		D230.battleTracks[5].levID = ROCKY_ROAD;
-		D230.battleTracks[6].levID = LAB_BASEMENT;
+		D230.battleTracks[0].levID = CUSTOM_TRACK_1;
+		D230.battleTracks[1].levID = CUSTOM_TRACK_2;
+		D230.battleTracks[2].levID = CUSTOM_TRACK_3;
+		D230.battleTracks[3].levID = CUSTOM_TRACK_4;
+		D230.battleTracks[4].levID = CUSTOM_TRACK_5;
+		D230.battleTracks[5].levID = CUSTOM_TRACK_6;
+		D230.battleTracks[6].levID = CUSTOM_TRACK_7;
 	}
 
 	// D230.battleTracks[0].levID = 0x19;
@@ -291,6 +291,22 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 				// "enter/confirm" sound
 				DECOMP_OtherFX_Play(1, 1);
 
+				#ifdef USE_CUSTOM_TRACKS
+				// If this is a custom track, set CUSTOM_TRACK_TO_LOAD id and lod
+				if(
+					selectMenu[menu->rowSelected].levID >= FIRST_CUSTOM_TRACK_ID && 
+					selectMenu[menu->rowSelected].levID <= LAST_CUSTOM_TRACK_ID &&
+					(gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
+				){
+					CUSTOM_TRACK_TO_LOAD.levelID = GET_CUSTOM_TRACK_ID(selectMenu[menu->rowSelected].levID);
+					CUSTOM_TRACK_TO_LOAD.lod = GET_CUSTOM_TRACK_LOD(selectMenu[menu->rowSelected].levID); 
+				}else{
+					// !IMPORTANT:
+					// Clear CUSTOM_TRACK_TO_LOAD if not a custom track
+					CUSTOM_TRACK_TO_LOAD.levelID = NULL;
+					CUSTOM_TRACK_TO_LOAD.lod = NULL;
+				}
+
                 // Show ModMenu before proceeding
                 if (!showingModMenuInTrackSelect)
                 {
@@ -303,11 +319,19 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 			case BTN_TRIANGLE:
 			case BTN_SQUARE_one:
 
+				#ifdef USE_CUSTOM_TRACKS
+				// !IMPORTANT: 
+				// Clear CUSTOM_TRACK_TO_LOAD when exiting track selection to prevent loading wrong track later
+				CUSTOM_TRACK_TO_LOAD.levelID = NULL;
+				CUSTOM_TRACK_TO_LOAD.lod = NULL;
+				#endif
+
 				// "go back" sound
 				DECOMP_OtherFX_Play(2, 1);
 
 				D230.trackSel_StartRaceAfterFadeOut = 0;
 				D230.trackSel_transitionState = EXITING_MENU;
+
 				break;
 			default:
 				break;
@@ -561,8 +585,8 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 		// Draw string
 		#ifdef USE_CUSTOM_TRACKS
 		// Check if this is a custom track and not in Battle/Adventure mode
-        if (selectMenu[iVar10].levID >= NITRO_COURT && 
-            selectMenu[iVar10].levID <= LAB_BASEMENT && 
+        if (selectMenu[iVar10].levID >= FIRST_CUSTOM_TRACK_ID && 
+            selectMenu[iVar10].levID <= LAST_CUSTOM_TRACK_ID && 
             (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
 			// if not time trial (Some custom tracks crashes on TT due to ghosts)
 			&& (gGT->gameMode1 & TIME_TRIAL) == 0
@@ -570,7 +594,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
         {
             // Use custom track name from array
             // Subtract NITRO_COURT to get the right index (0-based array)
-            const char* trackName = CUSTOM_TRACK_NAMES[selectMenu[iVar10].levID - NITRO_COURT];
+            const char* trackName = GET_CUSTOM_TRACK_NAME(selectMenu[iVar10].levID);
             
             DECOMP_DecalFont_DrawLine
             (
@@ -782,10 +806,9 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 						}
 					}
 
-			#ifdef USE_CUSTOM_TRACKS
 			// Skip video draw for custom tracks 
-            if (selectMenu[menu->rowSelected].levID >= NITRO_COURT && 
-                selectMenu[menu->rowSelected].levID <= LAB_BASEMENT && 
+            if (selectMenu[menu->rowSelected].levID >= FIRST_CUSTOM_TRACK_ID && 
+                selectMenu[menu->rowSelected].levID <= LAST_CUSTOM_TRACK_ID && 
                 (gGT->gameMode1 & BATTLE_MODE) == 0) {
                 // Return early to avoid drawing track video for custom tracks
                 return;

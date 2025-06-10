@@ -38,16 +38,6 @@
 
 #include "GameModes/dynamic_light.c"
 
-const char* CUSTOM_TRACK_NAMES[] = {
-    "BREEZE HARBOR",
-    "LOST CITY",
-    "DREAMY HEIGHTS",
-    "DARK RUINS",
-    "FROZEN DEPTHS",
-    "CROW FOREST",
-    "NUKE REACTOR"
-};
-
 bool USE_RETRO_FUELED = false;
 bool USE_SHORTCUTLESS = false;
 bool USE_N_VERTED = false;
@@ -68,10 +58,49 @@ static bool init_initialized = false;
 static bool initialized = false;
 
 #ifdef USE_CUSTOM_TRACKS
+// Struct for current custom track, this have level and lod
+typedef struct {
+    short levelID;
+    short lod;
+} CustomTrack;
+
+struct CustomTrack CUSTOM_TRACK_TO_LOAD = {NULL, NULL};
+
+const char* CUSTOM_TRACK_NAMES[] = {
+    "BREEZE HARBOR",
+    "LOST CITY",
+    "DREAMY HEIGHTS",
+    "DARK RUINS",
+    "FROZEN DEPTHS",
+    "CROW FOREST",
+    "NUKE REACTOR"
+};
+
+const short CUSTOM_TRACK_IDS[] = {
+    CUSTOM_TRACK_1,
+    CUSTOM_TRACK_2,
+    CUSTOM_TRACK_3,
+    CUSTOM_TRACK_4,
+    CUSTOM_TRACK_5,
+    CUSTOM_TRACK_6,
+    CUSTOM_TRACK_7
+};
+
+const short CUSTOM_TRACK_LODS[] = {
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+};
+
 int BOTS_ThTick_Drive_op;
 unsigned int unk_op1;
 unsigned int unk_op2;
 unsigned short unk_op3;
+
 #endif
 
 extern Menu gameMenu;
@@ -111,8 +140,8 @@ void RunUpdateHook() {
     // Check if we're in Time Trial AND on a custom track
     bool isTimeTrialAndCustomTrack = 
         ((gGT->gameMode1 & TIME_TRIAL) != 0) &&
-        (gGT->levelID >= NITRO_COURT && 
-         gGT->levelID <= LAB_BASEMENT && 
+        (gGT->levelID >= FIRST_CUSTOM_TRACK_ID && 
+         gGT->levelID <= LAST_CUSTOM_TRACK_ID && 
          (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0);
 
     // Apply patches conditionally
@@ -184,6 +213,20 @@ void RunUpdateHook() {
             InitDynamicLighting(gGT->level1);
         }
 
+        //If mirror mode flip wumpa shine
+        if(USE_MIRROR){
+            data.hud_1P_P1[0xC].x = 0xAA;
+        //     data.hud_2P_P1[0xC].x = 0x38;  
+        //     data.hud_2P_P2[0xC].x = 0x38;
+        //     data.hud_4P_P1[0xC].x = 8;
+        //     data.hud_4P_P2[0xC].x = 0x10D4;
+        //     data.hud_4P_P3[0xC].x = 8;
+        //     data.hud_4P_P4[0xC].x = 0x10D4;
+        // }else{
+	        data.hud_1P_P1[0xC].x = 286;
+
+        }
+
         initialized = true;
     }
     // Reset flag when timer is not > 0
@@ -218,8 +261,8 @@ void RunUpdateHook() {
 
     #ifdef USE_CUSTOM_TRACKS
     if (
-        gGT->levelID >= NITRO_COURT && 
-        gGT->levelID <= LAB_BASEMENT && 
+        gGT->levelID >= FIRST_CUSTOM_TRACK_ID && 
+        gGT->levelID <= LAST_CUSTOM_TRACK_ID && 
         (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
     ){
         HandleWeaponRoulette(true);
@@ -255,6 +298,36 @@ void RunUpdateHook() {
             }
         }
     }
+
+    // Warp to level test ----------------------
+    // #ifdef USE_CUSTOM_TRACKS
+    // short origin_id = CUSTOM_TRACK_2;
+    // short dest_id = ROO_TUBES;
+    // short block_id = 1972;
+    // if
+	// (
+    //     gGT->levelID == origin_id
+    //     && (driver->currBlockTouching->blockID == block_id)
+	// ){  
+    //     // Begin warp pad animation
+    //     OtherFX_Play_Echo(fx_warppad_warp, 0, 1); //Sound doesnt play
+	// 	driver->funcPtrs[0] = VehStuckProc_Warp_Init;
+	// }
+
+	// // If driver is invisible and just used the warp pad
+	// if(
+    //     driver->instSelf->flags & 0x80
+    //     && (driver->funcPtrs[0] == VehStuckProc_Warp_Init)
+    //     && (gGT->levelID == origin_id)
+    // )
+	// {
+    //     // Load the destination level
+    //     CUSTOM_TRACK_TO_LOAD.levelID = dest_id;
+    //     CUSTOM_TRACK_TO_LOAD.lod = 2;
+    //     DECOMP_MainRaceTrack_RequestLoad(CUSTOM_TRACK_TO_LOAD.levelID);
+    // }
+    // #endif
+    // -----------------------------------------
 
     // Draw reserver metter for 1P
     // if ((gGT->numPlyrCurrGame == 1) && ((gGT->gameMode1 & END_OF_RACE) == 0))

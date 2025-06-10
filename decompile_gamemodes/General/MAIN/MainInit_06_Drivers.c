@@ -1,6 +1,10 @@
 #include <common.h>
 #include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
+#ifdef USE_CUSTOM_TRACKS
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+#endif
+
 void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 {
     char i;
@@ -91,7 +95,7 @@ void DECOMP_MainInit_Drivers(struct GameTracker *gGT)
 			// #ifdef USE_CUSTOM_TRACKS
 			// // On custom tracks disable AIs to spawn
 			// if(
-			// 	gGT->levelID >= NITRO_COURT && gGT->levelID <= LAB_BASEMENT
+			// 	gGT->levelID >= FIRST_CUSTOM_TRACK_ID && gGT->levelID <= LAST_CUSTOM_TRACK_ID
 			// 	&& (gGT->gameMode1 & (BATTLE_MODE)) == 0 // Not in Battle Mode
 			// ){
 			// 	continue;

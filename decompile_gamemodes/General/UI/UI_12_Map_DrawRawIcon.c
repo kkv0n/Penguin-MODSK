@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_CUSTOM_TRACKS
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+#endif
+
 // Draw icon on map
 void DECOMP_UI_Map_DrawRawIcon(
 	int ptrMap,int *param_2,
@@ -13,7 +17,7 @@ void DECOMP_UI_Map_DrawRawIcon(
   
   #ifdef USE_CUSTOM_TRACKS
   //custom track fix in gamemode mashup
-  if (gGT->levelID >= NITRO_COURT && gGT->levelID <= LAB_BASEMENT) return;
+  if (gGT->levelID >= FIRST_CUSTOM_TRACK_ID && gGT->levelID <= LAST_CUSTOM_TRACK_ID) return;
   #endif
   
   posX = param_2[0];

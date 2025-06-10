@@ -559,26 +559,20 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			#endif
 
 			#ifdef USE_CUSTOM_TRACKS
+			short level_id = gGT->levelID;
+			short level_lod = sdata->levelLOD;
+
+			// If there is a custom track to load, use its ID and LOD
 			if(
-				gGT->levelID >= NITRO_COURT && gGT->levelID <= LAB_BASEMENT
-				&& (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0 // Not in Battle Mode or Adventure Mode
+				CUSTOM_TRACK_TO_LOAD.levelID != NULL && 
+				CUSTOM_TRACK_TO_LOAD.lod != NULL
 			){
-
-			int big_index = DECOMP_LOAD_GetBigfileIndex(gGT->levelID, 4); //Note: for some reason we need to load 4 lod to load 3p tracks
-
-			// adds VRAM to loading queue
-			DECOMP_LOAD_AppendQueue(
-				0, LT_SETVRAM, big_index + LVI_VRAM, 
-				NULL, DECOMP_LOAD_VramFileCallback);
-			// adds LEV to loading queue
-			DECOMP_LOAD_AppendQueue( 
-				0, LT_GETADDR, big_index + LVI_LEV, 
-				&sdata->ptrLevelFile, DECOMP_LOAD_DramFileCallback);
-
-			}else{
+				level_id = CUSTOM_TRACK_TO_LOAD.levelID;
+				level_lod = CUSTOM_TRACK_TO_LOAD.lod;
+			}
 
 			// base index of the group
-			uVar16 = DECOMP_LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD);
+			uVar16 = DECOMP_LOAD_GetBigfileIndex(level_id, level_lod);
 
 			// add VRAM to loading queue
 			DECOMP_LOAD_AppendQueue(
@@ -589,6 +583,11 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			DECOMP_LOAD_AppendQueue( 
 				0, LT_GETADDR, uVar16 + LVI_LEV, 
 				&sdata->ptrLevelFile, DECOMP_LOAD_DramFileCallback);
+			
+			// !IMPORTANT:
+			// Clear custom track data after loading
+			CUSTOM_TRACK_TO_LOAD.levelID = NULL;
+			CUSTOM_TRACK_TO_LOAD.lod = NULL;
 
 			// if world is made of multiple LEVs
 			if ((gGT->gameMode2 & LEV_SWAP) != 0)
@@ -599,7 +598,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 					(void*)sdata->PatchMem_Ptr, DECOMP_LOAD_Callback_PatchMem);
 			}
 			
-			}
+			// }
 			#else
 			// base index of the group
 			uVar16 = DECOMP_LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD);
@@ -662,66 +661,6 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			if(USE_SPEEDWAY_PHYSICS && gGT->levelID <= LAB_BASEMENT){
 				SpeedwayPhys(gGT->level1);
 			}
-
-			// TODO: This is not working properly
-			// #ifdef USE_CUSTOM_TRACKS
-			// if(
-			// 	gGT->levelID >= NITRO_COURT
-			// 	&& gGT->levelID <= LAB_BASEMENT
-			// 	&& (gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE) == 0)
-			// 	&& gGT->numPlyrNextGame > 1
-			// ){
-
-			// 	// Check if at least 2 spawns are in the same position
-            //     int needsSpread = 0;
-                
-            //     // Compare each spawn with every other spawn
-            //     for (int i = 0; i < 7; i++)
-            //     {
-            //         for (int j = i+1; j < 8; j++)
-            //         {
-            //             if (lev->DriverSpawn[i].pos[0] == lev->DriverSpawn[j].pos[0] &&
-            //                 lev->DriverSpawn[i].pos[2] == lev->DriverSpawn[j].pos[2])
-            //             {
-            //                 needsSpread = 1;
-            //                 break;
-            //             }
-            //         }
-            //         if (needsSpread) break;
-            //     }
-                
-            //     // If spawns are stacked, spread them out in a grid pattern
-            //     if (needsSpread)
-            //     {
-            //         // Get the forward direction from first kart's rotation
-            //         short angle = lev->DriverSpawn[0].rot[1];
-                    
-            //         // Calculate forward vector (movement direction)
-            //         int forwardX = (DECOMP_MATH_Sin(angle) * 0x180) >> 12;  // Forward distance between rows
-            //         int forwardZ = (DECOMP_MATH_Cos(angle) * 0x180) >> 12;
-                    
-            //         // Calculate right vector (90 degrees from forward)
-            //         short rightAngle = (angle + 0x400) & 0xfff;
-            //         int rightX = (DECOMP_MATH_Sin(rightAngle) * 0xC0) >> 12;  // Sideways distance between karts
-            //         int rightZ = (DECOMP_MATH_Cos(rightAngle) * 0xC0) >> 12;
-                    
-            //         // Position each kart in a grid formation
-            //         for (int i = 0; i < 8; i++)
-            //         {
-            //             int row = i / 4;        // 0 for front row, 1 for back row
-            //             int col = i % 4;        // 0,1,2,3 for column positions
-                        
-            //             // Center the grid
-            //             int adjustedCol = col - 1.5;  // -1.5, -0.5, 0.5, 1.5
-                        
-            //             // Position karts in a grid
-            //             // Forward direction: multiply by negative to ensure karts start behind the starting line
-            //             lev->DriverSpawn[i].pos[0] += (-row * forwardX) + (adjustedCol * rightX);
-            //             lev->DriverSpawn[i].pos[2] += (-row * forwardZ) + (adjustedCol * rightZ);
-            //         }
-            //     }		
-            // }
-			// #endif
 
 			gGT->visMem1 = lev->visMem;
 

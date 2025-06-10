@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_CUSTOM_TRACKS
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+#endif
+
 int DECOMP_LOAD_GetBigfileIndex(unsigned int levelID, int lod)
 {
 	// === Wow we need a bigfile enum ===
@@ -10,10 +14,11 @@ int DECOMP_LOAD_GetBigfileIndex(unsigned int levelID, int lod)
 // if custom track use lod parameter
 // Note that this wont allow custom tracks on time trial
 if (
-	levelID >= NITRO_COURT && levelID <= LAB_BASEMENT
-	&& (sdata->gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
+	CUSTOM_TRACK_TO_LOAD.levelID != NULL &&
+	CUSTOM_TRACK_TO_LOAD.lod != NULL
 ) {
-	lod = lod;
+	levelID = CUSTOM_TRACK_TO_LOAD.levelID;
+	lod = CUSTOM_TRACK_TO_LOAD.lod;
 }
 
 else if ((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0){

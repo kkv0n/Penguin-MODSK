@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_CUSTOM_TRACKS
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+#endif
+
 void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
 
 {
@@ -10,7 +14,7 @@ void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
   
   #ifdef USE_CUSTOM_TRACKS
   //custom track fix in gamemode mashup
-  if (sdata->gGT->levelID >= NITRO_COURT && sdata->gGT->levelID <= LAB_BASEMENT) return;
+  if (sdata->gGT->levelID >= FIRST_CUSTOM_TRACK_ID && sdata->gGT->levelID <= LAST_CUSTOM_TRACK_ID) return;
   #endif
   
   // if 2P or 4P

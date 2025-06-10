@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_CUSTOM_TRACKS
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+#endif
+
 // 488 / 760
 
 // move to headers later
@@ -29,7 +33,7 @@ void DECOMP_UI_Map_GetIconPos(short* m,int* posX,int* posY)
   
   #ifdef USE_CUSTOM_TRACKS
   //custom track fix in gamemode mashup
-  if (sdata->gGT->levelID >= NITRO_COURT && sdata->gGT->levelID <= LAB_BASEMENT) return;
+  if (sdata->gGT->levelID >= FIRST_CUSTOM_TRACK_ID && sdata->gGT->levelID <= LAST_CUSTOM_TRACK_ID) return;
   #endif
   
   struct Map* map = (struct Map*)m;

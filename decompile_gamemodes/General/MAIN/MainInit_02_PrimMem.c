@@ -44,11 +44,12 @@ void DECOMP_MainInit_PrimMem(
 		// gGT->levelID is set cause Stage 7
 		// is past all the level load+callback
 		if (gGT->levelID <= CITADEL_CITY)
-		{
-			//fix custom tracks crashing
+		{	
+			#if defined(USE_LEVELDEV) || defined(USE_CUSTOM_TRACKS)
+			// fix custom tracks crashing
 			// store the memory here, past the level
 			sdata->PtrMempack->firstFreeByte = 0x80400000;
-
+			#endif
 				
 			int newSize = (DECOMP_MEMPACK_GetFreeBytes()/2);
 			
