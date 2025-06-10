@@ -1,13 +1,14 @@
 #include <common.h>
+#include "adventure.h"
 
 extern unsigned int PB_lap;
 extern unsigned int Worst_lap;
 
 RECT timesRect =
 {
-	.x = 156,
+	.x = 130,
 	.y = 66,
-	.w = 200,
+	.w = 233,
 	.h = 68
 };
 
@@ -55,7 +56,7 @@ void UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct Driver
 
 
 
-	time_helper(0);
+	time_helper(0, false);
 
 
 
@@ -64,7 +65,7 @@ void UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct Driver
 	return;
 }
 
-void time_helper(u_char showthis)
+void time_helper(u_char showthis, bool win)
 {
 	struct Driver* d = sdata->gGT->drivers[0];
 
@@ -72,7 +73,7 @@ void time_helper(u_char showthis)
 	char RaceTime[9];
 	// milliseconds elapsed in race
 	int msElapsed = d->timeElapsedInRace;
-
+	
 	// Draw String
 	unsigned int mseconds;
 	unsigned int seconds;
@@ -99,6 +100,18 @@ void time_helper(u_char showthis)
 	unsigned char color;
 	posxy[0] = (showthis == 1) ? 0xD8 - 35 : 0x14; // x
 	posxy[1] = (showthis == 1) ? 0x4C + 20 : 0x18; // y
+	
+	    if (hardcore)
+		{
+			unsigned short coordY = (showthis == 1) ? posxy[1] - 36 : 206;
+			
+			char* text = (showthis == 1) ? (win) ? "YOU WIN!" : "YOU FAILED!" : timeToWin;
+			
+			unsigned short colr = (showthis == 1) ? (win) ? JUSTIFY_CENTER | TINY_GREEN : JUSTIFY_CENTER | CORTEX_RED :
+            ((sdata->gGT->timer & FPS_DOUBLE(2)) == 0) ? JUSTIFY_CENTER | SILVER : JUSTIFY_CENTER | PAPU_YELLOW ; 
+			
+		  DecalFont_DrawLine(text, 0x100, coordY, FONT_SMALL, colr);
+		}
 
 	color = (showthis == 1) ? ((sdata->gGT->timer & FPS_DOUBLE(2)) == 0) ? //decides what color the text should use
 		JUSTIFY_CENTER | WHITE : JUSTIFY_CENTER | ORANGE : ORANGE;
@@ -108,7 +121,7 @@ void time_helper(u_char showthis)
 
 	color = (showthis == 1) ? JUSTIFY_CENTER | ORANGE : ORANGE;
 
-
+	
 	if (showthis == 1) DecalFont_DrawLine("TOTAL TIME", posxy[0], posxy[1] - 24, FONT_BIG, color);
 
 	if (sdata->gGT->numPlyrCurrGame == 1) //idk if this is called in multiplayer
@@ -122,7 +135,7 @@ void time_helper(u_char showthis)
 			minutes = (LapTime / MINUTES(1)) % 10;
 			sprintf(RaceTime, "%02d:%02d:%02d", minutes, seconds, mseconds);
 			DecalFont_DrawLine("CURR:", 0x14, 8 + posxy[1], FONT_SMALL, RED);
-			DecalFont_DrawLine(RaceTime, 0x14 + 63, 8 + 0x18, FONT_SMALL, ORANGE);
+			DecalFont_DrawLine(RaceTime, 0x14 + 63, 8 + 0x18, FONT_SMALL, PERIWINKLE);
 		}
 
 
@@ -139,7 +152,7 @@ void time_helper(u_char showthis)
 			color = (showthis == 1) ? JUSTIFY_CENTER | RED : RED;
 			DecalFont_DrawLine("PB:", posxy[0], posxy[1] + 16, FONT_SMALL, color);
 			color = (showthis == 1) ? JUSTIFY_CENTER | ORANGE : ORANGE;
-			DecalFont_DrawLine(RaceTime, posxy[0] + 37, posxy[1] + 16, FONT_SMALL, color);
+			DecalFont_DrawLine(RaceTime, posxy[0] + 37, posxy[1] + 16, FONT_SMALL, PERIWINKLE);
 
 			//worst
 			mseconds = (Worst_lap % 1000) / 10;
@@ -150,14 +163,22 @@ void time_helper(u_char showthis)
 			color = (showthis == 1) ? JUSTIFY_CENTER | RED : RED;
 			DecalFont_DrawLine("WORST:", posxy[0], posxy[1] + 24, FONT_SMALL, RED);
 			color = (showthis == 1) ? JUSTIFY_CENTER | ORANGE : ORANGE;
-			DecalFont_DrawLine(RaceTime, posxy[0] + 76, posxy[1] + 24, FONT_SMALL, ORANGE);
+			DecalFont_DrawLine(RaceTime, posxy[0] + 76, posxy[1] + 24, FONT_SMALL, PERIWINKLE);
 
 		}
 
 	}
 	if (showthis == 1)
 	{
+		
+		UI_DrawDriverIcon(sdata->gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[0]].iconID],
+		posxy[0] - 44, posxy[1] - 20,
+		&sdata->gGT->backBuffer->primMem,
+		sdata->gGT->pushBuffer_UI.ptrOT,
+        TRANS_50_DECAL, 0x1000, 0x808080);
+		
 		struct RectMenu* m = sdata->ptrActiveMenu;
+		
 
 		// draw menu now because it is drawn
 		// later, which puts it behind our background

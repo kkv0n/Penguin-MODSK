@@ -1,5 +1,7 @@
 #include <common.h>
 
+extern char* timeToWin;
+
 // all in this file
 void DrawUnpluggedMsg(struct GameTracker* gGT, struct GamepadSystem* gGamepads);
 void DrawFinalLap(struct GameTracker* gGT);
@@ -505,10 +507,29 @@ void RenderAllHUD(struct GameTracker* gGT)
 
 			if ((gameMode1 & END_OF_RACE) != 0)
 			{
-
+					unsigned int requiredTime;
+	                unsigned int mseconds;
+	                unsigned int seconds;
+	                unsigned int minutes;
+					
+			        //no sscanf available in ctr lol
+					unsigned int sscanf(char* s) {
+                    return (s[0] - '0') * 10 + (s[1] - '0');
+                    }
+					
+					minutes = sscanf(timeToWin);    
+                    seconds = sscanf(timeToWin + 3);  
+                    mseconds = sscanf(timeToWin + 6);  
+				
+					
+					
+					requiredTime = minutes * MINUTES(1) +
+                                seconds * SECONDS(1) +
+                                mseconds * 10;
+					
 				//we can name this "custom overlay" ?
-				void adventure_endrace();
-				adventure_endrace(); //needed because the entire 222(adventure) overlay wont work here
+				void adventure_endrace(unsigned int endTime, unsigned int required);
+				adventure_endrace((unsigned int)gGT->drivers[0]->timeElapsedInRace, requiredTime); //needed because the entire 222(adventure) overlay wont work here
 
 
 			}

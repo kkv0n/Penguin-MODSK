@@ -9,6 +9,9 @@ bool ttrack_finished;
 bool slidec_finished;
 bool _endgame;
 bool show_stars;
+char* timeToWin;
+bool hardcore = true; //enable this by default
+char* difficulty;
 
 extern const char* character_names[NUM_CHARACTERS];
 
@@ -83,7 +86,7 @@ void custom_adventure(unsigned char levelID, bool boss)
 }
 
 //overlay 222 modified
-void adventure_endrace() //manages end of race and teleporting in adv hub
+void adventure_endrace(unsigned int endTime, unsigned int requiredTime) //manages end of race and teleporting in adv hub
 {
 
 	struct GameTracker* gGT;
@@ -124,17 +127,20 @@ void adventure_endrace() //manages end of race and teleporting in adv hub
 
 
 	// For trophy race, check 1st place
-	int boolWin = (driver->driverRank == 0);
+	int boolWin = (!hardcore) ? (driver->driverRank == 0) : (endTime < requiredTime);
 
 
 	elapsedFrames = sdata->framesSinceRaceEnded;
 
-	void time_helper(u_char show_this);
-	time_helper(1);
+	void time_helper(u_char show_this, bool win);
+	time_helper(1, boolWin);
 
 	// If it hasn't been 1 second from race ended
 	if (elapsedFrames < FPS_DOUBLE(30))
+	{
+		sdata->menuReadyToPass = 0;
 		return;
+	}
 
 
 	// 0x78 + 0x6e = 0xe6 (230) frames waited for Token Race
@@ -307,6 +313,7 @@ TIGER_TEMPLE, COCO_PARK, PAPU_PYRAMID, DINGO_CANYON, BLIZZARD_BLUFF, DRAGON_MINE
 void adventure_main()
 {
 	unsigned char i;
+	int buttonTap;
 	struct GameTracker* gGT = sdata->gGT;
 
 	//disable player to bot swap
@@ -315,6 +322,27 @@ void adventure_main()
 
 	void quad_main();
 	quad_main();
+	
+	if (gGT->levelID < GEM_STONE_VALLEY && gGT->cameraDC->unk8E != 0)
+		gGT->cameraDC->unk8E = 0;
+	
+	
+	
+	//avoid bug of wumpa dissapearing
+	
+	//if (gGT->levelID == load_track)
+	//{
+	//	if (gGT->trafficLightsTimer > 0)
+	//	{
+	//	struct Instance* instFruitDisp = gGT->drivers[0]->instFruitDisp;
+	//	if (instFruitDisp->scale[0] == 0)
+	//	{
+			
+	//	sdata->ptrFruitDisp =
+	//	(int)UI_INSTANCE_BirthWithThread(0x37,(int)UI_ThTick_CountPickup,3,1,sdata->ptrPushBufferUI,/*sdata->s_fruitdisp*/0);
+	//	}
+	//	}
+	//}
 
 	if (show_stars && gGT->levelID == load_track)
 	{
@@ -329,6 +357,32 @@ void adventure_main()
 
 
 	if (gGT->levelID == MAIN_MENU_LEVEL) D230.menuMainMenu.rows = &adventure_row;
+	
+	if (D230.MM_State == 1)
+	{
+		
+		buttonTap = sdata->gGamepads->gamepad[0].buttonsTapped;
+		
+		if (buttonTap & BTN_SELECT)
+		{
+			hardcore ^= true;
+			OtherFX_Play(1, 0);
+		}
+		
+		if (hardcore)
+		{
+			difficulty = "enabled";
+			
+		}
+		else
+		{
+			difficulty = "disabled";
+		}
+		
+		DecalFont_DrawLine("PRESS SELECT TO DISABLE", 6, 0x10, FONT_SMALL, ORANGE);
+		DecalFont_DrawLine("TIME LIMIT TO WIN THE RACE", 6, 0x10 + 10, FONT_SMALL, ORANGE);
+		DecalFont_DrawLine(difficulty, 6, 0x10 + 20, FONT_SMALL, PENTA_WHITE);
+	}
 
 
 	unsigned short tracks_lng[MAX_TRACKS] = { CRASH_COVE_NAME, ROO_TUBES_NAME, MYSTERY_CAVES_NAME,
@@ -378,7 +432,7 @@ void adventure_main()
 
 	if (sdata->RaceFlag_Position != 0 && gGT->levelID == ADVENTURE_GARAGE)
 	{
-		int buttonTap = sdata->AnyPlayerTap;
+		buttonTap = sdata->AnyPlayerTap;
 
 #define BASIC_ROSTER 8 // the 8 original characters in adv mode
 
@@ -420,7 +474,7 @@ void adventure_main()
 				//show engine stats
 				data.MetaDataCharacters[sdata->advCharSelectIndex_curr].engineID =
 					data.MetaDataCharacters[characterID].engineID;
-				OtherFX_Play(2, 0);
+				OtherFX_Play(103, 0);
 			}
 			if ((buttonTap & BTN_R1) != 0)
 			{
@@ -431,7 +485,7 @@ void adventure_main()
 				//show engine stats
 				data.MetaDataCharacters[sdata->advCharSelectIndex_curr].engineID =
 					data.MetaDataCharacters[characterID].engineID;
-				OtherFX_Play(2, 0);
+				OtherFX_Play(103, 0);
 			}
 
 			DecalFont_DrawLine("SWAP ENGINE WITH L1 OR R1", 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | ORANGE));

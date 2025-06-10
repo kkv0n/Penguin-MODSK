@@ -26,7 +26,8 @@ const char* character_names[NUM_CHARACTERS] = { 	//lng backup
 	"COCO BANDICOOT",
 	"N. GIN",
 	"DINGODILE",
-	"POLAR", "PURA",
+	"POLAR",
+	"PURA",
 	"PINSTRIPE",
 	"PAPU PAPU",
 	"RIPPER ROO",
@@ -158,6 +159,7 @@ void adventure_options()
 	 case N_SANITY_1: //CRASH COVE IN OG
 	 {
 		load_track = CRASH_COVE;
+		timeToWin = "99:99:99";
 		laps = 3;
 		show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -216,6 +218,7 @@ void adventure_options()
 	 	 case N_SANITY_2: //ROO TUBES IN OG
 	 {
 		 load_track = ROO_TUBES;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -275,6 +278,7 @@ void adventure_options()
 	 	 case N_SANITY_3: //MYSTERY CAVES IN OG
 	 {
 		 load_track = MYSTERY_CAVES;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -334,6 +338,7 @@ void adventure_options()
 	 	 case N_SANITY_4: //SKULL ROCK IN OG
 	 {
 		 load_track = SKULL_ROCK;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -393,6 +398,7 @@ void adventure_options()
 	 	 case N_SANITY_5: //SEWER SPEEDWAY IN OG
 	 {
 		 load_track = SEWER_SPEEDWAY;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -452,6 +458,7 @@ void adventure_options()
 	 	 case GEMSTONE_1: //SLIDE COLISEUM IN OG
 	 {
 		 load_track = SLIDE_COLISEUM;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -511,6 +518,7 @@ void adventure_options()
 	 	 case GEMSTONE_2: //TURBO TRACK IN OG
 	 {
 		 load_track = TURBO_TRACK;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -570,6 +578,7 @@ void adventure_options()
 	 	 case LOST_RUINS_1: //TIGER TEMPLE IN OG
 	 {
 		 load_track = TIGER_TEMPLE;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -629,6 +638,7 @@ void adventure_options()
 	 	 case LOST_RUINS_2: //COCO PARK IN OG
 	 {
 		 load_track = COCO_PARK;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -688,6 +698,7 @@ void adventure_options()
 	 	 case LOST_RUINS_3: //PAPU PYRAMID IN OG
 	 {
 		 load_track = PAPU_PYRAMID;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -747,6 +758,7 @@ void adventure_options()
 	 	 case LOST_RUINS_4: //RAMPAGE RUINS IN OG
 	 {
 		 load_track = RAMPAGE_RUINS;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -806,6 +818,7 @@ void adventure_options()
 	 	 case LOST_RUINS_5: //DINGO CANYON IN OG
 	 {
 		 load_track = DINGO_CANYON;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -865,6 +878,7 @@ void adventure_options()
 	 	 case GLACIER_1: //BLIZZARD BLUFF IN OG
 	 {
 		 load_track = BLIZZARD_BLUFF;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -924,6 +938,7 @@ void adventure_options()
 	 	 case GLACIER_2: //DRAGON MINES IN OG
 	 {
 		 load_track = DRAGON_MINES;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -983,6 +998,7 @@ void adventure_options()
 	 	 case GLACIER_3: //POLAR PASS IN OG
 	 {
 		 load_track = POLAR_PASS;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1042,6 +1058,7 @@ void adventure_options()
 	 	 case GLACIER_4: //ROCKY ROAD IN OG
 	 {
 		 load_track = ROCKY_ROAD;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1101,6 +1118,7 @@ void adventure_options()
 	 	 case GLACIER_5: //TINY ARENA IN OG
 	 {
 		 load_track = TINY_ARENA;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1160,6 +1178,7 @@ void adventure_options()
 	 	 case CITADEL_1: //N GIN LABS IN OG
 	 {
 		 load_track = N_GIN_LABS;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1219,6 +1238,7 @@ void adventure_options()
 	 	 case CITADEL_2: //CORTEX CASTLE IN OG
 	 {
 		 load_track = CORTEX_CASTLE;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1278,6 +1298,7 @@ void adventure_options()
 	 	 case CITADEL_3: //HOT AIR SKYWAY IN OG
 	 {
 		 load_track = HOT_AIR_SKYWAY;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1337,6 +1358,7 @@ void adventure_options()
 	 	 case CITADEL_4: //NITRO COURT IN OG
 	 {
 		 load_track = NITRO_COURT;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1396,6 +1418,7 @@ void adventure_options()
 	 	 case CITADEL_5: //OXIDE STATION IN OG
 	 {
 		 load_track = OXIDE_STATION;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1458,6 +1481,7 @@ void adventure_options()
 	 	 case N_SANITY_BOSS: //RIPPER ROO GARAGE
 	 {
 		 load_track = ROO_TUBES;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1517,6 +1541,7 @@ void adventure_options()
 	 	 case LOST_RUINS_BOSS: //PAPU PAPU GARAGE
 	 {
 		 load_track = PAPU_PYRAMID;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1576,6 +1601,7 @@ void adventure_options()
 	 	 case GLACIER_BOSS: //KOMODO JOE GARAGE
 	 {
 		 load_track = DRAGON_MINES;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1636,6 +1662,7 @@ void adventure_options()
 	 	 case CITADEL_BOSS: //PINSTRIPE GARAGE
 	 {
 		 load_track = HOT_AIR_SKYWAY;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
@@ -1695,6 +1722,7 @@ void adventure_options()
 	 	 case FINAL_BOSS: //OXIDE GARAGE
 	 {
 		 load_track = OXIDE_STATION;
+		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;

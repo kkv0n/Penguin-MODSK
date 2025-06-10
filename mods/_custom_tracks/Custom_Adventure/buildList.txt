@@ -97,7 +97,6 @@ common, exe, MainFrame_RenderFrame, 0x0, code/renderframe.c
 common, exe, UI_DrawRaceClock, 0x0, code/drawraceclock.c
 common, exe, BOTS_Driver_Init, 0x0, code/fixes/bots_init
 common, exe, PlayLevel_UpdateLapStats, 0x0, code/laps.c
-common, exe, UI_RaceStart_IntroText1P, 0x0, code/fixes/intro.c
 common, exe, CTR_CycleTex_LEV, 0x0, code/fixes/cicle.c
 common, exe, UI_INSTANCE_InitAll, 0x0, code/fixes/nopos.c
 common, exe, UI_DrawPosSuffix, 0x0, code/fixes/uifix1.c
