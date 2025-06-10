@@ -335,7 +335,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 				if ((flags & 1) == 0)
 				{
 					// If you're in Arcade Mode
-					if ((gGT->gameMode1 & ARCADE_MODE) != 0) goto LAB_8004f84c;
+					// if ((gGT->gameMode1 & ARCADE_MODE) != 0) goto LAB_8004f84c;
 
 					// Set lap number in "Ln" string
 					sdata->s_Ln[1] = (char)numLaps + '1';
