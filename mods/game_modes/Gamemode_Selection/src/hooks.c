@@ -245,7 +245,9 @@ void RunUpdateHook() {
 
     // Remap pad if mirror is enabled
     // Rest of mirror logic is injected on DF_JalDrawOTag
-    HandleMirrorInput(USE_MIRROR);
+    if(!gameMenu.visible){
+        HandleMirrorInput(USE_MIRROR);
+    }
 
     // Handle shortcutless logic, detect and prevent shortcuts
     if(!USE_N_VERTED){
