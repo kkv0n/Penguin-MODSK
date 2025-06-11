@@ -15,7 +15,7 @@ void DECOMP_RB_MinePool_Init(void)
 	
 	// default
 	if(USE_ITEM_CHAOS){
-		numMines = 30; 
+		numMines = 20; 
 	}else{
 		numMines = 15; // retail default: 10
 	}
@@ -30,6 +30,7 @@ void DECOMP_RB_MinePool_Init(void)
 	// boss race
 	if ((gameMode & ADVENTURE_BOSS) != 0)
 	{
+		if(USE_BOSS_CHALLENGE) numMines = 12;
 		if (sdata->gGT->levelID == DRAGON_MINES) numMines = 3;
 		if (sdata->gGT->levelID == ROO_TUBES) numMines = 7;
 	}
