@@ -444,18 +444,61 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 		// If the number of keys you have is less than 4
 		if (gGT->bossID < 4)
 		{
-			// only if first time beating boss
-			if (CHECK_ADV_BIT(adv->rewards, bitIndex) == 0)
-			{
-				// Go to Podium after returning to Adventure Hub
-				gGT->podiumRewardID = 99; // key
-
-				// hot air skyway
-				if (gGT->levelID == 7)
+			if(USE_BOSS_CHALLENGE){
+				// only if first time beating boss
+				if (CHECK_ADV_BIT(adv->rewards, bitIndex) == 0)
 				{
-					// If you just beat Pinstripe
-					// Load gemstone valley
-					levSpawn = 0x19;
+					// Count trophies currently earned
+					int trophyCount = 0;
+					for (i = 0; i < 18; i++) // Check all 18 tracks
+					{
+						if (CHECK_ADV_BIT(adv->rewards, i + 6)) // Trophy bits are at levelID + 6
+						{
+							trophyCount++;
+						}
+					}
+					
+					// Each hub requires the specified number of trophies
+					int requiredTrophies = (gGT->bossID + 1) * 4;
+					
+					// Only award key if player has enough trophies
+					if (trophyCount >= requiredTrophies)
+					{
+						// Go to Podium after returning to Adventure Hub
+						gGT->podiumRewardID = 99; // key
+
+						// hot air skyway
+						if (gGT->levelID == 7)
+						{
+							// If you just beat Pinstripe
+							// Load gemstone valley
+							levSpawn = 0x19;
+						}
+					}
+					else
+					{
+						// Don't spawn at boss if player lacks trophies
+						sdata->Loading.OnBegin.AddBitsConfig8 &= ~SPAWN_AT_BOSS;
+						
+						// Don't mark boss as beaten
+						bitIndex = -1; // This will prevent the UNLOCK_ADV_BIT call later
+					}
+				}
+			}
+			else{
+				// only if first time beating boss
+				if (CHECK_ADV_BIT(adv->rewards, bitIndex) == 0)
+				{
+					// Go to Podium after returning to Adventure Hub
+					gGT->podiumRewardID = 99; // key
+
+					// hot air skyway
+					if (gGT->levelID == 7)
+					{
+						// If you just beat Pinstripe
+						// Load gemstone valley
+						levSpawn = 0x19;
+					}
 				}
 			}
 		}
