@@ -21,6 +21,11 @@ extern char* decalText;
 
 extern short gravity;
 
+enum FIRE_LEVEL {
+	SACRED = 0x100,
+	USF = 0x800
+};
+
 enum ITEMS {
 	ITEM_TURBO_BOOST = 0,
 	ITEM_BOWLING_BOMB,

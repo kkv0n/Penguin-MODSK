@@ -161,6 +161,11 @@ void RunUpdateHook() {
     }
     #endif
 
+    // Restore d-pad input
+    // So mirror mode remap doesnt apply on menus
+    if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
+        RestoreDpadMapping();
+
     //Only run if game is not paused
     if ((gGT->gameMode1 & PAUSE_ALL) != 0) return;
 
@@ -182,6 +187,8 @@ void RunUpdateHook() {
     // sprintf(decalText, "Skybox pointer: %p\n", gGT->level1->ptr_skybox);
     // DecalFont_DrawLine(decalText, 0x100, 0xc8 - 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
 
+    gravity = USE_MOON_GRAVITY ? 369 : 900;
+
     // if the game is not in a race then quit
 	if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
 		return;
@@ -200,18 +207,16 @@ void RunUpdateHook() {
         // Init driver floating states and lap skip prevention
         Init_N_Verted(USE_N_VERTED);
 
-        gravity = USE_MOON_GRAVITY ? 369 : 900;
-
-        // Stats modifiers
-        SetGravity(gravity);
-        ApplyModifiers();
-
         // Item modifiers
         ItemChaos_Init(USE_ITEM_CHAOS);
 
         if(USE_NIGHT_FILTER && NightFilterBrightness < 20){
             InitDynamicLighting(gGT->level1);
         }
+
+        // Stats modifiers
+        SetGravity(gravity);
+        ApplyModifiers();
 
         //If mirror mode flip wumpa shine
         if(USE_MIRROR){
@@ -222,7 +227,7 @@ void RunUpdateHook() {
         //     data.hud_4P_P2[0xC].x = 0x10D4;
         //     data.hud_4P_P3[0xC].x = 8;
         //     data.hud_4P_P4[0xC].x = 0x10D4;
-        // }else{
+        }else{
 	        data.hud_1P_P1[0xC].x = 286;
         }
 
@@ -240,12 +245,7 @@ void RunUpdateHook() {
 
     // Remap pad if mirror is enabled
     // Rest of mirror logic is injected on DF_JalDrawOTag
-    if(!gameMenu.visible){
-        HandleMirrorInput(USE_MIRROR);
-    }else{
-        // If the mod menu is visible, disable mirror input
-        SwapDirection(false);
-    }
+    HandleMirrorInput(USE_MIRROR);
 
     // Handle shortcutless logic, detect and prevent shortcuts
     if(!USE_N_VERTED){
@@ -268,11 +268,16 @@ void RunUpdateHook() {
     }
     #endif
 
-    // Special case for maximun difficulty
     int currentLevel = *superHardAddr / 0x50;
+    // Special case for ultra hard mode
+    if(currentLevel == 8){
+        GiveBotsTurboOnLastLap(SACRED);
+    }
+
+    // Special case for maximun difficulty (USF)
     if (currentLevel >= 9){
         // Give all bots USF
-        GiveBotsUSF();
+        GiveBotsTurbo(USF);
     }
 
     // HandleRainbowColors(gGT->level1);

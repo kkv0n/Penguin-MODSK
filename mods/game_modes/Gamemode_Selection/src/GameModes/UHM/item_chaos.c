@@ -203,6 +203,8 @@ void HandleItemChaos(bool enabled) {
 
             // Select a random driver
             int randomDriverIndex = rand() % (gGT->numPlyrCurrGame + gGT->numBotsNextGame);
+            //if boss race shoot from boss [1]
+            if((gGT->gameMode1 & ADVENTURE_BOSS)) randomDriverIndex = 1;
             struct Driver* randomDriver = gGT->drivers[randomDriverIndex];
 
             // Ensure the random driver can throw items

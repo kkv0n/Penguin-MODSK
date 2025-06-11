@@ -17,11 +17,11 @@ void SetSpeed(int speed) {
 
 void ApplyModifiers(){
 	struct GameTracker *gGT = sdata->gGT;
-	for (unsigned char i = 0; i < gGT->numPlyrCurrGame; i++) {
+	for (unsigned char i = 0; i < (gGT->numPlyrCurrGame + gGT->numBotsNextGame); i++) {
 		struct Driver* driver = gGT->drivers[i];
 
 		if (driver == NULL) continue;
-		if (gGT->levelID > TURBO_TRACK) continue;
+		// if (gGT->levelID > CITADEL_CITY) continue;
 
 		VehBirth_SetConsts(driver);
 	}

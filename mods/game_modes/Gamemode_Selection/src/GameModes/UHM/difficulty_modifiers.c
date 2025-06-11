@@ -24,7 +24,7 @@ void AdvAdjustDifficulty()
     BOTS_Adv_AdjustDifficulty();
 }
 
-void GiveBotsUSF(){
+void GiveBotsTurbo(int fire_level){
     for (unsigned char i = 0; i <= gGT->numBotsNextGame; i++) {
         struct Driver* driver = gGT->drivers[i];
 
@@ -38,10 +38,31 @@ void GiveBotsUSF(){
             // If bot is spinning or blasted
             if ((driver->botData.botFlags & 2) != 0) continue;
 
-            int usf_fire = 0x800;
-            VehFire_Increment(driver, 960, (TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD), usf_fire);
+            VehFire_Increment(driver, 960, (TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD), fire_level);
         }
     }
+}
+
+void GiveBotsTurboOnLastLap(int fire_level) {
+    for (unsigned char i = 0; i < gGT->numPlyrCurrGame + gGT->numBotsNextGame; i++) {
+        struct Driver* driver = gGT->drivers[i];
+
+        if (driver == NULL) continue;
+
+        if (driver->lapIndex < gGT->numLaps - 1) continue; // Only give turbo on last lap
+
+        //If its a bot
+        if ((driver->actionsFlagSet & 0x100000) != 0) {
+
+            // If bot has a TNT on their head or is affected by a clock
+            if ((driver->instTntRecv != 0) || (driver->clockReceive != 0)) continue;
+            // If bot is spinning or blasted
+            if ((driver->botData.botFlags & 2) != 0) continue;
+
+            VehFire_Increment(driver, 960, (TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD), fire_level);
+        }
+    }
+    
 }
 
 void SetDifficultyLevel(int newLevel)
