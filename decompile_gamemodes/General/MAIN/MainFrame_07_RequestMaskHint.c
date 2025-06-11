@@ -1,4 +1,5 @@
 #include <common.h>
+// extern void* PlayerDrivingFuncTable[13];
 
 // Request Aku Hint, doesn't start till FUN_800b3dd8
 // hintId:
@@ -21,7 +22,10 @@
 // 	0x01 - interrupting (CTR, Relic, or Crystal hints)
 void DECOMP_MainFrame_RequestMaskHint(short hintId, char interruptWarpPad)
 {
+  
   struct GameTracker* gGT = sdata->gGT;
+  // Skip mask hints (It bugs when opening a door)
+  // return;
 	
   if (((gGT->gameMode1 & PAUSE_ALL) == 0) &&
 		(sdata->AkuHint_RequestedHint == -1))
