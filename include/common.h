@@ -53,8 +53,8 @@
 // Multiplayer Maxed Mod
 #ifdef USE_HIGHMP
 #define USE_RAMEX
-//#define USE_BIGQUEUE
-//#define USE_DRIVERLOD
+#define USE_BIGQUEUE
+#define USE_DRIVERLOD
 #define USE_MOREPRIM
 #endif
 
