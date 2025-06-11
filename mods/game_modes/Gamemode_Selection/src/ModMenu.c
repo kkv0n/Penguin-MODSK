@@ -104,6 +104,12 @@ MenuOption menuOptions[19] = {
     
     // PAGE 2
     {
+        "Boss Challenge",
+        "on", "off", &optionValues[8],
+        NULL,
+        {"Race against track owner", "Only works in 1p Arcade/Adv."}
+    },
+    {
         "Boundless",
         "on", "off", &optionValues[9],
         NULL,
@@ -122,28 +128,28 @@ MenuOption menuOptions[19] = {
         {"Sewer speedway physics", "everywhere"}
     },
     {
-        "UNLOCK ALL",
-        "on", "off", &optionValues[12],
-        NULL,
-        {"101", "___"}
-    },
-    {
-        "Disable HUD",
-        "on", "off", &optionValues[13],
-        NULL,
-        {"Disable HUD while racing", "by Niko"}
-    },
-    {
         "Fly Cheat",
-        "on", "off", &optionValues[14],
+        "on", "off", &optionValues[12],
         NULL,
         {"Hold L1+^ to fly", ""}
     },
     {
-        "Boss Challenge",
-        "on", "off", &optionValues[15],
+        "", // Empty slot
+        "", "", &optionValues[13],
         NULL,
-        {"Race against track owner", "Only works in 1p Arcade/Adv."}
+        {"", ""}
+    },
+    {
+        "", // Empty slot
+        "", "", &optionValues[14],
+        NULL,
+        {"", ""}
+    },
+    {
+        "", // Empty slot
+        "", "", &optionValues[15],
+        NULL,
+        {"", ""}
     },
     {
         "", // Empty slot
@@ -154,12 +160,6 @@ MenuOption menuOptions[19] = {
     {
         "", // Empty slot
         "", "", &optionValues[17],
-        NULL,
-        {"", ""}
-    },
-    {
-        "", // Empty slot
-        "", "", &optionValues[18],
         NULL,
         {"", ""}
     }
@@ -245,16 +245,20 @@ void ApplyMenuEffects() {
     // Night Filter (Page 1, index 8)
     USE_NIGHT_FILTER = (NightFilterBrightness < 255);
     
-    // Boundless (Page 2, index 0)
+    // Boss Challenge (Page 2, index 0)
+    USE_BOSS_CHALLENGE = optionValues[8];
+
+    // Boundless (Page 2, index 1)
     USE_BOUNDLESS = optionValues[9];
     
-    // Wall Ride (Page 2, index 1)
+    // Wall Ride (Page 2, index 2)
     USE_WALL_RIDE = optionValues[10];
 
-    // Speedway Physics (Page 2, index 2)
+    // Speedway Physics (Page 2, index 3)
     USE_SPEEDWAY_PHYSICS = optionValues[11];
     
-    // UNLOCK ALL (Page 2, index 3)
+    // UNLOCK ALL (commented out)
+    /* 
     if (optionValues[12]) {
         // 101 in adventure
         *(unsigned int*)0x8008fba4 = 0xFFFFFFFF;
@@ -265,15 +269,13 @@ void ApplyMenuEffects() {
         // All characters, tracks, cups
         *(unsigned int*)0x8008e6ec = 0xFFFFFFFF;
     }
+    */
     
-    // Disable HUD (Page 2, index 4)
-    *(unsigned char*)0x8001B038 = optionValues[13] ? 0 : 1;
+    // Disable HUD (commented out)
+    // *(unsigned char*)0x8001B038 = optionValues[13] ? 0 : 1;
     
-    // Fly Cheat (Page 2, index 5)
-    USE_FLY_CHEAT = optionValues[14];
-    
-    // Boss Challenge (Page 2, index 6)
-    USE_BOSS_CHALLENGE = optionValues[15];
+    // Fly Cheat (Page 2, index 4)
+    USE_FLY_CHEAT = optionValues[12];
 }
 
 void HandleDifficultyTap(int tap)
@@ -630,6 +632,12 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
     if (tap & BTN_UP) {
         if (gameMenu.selectedIndex > 0) {
             gameMenu.selectedIndex--;
+            // Skip empty options when going up
+            int actualIndex = gameMenu.selectedIndex + (gameMenu.currentPage * gameMenu.numOptions);
+            while (gameMenu.selectedIndex > 0 && gameMenu.options[actualIndex].title[0] == '\0') {
+                gameMenu.selectedIndex--;
+                actualIndex = gameMenu.selectedIndex + (gameMenu.currentPage * gameMenu.numOptions);
+            }
             DECOMP_OtherFX_Play(fx_menu_selection_change, 1);
         }
     }
@@ -637,6 +645,21 @@ void HandleMenuInput(struct GamepadBuffer* controller) {
     if (tap & BTN_DOWN) {
         if (gameMenu.selectedIndex < gameMenu.numOptions - 1) {
             gameMenu.selectedIndex++;
+            // Skip empty options when going down
+            int actualIndex = gameMenu.selectedIndex + (gameMenu.currentPage * gameMenu.numOptions);
+            while (gameMenu.selectedIndex < gameMenu.numOptions - 1 && 
+                   gameMenu.options[actualIndex].title[0] == '\0') {
+                gameMenu.selectedIndex++;
+                actualIndex = gameMenu.selectedIndex + (gameMenu.currentPage * gameMenu.numOptions);
+            }
+            // If we reached the end with an empty option, go back to the last valid option
+            if (gameMenu.options[actualIndex].title[0] == '\0') {
+                // Find the last valid option
+                while (gameMenu.selectedIndex > 0 && gameMenu.options[actualIndex].title[0] == '\0') {
+                    gameMenu.selectedIndex--;
+                    actualIndex = gameMenu.selectedIndex + (gameMenu.currentPage * gameMenu.numOptions);
+                }
+            }
             DECOMP_OtherFX_Play(fx_menu_selection_change, 1);
         }
     }
