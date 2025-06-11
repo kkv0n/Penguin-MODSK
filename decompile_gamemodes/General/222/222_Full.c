@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
 static int str_number = 0x20; // " \0"
 extern struct RectMenu menu222;
