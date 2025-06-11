@@ -14,6 +14,7 @@ extern bool USE_BOUNDLESS;
 extern bool USE_WALL_RIDE;
 extern bool USE_SPEEDWAY_PHYSICS;
 extern bool USE_FLY_CHEAT;
+extern bool USE_BOSS_CHALLENGE;
 
 extern struct GameTracker *gGT;
 extern char* decalText;

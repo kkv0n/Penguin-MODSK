@@ -49,6 +49,7 @@ bool USE_BOUNDLESS = false;
 bool USE_WALL_RIDE = false;
 bool USE_SPEEDWAY_PHYSICS = false;
 bool USE_FLY_CHEAT = false;
+bool USE_BOSS_CHALLENGE = false;
 
 short gravity = 900;
 char* decalText = (char*)0x1F800000;
@@ -181,7 +182,6 @@ void RunUpdateHook() {
     // sprintf(decalText, "Skybox pointer: %p\n", gGT->level1->ptr_skybox);
     // DecalFont_DrawLine(decalText, 0x100, 0xc8 - 10, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
 
-
     // if the game is not in a race then quit
 	if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
 		return;
@@ -224,7 +224,6 @@ void RunUpdateHook() {
         //     data.hud_4P_P4[0xC].x = 0x10D4;
         // }else{
 	        data.hud_1P_P1[0xC].x = 286;
-
         }
 
         initialized = true;

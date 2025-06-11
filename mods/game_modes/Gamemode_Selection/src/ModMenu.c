@@ -21,7 +21,6 @@ extern void* PlayerFreezeFuncTable[13];
 
 bool functionsDisabled = false;
 
-
 // --------------------- MENU STRUCTURE ---------------------
 typedef struct {
     char* title;
@@ -43,10 +42,10 @@ typedef struct {
     int currentPage;  // New field to track current page
 } Menu;
 // --------------------- MENU STATE ---------------------
-bool optionValues[18] = {false}; // Values for each option
+bool optionValues[19] = {false}; // Values for each option - increased from 18 to 19
 
 // Define menu options
-MenuOption menuOptions[18] = {
+MenuOption menuOptions[19] = {
     // PAGE 1
     {
         "Retro Fueled",
@@ -141,10 +140,10 @@ MenuOption menuOptions[18] = {
         {"Hold L1+^ to fly", ""}
     },
     {
-        "", // Empty slot
-        "", "", &optionValues[15],
+        "Boss Challenge",
+        "on", "off", &optionValues[15],
         NULL,
-        {"", ""}
+        {"Race against track boss", "Only works in Arcade/Adv."}
     },
     {
         "", // Empty slot
@@ -155,6 +154,12 @@ MenuOption menuOptions[18] = {
     {
         "", // Empty slot
         "", "", &optionValues[17],
+        NULL,
+        {"", ""}
+    },
+    {
+        "", // Empty slot
+        "", "", &optionValues[18],
         NULL,
         {"", ""}
     }
@@ -266,6 +271,9 @@ void ApplyMenuEffects() {
     
     // Fly Cheat (Page 2, index 5)
     USE_FLY_CHEAT = optionValues[14];
+    
+    // Boss Challenge (Page 2, index 6)
+    USE_BOSS_CHALLENGE = optionValues[15];
 }
 
 void HandleDifficultyTap(int tap)

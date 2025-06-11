@@ -244,10 +244,27 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			// then quit the function and try again next frame
 			if (sdata->XA_State == 4) return loadingStage;
 
+			// Clear boss mode always before loading
+			if(USE_BOSS_CHALLENGE){
+				gGT->gameMode1 &= ~ADVENTURE_BOSS;
+			}
+
 			// dont load end-of-race in these modes:
 			//	credits, lev swap, cutscene, main menu
 			if ((gGT->gameMode2 & (LEV_SWAP | CREDITS)) != 0) break;
 			if ((gGT->gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) != 0) break;
+
+			// Apply boss mode
+			if(
+				USE_BOSS_CHALLENGE
+				&& gGT->levelID <= TURBO_TRACK
+				&& (gGT->gameMode1 & (ARCADE_MODE | ADVENTURE_MODE)) != 0
+				&& (gGT->numPlyrCurrGame == 1)
+			){
+				gGT->gameMode1 |= ADVENTURE_BOSS;
+				// Set second character to "champion" of current level
+				data.characterIDs[1] = data.metaDataLEV[gGT->levelID].characterID_Champion;
+			}
 
 			// === pick overlay to load ===
 			
