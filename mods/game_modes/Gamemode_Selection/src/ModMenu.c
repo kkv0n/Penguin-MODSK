@@ -143,7 +143,7 @@ MenuOption menuOptions[19] = {
         "Boss Challenge",
         "on", "off", &optionValues[15],
         NULL,
-        {"Race against track boss", "Only works in Arcade/Adv."}
+        {"Race against track owner", "Only works in 1p Arcade/Adv."}
     },
     {
         "", // Empty slot
