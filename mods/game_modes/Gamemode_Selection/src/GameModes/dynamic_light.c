@@ -5,7 +5,8 @@
 #define MAX_LIGHT_RADIUS 1200    // Max lighting radius
 #define MIN_LIGHT_RADIUS 10     // Inner radius for full brightness
 #define MAX_BRIGHTNESS 100      // Maximum brightness boost
-#define COLOR_MEMORY_SIZE 30000 // Number of vertices we can store colors for
+// !WARNING: THIS MAKES THIS FILE EXTREMELY OVERBUDGET
+#define COLOR_MEMORY_SIZE 40000 // Number of vertices we can store colors for
 int lightRadius[8] = { 0, 0, 0, 0, 0, 0, 0, 0 }; // Store light radius for each driver
 
 // Original color storage
