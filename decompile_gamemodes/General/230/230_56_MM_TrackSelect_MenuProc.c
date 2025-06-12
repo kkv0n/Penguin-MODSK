@@ -294,8 +294,7 @@ void DECOMP_MM_TrackSelect_MenuProc(struct RectMenu* menu)
 				#ifdef USE_CUSTOM_TRACKS
 				// If this is a custom track, set CUSTOM_TRACK_TO_LOAD id and lod
 				if(
-					selectMenu[menu->rowSelected].levID >= FIRST_CUSTOM_TRACK_ID && 
-					selectMenu[menu->rowSelected].levID <= LAST_CUSTOM_TRACK_ID &&
+					IS_CUSTOM_TRACK_ID(selectMenu[menu->rowSelected].levID) &&
 					(gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0
 				){
 					CUSTOM_TRACK_TO_LOAD.levelID = GET_CUSTOM_TRACK_ID(selectMenu[menu->rowSelected].levID);
