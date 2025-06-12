@@ -150,7 +150,7 @@ void NightSkybox(struct Level *level){
         level->glowGradient[2].colorTo = ConvertHexToBGR(0x000000);
 
         // Set gradient positions
-        level->glowGradient[0].pointFrom = 120;
+        level->glowGradient[0].pointFrom = 140;
         level->glowGradient[0].pointTo = 90;
 
         level->glowGradient[1].pointFrom = 90;
