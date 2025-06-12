@@ -133,8 +133,14 @@ MenuOption menuOptions[19] = {
         NULL,
         {"Hold L1+^ to fly", ""}
     },
+    // {
+    //     "USF Cheat",
+    //     "on", "off", &optionValues[13],
+    //     NULL,
+    //     {"Always have USF", ""}
+    // },
     {
-        "", // Empty slot
+        "",
         "", "", &optionValues[13],
         NULL,
         {"", ""}
@@ -276,6 +282,9 @@ void ApplyMenuEffects() {
     
     // Fly Cheat (Page 2, index 4)
     USE_FLY_CHEAT = optionValues[12];
+
+    // USF Cheat (Page 2, index 5)
+    USE_USF_CHEAT = optionValues[13];
 }
 
 void HandleDifficultyTap(int tap)

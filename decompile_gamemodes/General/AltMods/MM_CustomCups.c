@@ -1,9 +1,14 @@
+#include <common.h>
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
 // Transfer data from Single(SIN) menu to Cup(CUP) menu
 #define CUP_TRACK(i, cup) data.ArcadeCups[cup].CupTrack[i].trackID
 #define SIN_TRACK(i, cup) D230.arcadeTracks[cc->choiceX[cup][i]].levID
 #define CUP_ICON(i, cup) data.ArcadeCups[cup].CupTrack[i].iconID
 #define SIN_ICON(i, cup) D230.arcadeTracks[cc->choiceX[cup][i]].videoThumbnail
+
+#define TOTAL_TRACKS 18
+#define TOTAL_TRACKS_WITH_CUSTOM (TOTAL_TRACKS + CUSTOM_TRACKS_COUNT)
 
 struct CustomCup
 {
@@ -38,6 +43,18 @@ static char CustomCups_boolRepeat(int numTracksSet, int currTrack, int cupIndex)
 			return 1;
 
 	return 0;
+}
+
+// Helper function to get track name, handles both standard and custom tracks
+const char* GetTrackName(int trackID)
+{
+	#ifdef USE_CUSTOM_TRACKS
+	if (IS_CUSTOM_TRACK_ID(trackID)) {
+		return GET_CUSTOM_TRACK_NAME(trackID);
+	}
+	#endif
+	
+	return sdata->lngStrings[trackID + 0x6e];
 }
 
 void CustomCups_MenuProc(struct RectMenu* menu)
@@ -79,13 +96,23 @@ void CustomCups_MenuProc(struct RectMenu* menu)
 		if (buttonTap & BTN_RIGHT)
 			cc->choiceX[CUP_SELECT][cc->choiceY]++;
 
-		// pressing Left on Crash Cove goes to Turbo Track,
-		// pressing Right on Turbo Track goes to Crash Cove
+		// Update track limits to include custom tracks
+		#ifdef USE_CUSTOM_TRACKS
+		// pressing Left on Crash Cove goes to the last custom track,
+		// pressing Right on the last custom track goes to Crash Cove
 		if (cc->choiceX[CUP_SELECT][cc->choiceY] < 0)
-			cc->choiceX[CUP_SELECT][cc->choiceY] = 17;
+			cc->choiceX[CUP_SELECT][cc->choiceY] = TOTAL_TRACKS_WITH_CUSTOM - 1;
 		else
 			cc->choiceX[CUP_SELECT][cc->choiceY] = 
-			cc->choiceX[CUP_SELECT][cc->choiceY] % 18;
+			cc->choiceX[CUP_SELECT][cc->choiceY] % TOTAL_TRACKS_WITH_CUSTOM;
+		#else
+		// Original logic for standard tracks only
+		if (cc->choiceX[CUP_SELECT][cc->choiceY] < 0)
+			cc->choiceX[CUP_SELECT][cc->choiceY] = TOTAL_TRACKS - 1;
+		else
+			cc->choiceX[CUP_SELECT][cc->choiceY] = 
+			cc->choiceX[CUP_SELECT][cc->choiceY] % TOTAL_TRACKS;
+		#endif
 
 		if ((buttonTap & BTN_R1) != 0)
 		{
@@ -96,6 +123,7 @@ void CustomCups_MenuProc(struct RectMenu* menu)
 				// random
 				DECOMP_MixRNG_Scramble();
 
+				#ifdef USE_CUSTOM_TRACKS
 				id = (
 						// system clock
 						(DECOMP_Timer_GetTime_Total() & 0xf) +
@@ -103,7 +131,17 @@ void CustomCups_MenuProc(struct RectMenu* menu)
 						// from RNG
 						(sdata->randomNumber >> 8)
 
-					  ) % 18; // 18 tracks
+					  ) % TOTAL_TRACKS_WITH_CUSTOM; // Include custom tracks
+				#else
+				id = (
+						// system clock
+						(DECOMP_Timer_GetTime_Total() & 0xf) +
+		
+						// from RNG
+						(sdata->randomNumber >> 8)
+
+					  ) % TOTAL_TRACKS; // Original tracks only
+				#endif
 
 				// avoid repeats
 				if (CustomCups_boolRepeat(i, id, CUP_SELECT))
@@ -153,13 +191,24 @@ void CustomCups_MenuProc(struct RectMenu* menu)
 			// set iconID
 			CUP_ICON(i, CUP_SELECT) = SIN_ICON(i, CUP_SELECT);
 
-			// Draw name of track
+			#ifdef USE_CUSTOM_TRACKS
+			// Draw name of track, handling custom tracks
+			int trackID = CUP_TRACK(i, CUP_SELECT);
+			DECOMP_DecalFont_DrawLine(
+				GetTrackName(trackID),
+				startX + 0x10,
+				startY + 0x10 * i,
+				FONT_SMALL,
+				ORANGE);
+			#else
+			// Original code for standard tracks
 			DECOMP_DecalFont_DrawLine(
 				sdata->lngStrings[CUP_TRACK(i, CUP_SELECT) + 0x6e],
 				startX + 0x10,
 				startY + 0x10 * i,
 				FONT_SMALL,
 				ORANGE);
+			#endif
 		}
 
 		windowText.y = 0x25;
@@ -174,7 +223,7 @@ void CustomCups_MenuProc(struct RectMenu* menu)
 			(JUSTIFY_CENTER | PERIWINKLE));
 
 		DECOMP_DecalFont_DrawLine(
-			"PRESS R1 TO RANDOMOMIZE",
+			"PRESS R1 TO RANDOMIZE",
 			0x100,
 			windowText.y + 0x30,
 			FONT_SMALL,

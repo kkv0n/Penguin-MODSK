@@ -579,6 +579,20 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			short level_id = gGT->levelID;
 			short level_lod = sdata->levelLOD;
 
+			// If you are playing an Arcade/VS cup, and the id is of a custom track, force load custom
+			// Normally you could not select custom tracks in cups, but USE_NEWCUPS allows it, so this handles that case
+			#ifdef USE_NEWCUPS
+			if(
+				((gGT->gameMode2 & CUP_ANY_KIND) != 0) &&
+				IS_CUSTOM_TRACK_ID(level_id)
+			
+			){
+				// Set level ID and LOD to custom track
+				CUSTOM_TRACK_TO_LOAD.levelID =	GET_CUSTOM_TRACK_ID(level_id);
+				CUSTOM_TRACK_TO_LOAD.lod = GET_CUSTOM_TRACK_LOD(level_id);
+			}
+			#endif
+
 			// If there is a custom track to load, use its ID and LOD
 			if(
 				CUSTOM_TRACK_TO_LOAD.levelID != NULL && 

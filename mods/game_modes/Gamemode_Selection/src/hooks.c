@@ -45,11 +45,12 @@ bool USE_MIRROR = false;
 bool USE_MOON_GRAVITY = false;
 bool USE_ITEM_CHAOS = false;
 bool USE_NIGHT_FILTER = false;
+bool USE_BOSS_CHALLENGE = false;
 bool USE_BOUNDLESS = false;
 bool USE_WALL_RIDE = false;
 bool USE_SPEEDWAY_PHYSICS = false;
 bool USE_FLY_CHEAT = false;
-bool USE_BOSS_CHALLENGE = false;
+bool USE_USF_CHEAT = false;
 
 short gravity = 900;
 char* decalText = (char*)0x1F800000;
@@ -281,7 +282,6 @@ void RunUpdateHook() {
         // Give all bots USF
         GiveBotsTurbo(USF);
     }
-
     // HandleRainbowColors(gGT->level1);
 
     if(USE_NIGHT_FILTER && NightFilterBrightness < 20){
@@ -301,6 +301,19 @@ void RunUpdateHook() {
                 playerDriver->forcedJump_trampoline = 2;
                 playerDriver->jump_unknown = 0x180;
                 playerDriver->jump_InitialVelY = playerDriver->const_JumpForce * 3;
+            }
+        }
+    }
+
+    // USF cheat
+    if (USE_USF_CHEAT){
+        int i;
+        for (i = 0; i < gGT->numPlyrCurrGame; i++) {
+            struct Driver* playerDriver = sdata->gGT->drivers[i];
+            struct GamepadBuffer* playerController = &sdata->gGamepads->gamepad[i];
+            
+            if ((playerController->buttonsHeldCurrFrame & BTN_CROSS) != 0) {
+                VehFire_Increment(playerDriver, 960, (TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD), USF);
             }
         }
     }

@@ -12,7 +12,7 @@
 #define USE_OXIDE		// Unlock Oxide
 // #define USE_PENTA	// Penta Max Stats
 //#define USE_HARDER	// Difficulty Selector (Arcade)
-//#define USE_NEWCUPS	// Cup Randomizer
+#define USE_NEWCUPS	// Cup Randomizer
 //#define USE_DECALMP	// OG game Render Targets
 #define USE_BOOSTBAR	// Super's reserve bar
 //#define USE_PROFILER	// Debug profiler from PizzaHut
