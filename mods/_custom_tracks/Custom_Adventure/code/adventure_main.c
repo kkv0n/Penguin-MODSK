@@ -431,10 +431,7 @@ void adventure_main()
 		inst->matrix.t[2] = 256;
         inst->colorRGBA = (unsigned int)instanceColor(relic_color);
 		}
-         
-		 UNLOCK_ADV_BIT(sdata->advProgress.rewards, ROO_TUBES + 6);
-		 UNLOCK_ADV_BIT(sdata->advProgress.rewards, MYSTERY_CAVES + 6);
-		 UNLOCK_ADV_BIT(sdata->advProgress.rewards, SEWER_SPEEDWAY + 6);
+    
 		 
 		 //fix wumpa
 		    sdata->ptrFruitDisp =

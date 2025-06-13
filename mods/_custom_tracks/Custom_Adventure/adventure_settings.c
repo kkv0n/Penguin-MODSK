@@ -210,7 +210,7 @@ void adventure_options()
 	 {
 		load_track = CRASH_COVE;
 		timeToWin = "99:99:99";
-		laps = 1;
+		laps = 3;
 		show_stars = false;
         LAP_COUNT_TIMER = 60;
 		
