@@ -4,6 +4,7 @@
 
 unsigned int PB_lap;
 unsigned int Worst_lap;
+extern bool playXA;
 
 void PlayLevel_UpdateLapStats(void)
 {
@@ -182,27 +183,12 @@ void PlayLevel_UpdateLapStats(void)
 				// If this is human and not AI
 				if ((currDriver->actionsFlagSet & 0x100000) == 0)
 				{
-					// If this racer is in first place
-					if (currDriver->driverRank == 0)
-					{
-						// amount of confetti particles
-						gGT->confetti.numParticles_max = 250;
-						gGT->confetti.unk2 = 250;
-
-						// one person won,
-						// one person gets confetti
-						gGT->numWinners = 1;
-
-						char driverID = currDriver->driverID;
-
-						// add driver ID to array of confetti winners
-						gGT->winnerIndex[0] = driverID;
-
-						// edit window variables for confetti
-						gGT->pushBuffer[driverID].fadeFromBlack_currentValue = 0x1fff;
-						gGT->pushBuffer[driverID].fadeFromBlack_desiredResult = 0x1000;
-						gGT->pushBuffer[driverID].fade_step = 0xff78;
-					}
+					
+					
+					  //confetti removes was here
+                      //dont show confetti here in custom adventure
+					  
+					
 					if (currDriver->noItemTimer != 0)
 					{
 						currDriver->noItemTimer = 0;
@@ -364,7 +350,10 @@ void PlayLevel_UpdateLapStats(void)
 				//reset times
 				PB_lap = HOURS(1);
 				Worst_lap = 0;
-
+				
+				//custom track was loaded, reset bool to play end race music
+			    playXA = true;
+ 
 				// set every driver position rank,
 				// to the order that they spawn on the starting line
 				gGT->drivers[finishIndex]->driverRank = sdata->kartSpawnOrderArray[finishIndex];

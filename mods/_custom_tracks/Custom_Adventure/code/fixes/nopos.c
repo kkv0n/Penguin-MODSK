@@ -1,6 +1,5 @@
 #include <common.h>
 
-
 void UI_INSTANCE_InitAll(void)
 {
   struct GameTracker *gGT;
@@ -9,7 +8,6 @@ void UI_INSTANCE_InitAll(void)
   u_int gameMode1;
   u_int relicType;
   int iVar5;
-
 
   int i;
 
@@ -21,12 +19,12 @@ void UI_INSTANCE_InitAll(void)
 
   // For most of the function
 
+  // If you're not in Crystal Challenge (in adventure mode)
+  if ((gameMode1 & CRYSTAL_CHALLENGE) == 0)
+  {
 	// If you're in Adventure Arena
     if ((gameMode1 & ADVENTURE_ARENA) != 0)
 	{
-		
-	  if(gGT->numPlyrCurrGame != 1)
-		  return;
 
 	  //is ignoring the return value of these calls intentional?
        UI_INSTANCE_BirthWithThread(0x61,	(int) UI_ThTick_Reward,0xe,1,0,/*sdata->s_relic1*/0);
@@ -42,6 +40,7 @@ void UI_INSTANCE_InitAll(void)
 
     if ((gameMode1 & (RELIC_RACE | ADVENTURE_ARENA | TIME_TRIAL)) != 0)
 	{
+
 
 
 	  // If you're not in a Relic Race
@@ -96,21 +95,6 @@ void UI_INSTANCE_InitAll(void)
 
 	// used for multiplayer wumpa
     sdata->ptrPushBufferUI = (int)NULL;
-	if (1 < gGT->numPlyrCurrGame)
-	{
-      sdata->ptrPushBufferUI = (int)&sdata->pushBuffer_DecalMP;
-    }
-
-    sdata->pushBuffer_DecalMP.ptrOT = gGT->pushBuffer->ptrOT;
-    sdata->pushBuffer_DecalMP.distanceToScreen_PREV = gGT->pushBuffer->distanceToScreen_PREV;
-
-	// Replace PushBufferUI with regular PushBuffer,
-	// workaround for decompile, and it just looks better
-
-
-    sdata->ptrFruitDisp =
-		(int)  UI_INSTANCE_BirthWithThread(0x37,(int) UI_ThTick_CountPickup,3,1,/*sdata->ptrPushBufferUI*/0,/*sdata->s_fruitdisp*/0);
-
 
     if (
 			(gGT->numPlyrCurrGame < 3) &&
@@ -120,10 +104,6 @@ void UI_INSTANCE_InitAll(void)
 		)
 	  {
 
-
-       //UI_INSTANCE_BirthWithThread(0x38,(int) UI_ThTick_big1,2,0,0,/*sdata->s_big1*/0);
-		  
-
     }
 
 	// If you're not in Adventure Mode
@@ -131,17 +111,18 @@ void UI_INSTANCE_InitAll(void)
       return;
     }
 
-
-    //sdata->ptrHudC =  UI_INSTANCE_BirthWithThread(0x93,(int) UI_ThTick_CtrLetters,0x12,0,0,/*sdata->s_hudc*/0);
-    //sdata->ptrHudT =  UI_INSTANCE_BirthWithThread(0x94,(int) UI_ThTick_CtrLetters,0x12,0,0,/*sdata->s_hudt*/0);
-    //sdata->ptrHudR =  UI_INSTANCE_BirthWithThread(0x95,(int) UI_ThTick_CtrLetters,0x12,0,0,/*sdata->s_hudr*/0);
-
-
-
     sdata->ptrHudC->flags |= 0x80;
     sdata->ptrHudT->flags |= 0x80;
     sdata->ptrHudR->flags |= 0x80;
-  
+  }
+
+  // If you're in Crystal Challenge
+  else
+  {
+    sdata->ptrMenuCrystal =  UI_INSTANCE_BirthWithThread(0x60,(int) UI_ThTick_Reward,0x11,0,0,/*sdata->s_crystal1*/0);
+	sdata->ptrHudCrystal =  UI_INSTANCE_BirthWithThread(0x60,(int) UI_ThTick_Reward,0x11,0,0,/*sdata->s_crystal1*/0);
+	sdata->ptrHudCrystal->flags |= 0x80;
+  }
 
   // Make a token
   sdata->ptrToken =  UI_INSTANCE_BirthWithThread(0x7d,(int) UI_ThTick_Reward,0x12,0,0,/*sdata->s_token*/0);

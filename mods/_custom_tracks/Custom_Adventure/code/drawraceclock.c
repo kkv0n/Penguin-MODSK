@@ -93,7 +93,7 @@ void time_helper(u_char showthis, bool win)
 	//DecalFont_DrawLine(RaceTime, (int)(short)0x14, (int)(((u_int)8 + 8) * 0x10000) >> 0x10, FONT_BIG, ORANGE); //i just used the calculator and third parameter is just 0x10 lol
 
 
-
+       
 
 
 	unsigned short posxy[2];
@@ -101,17 +101,23 @@ void time_helper(u_char showthis, bool win)
 	posxy[0] = (showthis == 1) ? 0xD8 - 35 : 0x14; // x
 	posxy[1] = (showthis == 1) ? 0x4C + 20 : 0x18; // y
 	
+	
+	    //if times condition to win is enabled
 	    if (hardcore)
 		{
 			unsigned short coordY = (showthis == 1) ? posxy[1] - 36 : 206;
+			unsigned short coordX = (showthis == 1) ? 0x100 : 60;
 			
 			char* text = (showthis == 1) ? (win) ? "YOU WIN!" : "YOU FAILED!" : timeToWin;
 			
 			unsigned short colr = (showthis == 1) ? (win) ? JUSTIFY_CENTER | TINY_GREEN : JUSTIFY_CENTER | CORTEX_RED :
             ((sdata->gGT->timer & FPS_DOUBLE(2)) == 0) ? JUSTIFY_CENTER | SILVER : JUSTIFY_CENTER | PAPU_YELLOW ; 
 			
-		  DecalFont_DrawLine(text, 0x100, coordY, FONT_SMALL, colr);
+		  DecalFont_DrawLine(text, coordX, coordY, FONT_SMALL, colr);
 		}
+		
+		
+		
 
 	color = (showthis == 1) ? ((sdata->gGT->timer & FPS_DOUBLE(2)) == 0) ? //decides what color the text should use
 		JUSTIFY_CENTER | WHITE : JUSTIFY_CENTER | ORANGE : ORANGE;

@@ -85,8 +85,12 @@ void custom_adventure(unsigned char levelID, bool boss)
 
 }
 
+
+bool playXA;
+
 //overlay 222 modified
-void adventure_endrace(unsigned int endTime, unsigned int requiredTime) //manages end of race and teleporting in adv hub
+//this is responsible of end of race UI, teleporting and prizes in adventure
+void adventure_endrace(unsigned int endTime, unsigned int requiredTime) 
 {
 
 	struct GameTracker* gGT;
@@ -126,8 +130,40 @@ void adventure_endrace(unsigned int endTime, unsigned int requiredTime) //manage
 
 
 
-	// For trophy race, check 1st place
+	// check if your time was enough to win the trophy, if hardcore is disabled then check 1st place (we are always 1st in custom tracks)
 	int boolWin = (!hardcore) ? (driver->driverRank == 0) : (endTime < requiredTime);
+	
+	
+	//end race music
+	if (playXA)
+	{
+		
+		if(boolWin)
+		{
+						// amount of confetti particles
+						gGT->confetti.numParticles_max = 250;
+						gGT->confetti.unk2 = 250;
+
+						// one person won,
+						// one person gets confetti
+						gGT->numWinners = 1;
+
+						// add driver ID to array of confetti winners
+						gGT->winnerIndex[0] = 0;
+
+						// edit window variables for confetti
+						gGT->pushBuffer[0].fadeFromBlack_currentValue = 0x1fff;
+						gGT->pushBuffer[0].fadeFromBlack_desiredResult = 0x1000;
+						gGT->pushBuffer[0].fade_step = 0xff78;
+		}
+		
+	 sdata->desiredXA_RaceEndIndex = (boolWin) ? 4 : 5;
+     OtherFX_Play(0x5f, 0);
+	 Audio_SetState_Safe(0x10);
+     playXA = false;
+	}
+
+                    
 
 
 	elapsedFrames = sdata->framesSinceRaceEnded;
@@ -135,17 +171,12 @@ void adventure_endrace(unsigned int endTime, unsigned int requiredTime) //manage
 	void time_helper(u_char show_this, bool win);
 	time_helper(1, boolWin);
 
-	// If it hasn't been 1 second from race ended
-	if (elapsedFrames < FPS_DOUBLE(30))
+
+	if ((elapsedFrames) < FPS_DOUBLE(60))
 	{
-		sdata->menuReadyToPass = 0;
+		sdata->menuReadyToPass = 0; //avoid softlocking bug
 		return;
 	}
-
-
-	// 0x78 + 0x6e = 0xe6 (230) frames waited for Token Race
-	if ((elapsedFrames - 0) < FPS_DOUBLE(110))
-		return;
 
 
 	// if the menu is already drawing
@@ -277,6 +308,7 @@ TIGER_TEMPLE, COCO_PARK, PAPU_PYRAMID, DINGO_CANYON, BLIZZARD_BLUFF, DRAGON_MINE
 
 
 		//i dont have ideas to optimize this lol
+		//this is awfull but i dont want to deal with this, im not doing a 1 hour test for each fix lol
 		u_char prize_index =
 			(current_track == GLACIER_5) ? current_track - 5 :
 			(current_track == CITADEL_5) ? current_track - 6 :
@@ -309,58 +341,29 @@ TIGER_TEMPLE, COCO_PARK, PAPU_PYRAMID, DINGO_CANYON, BLIZZARD_BLUFF, DRAGON_MINE
 	MainRaceTrack_RequestLoad(levSpawn);
 
 }
+	
 
 void adventure_main()
 {
 	unsigned char i;
 	int buttonTap;
 	struct GameTracker* gGT = sdata->gGT;
-
-	//disable player to bot swap
-	*(int*)0x80017318 = 0x3E00008;
-	*(int*)0x8001731c = 0;
-
-	void quad_main();
-	quad_main();
-	
-	if (gGT->levelID < GEM_STONE_VALLEY && gGT->cameraDC->unk8E != 0)
-		gGT->cameraDC->unk8E = 0;
-	
-	
-	
-	//avoid bug of wumpa dissapearing
-	
-	//if (gGT->levelID == load_track)
-	//{
-	//	if (gGT->trafficLightsTimer > 0)
-	//	{
-	//	struct Instance* instFruitDisp = gGT->drivers[0]->instFruitDisp;
-	//	if (instFruitDisp->scale[0] == 0)
-	//	{
-			
-	//	sdata->ptrFruitDisp =
-	//	(int)UI_INSTANCE_BirthWithThread(0x37,(int)UI_ThTick_CountPickup,3,1,sdata->ptrPushBufferUI,/*sdata->s_fruitdisp*/0);
-	//	}
-	//	}
-	//}
-
-	if (show_stars && gGT->levelID == load_track)
-	{
-
-		sdata->gGT->renderFlags |= 8;
-		sdata->gGT->stars.numStars = 768;
-		sdata->gGT->stars.spread = 1;
-		sdata->gGT->stars.seed = 65535;
-		sdata->gGT->stars.distance = 1022;
-
-	}
+     
 
 
+	 
+	 
+
+	 
+	 
+	 
+	//change main menu entries
 	if (gGT->levelID == MAIN_MENU_LEVEL) D230.menuMainMenu.rows = &adventure_row;
 	
+	
+	//enable or disable the times condition to win races
 	if (D230.MM_State == 1)
 	{
-		
 		buttonTap = sdata->gGamepads->gamepad[0].buttonsTapped;
 		
 		if (buttonTap & BTN_SELECT)
@@ -379,19 +382,79 @@ void adventure_main()
 			difficulty = "disabled";
 		}
 		
-		DecalFont_DrawLine("PRESS SELECT TO DISABLE", 6, 0x10, FONT_SMALL, ORANGE);
-		DecalFont_DrawLine("TIME LIMIT TO WIN THE RACE", 6, 0x10 + 10, FONT_SMALL, ORANGE);
-		DecalFont_DrawLine(difficulty, 6, 0x10 + 20, FONT_SMALL, PENTA_WHITE);
+		DecalFont_DrawLine("PRESS SELECT TO DISABLE", 6, 3, FONT_SMALL, ORANGE);
+		DecalFont_DrawLine("TIME LIMIT TO WIN THE RACE", 6, 13, FONT_SMALL, ORANGE);
+		DecalFont_DrawLine(difficulty, 6, 23, FONT_SMALL, PENTA_WHITE);
 	}
+	
+	
+	//disable player to bot swap
+	*(int*)0x80017318 = 0x3E00008;
+	*(int*)0x8001731c = 0;
+ 
 
+	//avoid flying cam bug in old custom tracks
+	if (gGT->levelID < GEM_STONE_VALLEY && gGT->cameraDC->unk8E != 0)
+		gGT->cameraDC->unk8E = 0;
 
+	
+	//check quadblock modifiers
+	void quad_main();
+	quad_main();
+		
+	
+	
+
+    //enable stars
+	if (show_stars && gGT->levelID == load_track)
+	{
+
+		sdata->gGT->renderFlags |= 8;
+		sdata->gGT->stars.numStars = 768;
+		sdata->gGT->stars.spread = 1;
+		sdata->gGT->stars.seed = 65535;
+		sdata->gGT->stars.distance = 1022;
+
+	}
+	
+	
+	//execute this only in one of the first frames of the race to avoid wumpa bug	
+  if (gGT->trafficLightsTimer >= 3490 && gGT->trafficLightsTimer <= 3500
+                 && gGT->levelID < GEM_STONE_VALLEY)
+	{
+		if (hardcore)
+		{
+        //use relic instance as decoration
+		struct Instance* inst = UI_INSTANCE_BirthWithThread(0x61, (int)UI_ThTick_Reward,0xe,1,0,/*sdata->s_relic1*/0);
+		inst->matrix.t[0] = -206;
+		inst->matrix.t[1] = 86;
+		inst->matrix.t[2] = 256;
+        inst->colorRGBA = (unsigned int)instanceColor(relic_color);
+		}
+         
+		 UNLOCK_ADV_BIT(sdata->advProgress.rewards, ROO_TUBES + 6);
+		 UNLOCK_ADV_BIT(sdata->advProgress.rewards, MYSTERY_CAVES + 6);
+		 UNLOCK_ADV_BIT(sdata->advProgress.rewards, SEWER_SPEEDWAY + 6);
+		 
+		 //fix wumpa
+		    sdata->ptrFruitDisp =
+		(int)  UI_INSTANCE_BirthWithThread(0x37,(int) UI_ThTick_CountPickup,3,1,sdata->ptrPushBufferUI,/*sdata->s_fruitdisp*/0);
+	}
+	
+
+	
+	
+	
+
+    //the lng index of og tracks
 	unsigned short tracks_lng[MAX_TRACKS] = { CRASH_COVE_NAME, ROO_TUBES_NAME, MYSTERY_CAVES_NAME,
    SKULL_ROCK_NAME, SEWER_SPEEDWAY_NAME, SLIDE_COLISEUM_NAME, TURBO_TRACK_NAME, TIGER_TEMPLE_NAME,
 	COCO_PARK_NAME, PAPU_PYRAMID_NAME, RAMPAGE_RUINS_NAME, DINGO_CANYON_NAME, BLIZZARD_BLUFF_NAME,
 	DRAGON_MINES_NAME, POLAR_PASS_NAME, ROCKY_ROAD_NAME, TINY_ARENA_NAME, N_GIN_LABS_NAME,
 	CORTEX_CASTLE_NAME, HOT_AIR_SKYWAY_NAME, NITRO_COURT_NAME, OXIDE_STATION_NAME, BOSS1_GARAGE_NAME,
 	BOSS2_GARAGE_NAME, BOSS3_GARAGE_NAME, BOSS4_GARAGE_NAME, BOSS5_GARAGE_NAME };
-
+    
+	//replace the lng entries of every track with custom ones
 	for (i = 0; i < MAX_TRACKS; i++)
 	{
 		sdata->lngStrings[tracks_lng[i]] = track_names[i];
@@ -400,23 +463,18 @@ void adventure_main()
 
 
 
-
+    //the og engines of every character
 	unsigned char character_engines[NUM_CHARACTERS] = { INTERMEDIATE, INTERMEDIATE, ADVANCED, SKILLED,
 	SKILLED, ADVANCED, BEGINNER, BEGINNER, SKILLED, ADVANCED, BEGINNER, INTERMEDIATE,
 	ADVANCED, BEGINNER, INTERMEDIATE, INTERMEDIATE };
 
 
 
-
-
-
-
-
-
 	static u_char characterID;
 
-#define IS_ADV_HUB (gGT->levelID >= GEM_STONE_VALLEY && gGT->levelID <= CITADEL_CITY)
 
+
+    //change boss names in pause menu while you are in ADVENTURE hub
 	if (IS_ADV_HUB)
 	{
 		sdata->lngStrings[BOSS1_NAME] = ((gGT->gameMode1 & PAUSE_ALL) != 0) ? track_names[N_SANITY_BOSS] : character_names[RIPPER_ROO];
@@ -426,7 +484,8 @@ void adventure_main()
 		sdata->lngStrings[BOSS5_NAME] = ((gGT->gameMode1 & PAUSE_ALL) != 0) ? track_names[FINAL_BOSS] : character_names[NITROS_OXIDE];
 		data.font_charPixWidth[FONT_BIG] = ((gGT->gameMode1 & PAUSE_ALL) != 0) ? WIDE_34(13) : WIDE_34(17);
 	}
-
+    
+	//ban left and right in adventure garage because it wont allow you to select extra characters
 	data.gamepadMapBtn[2].output = (gGT->levelID == ADVENTURE_GARAGE) ? BTN_UP : BTN_LEFT;
 	data.gamepadMapBtn[3].output = (gGT->levelID == ADVENTURE_GARAGE) ? BTN_DOWN : BTN_RIGHT;
 
@@ -445,9 +504,13 @@ void adventure_main()
 
 			if ((buttonTap & BTN_UP) != 0)
 			{
+				//characterIDs is a char, avoid negative values
 				characterID = (characterID == CRASH_BANDICOOT) ? NITROS_OXIDE : characterID - 1;
+				
+                //adventure garage can crash if the selected index is higher than 7
 				sdata->advCharSelectIndex_curr = characterID % BASIC_ROSTER;
-
+                
+				//show the engine stats from this character
 				data.MetaDataCharacters[sdata->advCharSelectIndex_curr].engineID =
 					character_engines[characterID];
 
@@ -455,11 +518,17 @@ void adventure_main()
 			}
 			if ((buttonTap & BTN_DOWN) != 0)
 			{
+				//characterIDs is a char, avoid negative values
 				characterID = (characterID == NITROS_OXIDE) ? CRASH_BANDICOOT : characterID + 1;
+				
+				//adventure garage can crash if the selected index is higher than 7
 				sdata->advCharSelectIndex_curr = characterID % BASIC_ROSTER;
+				
+				//show the engine stats from this character
 				data.MetaDataCharacters[sdata->advCharSelectIndex_curr].engineID =
 					character_engines[characterID];
-
+                
+				//play some fx
 				OtherFX_Play(4, 0);
 			}
 
@@ -467,6 +536,7 @@ void adventure_main()
 
 			if ((buttonTap & BTN_L1) != 0)
 			{
+				//iirc engineID is a char so just avoid negative value that will happen using modulo
 				data.MetaDataCharacters[characterID].engineID =
 					(data.MetaDataCharacters[characterID].engineID == INTERMEDIATE) ?
 					BEGINNER : data.MetaDataCharacters[characterID].engineID - 1;
@@ -474,10 +544,13 @@ void adventure_main()
 				//show engine stats
 				data.MetaDataCharacters[sdata->advCharSelectIndex_curr].engineID =
 					data.MetaDataCharacters[characterID].engineID;
+					
+				//play some fx
 				OtherFX_Play(103, 0);
 			}
 			if ((buttonTap & BTN_R1) != 0)
 			{
+				//iirc engineID is a char so just avoid negative value that will happen using modulo
 				data.MetaDataCharacters[characterID].engineID =
 					(data.MetaDataCharacters[characterID].engineID == BEGINNER) ?
 					INTERMEDIATE : data.MetaDataCharacters[characterID].engineID + 1;
@@ -485,6 +558,9 @@ void adventure_main()
 				//show engine stats
 				data.MetaDataCharacters[sdata->advCharSelectIndex_curr].engineID =
 					data.MetaDataCharacters[characterID].engineID;
+					
+					
+				//play some fx
 				OtherFX_Play(103, 0);
 			}
 
@@ -498,7 +574,7 @@ void adventure_main()
 
 
 
-
+            //rewrite LNG string from current characters (i dont have gGarage code for vanilla,so this is better)
 			sdata->lngStrings[data.MetaDataCharacters
 				[sdata->advCharSelectIndex_curr].name_LNG_long] = character_names[characterID];
 		}

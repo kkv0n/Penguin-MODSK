@@ -14,8 +14,26 @@ extern unsigned char prev_levID;
 extern bool show_stars;
 extern char* timeToWin;
 extern bool hardcore;
+extern unsigned char relic_color;
 
+
+//convert relic color from BGR -> to RGB because instances apparently uses RGBA (?)
+#define instanceColor(icolor) \
+    ((((*(data.ptrColor[icolor])) & 0xFF) << 20)       \
+   | (((*(data.ptrColor[icolor])) >> 8 & 0xFF) << 12)  \
+   | (((*(data.ptrColor[icolor])) >> 16 & 0xFF) << 4)  )
+
+//convert BGR-> to RGB
+#define CUSTOM_RACE_FLAG(flagcolor) \
+    (((*(data.ptrColor[flagcolor])) & 0xFF) << 16 | ((*(data.ptrColor[flagcolor])) & 0xFF00) | ((*(data.ptrColor[flagcolor])) >> 16 & 0xFF))
+
+
+//if we are in a battle track
 #define battle_levels_ (current_track == N_SANITY_4 || current_track == LOST_RUINS_4 || current_track == GLACIER_4 || current_track == CITADEL_4)
+
+
+#define IS_ADV_HUB (gGT->levelID >= GEM_STONE_VALLEY && gGT->levelID <= CITADEL_CITY)
+
 
 extern unsigned char laps;
 extern const char* track_names[MAX_TRACKS];

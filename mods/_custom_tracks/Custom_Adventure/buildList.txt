@@ -105,6 +105,11 @@ common, exe, MainInit_PrimMem, 0x0, code/fixes/primem.c
 common, exe, UI_DrawRankedDrivers, 0x0, code/fixes/ui_driver.c
 common, exe, main, 0x0, code/mainmain_ctr.c
 common, 230, MM_MenuProc_Main, 0x0, code/ctr_main_menu.c
+common, exe, Audio_Update1, 0x0, code/fixes/audio.c
+
+
+//custom race flag
+common, exe, RaceFlag_DrawSelf, 0x0, code/custom_flag.c
 
 //fix for custom character animation being stuck
 common, exe, VehPhysProc_SlamWall_Init, 0x0, code/fixes/wall/wall_init.c
@@ -129,7 +134,6 @@ common, 232, AH_WarpPad_GetSpawnPosRot, 0x0, code/warp_pads/warppad_spawnpos.c
 common, 232, AH_WarpPad_AllWarppadNum, 0x0, code/warp_pads/warppad_num.c
 common, 232, AH_WarpPad_LInB, 0x0, code/warp_pads/warppad_linb.c
 common, 232, AH_WarpPad_ThTick, 0x0, code/warp_pads/warppad_thtick.c
-
 
 //custom itemset
 common, exe, VehPhysGeneral_SetHeldItem, 0x0, code/items.c

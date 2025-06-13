@@ -25,7 +25,7 @@ void AH_WarpPad_LInB(struct Instance* inst)
 	struct Instance* newInst;
 
 
-
+    // the last level of every adventure hub
 	char last_level[4] = { SEWER_SPEEDWAY, DINGO_CANYON, TINY_ARENA, OXIDE_STATION };
 
 	gGT = sdata->gGT;
@@ -117,14 +117,17 @@ void AH_WarpPad_LInB(struct Instance* inst)
 			//open coco park and tiger temple
 			bool open_tracks;
 
-			open_tracks = false;
-
-			if (ttrack_finished && slidec_finished) open_tracks = true;
+			open_tracks = false; // set this as false by default
+            
+            //if we already own 5 trophies then enable coco park and tiger temple (this will reduce my headaches testing)			
+			if (ttrack_finished && slidec_finished || gGT->currAdvProfile.numTrophies >= 5) open_tracks = true;
 
 
 			// number trophies needed to open
 			unlockItem_modelID = 0x62;
 			unlockItem_numOwned = gGT->currAdvProfile.numTrophies;
+			
+			//block the 4th warp pad until you finish battle track and block lost ruins until you finish turbo track/slide col
 			unlockItem_numNeeded = (levelID == last_level[data.metaDataLEV[levelID].hubID - 1] && !unlock_track ||
 				!open_tracks && block_until_turbo_slide) ?
 				gGT->currAdvProfile.numTrophies + 1 : data.metaDataLEV[levelID].numTrophiesToOpen;
@@ -134,18 +137,25 @@ void AH_WarpPad_LInB(struct Instance* inst)
 	// Slide Col
 	else if (levelID == SLIDE_COLISEUM)
 	{
-		unlockItem_modelID = (slidec_finished) ? 99 : 0x62;
-		unlockItem_numNeeded = (slidec_finished) ? 2 : 4;
-		unlockItem_numOwned = (slidec_finished) ? gGT->currAdvProfile.numKeys : gGT->currAdvProfile.numTrophies;
+		//swap between trophy and key model
+		unlockItem_modelID = (!slidec_finished && gGT->currAdvProfile.numTrophies < 5) ? 99 : 0x62;
+		//the number we need of this item to unlock the track
+		unlockItem_numNeeded = (!slidec_finished) ? 4 : 2;
+		//the number we own of this item
+		unlockItem_numOwned = (!slidec_finished && gGT->currAdvProfile.numTrophies < 5) ?
+		gGT->currAdvProfile.numKeys : gGT->currAdvProfile.numTrophies;
 	}
 
 	// Turbo Track
 	else if (levelID == TURBO_TRACK)
 	{
-		unlockItem_modelID = (ttrack_finished) ? 99 : 0x62;
-		unlockItem_numNeeded = (!slidec_finished) ? gGT->currAdvProfile.numTrophies + 1 :
+		// swap between trophy and key model
+		unlockItem_modelID = (!ttrack_finished && gGT->currAdvProfile.numTrophies < 5) ? 99 : 0x62;
+		//the number we need of this required item to unlock the track
+		unlockItem_numNeeded = (!slidec_finished && gGT->currAdvProfile.numTrophies < 5) ? gGT->currAdvProfile.numTrophies + 1 :
 			(ttrack_finished) ? 2 : 4;
-		unlockItem_numOwned = (ttrack_finished) ? gGT->currAdvProfile.numKeys : gGT->currAdvProfile.numTrophies;
+	    //the number we own of this required item
+		unlockItem_numOwned = (!ttrack_finished || gGT->currAdvProfile.numTrophies >= 5) ? gGT->currAdvProfile.numTrophies : gGT->currAdvProfile.numKeys ;
 	}
 
 	// battle maps
@@ -153,15 +163,17 @@ void AH_WarpPad_LInB(struct Instance* inst)
 	{
 
 
-
+        //num trophies required to unlock battle tracks
 		unsigned char battle_requirements[4] = { 1, 7, 10, 15 };
 
-
+        //swap between key and trophy model in the warp pad
 		unlockItem_modelID = (unlock_track) ? 99 : 0x62;
-
+        
+		//swap between trophy and key requirement to unlock this warp pad
 		unlockItem_numNeeded = (unlock_track) ? D232.arrKeysNeeded[data.metaDataLEV[levelID].hubID] :
 			battle_requirements[data.metaDataLEV[levelID].hubID - 1];
-
+        
+		//the number we own of this required thing
 		unlockItem_numOwned = (unlock_track) ? gGT->currAdvProfile.numKeys : gGT->currAdvProfile.numTrophies;
 		//goto GetKeysRequirement;
 	}

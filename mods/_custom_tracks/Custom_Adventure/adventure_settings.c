@@ -2,8 +2,8 @@
 #include "code/adventure.h"
 #include "code/quad.h"
 
+//language of the game
 unsigned char g_language = ENGLISH;
-
 
 /*
 LANGUAGES:
@@ -18,6 +18,56 @@ LANGUAGES:
 	"NEDERLANDS"
 */
 
+
+
+//color of the relic in adventure
+unsigned char relic_color = CORTEX_RED;
+
+//set custom colors for ctr race flag
+unsigned char raceflag_dark_color = CRASH_BLUE; //dark tiles
+unsigned char raceflag_light_color = SILVER; //light tiles
+
+
+  /*
+  COLOR GUIDE:
+  
+  	ORANGE
+	PERIWINKLE
+	ORANGE_DARKENED
+	RED
+	WHITE
+	CRASH_BLUE
+	CORTEX_RED
+	TINY_GREEN
+	COCO_MAGENTA
+	N_GIN_PURPLE
+	DINGODILE_OLIVE
+	POLAR_CYAN
+	PURA_VIOLET
+	PINSTRIPE_PALE_DARK_BLUE
+	PAPU_YELLOW
+	ROO_ORANGE
+	JOE_COLOR
+	TROPY_LIGHT_BLUE
+	PENTA_WHITE
+	FAKE_CRASH_GRAY
+	OXIDE_LIGHT_GREEN
+	BLACK
+	SILVER
+	GRAY
+	PLAYER_BLUE
+	PLAYER_RED
+	PLAYER_GREEN
+	PLAYER_YELLOW
+
+	DARK_RED
+	LIGHT_GREEN
+	FOREST_GREEN
+	CREDITS_FADE
+  */
+  
+  
+  
 //CHARACTER NAMES IN ADV GARAGE
 const char* character_names[NUM_CHARACTERS] = { 	//lng backup
 	"CRASH BANDICOOT",
@@ -160,7 +210,7 @@ void adventure_options()
 	 {
 		load_track = CRASH_COVE;
 		timeToWin = "99:99:99";
-		laps = 3;
+		laps = 1;
 		show_stars = false;
         LAP_COUNT_TIMER = 60;
 		
