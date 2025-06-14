@@ -668,6 +668,13 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 			gGT->level1 = lev;
 
+			if(gGT->numPlyrCurrGame > 1
+                && IS_CUSTOM_TRACK_ID(gGT->levelID)
+                && ((gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0)
+            ) {
+                SeparateTrackSpawns(gGT->level1);
+            }
+
 			if (USE_SHORTCUTLESS && gGT->levelID <= TURBO_TRACK){
 			RemoveOffRoadCHK(gGT->level1);
 			}

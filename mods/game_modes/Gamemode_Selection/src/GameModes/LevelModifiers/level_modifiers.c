@@ -241,3 +241,47 @@ void NightFilter(struct Level *level, int brightness, int blueTint) {
     // }
 
 }
+
+void SeparateTrackSpawns(struct Level *level) {
+    // Get rotation of spawn 1 (our pivot point)
+    short baseRot = level->DriverSpawn[1].rot[1];
+    short baseAngle = (baseRot + 0x400) & 0xfff;
+
+    // Calculate left/right direction
+    short leftRightAngle = (baseAngle - 1000) & 0xfff;
+
+    // Separation distance
+    int separationDistance = 0x100;
+
+    // For each spawn point
+    for (int i = 0; i < 8; i++) {
+        int sideOffset = 0;
+        int backOffset = 0;
+
+        // Skip spawn 1 (our reference point)
+        if (i == 1) continue;
+
+        // Determine offsets based on spawn index
+        switch (i) {
+            case 0: sideOffset = -separationDistance; break;
+            case 2: sideOffset = separationDistance; break;
+            case 3: sideOffset = separationDistance * 2; break;
+            case 4: sideOffset = -separationDistance; backOffset = -separationDistance; break;
+            case 5: backOffset = -separationDistance; break;
+            case 6: sideOffset = separationDistance; backOffset = -separationDistance; break;
+            case 7: sideOffset = separationDistance * 2; backOffset = -separationDistance; break;
+        }
+
+        // Apply side offset (left/right)
+        if (sideOffset != 0) {
+            level->DriverSpawn[i].pos[0] += (MATH_Sin(leftRightAngle) * sideOffset) >> 12;
+            level->DriverSpawn[i].pos[2] += (MATH_Cos(leftRightAngle) * sideOffset) >> 12;
+        }
+
+        // Apply back offset
+        if (backOffset != 0) {
+            level->DriverSpawn[i].pos[0] += (MATH_Sin(baseAngle) * backOffset) >> 12;
+            level->DriverSpawn[i].pos[2] += (MATH_Cos(baseAngle) * backOffset) >> 12;
+        }
+    }
+}
