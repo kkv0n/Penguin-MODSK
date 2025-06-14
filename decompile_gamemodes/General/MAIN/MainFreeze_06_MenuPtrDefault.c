@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
 void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 {
@@ -198,9 +199,23 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 				{
 					// when loading is done remove bit for Boss Race, relic, and crystal challenge
 					sdata->Loading.OnBegin.RemBitsConfig0 |= 0x8c000000;
+					
+					extern bool has_all_hub_trophies(int hubID);
+					bool shouldSpawnAtBoss = false;
 
-					// When loading is done add bit to spawn driver near boss door
-					sdata->Loading.OnBegin.AddBitsConfig8 |= SPAWN_AT_BOSS;
+					if (!USE_BOSS_CHALLENGE)
+					{
+						shouldSpawnAtBoss = true;
+					}
+					else if (has_all_hub_trophies(data.metaDataLEV[gGT->levelID].hubID))
+					{
+						shouldSpawnAtBoss = true;
+					}
+
+					if (shouldSpawnAtBoss){		
+						// When loading is done add bit to spawn driver near boss door
+						sdata->Loading.OnBegin.AddBitsConfig8 |= SPAWN_AT_BOSS;
+					}
 				}
 
 				// set levID to level you were in previously

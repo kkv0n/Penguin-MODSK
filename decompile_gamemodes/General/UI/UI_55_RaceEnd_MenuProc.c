@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
 void DECOMP_UI_RaceEnd_MenuProc(struct RectMenu* menu)
 {
@@ -169,8 +170,23 @@ void DECOMP_UI_RaceEnd_MenuProc(struct RectMenu* menu)
 		}
 		
 		// If you're in a Boss Race
-		if (gGT->gameMode1 < 0)
-			sdata->Loading.OnBegin.AddBitsConfig8 |= SPAWN_AT_BOSS;
+		if (gGT->gameMode1 < 0){
+			extern bool has_all_hub_trophies(int hubID);
+			bool shouldSpawnAtBoss = false;
+
+			if (!USE_BOSS_CHALLENGE)
+			{
+				shouldSpawnAtBoss = true;
+			}
+			else if (has_all_hub_trophies(data.metaDataLEV[gGT->levelID].hubID))
+			{
+				shouldSpawnAtBoss = true;
+			}
+
+			if(shouldSpawnAtBoss){
+				sdata->Loading.OnBegin.AddBitsConfig8 |= SPAWN_AT_BOSS;
+			}
+		}
 		
 		DECOMP_MainRaceTrack_RequestLoad(gGT->prevLEV);
 		break;

@@ -380,6 +380,28 @@ void RunUpdateHook() {
 }
 
 
+int count_trophy() {
+	struct AdvProgress *adv;
+    adv = &sdata->advProgress;
 
+    // Count trophies currently earned
+    int trophyCount = 0;
+    for (int i = 0; i < 18; i++) // Check all 18 tracks
+    {
+        if (CHECK_ADV_BIT(adv->rewards, i + 6)) // Trophy bits are at levelID + 6
+        {
+            trophyCount++;
+        }
+    }
+    return trophyCount;
+}
+
+bool has_all_hub_trophies(int hubID) {
+    // Check if player has all hub trophies
+    int trophyCount = count_trophy();
+    // Each hub requires the specified number of trophies
+    int requiredTrophies = hubID * 4;
+    return (trophyCount >= requiredTrophies);
+}
 
 
