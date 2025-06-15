@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
 void DECOMP_AH_Garage_ThTick(struct Thread *t)
 {
@@ -260,6 +261,8 @@ LAB_800aede8:
     {
         sdata->Loading.OnBegin.RemBitsConfig0 |= ADVENTURE_ARENA;
         sdata->Loading.OnBegin.AddBitsConfig0 |= ADVENTURE_BOSS;
+        //Mark as hub boss
+        is_hub_boss = true;
 
         if (
             (levelID == GEM_STONE_VALLEY) &&

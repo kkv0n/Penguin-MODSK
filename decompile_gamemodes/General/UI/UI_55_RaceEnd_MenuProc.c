@@ -171,20 +171,9 @@ void DECOMP_UI_RaceEnd_MenuProc(struct RectMenu* menu)
 		
 		// If you're in a Boss Race
 		if (gGT->gameMode1 < 0){
-			extern bool has_all_hub_trophies(int hubID);
-			bool shouldSpawnAtBoss = false;
-
-			if (!USE_BOSS_CHALLENGE)
-			{
-				shouldSpawnAtBoss = true;
-			}
-			else if (has_all_hub_trophies(data.metaDataLEV[gGT->levelID].hubID))
-			{
-				shouldSpawnAtBoss = true;
-			}
-
-			if(shouldSpawnAtBoss){
+			if(is_hub_boss){
 				sdata->Loading.OnBegin.AddBitsConfig8 |= SPAWN_AT_BOSS;
+				is_hub_boss = false; // reset hub boss flag
 			}
 		}
 		

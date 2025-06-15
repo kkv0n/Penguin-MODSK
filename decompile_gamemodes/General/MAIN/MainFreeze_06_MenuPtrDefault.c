@@ -199,22 +199,11 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 				{
 					// when loading is done remove bit for Boss Race, relic, and crystal challenge
 					sdata->Loading.OnBegin.RemBitsConfig0 |= 0x8c000000;
-					
-					extern bool has_all_hub_trophies(int hubID);
-					bool shouldSpawnAtBoss = false;
 
-					if (!USE_BOSS_CHALLENGE)
-					{
-						shouldSpawnAtBoss = true;
-					}
-					else if (has_all_hub_trophies(data.metaDataLEV[gGT->levelID].hubID))
-					{
-						shouldSpawnAtBoss = true;
-					}
-
-					if (shouldSpawnAtBoss){		
+					if (is_hub_boss){		
 						// When loading is done add bit to spawn driver near boss door
 						sdata->Loading.OnBegin.AddBitsConfig8 |= SPAWN_AT_BOSS;
+						is_hub_boss = false; // reset hub boss flag
 					}
 				}
 

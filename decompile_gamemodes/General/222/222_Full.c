@@ -418,31 +418,7 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 	// If you are in boss mode
 	if (gGT->gameMode1 < 0)
 	{
-		extern bool has_all_hub_trophies(int hubID);
-		bool shouldSpawnAtBoss = false;
-
-		if (!USE_BOSS_CHALLENGE)
-		{
-			shouldSpawnAtBoss = true;
-		}
-		else if (has_all_hub_trophies(data.metaDataLEV[gGT->levelID].hubID))
-		{
-			// If you have all hub trophies
-			// spawn at boss door
-			shouldSpawnAtBoss = true;
-		}
-		else if (gGT->levelID == 0x19 && gGT->bossID == 5)
-		{
-			// If you just beat Pinstripe
-			// spawn at boss door
-			shouldSpawnAtBoss = true;
-		}
-		else if (gGT->levelID == 0x19 && gGT->bossID == 4)
-		{
-			shouldSpawnAtBoss = true;
-		}
-
-		if(shouldSpawnAtBoss){
+		if(is_hub_boss){
 			sdata->Loading.OnBegin.AddBitsConfig8 |= SPAWN_AT_BOSS;
 		}
 	}
@@ -465,33 +441,19 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 	// If you are in boss mode
 	if (gGT->gameMode1 < 0)
 	{
-		// If the number of keys you have is less than 4
-		if (gGT->bossID < 4)
-		{
-			// only if first time beating boss
-			if (CHECK_ADV_BIT(adv->rewards, (gGT->bossID + 0x5e)) == 0)
-			{	
-				extern bool has_all_hub_trophies(int hubID);
-				bool shouldRewardKey = false;
+		if(is_hub_boss){
+			// bitIndex of keys unlocked, and boss beaten
+			bitIndex = gGT->bossID + 0x5e;
 
-				if (!USE_BOSS_CHALLENGE)
+			// If the number of keys you have is less than 4
+			if (gGT->bossID < 4)
+			{
+				// only if first time beating boss
+				if (CHECK_ADV_BIT(adv->rewards, bitIndex) == 0)
 				{
-					shouldRewardKey = true;
-					
-				}
-				else if (has_all_hub_trophies(data.metaDataLEV[gGT->levelID].hubID))
-				{
-					shouldRewardKey = true;
-				}
-
-				if (shouldRewardKey)
-				{
-					// bitIndex of keys unlocked, and boss beaten
-					bitIndex = gGT->bossID + 0x5e;
-
 					// Go to Podium after returning to Adventure Hub
 					gGT->podiumRewardID = 99; // key
-
+	
 					// hot air skyway
 					if (gGT->levelID == 7)
 					{
@@ -501,25 +463,30 @@ void DECOMP_AA_EndEvent_DrawMenu(void)
 					}
 				}
 			}
-		}
 
-		// If you have 4 keys (only here if you beat oxide)
-		else
-		{
-			// Always go to podium after oxide,
-			// with no key (0x38 = empty)
-			gGT->podiumRewardID = 0x38;
-
-			// assume oxide beaten 1st time
-			adv->rewards[3] |= 0x80004;
-
-			// if beaten oxide 2nd time
-			if(gGT->bossID == 5)
+			// If you have 4 keys (only here if you beat oxide)
+			else
 			{
-				// beat 2nd time
-				adv->rewards[3] |= 0x100008;
+				// Always go to podium after oxide,
+				// with no key (0x38 = empty)
+				gGT->podiumRewardID = 0x38;
+
+				// assume oxide beaten 1st time
+				adv->rewards[3] |= 0x80004;
+
+				// if beaten oxide 2nd time
+				if(gGT->bossID == 5)
+				{
+					// beat 2nd time
+					adv->rewards[3] |= 0x100008;
+				}
 			}
 		}
+	}
+
+	if(gGT->gameMode1 < 0 && is_hub_boss)
+	{
+		is_hub_boss = false; // reset hub boss flag
 	}
 
 	// if something needs unlocking

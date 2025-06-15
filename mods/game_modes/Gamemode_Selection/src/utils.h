@@ -17,10 +17,10 @@ extern bool USE_SPEEDWAY_PHYSICS;
 extern bool USE_FLY_CHEAT;
 extern bool USE_USF_CHEAT;
 
-extern struct GameTracker *gGT;
-extern char* decalText;
-
+extern bool is_hub_boss;
 extern short gravity;
+extern char* decalText;
+extern struct GameTracker *gGT;
 
 enum FIRE_LEVEL {
 	SACRED = 0x100,

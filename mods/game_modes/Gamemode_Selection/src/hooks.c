@@ -52,6 +52,7 @@ bool USE_SPEEDWAY_PHYSICS = false;
 bool USE_FLY_CHEAT = false;
 bool USE_USF_CHEAT = false;
 
+bool is_hub_boss = false;
 short gravity = 900;
 char* decalText = (char*)0x1F800000;
 struct GameTracker *gGT;
@@ -360,48 +361,21 @@ void RunUpdateHook() {
     }
 
     //Draw fps
-    char* string;
-	int timer;
-	int p;
+    // char* string;
+	// int timer;
+	// int p;
 
-	string = (char*)0x8000FFF8;
-	timer = sdata->gGT->elapsedTimeMS;
+	// string = (char*)0x8000FFF8;
+	// timer = sdata->gGT->elapsedTimeMS;
 
-	// at some point, upgrade this to use RCNT (more precise)
-	// units, which are harder to get, but they're somewhere
+	// // at some point, upgrade this to use RCNT (more precise)
+	// // units, which are harder to get, but they're somewhere
 
-	if(timer > 999) timer = 999;
+	// if(timer > 999) timer = 999;
 
-	string[0] =  '0' + (timer / 100) % 10;
-	string[1] =  '0' + (timer / 10) % 10;
-	string[2] =  '0' + timer % 10;
-	string[3] = 0;
-	DecalFont_DrawLine(string, 10, 200, FONT_BIG, ORANGE);
+	// string[0] =  '0' + (timer / 100) % 10;
+	// string[1] =  '0' + (timer / 10) % 10;
+	// string[2] =  '0' + timer % 10;
+	// string[3] = 0;
+	// DecalFont_DrawLine(string, 10, 200, FONT_BIG, ORANGE);
 }
-
-
-int count_trophy() {
-	struct AdvProgress *adv;
-    adv = &sdata->advProgress;
-
-    // Count trophies currently earned
-    int trophyCount = 0;
-    for (int i = 0; i < 18; i++) // Check all 18 tracks
-    {
-        if (CHECK_ADV_BIT(adv->rewards, i + 6)) // Trophy bits are at levelID + 6
-        {
-            trophyCount++;
-        }
-    }
-    return trophyCount;
-}
-
-bool has_all_hub_trophies(int hubID) {
-    // Check if player has all hub trophies
-    int trophyCount = count_trophy();
-    // Each hub requires the specified number of trophies
-    int requiredTrophies = hubID * 4;
-    return (trophyCount >= requiredTrophies);
-}
-
-
