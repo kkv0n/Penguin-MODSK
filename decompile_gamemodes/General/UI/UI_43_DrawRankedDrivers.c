@@ -1,10 +1,6 @@
 #include <common.h>
 #include "../AltMods/OnlineCTR/global.h"
 
-#ifdef USE_CUSTOM_TRACKS
-#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
-#endif
-
 // Draw player icons on left side of screen
 // in Arcade mode and Boss mode, and draws
 // icons in multiplayer on the midY axis (and warpball)
@@ -58,15 +54,8 @@ int DriverIndex_GetDamageColor(int iVar14)
 
 void DECOMP_UI_DrawRankedDrivers(void)
 {	
-	#ifdef USE_CUSTOM_TRACKS
-	if (
-		sdata->gGT->levelID >= FIRST_CUSTOM_TRACK_ID && sdata->gGT->levelID <= LAST_CUSTOM_TRACK_ID
-		// If only 1 player and its arcade
-		&& (sdata->gGT->numPlyrCurrGame == 1)
-		&& (sdata->gGT->gameMode1 & ARCADE_MODE) != 0
-	){
-		return;
-	};
+	#ifndef USE_ONLINE
+	if (sdata->gGT->numBotsNextGame == 0 && sdata->gGT->numPlyrCurrGame == 1) return;
 	#endif
 
     u_short uVar1;

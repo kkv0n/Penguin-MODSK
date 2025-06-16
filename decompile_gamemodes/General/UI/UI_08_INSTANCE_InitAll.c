@@ -159,7 +159,9 @@ void DECOMP_UI_INSTANCE_InitAll(void)
 		)
 	  {
       #ifndef USE_ONLINE
-      DECOMP_UI_INSTANCE_BirthWithThread(0x38,(int)DECOMP_UI_ThTick_big1,2,0,0,/*sdata->s_big1*/0);
+      if (sdata->gGT->numBotsNextGame > 0 || sdata->gGT->numPlyrCurrGame > 1){
+        DECOMP_UI_INSTANCE_BirthWithThread(0x38,(int)DECOMP_UI_ThTick_big1,2,0,0,/*sdata->s_big1*/0);
+      }
       #endif
     }
 

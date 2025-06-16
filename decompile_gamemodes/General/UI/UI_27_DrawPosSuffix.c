@@ -2,6 +2,10 @@
 
 void DECOMP_UI_DrawPosSuffix(short posX, short posY, struct Driver *d, short flags)
 {
+  #ifndef USE_ONLINE
+	if (sdata->gGT->numBotsNextGame == 0 && sdata->gGT->numPlyrCurrGame == 1) return;
+	#endif
+
   int currRank;
   struct GameTracker *gGT = sdata->gGT;
 
