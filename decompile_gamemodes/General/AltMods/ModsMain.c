@@ -33,6 +33,7 @@ void ModsMain()
 	void octr_entryHook(); octr_entryHook();
 	#endif
 
+#if 0 // These are just prints 
 // PS1 rebuild does not need defrag,
 // PC port does not need defrag
 #ifndef REBUILD_PS1
@@ -94,5 +95,6 @@ void ModsMain()
 	printf("RDATA: %d\n", (int)&rdata.jumpPointers2[0] - (int)&rdata.s_STATIC_GNORMALZ[0]);
 	printf("$sp: TBD\n\n");
 	// add more...
+#endif
 #endif
 }

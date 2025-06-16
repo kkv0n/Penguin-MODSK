@@ -1,5 +1,9 @@
 //Gamemode mashup files -----------------------------------------------------------
 
+// This mod dissables these from the buildlist
+// - RaceFlag_DrawSelf: To use custom flag
+// - VehBirth_TeleportSelf: To avoid decomp bugs on custom track spawns (#ifndef USE_CUSTOM_TRACKS // USE_RETAIL_VehBirth_TeleportSelf)
+
 //Main hooks
 common, iso, 0x80700000, 0x0, ../mods/game_modes/Gamemode_Selection/src/hooks.c
 
@@ -1329,7 +1333,7 @@ common, exe, UI_CupStandings_InputAndDraw, 0x0,          General/UI/UI_58_CupSta
 // ====================================================================================================================
 common, exe, VehAfterColl_GetSurface, 0x0,               General/Vehicle/VehAfterColl_0_GetSurface.c
 common, exe, VehAfterColl_GetTerrain, 0x0,               General/Vehicle/VehAfterColl_1_GetTerrain.c
-common, exe, VehBirth_TeleportSelf, 0x0,                 General/Vehicle/VehBirth_0_TeleportSelf.c
+//common, exe, VehBirth_TeleportSelf, 0x0,                 General/Vehicle/VehBirth_0_TeleportSelf.c
 common, exe, VehBirth_TeleportAll, 0x0,                  General/Vehicle/VehBirth_1_TeleportAll.c
 common, exe, VehBirth_GetModelByName, 0x0,               General/Vehicle/VehBirth_2_GetModelByName.c
 common, exe, VehBirth_SetConsts, 0x0,                    General/Vehicle/VehBirth_3_SetConsts.c

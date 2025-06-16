@@ -48,6 +48,8 @@
 // Since custom tracks replacs low lod variants we need to ensure having high lods
 #ifdef USE_CUSTOM_TRACKS
 #define USE_HIGHMP
+#define DECOMP_VehBirth_TeleportSelf VehBirth_TeleportSelf // Decomp bug: spawns wont work well on custom tracks
+
 #endif
 
 // Multiplayer Maxed Mod
