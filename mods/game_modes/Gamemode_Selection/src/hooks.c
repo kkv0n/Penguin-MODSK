@@ -178,7 +178,7 @@ void RunUpdateHook() {
 
     // Draw version info on main menu
     if (D230.MM_State == 1) {
-        DecalFont_DrawLine("CTR UNLIMITED v0.9.1", 5, 197, FONT_SMALL, LIME_GREEN);
+        DecalFont_DrawLine("CTR UNLIMITED v1.0.0", 5, 197, FONT_SMALL, LIME_GREEN);
         DecalFont_DrawLine(__DATE__, 5, 206, FONT_SMALL, ORANGE);
         DecalFont_DrawLine(__TIME__, 170, 206, FONT_SMALL, ORANGE);
     }
