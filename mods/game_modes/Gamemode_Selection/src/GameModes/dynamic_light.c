@@ -71,12 +71,16 @@ char prev_level_id = -1;
 bool prev_level_was_hi = true;
 
 void ResetDynamicLighting(struct Level* level) {
-    //Check if last level id and hi status match
+    // Always reset color data when a level change is detected
     bool current_level_is_hi = gGT->numPlyrCurrGame <= 2;
-    if (prev_level_id == gGT->levelID && prev_level_was_hi == current_level_is_hi) {
+    bool level_changed = (prev_level_id != gGT->levelID || prev_level_was_hi != current_level_is_hi);
+    
+    // Only restore colors if we're in the same level and colors were saved
+    if (!level_changed && colors_saved) {
         RestoreOriginalColors(level);
     }
 
+    // Reset tracking data
     colors_saved = false;
     tracked_vertices_count = 0;
     
@@ -88,10 +92,26 @@ void ResetDynamicLighting(struct Level* level) {
             original_colors_lo[i][c] = 0;
         }
     }
+    
+    // Update level tracking after reset
+    if (level_changed) {
+        prev_level_id = gGT->levelID;
+        prev_level_was_hi = current_level_is_hi;
+    }
 }
 
-
 void HandleDynamicLighting(struct Level* level) {
+    // Check if we've changed levels since initialization
+    bool current_level_is_hi = gGT->numPlyrCurrGame <= 2;
+    if (prev_level_id != gGT->levelID || prev_level_was_hi != current_level_is_hi) {
+        // Level changed, reset and initialize
+        ResetDynamicLighting(level);
+        SaveOriginalColors(level);
+        prev_level_id = gGT->levelID;
+        prev_level_was_hi = current_level_is_hi;
+        return;
+    }
+    
     if (!colors_saved) return;
     
     struct mesh_info* mi = level->ptr_mesh_info;
