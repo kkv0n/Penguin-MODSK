@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
 
 void DECOMP_LOAD_HubSwapPtrs(struct GameTracker* gGT)
 {
@@ -8,6 +9,8 @@ void DECOMP_LOAD_HubSwapPtrs(struct GameTracker* gGT)
 	// if no secondary lev exists, quit
 	if(gGT->level2 == 0) return;
 	
+	ApplyLevelModifiers(gGT->level2);
+
 	oldLev1 = gGT->level1;
 	oldVisMem1 = gGT->visMem1;
 	

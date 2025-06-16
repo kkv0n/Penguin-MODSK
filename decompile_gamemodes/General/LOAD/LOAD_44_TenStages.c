@@ -668,37 +668,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 			gGT->level1 = lev;
 
-			if(gGT->numPlyrCurrGame > 1
-                && IS_CUSTOM_TRACK_ID(gGT->levelID)
-                && ((gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0)
-            ) {
-                SeparateTrackSpawns(gGT->level1);
-            }
-
-			if (USE_SHORTCUTLESS && gGT->levelID <= TURBO_TRACK){
-			RemoveOffRoadCHK(gGT->level1);
-			}
-
-			if (USE_N_VERTED && gGT->levelID <= LAB_BASEMENT){
-				ReverseTrack(gGT->level1);
-			}
-
-			if(USE_NIGHT_FILTER && gGT->levelID < INTRO_RACE_TODAY)
-			{
-				NightFilter(gGT->level1, NightFilterBrightness, NightFilterBlueTint);
-			}
-
-			if(USE_BOUNDLESS && gGT->levelID < INTRO_RACE_TODAY){
-				Boundless(gGT->level1);
-			}
-
-			if(USE_WALL_RIDE && gGT->levelID < INTRO_RACE_TODAY){
-				WallRide(gGT->level1);
-			}
-
-			if(USE_SPEEDWAY_PHYSICS && gGT->levelID <= LAB_BASEMENT){
-				SpeedwayPhys(gGT->level1);
-			}
+			ApplyLevelModifiers(gGT->level1);
 
 			gGT->visMem1 = lev->visMem;
 

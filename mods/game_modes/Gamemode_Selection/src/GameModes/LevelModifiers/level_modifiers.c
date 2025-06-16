@@ -285,3 +285,58 @@ void SeparateTrackSpawns(struct Level *level) {
         }
     }
 }
+
+bool NightFilterApplied(struct Level* lev) {
+    if (!lev) return false;
+
+    // Trivial check for skybox and stars
+    if(
+        lev->ptr_skybox == NULL
+        && (lev->configFlags & 1)
+        && lev->stars.numStars > 0
+    ){
+        return true;
+    }
+
+    return false;
+}
+
+void ApplyLevelModifiers(struct Level* lev) 
+{
+    if (!lev) return;
+    
+    if(gGT->numPlyrCurrGame > 1
+        && IS_CUSTOM_TRACK_ID(gGT->levelID)
+        && ((gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0)
+    ) {
+        SeparateTrackSpawns(lev);
+    }
+
+    if (USE_SHORTCUTLESS && gGT->levelID <= TURBO_TRACK) {
+        RemoveOffRoadCHK(lev);
+    }
+
+    if (USE_N_VERTED && gGT->levelID <= LAB_BASEMENT) {
+        ReverseTrack(lev);
+    }
+
+    if (
+        USE_NIGHT_FILTER
+        && (gGT->levelID <= INTRO_OXIDE || gGT->levelID == ADVENTURE_GARAGE)
+        && !NightFilterApplied(lev)
+    ){
+        NightFilter(lev, NightFilterBrightness, NightFilterBlueTint);
+    }
+
+    if (USE_BOUNDLESS && gGT->levelID < INTRO_RACE_TODAY) {
+        Boundless(lev);
+    }
+
+    if (USE_WALL_RIDE && gGT->levelID < INTRO_RACE_TODAY) {
+        WallRide(lev);
+    }
+
+    if (USE_SPEEDWAY_PHYSICS && gGT->levelID <= LAB_BASEMENT) {
+        SpeedwayPhys(lev);
+    }
+}
