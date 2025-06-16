@@ -4,6 +4,8 @@
 #include "../AltMods/OnlineCTR/global.h"
 #endif
 
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+
 enum ItemSet
 {
 	ITEMSET_Race1=0,
@@ -190,35 +192,56 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 			driver->heldItemID = item;
 	}
 
-	// In Boss race
-	if (gGT->gameMode1 & ADVENTURE_BOSS)
-	{
-		bossFails = sdata->advProgress.timesLostBossRace[gGT->bossID];
+ 	// In Boss race
+    if (gGT->gameMode1 & ADVENTURE_BOSS)
+    {
+        bossFails = sdata->advProgress.timesLostBossRace[gGT->bossID];
 
-		if (bossFails < 0x3)
-		{
-			// Replace Clock, Mask,  with 3 Missiles
-			if ((u_int)driver->heldItemID - 0x7 < 0x3)
-				driver->heldItemID = 0xb;
-		}
+        if (USE_ITEM_CHAOS)
+        {
+            // Restrict clocks
+            if (driver->heldItemID == 0x8)
+                driver->heldItemID = 0xb;  // Replace with 3 Missiles
 
-		else if (bossFails < 0x4)
-		{
-			// Replace Clock, Mask with 3 Missiles
-			if ((u_int)driver->heldItemID - 0x7 < 0x2)
-				driver->heldItemID = 0xb;
-		}
+			// if you are in second place
+			if (driver->driverRank == 1){
+				// replace breakers or TNTs with Mask
+				if (driver->heldItemID == 0x3 || driver->heldItemID == 0x4)
+					driver->heldItemID = 0x7; // Mask
+			}
 
-		else if (bossFails < 0x5 && driver->heldItemID == 0x8)
-		{
-			// Replace Clock with 3 Missiles
-			driver->heldItemID = 0xb;
-		}
+			//if you are in first place
+			if (driver->driverRank == 0){
+				//replace turbo with shield
+				if (driver->heldItemID == 0x0)
+					driver->heldItemID = 0x6; // Shield
+			}
+        }
+        else
+        {
+            if (bossFails < 0x3)
+            {
+                // Replace Clock, Mask, with 3 Missiles
+                if ((u_int)driver->heldItemID - 0x7 < 0x3)
+                    driver->heldItemID = 0xb;
+            }
+            else if (bossFails < 0x4)
+            {
+                // Replace Clock, Mask with 3 Missiles
+                if ((u_int)driver->heldItemID - 0x7 < 0x2)
+                    driver->heldItemID = 0xb;
+            }
+            else if (bossFails < 0x5 && driver->heldItemID == 0x8)
+            {
+                // Replace Clock with 3 Missiles
+                driver->heldItemID = 0xb;
+            }
+        }
 
-		// Replace 3 Missiles with 1 Missile if racing Komodo Joe
-		if (gGT->levelID == DRAGON_MINES && driver->heldItemID == 0xb)
-			driver->heldItemID = 0x2;
-	}
+        // Replace 3 Missiles with 1 Missile if racing Komodo Joe
+        if (gGT->levelID == DRAGON_MINES && driver->heldItemID == 0xb)
+            driver->heldItemID = 0x2;
+    }
 
 #if 0
 	// === Removed ND Code ===

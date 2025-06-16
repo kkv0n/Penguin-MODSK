@@ -3,6 +3,7 @@
 
 int itemTimer;
 int itemChaosDifficulty = 0; // 0=off, 1=easy, 2=medium, 3=hard
+int maxWarpOrbs = 5;
 
 bool CanThrowItems(struct Driver* driver) {
     if (driver == NULL) return false;
@@ -29,6 +30,13 @@ void ItemChaos_Init(bool enabled) {
 
     // Initialize item timer, wait 5 seconds to start throwing items
     itemTimer = FPS_DOUBLE(160);
+
+    // If boss race set max warp orbs to 3
+    if (gGT->gameMode1 & ADVENTURE_BOSS) {
+        maxWarpOrbs = 3;
+    } else {
+        maxWarpOrbs = 5;
+    }
 }
 
 int CountActiveWarpOrbs() {
@@ -156,7 +164,7 @@ void WeaponRoulette(struct Driver* driver) {
 }
 
 //TODO: Sometimes a bug happens where only driver 0 will shoot items
-// Each second, force a random driver to throw a random item
+// Each second (timer), force a random driver to throw a random item
 // All players on last lap will have 99 wumpas
 void HandleItemChaos(bool enabled) {
     if (!enabled) return;
@@ -267,8 +275,8 @@ void HandleItemChaos(bool enabled) {
                 }
 
                 // Check if there are already 5 or more warp orbs active
-                if (item == ITEM_WARP_ORB && CountActiveWarpOrbs() >= 5) {
-                    return; // Don't shoot more orbs if there are already 5 active
+                if (item == ITEM_WARP_ORB && CountActiveWarpOrbs() >= maxWarpOrbs) {
+                    return; // Don't shoot more orbs if there are already max orbs
                 }
                 
                 // If human in first, item is orb, and it's last lap, 
@@ -278,6 +286,13 @@ void HandleItemChaos(bool enabled) {
                 }
 
                 int flag = 0;
+
+                // if boss race and item its an orb or a clock, give a 25% chance to change it to turbo boost 
+                if ((gGT->gameMode1 & ADVENTURE_BOSS) && (item == ITEM_WARP_ORB || item == ITEM_N_TROPY_CLOCK)) {
+                    if (rand() % 4 == 0) {
+                        item = ITEM_TURBO_BOOST;
+                    }
+                }
 
                 //if item is a crate or a breaker give a probability of 25% to trow in the air
                 if (item == ITEM_EXPLOSIVE_CRATE || item == ITEM_N_BRIO_BEAKER) {
