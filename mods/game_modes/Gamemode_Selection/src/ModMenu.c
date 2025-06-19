@@ -28,7 +28,7 @@ typedef struct {
     char* offText;
     bool* valuePtr;
     void (*onChange)(bool);
-    char* description[2];
+    char* description[3]; // Changed from 2 to 3
 } MenuOption;
 
 typedef struct {
@@ -51,55 +51,55 @@ MenuOption menuOptions[19] = {
         "Retro Fueled",
         "on", "off", &optionValues[0],
         NULL,
-        {"NF Blue fire and u-turn", "by Redhot"}
+        {"Enables Nitro Fueled", "Blue fire and u-turn", "by Redhot"}
     },
     {
         "Moon Gravity",
         "on", "off", &optionValues[1],
         NULL,
-        {"Low gravity everywhere", ""}
+        {"Low gravity everywhere", "", ""}
     },
     {
         "Mirror Mode",
         "on", "off", &optionValues[2],
         NULL,
-        {"Mirror the entire track", "left-right by Niko"}
+        {"Mirror the entire track", "left-right - by Niko", ""}
     },
     {
         "N-Verted",
         "on", "off", &optionValues[3],
         NULL,
-        {"Race tracks in backwards", "by Anfrost"}
+        {"Race tracks in the opposite", "direction - disables bots", "by Anfrost"}
     },
     {
         "Icy Tracks",
         "on", "off", &optionValues[4],
         NULL,
-        {"Enable icy tracks cheatcode", ""}
+        {"Enable icy tracks cheat code", "", ""}
     },
     {
         "Difficulty",
         NULL, NULL, NULL, // Special handling
         NULL,
-        {"Select speed of the bots", "Swap with d-pad - by Niko"}
+        {"Select difficulty of bots", "Each level increases speed", "Swap with d-pad - by Niko"}
     },
     {
         "Item Chaos",
         NULL, NULL, NULL, // Special handling
         NULL,
-        {"Unfair and chaotic item spawns", "Swap with d-pad - by Anfrost"}
+        {"Unfair-chaotic item spawns", "Each level increases the rate", "Swap with d-pad - by Anfrost"}
     },
     {
         "Shortcutless",
         "on", "off", &optionValues[7],
         NULL,
-        {"All shortcuts are banned", "by Anfrost"}
+        {"All shortcuts are banned", "Does not work on N-verted", "or customs - by Anfrost"}
     },
     {
-        "lighting",
+        "Lighting",
         NULL, NULL, NULL, // Special handling
         NULL,
-        {"Normal - Night - U-Dark", "Swap with d-pad - by Anfrost"}
+        {"Normal - Night - U-Dark", "U-Dark enables dynamic light", "Swap with d-pad - by Anfrost"}
     },
     
     // PAGE 2
@@ -107,31 +107,31 @@ MenuOption menuOptions[19] = {
         "Boss Challenge",
         "on", "off", &optionValues[8],
         NULL,
-        {"Race against track owner", "Only works in 1p Arcade/Adv."}
+        {"Race against track owner", "Only works in 1p Arcade/Adv.", ""}
     },
     {
         "Boundless",
         "on", "off", &optionValues[9],
         NULL,
-        {"Disable invisible walls,", "killplanes and offroad"}
+        {"Disable invisible walls,", "killplanes and offroad", ""}
     },
     {
         "Wall Ride",
         "on", "off", &optionValues[10],
         NULL,
-        {"Allows driving on any wall", "by penta3"}
+        {"Allows driving on any wall", "by penta3", ""}
     },
     {
         "Speedway Phys",
         "on", "off", &optionValues[11],
         NULL,
-        {"Sewer speedway physics", "everywhere"}
+        {"Sewer speedway physics", "everywhere", ""}
     },
     {
         "Fly Cheat",
         "on", "off", &optionValues[12],
         NULL,
-        {"Hold L1+^ to fly", ""}
+        {"Hold L1+^ to fly", "", ""}
     },
     // {
     //     "USF Cheat",
@@ -143,31 +143,31 @@ MenuOption menuOptions[19] = {
         "",
         "", "", &optionValues[13],
         NULL,
-        {"", ""}
+        {"", "", ""}
     },
     {
         "", // Empty slot
         "", "", &optionValues[14],
         NULL,
-        {"", ""}
+        {"", "", ""}
     },
     {
         "", // Empty slot
         "", "", &optionValues[15],
         NULL,
-        {"", ""}
+        {"", "", ""}
     },
     {
         "", // Empty slot
         "", "", &optionValues[16],
         NULL,
-        {"", ""}
+        {"", "", ""}
     },
     {
         "", // Empty slot
         "", "", &optionValues[17],
         NULL,
-        {"", ""}
+        {"", "", ""}
     }
 };
 
@@ -175,7 +175,7 @@ Menu gameMenu = {
     0,              // selectedIndex
     false,           // visible
     {MENU_BASE_X, MENU_BASE_Y, 275, 110}, // bgRect position using compile-time constants
-    {MENU_BASE_X, MENU_BASE_Y + 120, 275, 45}, // descRect position using compile-time constants
+    {MENU_BASE_X, MENU_BASE_Y + 120, 275, 55}, // descRect position - increased height from 45 to 55 to accommodate the third line
     9,              // numOptions
     menuOptions,    // options
     "Mod menu selector", // footerText
@@ -795,6 +795,7 @@ void RenderMenu() {
     MenuOption* selectedOption = &gameMenu.options[selectedOptionIndex];
     DecalFont_DrawLine(selectedOption->description[0], MENU_BASE_X + 10, MENU_BASE_Y + 125, FONT_SMALL, ORANGE);
     DecalFont_DrawLine(selectedOption->description[1], MENU_BASE_X + 10, MENU_BASE_Y + 135, FONT_SMALL, ORANGE);
+    DecalFont_DrawLine(selectedOption->description[2], MENU_BASE_X + 10, MENU_BASE_Y + 145, FONT_SMALL, ORANGE); // Draw the third description line
     
     // Draw footer
     sprintf(decalText, "Page %d/2 (L1/R1)", gameMenu.currentPage + 1);
