@@ -154,8 +154,40 @@ struct MenuRow CMAIN_MENU[6] =
 		.stringIndex = 0xFFFF,
 	}
 };
+#elif defined(DOUBLE_TRACK)
+
+struct MenuRow CMAIN_MENU[3] =
+{
+	[0] =
+	{
+		// all of them uses time trial lng string
+		// but the stringIndex changes later
+		.stringIndex = 0x4D,
+		.rowOnPressUp = 0,
+		.rowOnPressDown = 1,
+		.rowOnPressLeft = 0,
+		.rowOnPressRight = 0,
+	},
+	
+	[1] =
+	{
+		// all of them uses time trial lng string
+		// but the stringIndex changes later
+		.stringIndex = 0x4D,
+		.rowOnPressUp = 0,
+		.rowOnPressDown = 1,
+		.rowOnPressLeft = 1,
+		.rowOnPressRight = 1,
+	},
+
+	[2] =
+	{
+		.stringIndex = 0xFFFF,
+	}
+};
 
 #else
+
 struct MenuRow CMAIN_MENU[2] =
 {
 	[0] =
@@ -509,6 +541,8 @@ void custom_main()
 
 #ifdef CUSTOM_CUP
 		menu_options = 5;
+#elif defined(DOUBLE_TRACK)
+		menu_options = 2;
 #else
 		menu_options = 1;
 #endif
@@ -518,12 +552,16 @@ void custom_main()
 			CMAIN_MENU[i].stringIndex = 133 + i;
 #ifdef CUSTOM_CUP
 			sdata->lngStrings[133 + i] = names[i]; //rename the main menu with custom track names
+#elif defined(DOUBLE_TRACK)
+			sdata->lngStrings[133 + i] = names[i];  //rename the main menu with custom track names
 #else
 			sdata->lngStrings[133 + i] = names;  //rename the main menu with custom track names
 #endif
 		}
 
 #ifdef CUSTOM_CUP
+		selected_name = names[selected_track]; //mostly to show the name in race intro
+#elif defined(DOUBLE_TRACK)
 		selected_name = names[selected_track]; //mostly to show the name in race intro
 #else
 		selected_name = names;

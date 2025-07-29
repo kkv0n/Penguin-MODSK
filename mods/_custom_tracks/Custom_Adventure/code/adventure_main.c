@@ -351,15 +351,7 @@ void adventure_main()
 	unsigned char i;
 	int buttonTap;
 	struct GameTracker* gGT = sdata->gGT;
-     
-
-
-	 
-	 
-
-	 
-	 
-	 
+      
 	//change main menu entries
 	if (gGT->levelID == MAIN_MENU_LEVEL) D230.menuMainMenu.rows = &adventure_row;
 	

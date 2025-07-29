@@ -26,6 +26,7 @@ unsigned char t_color = PENTA_WHITE; //if you want to change the color then take
 
 //track names in main menu
 #ifdef CUSTOM_CUP
+
 char* names[5] = {
 	"track1",
 	"track2",
@@ -33,6 +34,14 @@ char* names[5] = {
 	"track4",
 	"ALL"
 	};
+	
+#elif defined(DOUBLE_TRACK)
+
+char* names[2] = {
+	"track1",
+	"track2"
+};
+
 #else
 char* names = "track1";
 #endif
@@ -285,9 +294,10 @@ void track_options()
 		#endif
 	}
 	
-	#ifdef CUSTOM_CUP
+	#if defined (CUSTOM_CUP) || defined(DOUBLE_TRACK)
 	if (selected_track == 1) //track 2
 	{
+		
 		//track info
 		track_id = CPARK;
 		gamemode = ARCADE_TIME;
@@ -347,6 +357,9 @@ void track_options()
 		selected_mod = RETRO_FUELED;
 		#endif
 	}
+	#endif
+	
+	#ifdef CUSTOM_CUP
 	if (selected_track == 2) //track 3
 	{
 		//track info
@@ -474,6 +487,8 @@ void track_options()
 		#endif
 	}
 	#endif
+	
+	
 }
 
 

@@ -82,12 +82,15 @@ void MM_MenuProc_Main(struct RectMenu* mainMenu)
 		selected_track = 0;
 		break;
 	}
-#ifdef CUSTOM_CUP
+#if defined(CUSTOM_CUP) || defined (DOUBLE_TRACK)
 	case 134:
 	{
 		selected_track = 1;
 		break;
 	}
+#endif
+	
+#ifdef CUSTOM_CUP
 	case 135:
 	{
 		selected_track = 2;

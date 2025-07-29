@@ -19,6 +19,15 @@
 
 #define CUSTOM_CUP //compile 4 tracks
 
+//if custom cup is disabled
+#ifndef CUSTOM_CUP
+
+//enable this if you want 2 tracks instead of just 1 when cup macro is disabled
+
+//#define DOUBLE_TRACK
+
+#endif
+
 
 
 
@@ -51,6 +60,8 @@ extern uint16_t q_flag[4];
 extern unsigned char single_item[4];
 #ifdef CUSTOM_CUP
 extern char* names[5];
+#elif defined(DOUBLE_TRACK)
+extern char* names[2];
 #else
 extern char* names;
 #endif
