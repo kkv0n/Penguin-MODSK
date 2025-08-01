@@ -558,10 +558,8 @@ void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, v
 	
     struct GameTracker* gGT = sdata->gGT;
 	
-	unsigned char drivers = (gGT->numPlyrCurrGame > 2) ?
-	gGT->numPlyrCurrGame - 1 : gGT->numPlyrCurrGame + gGT->numBotsCurrGame - 1; 
 	
-	unsigned char lastIndex = (drivers == 0) ? 1 : drivers;
+	unsigned char lastIndex = gGT->numPlyrCurrGame - 1; //number of human players
 	
 	gameMode1 = gGT->gameMode1;
 	
@@ -607,20 +605,29 @@ void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, v
 		data.characterIDs[2] = 0x9;
 		data.characterIDs[3] = 0xB;
 		data.characterIDs[4] = 0x8;
-		lastIndex = 4;
+		
+		lastIndex = 4; // 5 characters, bosses + player
 
 	}
 	else if ((gameMode1 & TIME_TRIAL) != 0) 
 	{
-		lastIndex = 1; //just in case
+		lastIndex = 1; //2, ghost + player ???
 	}
-
-
-	if(((gameMode1 & (ADVENTURE_MODE | ARCADE_MODE)) != 0) && (levelLOD == 1))
+	
+	//if single player arcade mode
+	if(((gameMode1 & (ADVENTURE_MODE | ARCADE_MODE)) != 0) && (gGT->numPlyrCurrGame == 1))
+	{
 		 LOAD_Robots1P(data.characterIDs[0]);
+		 
+		 lastIndex = 7; // 8 players
+	}
+	 
+	//if multiplayer arcade mode
+	else if(((gameMode1 & ARCADE_MODE) != 0) && (gGT->numPlyrCurrGame == 2))
+		lastIndex = 5; // 5 players
 
 
-
+            //loop throught all players + bots
             for(i = 0; i < lastIndex; i++)
 		   {
 			// CTR model
@@ -630,8 +637,9 @@ void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, v
 		   }
 		   
 
-		   	if(((gameMode1 & ARCADE_MODE) != 0) && (levelLOD == 2))
+		   	if(((gameMode1 & ARCADE_MODE) != 0) && (gGT->numPlyrCurrGame == 2))
 		   {
+			    //load bot IDs
 			   	LOAD_Robots2P(bigfile, data.characterIDs[0], data.characterIDs[1], callback);
 				return;
 		   }
