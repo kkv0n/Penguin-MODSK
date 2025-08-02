@@ -232,6 +232,7 @@ void track_options()
 		track_id = COVE;
 		gamemode = ARCADE_TIME;
 		d_laps = 3;
+		show_stars = false;
 		LAP_COUNT_TIMER = 60;
 		
 		
@@ -302,6 +303,7 @@ void track_options()
 		track_id = CPARK;
 		gamemode = ARCADE_TIME;
 		d_laps = 3;
+		show_stars = false;
 		LAP_COUNT_TIMER = 60;
 				
 		
@@ -366,6 +368,7 @@ void track_options()
 		track_id = TTEMPLE;
 		gamemode = ARCADE_TIME;
 		d_laps = 3;
+		show_stars = false;
 		LAP_COUNT_TIMER = 60;
 				
 		
@@ -429,6 +432,7 @@ void track_options()
 		track_id = COLISEUM;
 		gamemode = ARCADE_TIME;
 		d_laps = 3;
+		show_stars = false;
 		LAP_COUNT_TIMER = 60;
 				
 		

@@ -44,6 +44,7 @@ extern unsigned char selected_mod;
 extern bool firstperson;
 #endif
 
+extern bool show_stars;
 extern struct GameTracker* GT;
 extern struct Driver* driver[4];
 extern struct QuadBlock* quadblock[4];

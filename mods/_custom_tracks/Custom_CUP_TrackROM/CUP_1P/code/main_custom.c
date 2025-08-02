@@ -422,6 +422,16 @@ void custom_main()
 	GT = sdata->gGT;
 
 	timer();
+	
+    //enable stars
+	if (show_stars && sdata->gGT->levelID == track_id)
+	{
+		sdata->gGT->stars.numStars = 768;
+		sdata->gGT->stars.spread = 1;
+		sdata->gGT->stars.seed = 65535;
+		sdata->gGT->stars.distance = 1022;
+
+	}
 
 
 #ifdef DEV_MODE

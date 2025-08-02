@@ -4,7 +4,7 @@
 
 
 
-
+bool show_stars;
 unsigned char hazard_id[4];
 unsigned short hazard_fx[4];
 unsigned char track_id;
