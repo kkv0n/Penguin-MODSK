@@ -39,6 +39,18 @@ typedef int8_t   s8;
 #define MINUTE (SECOND * 60)
 #define HOUR (MINUTE * 60)
 
+//
+
+//added by penta3
+//1 ms in race clock is 9.6, but 10 works better for operations
+#define MILLISECOND ((FPS * ELAPSED_MS) / 96)
+
+//this returns the elapsedMS in total for "X" mseconds based in race clock, MILLISECONDS(100) = 960 game ms
+#define MILLISECONDS(x) ((s32)(((float)((x) * 96)) / MILLISECOND))
+//added by penta3
+
+//
+
 #define SECONDS(x) ((s32)(((float)(x)) * SECOND))
 #define MINUTES(x) ((s32)(((float)(x)) * MINUTE))
 #define HOURS(x)   ((s32)(((float)(x)) * HOUR))

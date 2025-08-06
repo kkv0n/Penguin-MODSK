@@ -420,10 +420,11 @@ void adventure_main()
 		if (hardcore)
 		{
         //use relic instance as decoration
-		inst = UI_INSTANCE_BirthWithThread(0x61, (int)UI_ThTick_Reward,0xe,1,0,/*sdata->s_relic1*/0);
-		inst->matrix.t[0] = -206;
-		inst->matrix.t[1] = 86;
-		inst->matrix.t[2] = 256;
+		inst = (current_track >= N_SANITY_BOSS) ? UI_INSTANCE_BirthWithThread(STATIC_KEY,(int)UI_ThTick_Reward,0xf,1,0,/*sdata->s_key1*/0) :
+		UI_INSTANCE_BirthWithThread(0x61, (int)UI_ThTick_Reward,0xe,1,0,/*sdata->s_relic1*/0);
+		
+		inst->matrix.t[0] = (current_track >= N_SANITY_BOSS) ? -400 : -206;
+		inst->matrix.t[1] =  (current_track >= N_SANITY_BOSS) ? 152 : 86;
         inst->colorRGBA = (unsigned int)instanceColor(relic_color);
 		}
     

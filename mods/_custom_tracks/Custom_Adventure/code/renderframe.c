@@ -512,6 +512,7 @@ void RenderAllHUD(struct GameTracker* gGT)
 	                unsigned int seconds;
 	                unsigned int minutes;
 					
+					
 			        //no sscanf available in ctr lol
 					unsigned int sscanf(char* s) {
                     return (s[0] - '0') * 10 + (s[1] - '0');
@@ -525,7 +526,8 @@ void RenderAllHUD(struct GameTracker* gGT)
 					
 					requiredTime = minutes * MINUTES(1) +
                                 seconds * SECONDS(1) +
-                                mseconds * 10;
+                                (((mseconds * MILLISECONDS(100)) + (MILLISECOND * 5)) / 100);
+
 					
 				//we can name this "custom overlay" ?
 				void adventure_endrace(unsigned int endTime, unsigned int required);

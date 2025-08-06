@@ -138,7 +138,7 @@ void AH_WarpPad_LInB(struct Instance* inst)
 	else if (levelID == SLIDE_COLISEUM)
 	{
 		//swap between trophy and key model
-		unlockItem_modelID = (!slidec_finished && gGT->currAdvProfile.numTrophies < 5) ? 99 : 0x62;
+		unlockItem_modelID = (!slidec_finished && gGT->currAdvProfile.numTrophies < 5) ? STATIC_TROPHY : STATIC_KEY;
 		//the number we need of this item to unlock the track
 		unlockItem_numNeeded = (!slidec_finished) ? 4 : 2;
 		//the number we own of this item
@@ -150,7 +150,7 @@ void AH_WarpPad_LInB(struct Instance* inst)
 	else if (levelID == TURBO_TRACK)
 	{
 		// swap between trophy and key model
-		unlockItem_modelID = (!ttrack_finished && gGT->currAdvProfile.numTrophies < 5) ? 99 : 0x62;
+		unlockItem_modelID = (!ttrack_finished && gGT->currAdvProfile.numTrophies < 5) ? STATIC_TROPHY : STATIC_KEY;
 		//the number we need of this required item to unlock the track
 		unlockItem_numNeeded = (!slidec_finished && gGT->currAdvProfile.numTrophies < 5) ? gGT->currAdvProfile.numTrophies + 1 :
 			(ttrack_finished) ? 2 : 4;

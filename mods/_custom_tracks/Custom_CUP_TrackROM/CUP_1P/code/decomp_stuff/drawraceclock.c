@@ -76,7 +76,7 @@ void time_helper(u_char showthis)
 	unsigned int mseconds;
 	unsigned int seconds;
 	unsigned int minutes;
-	mseconds = (msElapsed % 1000) / 10;
+	mseconds = (((msElapsed * (MILLISECOND * 10)) / MILLISECONDS(100)) % 100);
 	seconds = (msElapsed / SECONDS(1)) % 60;
 	minutes = (msElapsed / MINUTES(1)) % 101;
 	sprintf(RaceTime, "%02d:%02d:%02d", minutes, seconds, mseconds);
@@ -116,7 +116,7 @@ void time_helper(u_char showthis)
 		{
 			unsigned int LapTime = sdata->gGT->elapsedEventTime - d->lapTime;
 			//current lap time (live counter)
-			mseconds = (LapTime % 1000) / 10;
+			mseconds = (((LapTime * (MILLISECOND * 10)) / MILLISECONDS(100)) % 100);
 			seconds = (LapTime / SECONDS(1)) % 60;
 			minutes = (LapTime / MINUTES(1)) % 10;
 			sprintf(RaceTime, "%02d:%02d:%02d", minutes, seconds, mseconds);
@@ -130,7 +130,7 @@ void time_helper(u_char showthis)
 		{
 
 			//best
-			mseconds = (PB_lap % 1000) / 10;
+			mseconds = (((PB_lap * (MILLISECOND * 10)) / MILLISECONDS(100)) % 100);
 			seconds = (PB_lap / SECONDS(1)) % 60;
 			minutes = (PB_lap / MINUTES(1)) % 11;
 			sprintf(RaceTime, "%02d:%02d:%02d", minutes, seconds, mseconds);
@@ -141,7 +141,7 @@ void time_helper(u_char showthis)
 			DecalFont_DrawLine(RaceTime, posxy[0] + 37, posxy[1] + 16, FONT_SMALL, color);
 
 			//worst
-			mseconds = (Worst_lap % 1000) / 10;
+			mseconds = (((Worst_lap * (MILLISECOND * 10)) / MILLISECONDS(100)) % 100);
 			seconds = (Worst_lap / SECONDS(1)) % 60;
 			minutes = (Worst_lap / MINUTES(1)) % 11;
 			sprintf(RaceTime, "%02d:%02d:%02d", minutes, seconds, mseconds);
