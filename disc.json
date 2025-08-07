@@ -15,6 +15,290 @@
 					"offset":   "0x800"
 				}
 			],
+			
+			"XA/ENG.XNF":
+			[
+			    {
+					"name": "engxnf",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/EXTRA/S00.XA":
+			[
+			    {
+					"name": "xaengextras00xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/EXTRA/S01.XA":
+			[
+			    {
+					"name": "xaengextras01xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/EXTRA/S02.XA":
+			[
+			    {
+					"name": "xaengextras02xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/EXTRA/S03.XA":
+			[
+			    {
+					"name": "xaengextras03xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/EXTRA/S04.XA":
+			[
+			    {
+					"name": "xaengextras04xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/EXTRA/S05.XA":
+			[
+			    {
+					"name": "xaengextras05xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/GAME/S00.XA":
+			[
+			    {
+					"name": "xaenggames00xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/GAME/S01.XA":
+			[
+			    {
+					"name": "xaenggames01xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/ENG/GAME/S02.XA":
+			[
+			    {
+					"name": "xaenggames02xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S03.XA":
+			[
+			    {
+					"name": "xaenggames03xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S04.XA":
+			[
+			    {
+					"name": "xaenggames04xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S05.XA":
+			[
+			    {
+					"name": "xaenggames05xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S06.XA":
+			[
+			    {
+					"name": "xaenggames06xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S07.XA":
+			[
+			    {
+					"name": "xaenggames07xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S08.XA":
+			[
+			    {
+					"name": "xaenggames08xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S09.XA":
+			[
+			    {
+					"name": "xaenggames09xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S10.XA":
+			[
+			    {
+					"name": "xaenggames10xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S11.XA":
+			[
+			    {
+					"name": "xaenggames11xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S12.XA":
+			[
+			    {
+					"name": "xaenggames12xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S13.XA":
+			[
+			    {
+					"name": "xaenggames13xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S14.XA":
+			[
+			    {
+					"name": "xaenggames14xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S15.XA":
+			[
+			    {
+					"name": "xaenggames15xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S16.XA":
+			[
+			    {
+					"name": "xaenggames16xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S17.XA":
+			[
+			    {
+					"name": "xaenggames17xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S18.XA":
+			[
+			    {
+					"name": "xaenggames18xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S19.XA":
+			[
+			    {
+					"name": "xaenggames19xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			"XA/ENG/GAME/S20.XA":
+			[
+			    {
+					"name": "xaenggames20xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/MUSIC/S00.XA":
+			[
+			    {
+					"name": "xamusics00xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			"XA/MUSIC/S01.XA":
+			[
+			    {
+					"name": "xamusics01xa",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+			
+			
 			"bigfile/overlays/221_EndRaceMenu_CrystalChallenge.bin":
 			[
 				{
@@ -612,7 +896,15 @@
 	"common":
 	[
 		{
-
+			"SOUNDS/KART/KART.HWL":
+			[
+			    {
+					"name": "soundskarthwl",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
 			"bigfile/levels/tracks/proto8/1P/data.vrm":
 			[
 				{
