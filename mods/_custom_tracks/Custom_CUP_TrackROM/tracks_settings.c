@@ -247,7 +247,7 @@ void track_options()
 		terrain_effect[0] = NO_EFFECT;
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
-		single_item[1] = TNTNITRO;
+		single_item[0] = TNTNITRO;
 		
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
