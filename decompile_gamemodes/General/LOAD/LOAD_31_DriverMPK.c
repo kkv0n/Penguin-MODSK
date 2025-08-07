@@ -1,4 +1,7 @@
 #include <common.h>
+#ifdef USE_CUSTOM_RACERS
+#include "../../../mods/game_modes/Gamemode_Selection/src/utils.h"
+#endif
 
 static int cbDRAM = DECOMP_LOAD_DramFileCallback;
 
@@ -84,16 +87,23 @@ void highLOD_DriverMPK(int numDrivers)
     }
 	#endif
 	
-	// TODO: Should restore Purple Gem Cup
-	// so that those are still Boss drivers
-	int i = 0;
-	for(i = 0; i < numDrivers-1; i++)
-	{
-		// high lod CTR model
-		DECOMP_LOAD_AppendQueue(0, LT_GETADDR,
-			BI_RACERMODELHI + data.characterIDs[i],
-			&data.driverModelExtras[i], cbDRAM);
-	}
+    // Determine which LOD to use for ALL drivers
+    int RACER_LOD = BI_RACERMODELHI;
+    #ifdef USE_CUSTOM_RACERS
+    if(USE_FLY_CHEAT) {
+        RACER_LOD = BI_RACERMODELLOW;
+    } 
+    #endif
+    
+    // TODO: Should restore Purple Gem Cup
+    // so that those are still Boss drivers
+    int i = 0;
+    for(i = 0; i < numDrivers; i++)
+    {
+        DECOMP_LOAD_AppendQueue(0, LT_GETADDR,
+        RACER_LOD + data.characterIDs[i],
+        &data.driverModelExtras[i], cbDRAM);
+    }
 
 	// Time Trial MPK
 	DECOMP_LOAD_AppendQueue(0, LT_GETADDR,
@@ -111,13 +121,20 @@ void DECOMP_LOAD_DriverMPK(unsigned int param_1,int levelLOD)
 	goto ForceOnlineLoad8;
 #endif
 
+	int RACER_LOD = BI_RACERMODELHI;
+	#ifdef USE_CUSTOM_RACERS
+	if(USE_FLY_CHEAT) {
+		RACER_LOD = BI_RACERMODELLOW;
+	} 
+	#endif
+
 	struct GameTracker* gGT = sdata->gGT;
 	gameMode1 = gGT->gameMode1;
 	
 	int lastFileIndexMPK;
 
 	// 3P/4P
-	if(levelLOD - 3U < 2)
+	if(levelLOD - 4U < 2)
 	{
 		#ifdef USE_DRIVERLOD
 		highLOD_DriverMPK(levelLOD);
@@ -143,7 +160,7 @@ void DECOMP_LOAD_DriverMPK(unsigned int param_1,int levelLOD)
 		// high lod model (temporary workaround)
 		DECOMP_LOAD_AppendQueue(
 			0, LT_GETADDR,
-			BI_RACERMODELHI + 0xF,
+			RACER_LOD + NITROS_OXIDE,
 			&data.driverModelExtras[0],cbDRAM);
 			
 		lastFileIndexMPK = BI_ADVENTUREPACK + data.characterIDs[0];
@@ -166,7 +183,12 @@ void DECOMP_LOAD_DriverMPK(unsigned int param_1,int levelLOD)
 		// credits
 		((gGT->gameMode2 & CREDITS) != 0)
 	  )
-	{		
+	{	
+			DECOMP_LOAD_AppendQueue(
+			0, LT_GETADDR,
+			RACER_LOD + data.characterIDs[0],
+			&data.driverModelExtras[0],cbDRAM);
+		
 		lastFileIndexMPK = BI_ADVENTUREPACK + data.characterIDs[0];
 	}
 
@@ -188,10 +210,17 @@ void DECOMP_LOAD_DriverMPK(unsigned int param_1,int levelLOD)
 		// if HI+IDs[1] and PACK+IDs[0] is loaded,
 		// then mask-grab breaks for all characters
 		// on Hot Air Skyway (except Crash Bandicoot)
-		
+
+		int RACER_LOD = BI_RACERMODELHI;
+		#ifdef USE_CUSTOM_RACERS
+		if(USE_FLY_CHEAT) {
+			RACER_LOD = BI_RACERMODELLOW;
+		} 
+		#endif
+				
 		// Load Player 1 [0]
 		DECOMP_LOAD_AppendQueue(0, LT_GETADDR,
-			BI_RACERMODELHI + data.characterIDs[0],
+			RACER_LOD + data.characterIDs[0],
 			&data.driverModelExtras[0],cbDRAM);
 		
 		// Load boss or ghost [1]
@@ -218,9 +247,16 @@ void DECOMP_LOAD_DriverMPK(unsigned int param_1,int levelLOD)
 		return;
 		#endif
 
+		int RACER_LOD = BI_RACERMODELHI;
+		#ifdef USE_CUSTOM_RACERS
+		if(USE_FLY_CHEAT) {
+			RACER_LOD = BI_RACERMODELLOW;
+		} 
+		#endif
+
 		// high lod model
 		DECOMP_LOAD_AppendQueue(0, LT_GETADDR,
-			BI_RACERMODELHI + data.characterIDs[0],
+			RACER_LOD + data.characterIDs[0],
 			&data.driverModelExtras[0],cbDRAM);
 
 		// pack of four AIs with bosses

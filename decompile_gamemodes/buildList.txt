@@ -32,8 +32,24 @@ common, bigfilelevelsbattlerocky_road3datalev, 0x0, 0x0, custom_tracks/track_6.l
 common, bigfilelevelsbattlelab_basement3datavrm, 0x0, 0x0, custom_tracks/track_7.vrm
 common, bigfilelevelsbattlelab_basement3datalev, 0x0, 0x0, custom_tracks/track_7.lev
 
+//Custom racers
+common, bigfilemodelsracerslowcrashctr, 0x0, 0x0, custom_racers/crash_replace.ctr
+common, bigfilemodelsracerslowcortexctr, 0x0, 0x0, custom_racers/cortex_replace.ctr
+common, bigfilemodelsracerslowcococtr, 0x0, 0x0, custom_racers/coco_replace.ctr
+common, bigfilemodelsracerslowtinyctr, 0x0, 0x0, custom_racers/tiny_replace.ctr
+common, bigfilemodelsracerslownginctr, 0x0, 0x0, custom_racers/ngin_replace.ctr
+common, bigfilemodelsracerslowdingoctr, 0x0, 0x0, custom_racers/dingo_replace.ctr
+common, bigfilemodelsracerslowpolarctr, 0x0, 0x0, custom_racers/polar_replace.ctr
+common, bigfilemodelsracerslowpuractr, 0x0, 0x0, custom_racers/pura_replace.ctr
+common, bigfilemodelsracerslowpinstripectr, 0x0, 0x0, custom_racers/pinstripe_replace.ctr
+common, bigfilemodelsracerslowpapuctr, 0x0, 0x0, custom_racers/papu_replace.ctr
+common, bigfilemodelsracerslowrooctr, 0x0, 0x0, custom_racers/roo_replace.ctr
+common, bigfilemodelsracerslowjoectr, 0x0, 0x0, custom_racers/joe_replace.ctr
+common, bigfilemodelsracerslowntropyctr, 0x0, 0x0, custom_racers/ntropy_replace.ctr
+common, bigfilemodelsracerslowpenctr, 0x0, 0x0, custom_racers/pen_replace.ctr
+common, bigfilemodelsracerslowfakectr, 0x0, 0x0, custom_racers/fake_replace.ctr
+common, bigfilemodelsracerslowoxidectr, 0x0, 0x0, custom_racers/oxide_replace.ctr
 //---------------------------------------------------------------------------------
-
 
 // 496 = 979-483, "comm... - //comm..."
 // 496+43+50+27+38+14+18+35+46+12+7+6+9+2+1+1+2+2+3+3+2+4+2+3+3+16+3+47 = 895 rewritten so far

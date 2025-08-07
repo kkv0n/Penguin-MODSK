@@ -27,6 +27,7 @@
 #define USE_BETTER_SPEEDO
 #define USE_CUSTOM_TRACKS
 #define USE_BETTER_STATS
+#define USE_CUSTOM_RACERS
 
 // 2mb: On-Boot preload 8 custom characters
 // 8mb: On-Boot preload 16 CTR drivers
@@ -50,6 +51,10 @@
 #define USE_HIGHMP
 #define DECOMP_VehBirth_TeleportSelf VehBirth_TeleportSelf // Decomp bug: spawns wont work well on custom tracks
 
+#endif
+
+#ifdef USE_CUSTOM_RACERS
+#define USE_HIGHMP
 #endif
 
 // Multiplayer Maxed Mod

@@ -319,6 +319,22 @@ void RunUpdateHook() {
         }
     }
 
+    // Darken skybox (if available)
+    // struct Skybox* sb = level->ptr_skybox;
+    // if (sb && sb->ptrVertex) {
+    //     int count = sb->numVertex;
+    //     struct ShortVertex* sk_verts = sb->ptrVertex;
+        
+    //     for (int i = 0; i < count; i++) {
+    //         unsigned char* col = (unsigned char*)&sk_verts[i].Color;
+        
+    //         col[0] = 0; // R
+    //         col[1] = 0; // G
+    //         col[2] = 0; // B
+    //         // col[3] = 255; // A
+    //     }
+    // }
+
     // Warp to level test ----------------------
     // #ifdef USE_CUSTOM_TRACKS
     // short origin_id = CUSTOM_TRACK_2;
