@@ -4,37 +4,17 @@ extern const char* options[16];
 extern int label;
 
 //special menu text, probably will move it later
+// OCTR SPECIAL MENU BY PENTA3
+char* special_name[] = {
 #ifdef GASMOX_ENG
-const char* special_0 = "NORMAL";
-const char* special_1 = "MIRROR MODE";
-const char* special_2 = "ICY TRACK";
-const char* special_3 = "TIME TRIAL";
-const char* special_4 = "MOON MODE";
-const char* special_5 = "RETROFUELED";
-const char* special_6 = "VOID WORLD";
-const char* special_7 = "BOSS RACE";
-const char* special_8 = "DEMO CAMERA";
+    "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETROFUELED", "VOID WORLD", "BOSS RACE", "DEMO CAMERA"
 #elif defined(GASMOX_ES)
-const char* special_0 = "NORMAL";
-const char* special_1 = "MODO ESPEJO";
-const char* special_2 = "PISO DE HIELO";
-const char* special_3 = "SIN ITEMS";
-const char* special_4 = "MODO LUNAR";
-const char* special_5 = "RETROFUELED";
-const char* special_6 = "MUNDO VACIO";
-const char* special_7 = "MODO JEFE";
-const char* special_8 = "CAMARA DEMO";
+    "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETROFUELED", "MUNDO VACIO", "MODO JEFE", "CAMARA DEMO"
 #elif defined(GASMOX_BR)
-const char* special_0 = "NORMAL";
-const char* special_1 = "ESPELHADO";
-const char* special_2 = "PISTA GELO";
-const char* special_3 = "SEM ITENS";
-const char* special_4 = "MODO LUNAR";
-const char* special_5 = "RETROFUELED";
-const char* special_6 = "PISTA VAZIA";
-const char* special_7 = "CONTRA CHEFE";
-const char* special_8 = "DEMO CAMERA";
+    "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETROFUELED", "PISTA VAZIA", "CONTRA CHEFE", "DEMO CAMERA"
 #endif
+};
+
 
 
 //todo: substract the rows for server country and engine menus
@@ -264,20 +244,21 @@ void NewPage_Tracks()
 
 	for (int i = 0; i < 8; i++)
 	{
+		
+		
 		int id = 8 * octr->PageNumber + i;
-
+		
+		menuRows[i].stringIndex = (id > TURBO_TRACK) ? 0x9a + i : data.metaDataLEV[id].name_LNG;
+		
 		if (id > TURBO_TRACK)
 		{
-
-			menuRows[i].stringIndex = "-";
-			
-
+			sdata->lngStrings[0x9a + i] = "-";
 			menuRows[i].stringIndex |= 0x8000;
 		}
-		else
-		{
-		   menuRows[i].stringIndex = data.metaDataLEV[id].name_LNG;
-		}
+
+		
+		
+		   
 	}
 }
 
@@ -293,20 +274,13 @@ void NewPage_Events()
 	label = 2;
     int i;
 
-
-
-    // OCTR SPECIAL MENU BY PENTA3
-char* special_name[9] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7, special_8 };
-
     for (i = 0; i < 8; i++)
     {
        int max = 8 * octr->PageNumber + i;
+	   menuRows[i].stringIndex = 0x9a + i;
 	   
 	   if (max < 9) {
         sdata->lngStrings[0x9a + i] = special_name[max];
-
-        
-        menuRows[i].stringIndex = 0x9a + i;
 	   }
 
      else {
@@ -314,6 +288,7 @@ char* special_name[9] = { special_0, special_1, special_2, special_3, special_4,
         sdata->lngStrings[0x9a + i] = "-";
         menuRows[i].stringIndex |= 0x8000;  
     }
+	
 }
 }
 
@@ -491,20 +466,18 @@ void PrintCharacterStats()
 	int i;
 	int color;
 
-//special events text when you are in a room
-//for the special events logic search octr special in cl_main.c
-char* special_titles[9] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7, special_8 };
 
 char* title = nullptr;
 
-
+//special events text when you are in a room
+//for the special events logic search octr special in gasmox_client.c
 if (octr->special >= 0 && octr->special < 9) {
-    title = special_titles[octr->special];
+    title = special_name[octr->special];
 } 
 else
 {
     
-    title = special_0;  
+    title = "HACKER ALERT, OR DEV TEST"; //who knows
 }
 	DecalFont_DrawLine(title,0x100,0x18,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 

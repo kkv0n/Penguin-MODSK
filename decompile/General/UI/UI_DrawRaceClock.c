@@ -1,5 +1,7 @@
 #include <common.h>
 
+
+
 #ifdef REBUILD_PC
 struct
 {
@@ -9,6 +11,7 @@ struct
 
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
+extern char* special_name[];
 #endif
 
 // used for both finished lap time and current race time
@@ -162,11 +165,17 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	textPosX = paramX;
 	textPosY = paramY;
 
+	#ifdef USE_GASMOXIAN
+	char* title_ = (octr->special < 9) ? special_name[octr->special] : "hacker alert, or dev test";
+	DECOMP_DecalFont_DrawLine(title_, (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);
+	#else
 	// str = 0x12: TIME
 	// str = 0x4d: TIME TRIAL
 	// str = 0xc4: TOTAL
 	// str = 0xc5: YOUR TIME
-	DECOMP_DecalFont_DrawLine(sdata->lngStrings[str], (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);
+	DECOMP_DecalFont_DrawLine(sdata->lngStrings[str], (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);	
+	#endif
+	
 
 	// set string to use data.ptrColor[1], which is the periwinkle gradient seen in the LAP text on the HUD
 	// particularly used for relic race when the time is frozen

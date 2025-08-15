@@ -510,15 +510,21 @@ static void OnRaceInit()
 	sdata->gGT->drivers[0]->bestLapTime = HOURS(10);
 }
 
+extern void ITEMLESS_MAIN(struct GameTracker* gGT);
+
 void StatePS1_Game_WaitForRace()
 {
-	
 	struct GameTracker* gGT = sdata->gGT;
+	
 	if (initRace)
 	{
 		OnRaceInit();
 		initRace = false;
 	}
+	
+	//make everyone a ghost
+	if (octr->special == 3)
+	ITEMLESS_MAIN(gGT);
 
 	gGT->trafficLightsTimer = 0xf40;
 

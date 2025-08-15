@@ -1,4 +1,7 @@
 #include <common.h>
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
+#endif
 
 struct Particle* DECOMP_VehEmitter_Exhaust(struct Driver *d, VECTOR *param_2, VECTOR *param_3)
 {
@@ -20,6 +23,11 @@ struct Particle* DECOMP_VehEmitter_Exhaust(struct Driver *d, VECTOR *param_2, VE
 
 	if ((dInst->flags & HIDE_MODEL) != 0)
 		return 0;
+	
+	#ifdef USE_GASMOXIAN
+	if (octr->special == 3 && d->driverID != 0) //Skip kart smoke from ghosts in time trial
+		return;
+	#endif
 
 	// low LOD exhaust (4p or ai car)
     exhaustType = 1;

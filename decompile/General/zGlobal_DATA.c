@@ -3896,7 +3896,7 @@ struct Data data =
 		{0xE, 1, 0, 2, 2}, // OPTIONS
 		{-1,  0, 0, 0, 0}  // NULL
 	},
-
+	
 	.menuArcadeCup =
 	{
 		.stringIndexTitle = 0, // PAUSED
@@ -3908,7 +3908,7 @@ struct Data data =
 		.funcPtr = DECOMP_MainFreeze_MenuPtrDefault,
 		.drawStyle = 4,
 	},
-
+	#ifndef USE_GASMOXIAN
 	.rowsArcadeRace =
 	{
 		{0x2, 5, 1, 0, 0}, // RESUME
@@ -3919,6 +3919,13 @@ struct Data data =
 		{0xE, 4, 0, 5, 5}, // OPTIONS
 		{-1,  0, 0, 0, 0}  // NULL
 	},
+	#else
+	.rowsArcadeRace =
+	{
+		{0xE, 0, 0, 0, 0}, // OPTIONS
+		{-1,  0, 0, 0, 0}  // NULL
+	},
+	#endif
 
 	.menuArcadeRace =
 	{

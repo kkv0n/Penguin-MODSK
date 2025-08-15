@@ -766,7 +766,7 @@ void StateZero()
 	gGT->levelID = NAUGHTY_DOG_CRATE;
 
 	#ifdef USE_GASMOXIAN
-	gGT->levelID = 33; //lobby level 3
+	gGT->levelID = INTRO_POLAR; //gasmoxian lobby
 	#endif
 
 	#ifdef FastBoot

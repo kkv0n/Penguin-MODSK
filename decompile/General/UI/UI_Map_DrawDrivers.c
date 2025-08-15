@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
+#endif
+
 void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
 
 {
@@ -28,6 +32,11 @@ void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
 	// corresponds with ptrColors
 	kartColor = data.characterIDs[d->driverID] + 5;
 	
+	#ifdef USE_GASMOXIAN
+	if (((gGT->timer & FPS_DOUBLE(1)) != 0) && (octr->special == 3) && (d->driverID != 0))
+		kartColor = WHITE;
+	#endif
+	
 	// default (AI)
 	iconID = 0x31;
 	
@@ -44,7 +53,12 @@ void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
 	{
 		// If this is an even numbered frame
 		// ptrColors white value
-		if ((gGT->timer & FPS_DOUBLE(2)) == 0) {
+		#ifdef USE_GASMOXIAN
+		if (((gGT->timer & FPS_DOUBLE(2)) == 0) && (octr->special != 3)) //dont swap our color with white in time trial
+		#else
+		if ((gGT->timer & FPS_DOUBLE(2)) == 0)
+		#endif
+		{
 			kartColor = WHITE;
 		}
 		
