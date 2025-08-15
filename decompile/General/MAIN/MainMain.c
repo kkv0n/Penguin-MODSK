@@ -540,7 +540,17 @@ FinishLoading:
 #ifdef REBUILD_PC
 				PsyX_BeginScene();
 #endif
+
+				
+				
 				DECOMP_MainFrame_RenderFrame(gGT, gGS);
+				
+				#if defined(USE_GASMOXIAN) && defined(USE_RETROFUELED)
+				//swap fire clut for retro fueled
+                void Retro_BF();
+				Retro_BF();
+				#endif
+				
 #ifdef REBUILD_PC
 				PsyX_EndScene();
 				int NikoCalcFPS();
@@ -600,6 +610,11 @@ void StateZero()
 {
 	u_short *clockEffect;
 	int vramSize;
+	
+	#ifdef USE_GASMOXIAN
+	//this is filled with the size of our gasmods.bin later
+	int ramSize;
+	#endif
 
 	struct GameTracker* gGT;
 	gGT = sdata->gGT;
@@ -621,9 +636,21 @@ void StateZero()
 	ResetCallback();
 
 	#ifndef USE_RAMEX
+	
 	#define MEMPACK_SIZE 0x200000 // 2mb
+	
 	#else
-	#define MEMPACK_SIZE 0x800000 // 8mb
+		
+	#ifdef USE_GASMOXIAN
+	
+	#define MEMPACK_SIZE 0x700000 // 7mb
+	
+	#else
+		
+	#define MEMPACK_SIZE 0x800000 // 7mb
+	
+	#endif
+	
 	#endif
 
 	DECOMP_MEMPACK_Init(MEMPACK_SIZE);
@@ -634,7 +661,15 @@ void StateZero()
 	SetGraphDebug(0);
 	
 	
-//laugh*
+	#ifdef USE_GASMOXIAN
+	//load mods from an external file to avoid byte budget
+	DECOMP_LOAD_ReadFile_NoCallback("\\GASMODSC.BIN;1", (void*)(MEMPACK_SIZE ADD_PSX_ADDRESS), &ramSize);
+	void octr_entryHook(); octr_entryHook();
+	#endif
+	
+
+	
+//yes
 
 #ifndef REBUILD_PS1
 	DECOMP_MainInit_VRAMClear();

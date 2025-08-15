@@ -17,7 +17,7 @@ void menu_tittle() {
 	else
 	{
      #ifdef GASMOX_ENG
-	char* text[7] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SEL CHARACTER", "ENGINE TURNING", "GL EVERYONE!" };
+	char* text[7] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SELECT CHARACTER", "TURNING STYLE", "GOOD LUCK EVERYONE!" };
 	#elif defined(GASMOX_ES)
 	char* text[7] = { "GASMOXIAN", "ELIGE PISTA", "ELIGE MODO", "VUELTAS", "ELIG PERSONAJE", "GIRO DE MOTOR", "SUERTE A TODOS!" };
 	#elif defined(GASMOX_BR)

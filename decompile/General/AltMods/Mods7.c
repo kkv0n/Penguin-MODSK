@@ -1,47 +1,3 @@
-#ifdef USE_GASMOXIAN
-
-#include "Gasmoxian/updatetimes.c"
-unsigned int checkpointTimes[(MAX_LAPS * CPS_PER_LAP) + 1];
-extern void AssignMeterGrade(struct Driver * driver, int meterLeft);
-
-extern const int gradeTreshold[];
-extern const int gradeColors[];
-#ifndef REBUILD_PC
-#ifdef USE_GASMOXIAN
-
-void AssignMeterGrade(struct Driver * driver, int meterLeft)
-{
-	const int gradeTreshold[] = {SECONDS(1) * FP(0.50), SECONDS(1) * FP(0.65),
-						SECONDS(1) * FP(0.80), SECONDS(1) * FP(0.90),
-						SECONDS(1) * FP(0.95)};
-	const int gradeColors[] = {CORTEX_RED, ROO_ORANGE, CRASH_BLUE, TROPY_LIGHT_BLUE, PAPU_YELLOW};
-
-	driver->meterGradeTimer = SECONDS(0.5);
-	driver->meterGrade[1] = '\0';
-
-	char grades[] = "FDCBA";
-	for (int i = 0; i < len(gradeTreshold); i++)
-	{
-		if (meterLeft > SECONDS(1) - FP_INT(gradeTreshold[i]))
-		{
-			driver->meterGrade[0] = grades[i];
-			driver->gradeColor = gradeColors[i];
-			return;
-		}
-	}
-	driver->meterGrade[0] = 'S';
-	driver->gradeColor = SILVER;
-}
-#endif
-#endif
-void FixReservesIncrement(struct Driver * driver, int reserves)
-{
-	if (driver->reserves > 30000) { driver->uncappedReserves += reserves; }
-	else { driver->reserves += reserves; }
-}
-
-
-
 
 #ifdef USE_OXIDE
 void Oxide_HookAppendLoadingQueue()
@@ -79,5 +35,4 @@ void Oxide_HookAppendLoadingQueue()
 	// increase size
 	sdata->queueLength++;
 }
-#endif
 #endif

@@ -582,8 +582,10 @@ struct CG_MessageEndRace
 	int lapTime;
 };
 
+//Driver->timeElapsedInrace
 #define DRIVER_COURSE_OFFSET 0x514
-#define DRIVER_BESTLAP_OFFSET 0x638
+//driver->bestlapTime (online only)
+#define DRIVER_BESTLAP_OFFSET 0x63C
 
 STATIC_ASSERT2(sizeof(struct CG_Header) == 1, "Size of CG_Header must be 1 byte");
 STATIC_ASSERT2(sizeof(struct CG_MessageName) == 13, "Size of CG_MessageName must be 13 bytes");

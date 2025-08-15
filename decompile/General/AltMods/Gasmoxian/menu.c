@@ -37,7 +37,9 @@ const char* special_8 = "DEMO CAMERA";
 #endif
 
 
-
+//todo: substract the rows for server country and engine menus
+//{stringIndex, rowOnPressUp, rowOnPressDown, rowOnPressLeft, rowOnPressRight}
+//stringIndex its the text from the menu option
 struct MenuRow menuRows[9] =
 {
 	{0,0,1,0,0},
@@ -263,16 +265,18 @@ void NewPage_Tracks()
 	for (int i = 0; i < 8; i++)
 	{
 		int id = 8 * octr->PageNumber + i;
-		menuRows[i].stringIndex = data.metaDataLEV[id].name_LNG;
 
 		if (id > TURBO_TRACK)
 		{
-			for (int j = TURBO_TRACK + 1; j <= id; j++)
-			{
-				sdata->lngStrings[data.metaDataLEV[j].name_LNG] = "-";
-			}
+
+			menuRows[i].stringIndex = "-";
+			
 
 			menuRows[i].stringIndex |= 0x8000;
+		}
+		else
+		{
+		   menuRows[i].stringIndex = data.metaDataLEV[id].name_LNG;
 		}
 	}
 }
@@ -380,7 +384,7 @@ void NewPage_Engine()
     sdata->lngStrings[0x9a] = "BALANCED";
     sdata->lngStrings[0x9b] = "ACCELERATION";
     sdata->lngStrings[0x9c] = "SPEED";
-    sdata->lngStrings[0x9d] = "MAXIMUM";
+    sdata->lngStrings[0x9d] = "MAX";
     sdata->lngStrings[0x9e] = "-";
     sdata->lngStrings[0x9f] = "-";
 	sdata->lngStrings[0xa0] = "-";
@@ -443,7 +447,9 @@ void UpdateMenu()
 	if (buttons & (BTN_LEFT | BTN_RIGHT)) { DECOMP_OtherFX_Play(0, 1); }
 
 	if (pageMax == 0) { return; }
-
+	
+	
+	//can just use sprintf there i think
 	int string =
 		(('1' + octr->PageNumber) << 0) |
 		('/' << 8) |
@@ -626,9 +632,9 @@ else
 	posX = 0x11E;
 	int posY = 0xB3;
 #ifdef GASMOX_ENG
-	DecalFont_DrawLine("gasmoxian is a modified",posX,posY,FONT_SMALL,0);
-	DecalFont_DrawLine("version of onlinectr,we",posX-0x8,posY+0x8,FONT_SMALL,0);
-	DecalFont_DrawLine("do things for fans n fun",posX-0x18,posY+0x10,FONT_SMALL,PAPU_YELLOW);
+	DecalFont_DrawLine("Gasmoxian is a modified",posX,posY,FONT_SMALL,0);
+	DecalFont_DrawLine("version of OnlineCTR.",posX+0x10,posY+0x8,FONT_SMALL,0);
+	DecalFont_DrawLine("This is for the fans and fun!",posX-0x28,posY+0x10,FONT_SMALL,PAPU_YELLOW);
 #elif defined(GASMOX_ES)
 	DecalFont_DrawLine("gasmoxian es una version",posX,posY,FONT_SMALL,0);
 	DecalFont_DrawLine("modificada de onlinectr,",posX-0x8,posY+0x8,FONT_SMALL,0);

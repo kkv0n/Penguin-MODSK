@@ -27,10 +27,19 @@ struct Particle* DECOMP_VehEmitter_Exhaust(struct Driver *d, VECTOR *param_2, VE
 
     char numPlyr = gGT->numPlyrCurrGame;
 
-	// equivalent of (d->driverID < numPlyr),
-	// because modelIndex is not set to DYNAMIC_ROBOT_CAR
-	// for human players after BOTS_Driver_Convert is called
-	if (dInst->thread->modelIndex != DYNAMIC_ROBOT_CAR)
+	int boolUseHighExhaust;
+	
+	//ONLINE PARTICLE FIX
+	#ifdef USE_GASMOXIAN
+		boolUseHighExhaust = (d->driverID == 0);
+	#else
+		// equivalent of (d->driverID < numPlyr),
+		// After BOTS_Driver_Convert, human modelIndex is still DYNAMIC_PLAYER
+		boolUseHighExhaust = (dInst->thread->modelIndex != DYNAMIC_ROBOT_CAR);
+	#endif
+	
+	
+	if (boolUseHighExhaust)
 	{
 		switch (numPlyr)
 		{

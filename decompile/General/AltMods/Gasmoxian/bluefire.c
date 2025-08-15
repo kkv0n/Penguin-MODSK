@@ -45,12 +45,14 @@ void InjectRedFire()
 	}
 }
 
-void UpdateFire() {
+void Retro_BF() {
 
 	struct GameTracker* gGT;
 	struct Driver* driver;
 	gGT = sdata->gGT;
 	driver = gGT->drivers[0];
+	
+	if (gGT->levelID >= INTRO_RACE_TODAY) return;
 	
 	if (octr->special != 5) {
 		InjectRedFire();

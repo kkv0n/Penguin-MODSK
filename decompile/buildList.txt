@@ -29,8 +29,20 @@
 // +47 for RB_Block2
 // Divide it all by 1190 (1181 functions + 9 DATA regions)
 
-// update blue fire
-common, exe, BOTS_SetRotation, -0x8, General/AltMods/Gasmoxian/blueUpdate.s
+
+
+
+//
+//gasmoxian exclusive
+
+//gasmoxian online files
+common, iso, 0x80700000, 0x0, General/AltMods/Gasmoxian/Gasmods.c
+
+//gasmoxian exclusive
+//
+
+
+
 
 // functions bigger than their originals
 common, exe, rdata_free, 0x0, General/MATH/MATH_Sin.c General/LibraryOfModels/LibraryOfModels_Store.c, rdata.bin

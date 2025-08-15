@@ -1,6 +1,6 @@
 #include <common.h>
 
-#ifndef USE_GASMOXIAN
+
 void DECOMP_GhostTape_End(void)
 {
   struct Driver* d;
@@ -26,4 +26,3 @@ void DECOMP_GhostTape_End(void)
 
   return;
 }
-#endif

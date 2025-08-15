@@ -4,8 +4,8 @@ enum Characters
 {
 	CRASH_BANDICOOT=0,
 	NEO_CORTEX,
-	COCO_BANDICOOT,
 	TINY_TIGER,
+	COCO_BANDICOOT,
 	N_GIN,
 	DINGODILE,
 	POLAR,
@@ -623,10 +623,9 @@ struct Driver
 	char forcedJump_trampoline;
 
 	// 0x367
-	#ifndef USE_GASMOXIAN
 	
 	char clockFlash;
-	#endif
+
 	
 
 	// 0x368
@@ -1552,7 +1551,7 @@ struct Driver
 	// 0x62C
 	
 	struct GhostTape* ghostTape;
-#ifndef USE_GASMOXIAN
+
 	// 0x630
 	short ghostID;
 
@@ -1561,16 +1560,17 @@ struct Driver
 
 	// 0x634
 	short ghostBoolStarted;
-	#endif
-	short unk636; //  0x630 in online
+	
+	//0x636
+	short unk636;
 
 	#ifdef USE_GASMOXIAN
-int uncappedReserves; // 0x634
-int bestLapTime;      // 0x638
-int currLapTime;      // 0x63C
-char meterGrade[2];   // 0x640
-short meterGradeTimer; // 0x642
-int gradeColor;       // 0x644
+int uncappedReserves; // 0x638
+int bestLapTime;      // 0x63C
+int currLapTime;      // 0x640
+char meterGrade[2];   // 0x642
+short meterGradeTimer; // 0x644
+int gradeColor;       // 0x648
 	#endif
 
 	// 0x638
