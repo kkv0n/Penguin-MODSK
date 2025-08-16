@@ -31,10 +31,13 @@ void DECOMP_VehTurbo_ThTick(struct Thread* turboThread)
 	
 	
 	            #ifdef USE_GASMOXIAN
-				if (octr->special == 3 && driver->driverID != 0)
+				if (octr->special == 3)
 				{
-				  turbo->inst->flags |= 0x1000080;
-			      instance->flags |= 0x1000080;
+					if (driver->driverID != 0)
+					{
+				      turbo->inst->flags |= 0x1000080;
+			          instance->flags |= 0x1000080;
+					}
 				}
 				#endif
 
@@ -311,11 +314,14 @@ void DECOMP_VehTurbo_ThTick(struct Thread* turboThread)
 		turboThread->flags |= 0x800;
 	}
 	
-		        #ifdef USE_GASMOXIAN
-				if (octr->special == 3 && driver->driverID != 0)
+	            #ifdef USE_GASMOXIAN
+				if (octr->special == 3)
 				{
-				  turbo->inst->flags |= 0x1000080;
-			      instance->flags |= 0x1000080;
+					if (driver->driverID != 0)
+					{
+				      turbo->inst->flags |= 0x1000080;
+			          instance->flags |= 0x1000080;
+					}
 				}
 				#endif
 	

@@ -1180,7 +1180,7 @@ void StatePC_Lobby_EnginePick()
 
 
 
-	mc.enginetype = octr->enginetype[octr->DriverID]; 
+	mc.enginetype = octr->enginetype[0]; //slot is not the same than octr->driverID. 
 	mc.boolLockedIn = octr->boolLockedInEnginee[octr->DriverID];  
 
 	if (

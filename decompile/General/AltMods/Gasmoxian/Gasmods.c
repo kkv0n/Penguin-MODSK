@@ -202,37 +202,15 @@ void RunVehicleSet13(struct Thread* dThread, struct Driver* dOnline)
 void ITEMLESS_MAIN(struct GameTracker* gGT)
 {
 	
- for (unsigned char i = 1; i < octr->NumDrivers; i++)
+ for (unsigned char i = 1; i < 8; i++)
  {
 	 
 	 if (gGT->drivers[i] == 0 || gGT->drivers[i] == NULL) continue;
-	 
-	struct Model* wake;
-	struct Instance *wakeInst;
-	gGT->drivers[i]->instSelf->thread->modelIndex = DYNAMIC_GHOST;
-	gGT->drivers[i]->instSelf->thread->flags |= 0x1000;
 	
-		gGT->drivers[i]->instSelf->flags &= 0xfff8ff7f;
 		gGT->drivers[i]->instSelf->flags |= GHOST_DRAW_TRANSPARENT;
 		
 		gGT->drivers[i]->instSelf->alphaScale = 0xA00;
 		gGT->drivers[i]->wheelSprites = ICONGROUP_GETICONS(gGT->iconGroup[0xc]);
-		
-		// Ptr Model "Wake"
-		wake = gGT->modelPtr[STATIC_WAKE];
-
-		// if "Wake" model exists
-		if (wake)
-		{
-			wakeInst = DECOMP_INSTANCE_Birth3D(wake, 0, 0);
-			gGT->drivers[i]->wakeInst = wakeInst;
-
-			if (wakeInst != 0)
-			{
-				// make invisible, set to anim 1
-				wakeInst->flags |= 0x90;
-			}
-		}
  }
 	
 }

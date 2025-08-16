@@ -171,7 +171,7 @@ void ThreadFunc(struct Thread* t)
 		
 	    //if not in race then erase driving function
 		
-		for (unsigned char p = 0; p < octr->NumDrivers; p++)
+		for (unsigned char p = 0; p < 8; p++)
 		{
 			//this poor soul had to read ctr code for a year to understand why this didnt worked with other players :c
 			//now it should work
