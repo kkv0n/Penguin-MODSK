@@ -1832,8 +1832,21 @@ void RenderSubmit(struct GameTracker* gGT)
 void ban_demo_skip();
 ban_demo_skip();
 
-//different menu tittles
+//trying to ban weapon hackers
+if (gGT->drivers[0] != NULL && gGT->drivers[0]->heldItemID != 0xf && gGT->levelID < INTRO_RACE_TODAY)
+{
+	if (octr->special == 3)
+		gGT->drivers[0]->heldItemID = 0xf;
+	
+	if (octr->special != 7 && gGT->drivers[0]->heldItemID != 10 && gGT->drivers[0]->heldItemID != 11)
+	{
+		if (gGT->drivers[0]->numHeldItems > 1)
+			gGT->drivers[0]->numHeldItems = 0;
+	}
+}
+	
 
+//different menu tittles
 void menu_tittle();
 menu_tittle();
 

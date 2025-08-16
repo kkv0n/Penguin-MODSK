@@ -93,7 +93,7 @@ void StatePS1_Launch_EnterPID()
 #endif
 }
 
-extern char* countryNames[3];
+extern char* countryNames[4];
 bool initString = true;
 //oxide icon
 
@@ -376,13 +376,9 @@ void StatePS1_Lobby_CharacterPick()
 	{
 		// update real-time
 		data.characterIDs[0] = (8 * octr->PageNumber) + b->rowSelected;
-
-//show icon in character selection
-		int selectedchar = data.characterIDs[0];
-		ShowCharacterIcon(selectedchar, 0x5D, 0x2A);
 		
 		//oxide custom cam
-        if (data.characterIDs[0] == 15)
+        if (data.characterIDs[0] == NITROS_OXIDE)
         {
             oxidecam = 1;
         }
@@ -411,6 +407,15 @@ void StatePS1_Lobby_EnginePick()
 
 	UpdateMenu();
     NewPage_Engine();
+	
+	// get menu
+	struct RectMenu* b = sdata->ptrActiveMenu;
+
+	if(b != 0)
+	{
+	// update real-time
+	octr->enginetype[0] = (8 * octr->PageNumber) + b->rowSelected;
+	}
 	
 	
 }

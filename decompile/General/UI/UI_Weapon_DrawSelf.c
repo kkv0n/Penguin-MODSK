@@ -155,6 +155,8 @@ void DECOMP_UI_Weapon_DrawSelf(short posX,short posY,short scale,struct Driver* 
   }
 #ifdef USE_GASMOXIAN
   //print custom icons for super engine, invisibility and spring
+  //i think all of these icons can just be used with DrawWeapon instead of a custom function
+  //just need the pointer to character icons + correct index
 int customicon = (d->heldItemID == 5) ? 10 : (d->heldItemID == 12) ? 14 : 15;
 
 		if (d->heldItemID == 5 || d->heldItemID >= 12 && d->heldItemID <= 13)

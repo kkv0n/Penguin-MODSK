@@ -89,14 +89,14 @@ if (driver->driverRank >= 1 && driver->driverRank <= 7) {
               : itemSets[driver->driverRank - 1];
 			  
 int allowsuperengine = octr->NumDrivers - 3; // allow super engine for the last 3 players
-if (driver->heldItemID == 0xd && driver->driverRank != allowsuperengine && gGT->gameMode1 & ARCADE_MODE) {
+if ((driver->heldItemID == 0xd) && (driver->driverRank != allowsuperengine) && ((gGT->gameMode1 & ARCADE_MODE) != 0)) {
 	driver->heldItemID = 0x6; //if not last 2 players then replace super engine with shield
 }
 //end of itemset assignation
 }
 		//ban orbs and clocks until lap 2
-		if (driver->heldItemID >= 0x8 && driver->heldItemID <= 0x9 && driver->lapIndex == 0 ||
-		driver->heldItemID == 0xd && driver->lapIndex == 0) {
+		if (((driver->heldItemID >= 0x8) && (driver->heldItemID <= 0x9) && (driver->lapIndex == 0)) ||
+		(driver->heldItemID == 0xd && driver->lapIndex == 0)) {
 			
 			driver->heldItemID = 0x7;
 		}

@@ -509,42 +509,15 @@ LAB_80035098:
 					)
 					{
 						
-						#ifndef USE_GASMOXIAN
 						gGT->unknownFlags_1d44 = (gGT->gameMode1 & 0x3e0020) | PAUSE_1;
 
 						DECOMP_MainFreeze_IfPressStart();
 
 						gGT->cooldownfromPauseUntilUnpause = FPS_DOUBLE(5);
 						
-						#else						
-                        //not working, remember to fix this later
-						if (!boolPause)
-						{
-						DECOMP_RECTMENU_Show(audio_s);
-						
-						sdata->ptrDesiredMenu = &data.menuRacingWheelConfig;
-						
-						data.menuRacingWheelConfig.rowSelected = 8;
-						boolPause = 1;
-						}
-						
-						
-						#endif
+
 					}
 					  
-					  //not working, remember to fix this later
-					  #ifdef USE_GASMOXIAN
-					  if (gGamepads->gamepad[iVar4].buttonsTapped & (BTN_TRIANGLE | BTN_START | BTN_SQUARE_one))
-	                   {
-	                   	if (boolPause)
-                   		{
-                   		  RECTMENU_ClearInput();
-						  sdata->ptrActiveMenu = 0;
-						  sdata->ptrDesiredMenu = 0;
-						  boolPause = 0;
-                   		}
-                   	   }
-					   #endif
 				}
 			}
 		}

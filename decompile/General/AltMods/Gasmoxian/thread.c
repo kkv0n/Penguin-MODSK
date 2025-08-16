@@ -121,7 +121,7 @@ void ThreadFunc(struct Thread* t)
 		//sdata->Loading.stage = 0;
 
 		// load with flag animation
-		DECOMP_MainRaceTrack_RequestLoad(33);
+		DECOMP_MainRaceTrack_RequestLoad(INTRO_POLAR); //load gasmoxian lobby
 
 		// kill thread,
 		// dont execute again until game loads

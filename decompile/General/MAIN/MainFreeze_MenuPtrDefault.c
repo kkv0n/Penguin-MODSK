@@ -11,10 +11,6 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 
 	// if you have not waited 5 frames since the game was paused then quit
 	if (gGT->cooldownfromPauseUntilUnpause != 0) return;
-	
-	#ifdef USE_GASMOXIAN
-	goto AUDIO_MENU;
-	#endif
 
 	// assume 5 frames have passed since paused
 
@@ -53,7 +49,7 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 	// stringID 14: "OPTIONS"
 	if (stringID == 14)
 	{
-		AUDIO_MENU:
+
 		
 		// Set Menu to Options
 		sdata->ptrDesiredMenu = &data.menuRacingWheelConfig;

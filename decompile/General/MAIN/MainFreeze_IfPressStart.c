@@ -24,6 +24,7 @@ void DECOMP_MainFreeze_IfPressStart(void)
         // pause the game
         gGT->gameMode1 |= PAUSE_1;
 
+
         // set row selected to the top row
         struct RectMenu* menu = DECOMP_MainFreeze_GetMenuPtr();
         menu->rowSelected = 0;
@@ -32,9 +33,12 @@ void DECOMP_MainFreeze_IfPressStart(void)
 
         // pause audio
         DECOMP_MainFrame_TogglePauseAudio(1);
+		
 
         DECOMP_OtherFX_Play(1, 1);
-
+		
+		#ifndef USE_GASMOXIAN
         DECOMP_ElimBG_Activate(gGT);
+		#endif
     }
 }
