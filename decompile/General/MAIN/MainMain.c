@@ -540,6 +540,10 @@ FinishLoading:
 #ifdef REBUILD_PC
 				PsyX_BeginScene();
 #endif
+				extern void RunInitHook();
+				extern void RunUpdateHook();
+				RunInitHook();
+				RunUpdateHook();
 				DECOMP_MainFrame_RenderFrame(gGT, gGS);
 #ifdef REBUILD_PC
 				PsyX_EndScene();
@@ -623,7 +627,7 @@ void StateZero()
 	#ifndef USE_RAMEX
 	#define MEMPACK_SIZE 0x200000 // 2mb
 	#else
-	#define MEMPACK_SIZE 0x800000 // 8mb
+	#define MEMPACK_SIZE 0x700000
 	#endif
 
 	DECOMP_MEMPACK_Init(MEMPACK_SIZE);
@@ -633,7 +637,7 @@ void StateZero()
 	ResetGraph(0);
 	SetGraphDebug(0);
 	
-	
+	DECOMP_LOAD_ReadFile_NoCallback("\\CUSTOMC.BIN;1", (void*)0x80700000, &vramSize);
 //laugh*
 
 #ifndef REBUILD_PS1

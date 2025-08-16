@@ -1,3 +1,6 @@
+//Main hooks (unlimited)
+common, iso, 0x80700000, 0x0, General\AltMods\Gasmoxian\custom.c
+
 // 497+43+33+27+38+14+18+35+46+12+6+9+2+1+1+2+2+3+3+2+4+2+3+3+16+3+47 = 872 rewritten so far
 // 497 for every 'common' and ','
 // additions for every file that has multiple functions,

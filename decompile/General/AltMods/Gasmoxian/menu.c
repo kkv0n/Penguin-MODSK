@@ -14,6 +14,7 @@ const char* special_5 = "RETROFUELED";
 const char* special_6 = "VOID WORLD";
 const char* special_7 = "BOSS RACE";
 const char* special_8 = "DEMO CAMERA";
+const char* special_9 = "N-VERTED";
 #elif defined(GASMOX_ES)
 const char* special_0 = "NORMAL";
 const char* special_1 = "MODO ESPEJO";
@@ -24,6 +25,7 @@ const char* special_5 = "RETROFUELED";
 const char* special_6 = "MUNDO VACIO";
 const char* special_7 = "MODO JEFE";
 const char* special_8 = "CAMARA DEMO";
+const char* special_9 = "N-VERTED";
 #elif defined(GASMOX_BR)
 const char* special_0 = "NORMAL";
 const char* special_1 = "ESPELHADO";
@@ -34,6 +36,7 @@ const char* special_5 = "RETROFUELED";
 const char* special_6 = "PISTA VAZIA";
 const char* special_7 = "CONTRA CHEFE";
 const char* special_8 = "DEMO CAMERA";
+const char* special_9 = "N-VERTED";
 #endif
 
 
@@ -292,25 +295,26 @@ void NewPage_Events()
 
 
     // OCTR SPECIAL MENU BY PENTA3
-char* special_name[9] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7, special_8 };
+	char* special_name[] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7, special_8, special_9 };
+	short special_size = sizeof(special_name) / sizeof(special_name[0]);
 
-    for (i = 0; i < 8; i++)
-    {
-       int max = 8 * octr->PageNumber + i;
-	   
-	   if (max < 9) {
-        sdata->lngStrings[0x9a + i] = special_name[max];
+	for (i = 0; i < 8; i++)
+		{
+		int max = 8 * octr->PageNumber + i;
+		
+		if (max < special_size) {
+			sdata->lngStrings[0x9a + i] = special_name[max];
 
-        
-        menuRows[i].stringIndex = 0x9a + i;
-	   }
+			
+			menuRows[i].stringIndex = 0x9a + i;
+		}
 
-     else {
-        
-        sdata->lngStrings[0x9a + i] = "-";
-        menuRows[i].stringIndex |= 0x8000;  
-    }
-}
+		else {
+			
+			sdata->lngStrings[0x9a + i] = "-";
+			menuRows[i].stringIndex |= 0x8000;  
+		}
+	}
 }
 
 
@@ -487,12 +491,12 @@ void PrintCharacterStats()
 
 //special events text when you are in a room
 //for the special events logic search octr special in cl_main.c
-char* special_titles[9] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7, special_8 };
+char* special_titles[] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7, special_8, special_9 };
 
 char* title = nullptr;
 
 
-if (octr->special >= 0 && octr->special < 9) {
+if (octr->special >= 0 && octr->special < special_size) {
     title = special_titles[octr->special];
 } 
 else
