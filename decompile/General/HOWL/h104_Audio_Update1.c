@@ -351,14 +351,10 @@ void DECOMP_Audio_Update1(void)
 			#endif
 
 #ifdef USE_GASMOXIAN
-            if (octr->special == 3 && d->driverRank == 0)
-			{
-				uVar1 = 4;
-			}
-			else
-			{
-				uVar1 = 5;
-			}
+
+        //race finished fx, win or lose
+		uVar1 = (d->driverRank == 0) ? 4 : 5;
+
 #endif
             // desired XA
             sdata->desiredXA_3 = uVar1;

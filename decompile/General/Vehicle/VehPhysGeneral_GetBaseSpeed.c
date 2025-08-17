@@ -2,6 +2,7 @@
 
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
+#include "../AltMods/Gasmoxian/utils.h"
 #endif
 
 int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
@@ -86,7 +87,7 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
 		driver->const_DamagedSpeed *
 		((0x14 - driver->driverRank) >> 4);
 #ifdef USE_GASMOXIAN
-		if (octr->special == 5){
+		if (octr->special == RETRO_FUELED){
 clockEffect = (int)(clockEffect * 2.0);
 }
 else

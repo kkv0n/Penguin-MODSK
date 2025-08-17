@@ -73,7 +73,6 @@ void DECOMP_GAMEPROG_NewGame_OnBoot();
 void DECOMP_GAMEPROG_GetPtrHighScoreTrack();
 
 // ghost
-#ifndef USE_GASMOXIAN
 void DECOMP_GhostReplay_Init1(void);
 void DECOMP_GhostReplay_Init2();
 void DECOMP_GhostReplay_ThTick(struct Thread *t);
@@ -82,7 +81,6 @@ void DECOMP_GhostTape_End(void);
 void DECOMP_GhostTape_Start(void);
 void DECOMP_GhostTape_WriteBoosts(int addReserve,u_char type,int speedCap);
 void DECOMP_GhostTape_WriteMoves(short raceFinished);
-#endif
 
 // howl
 int DECOMP_CountSounds();
@@ -389,10 +387,9 @@ void DECOMP_PushBuffer_SetDrawEnv_Normal(
 		void* ot, struct PushBuffer* pb, struct DB* backBuffer,
 		DRAWENV* copyDrawEnvNULL, int isbg);
 		
-#ifndef USE_GASMOXIAN		
+		
 void DECOMP_PushBuffer_FadeOneWindow(struct PushBuffer* pb);
 void DECOMP_PushBuffer_FadeAllWindows();
-#endif
 
 void DECOMP_QueueLoadTrack_MenuProc(struct RectMenu* menu);
 struct RectMenu* DECOMP_QueueLoadTrack_GetMenuPtr();

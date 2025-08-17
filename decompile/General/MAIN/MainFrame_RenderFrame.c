@@ -1,8 +1,8 @@
 #include <common.h>
 
-
 #ifdef USE_GASMOXIAN
 #include "../../General/AltMods/Gasmoxian/global.h"
+#include "../../General/AltMods/Gasmoxian/utils.h"
 #endif
 
 // all in this file
@@ -305,7 +305,7 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 			// placeholder for DrawLevelOvr1P
 			#ifdef USE_GASMOXIAN
 			//void world mode
-			if (octr->special != 6){
+			if (octr->special != VOID_WORLD){
 			TEST_226(
 				0,
 				&gGT->pushBuffer[i],
@@ -1207,7 +1207,7 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 		// 226-229
 		#ifdef USE_GASMOXIAN
 		//void world mode
-		if (octr->special != 6){
+		if (octr->special != VOID_WORLD){
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
@@ -1356,7 +1356,7 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			
 #ifdef USE_GASMOXIAN
 //void world mode
-		if (octr->special != 6){
+		if (octr->special != VOID_WORLD){
 		// 226-229
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
@@ -1832,8 +1832,21 @@ void RenderSubmit(struct GameTracker* gGT)
 void ban_demo_skip();
 ban_demo_skip();
 
-//different menu tittles
+//trying to ban weapon hackers
+if (gGT->drivers[0] != NULL && gGT->drivers[0]->heldItemID != 0xf && gGT->levelID < INTRO_RACE_TODAY)
+{
+	if (octr->special == ITEMLESS)
+		gGT->drivers[0]->heldItemID = 0xf;
 
+	if (octr->special != BOSS_RACE && gGT->drivers[0]->heldItemID != 10 && gGT->drivers[0]->heldItemID != 11)
+	{
+		if (gGT->drivers[0]->numHeldItems > 1)
+			gGT->drivers[0]->numHeldItems = 0;
+	}
+}
+	
+
+//different menu tittles
 void menu_tittle();
 menu_tittle();
 

@@ -31,10 +31,6 @@ void ModsMain()
 	void uibb_entryHook(); uibb_entryHook();
 	#endif
 
-	#ifdef USE_GASMOXIAN
-	void octr_entryHook(); octr_entryHook();
-	#endif
-
 // PC port has unlimited byte budget
 #ifndef REBUILD_PC
 	printf("\n\nMods:\n");

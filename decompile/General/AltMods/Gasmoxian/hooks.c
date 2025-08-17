@@ -1,5 +1,7 @@
 #include <common.h>
 #include "global.h"
+#include "utils.h"
+
 extern int shouldExecuteSpecText;
 extern void spec_text();
 extern void finishracetimer();
@@ -69,7 +71,7 @@ void OnlineInit_Drivers(struct GameTracker* gGT)
 	for(i = 0; i < 8; i++)
 	{
 		gGT->drivers[i] = 0;
-		sdata->kartSpawnOrderArray[i] = i;
+		sdata->kartSpawnOrderArray[i] = (octr->special == ITEMLESS) ? 1 : i; //use time trial spawn for itemless mode
 	}
 
 	// if first boot
@@ -169,7 +171,7 @@ void OnlineInit_Drivers(struct GameTracker* gGT)
 		#endif
 	}
 
-	if (gGT->levelID != 33) //lobby level2
+	if (gGT->levelID != INTRO_POLAR) //lobby level2
 	{
 		octr->CurrState = GAME_WAIT_FOR_RACE;
 	}

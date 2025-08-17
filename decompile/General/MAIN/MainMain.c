@@ -539,12 +539,21 @@ FinishLoading:
 
 #ifdef REBUILD_PC
 				PsyX_BeginScene();
-#endif
-				extern void RunInitHook();
-				extern void RunUpdateHook();
-				RunInitHook();
-				RunUpdateHook();
+#endif	
+				// GAMEMODES HANDLING (From Unlimited)
+				extern void RunGamemodesInitHook();
+				extern void RunGamemodesUpdateHook();
+				RunGamemodesInitHook();
+				RunGamemodesUpdateHook();
+
 				DECOMP_MainFrame_RenderFrame(gGT, gGS);
+				
+				#if defined(USE_GASMOXIAN) && defined(USE_RETROFUELED)
+				//swap fire clut for retro fueled
+                void Retro_BF();
+				Retro_BF();
+				#endif
+				
 #ifdef REBUILD_PC
 				PsyX_EndScene();
 				int NikoCalcFPS();
@@ -604,6 +613,11 @@ void StateZero()
 {
 	u_short *clockEffect;
 	int vramSize;
+	
+	#ifdef USE_GASMOXIAN
+	//this is filled with the size of our gasmods.bin later
+	int ramSize;
+	#endif
 
 	struct GameTracker* gGT;
 	gGT = sdata->gGT;
@@ -625,9 +639,21 @@ void StateZero()
 	ResetCallback();
 
 	#ifndef USE_RAMEX
+	
 	#define MEMPACK_SIZE 0x200000 // 2mb
+	
 	#else
-	#define MEMPACK_SIZE 0x700000
+		
+	#ifdef USE_GASMOXIAN
+	
+	#define MEMPACK_SIZE 0x700000 // 7mb
+	
+	#else
+		
+	#define MEMPACK_SIZE 0x800000 // 7mb
+	
+	#endif
+	
 	#endif
 
 	DECOMP_MEMPACK_Init(MEMPACK_SIZE);
@@ -637,8 +663,16 @@ void StateZero()
 	ResetGraph(0);
 	SetGraphDebug(0);
 	
-	DECOMP_LOAD_ReadFile_NoCallback("\\CUSTOMC.BIN;1", (void*)0x80700000, &vramSize);
-//laugh*
+	
+	#ifdef USE_GASMOXIAN
+	//load mods from an external file to avoid byte budget
+	DECOMP_LOAD_ReadFile_NoCallback("\\GASMODSC.BIN;1", (void*)(MEMPACK_SIZE ADD_PSX_ADDRESS), &ramSize);
+	void octr_entryHook(); octr_entryHook();
+	#endif
+	
+
+	
+//yes
 
 #ifndef REBUILD_PS1
 	DECOMP_MainInit_VRAMClear();
@@ -724,18 +758,35 @@ void StateZero()
 	//printf("Size: %08x\n", firstEntry[231].size);
 	#endif
 
+	
+	#ifdef USE_GASMOXIAN
+	DECOMP_LOAD_LangFile(sdata->ptrBigfile1,
+	#ifdef GASMOX_ENG
+	1
+	#elif defined (GASMOX_ES)
+	6
+	#elif defined (GASMOX_BR)
+	1 //place holder
+	#endif
+	);
+	DECOMP_GAMEPROG_NewGame_OnBoot();
+	gGT->overlayIndex_null_notUsed = 0;
+	#else
 	#ifndef FastBoot
 	// English=1
 	// PAL SCES02105 calls it multiple times
 	DECOMP_LOAD_LangFile(sdata->ptrBigfile1, 1);
+	
+	
 	DECOMP_GAMEPROG_NewGame_OnBoot();
 	gGT->overlayIndex_null_notUsed = 0;
+	#endif
 	#endif
 
 	gGT->levelID = NAUGHTY_DOG_CRATE;
 
 	#ifdef USE_GASMOXIAN
-	gGT->levelID = 33; //lobby level 3
+	gGT->levelID = INTRO_POLAR; //gasmoxian lobby
 	#endif
 
 	#ifdef FastBoot

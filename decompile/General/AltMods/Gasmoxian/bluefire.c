@@ -1,6 +1,7 @@
 //if you delete blue fire you need to delete the lines in buildlist.txt too
 #include <common.h>
 #include "global.h"
+#include "utils.h"
 #ifdef USE_RETROFUELED
 //apparently if you use [0] or just [] idk why but it gives you white fire
 u_long redFlames_clut[8] __attribute__ ((section (".data"))) = {0x80DA809A, 0x805A80BA, 0x811A803A, 0x819A81DA, 0x813A817A, 0x829A821A, 0x835A839A, 0x82DA831A};
@@ -45,14 +46,16 @@ void InjectRedFire()
 	}
 }
 
-void UpdateFire() {
+void Retro_BF() {
 
 	struct GameTracker* gGT;
 	struct Driver* driver;
 	gGT = sdata->gGT;
 	driver = gGT->drivers[0];
 	
-	if (octr->special != 5) {
+	if (gGT->levelID >= INTRO_RACE_TODAY) return;
+	
+	if (octr->special != RETRO_FUELED) {
 		InjectRedFire();
       return;
 	}

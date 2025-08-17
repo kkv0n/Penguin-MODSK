@@ -1,5 +1,10 @@
 #include <common.h>
 
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
+#include "../AltMods/Gasmoxian/utils.h"
+#endif
+
 void OtherFX_RecycleNew(void*, int, int);
 void ThTick_FastRET(struct Thread*);
 
@@ -22,6 +27,20 @@ void DECOMP_VehTurbo_ThTick(struct Thread* turboThread)
 	driver = turbo->driver;
 	instance = turboThread->inst;
 	instanceDriver = driver->instSelf;
+	
+	
+	
+	
+	            #ifdef USE_GASMOXIAN
+				if (octr->special == ITEMLESS)
+				{
+					if (driver->driverID != 0)
+					{
+				      turbo->inst->flags |= 0x1000080;
+			          instance->flags |= 0x1000080;
+					}
+				}
+				#endif
 
 	if
 	(
@@ -295,6 +314,17 @@ void DECOMP_VehTurbo_ThTick(struct Thread* turboThread)
 		// 0x800 = this thread needs to be deleted
 		turboThread->flags |= 0x800;
 	}
+	
+	            #ifdef USE_GASMOXIAN
+				if (octr->special == ITEMLESS)
+				{
+					if (driver->driverID != 0)
+					{
+				      turbo->inst->flags |= 0x1000080;
+			          instance->flags |= 0x1000080;
+					}
+				}
+				#endif
 	
 	// do not use infinite loop optimization,
 	// modern GCC "without" the $RA skip is more

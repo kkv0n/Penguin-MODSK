@@ -1,5 +1,6 @@
 #include <common.h>
 #include "global.h"
+#include "utils.h"
 
 extern struct RectMenu menu;
 struct Driver* driver;
@@ -17,7 +18,7 @@ void menu_tittle() {
 	else
 	{
      #ifdef GASMOX_ENG
-	char* text[7] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SEL CHARACTER", "ENGINE TURNING", "GL EVERYONE!" };
+	char* text[7] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SELECT CHARACTER", "TURNING STYLE", "GOOD LUCK EVERYONE!" };
 	#elif defined(GASMOX_ES)
 	char* text[7] = { "GASMOXIAN", "ELIGE PISTA", "ELIGE MODO", "VUELTAS", "ELIG PERSONAJE", "GIRO DE MOTOR", "SUERTE A TODOS!" };
 	#elif defined(GASMOX_BR)
@@ -93,7 +94,7 @@ void StatePS1_Launch_EnterPID()
 #endif
 }
 
-extern char* countryNames[3];
+extern char* countryNames[4];
 bool initString = true;
 //oxide icon
 
@@ -376,13 +377,9 @@ void StatePS1_Lobby_CharacterPick()
 	{
 		// update real-time
 		data.characterIDs[0] = (8 * octr->PageNumber) + b->rowSelected;
-
-//show icon in character selection
-		int selectedchar = data.characterIDs[0];
-		ShowCharacterIcon(selectedchar, 0x5D, 0x2A);
 		
 		//oxide custom cam
-        if (data.characterIDs[0] == 15)
+        if (data.characterIDs[0] == NITROS_OXIDE)
         {
             oxidecam = 1;
         }
@@ -411,6 +408,15 @@ void StatePS1_Lobby_EnginePick()
 
 	UpdateMenu();
     NewPage_Engine();
+	
+	// get menu
+	struct RectMenu* b = sdata->ptrActiveMenu;
+
+	if(b != 0)
+	{
+	// update real-time
+	octr->enginetype[0] = (8 * octr->PageNumber) + b->rowSelected;
+	}
 	
 	
 }
@@ -463,7 +469,7 @@ void StatePS1_Lobby_StartLoading()
 	{
 		
 		//boss mode event
-		if (octr->special == 7) {
+		if (octr->special == BOSS_RACE) {
 		
 		gGT->gameMode1 = LOADING | ADVENTURE_BOSS;
 		
@@ -471,7 +477,7 @@ void StatePS1_Lobby_StartLoading()
 		else
 		{
 			// for all other tracks
-		gGT->gameMode1 = (octr->special == 3) ?  LOADING | TIME_TRIAL : LOADING | ARCADE_MODE;
+		gGT->gameMode1 = (octr->special == ITEMLESS) ?  LOADING | TIME_TRIAL : LOADING | ARCADE_MODE;
 		}
 	}
 
@@ -510,15 +516,21 @@ static void OnRaceInit()
 	sdata->gGT->drivers[0]->bestLapTime = HOURS(10);
 }
 
+extern void ITEMLESS_MAIN(struct GameTracker* gGT);
+
 void StatePS1_Game_WaitForRace()
 {
-	
 	struct GameTracker* gGT = sdata->gGT;
+	
 	if (initRace)
 	{
 		OnRaceInit();
 		initRace = false;
 	}
+	
+	//make everyone a ghost
+	if (octr->special == ITEMLESS)
+	ITEMLESS_MAIN(gGT);
 
 	gGT->trafficLightsTimer = 0xf40;
 

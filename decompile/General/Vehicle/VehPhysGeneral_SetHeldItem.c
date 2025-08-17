@@ -2,6 +2,7 @@
 
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
+#include "../AltMods/Gasmoxian/utils.h"
 
 //if boss race
 bool bossrace = 0;
@@ -89,14 +90,14 @@ if (driver->driverRank >= 1 && driver->driverRank <= 7) {
               : itemSets[driver->driverRank - 1];
 			  
 int allowsuperengine = octr->NumDrivers - 3; // allow super engine for the last 3 players
-if (driver->heldItemID == 0xd && driver->driverRank != allowsuperengine && gGT->gameMode1 & ARCADE_MODE) {
+if ((driver->heldItemID == 0xd) && (driver->driverRank != allowsuperengine) && ((gGT->gameMode1 & ARCADE_MODE) != 0)) {
 	driver->heldItemID = 0x6; //if not last 2 players then replace super engine with shield
 }
 //end of itemset assignation
 }
 		//ban orbs and clocks until lap 2
-		if (driver->heldItemID >= 0x8 && driver->heldItemID <= 0x9 && driver->lapIndex == 0 ||
-		driver->heldItemID == 0xd && driver->lapIndex == 0) {
+		if (((driver->heldItemID >= 0x8) && (driver->heldItemID <= 0x9) && (driver->lapIndex == 0)) ||
+		(driver->heldItemID == 0xd && driver->lapIndex == 0)) {
 			
 			driver->heldItemID = 0x7;
 		}
@@ -251,7 +252,7 @@ if (driver->heldItemID == 0xd && driver->driverRank != allowsuperengine && gGT->
 if (gGT->gameMode1 & ARCADE_MODE)
 {
 	//avoid ghost bug
-	if (octr->special == 1 ) {
+	if (octr->special == MIRROR ) {
 	 if (driver->heldItemID == 0xc)
 	{
 		//nothing item is back!
@@ -259,7 +260,7 @@ if (gGT->gameMode1 & ARCADE_MODE)
 	}
 		
 	}
-	else if (octr->special == 0 && driver->heldItemID == 0xc)
+	else if (octr->special == NORMAL && driver->heldItemID == 0xc)
 	{
 		driver->heldItemID = 0x7;
 	}
@@ -267,7 +268,7 @@ if (octr->warpclock == 0)
 {
 	
 	// if retrofueled, ngin labs or oxide station then replace warpball with an clock
-    if (octr->special == 5 || octr->levelID == N_GIN_LABS || octr->levelID == OXIDE_STATION) 
+    if (octr->special == RETRO_FUELED || octr->levelID == N_GIN_LABS || octr->levelID == OXIDE_STATION) 
     {
 	if (driver->heldItemID == 0x9)
 	{

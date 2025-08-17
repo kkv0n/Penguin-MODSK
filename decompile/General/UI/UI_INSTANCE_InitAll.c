@@ -2,6 +2,7 @@
 
 #ifdef USE_GASMOXIAN
 #include "../../General/AltMods/Gasmoxian/global.h"
+#include "../../General/AltMods/Gasmoxian/utils.h"
 #endif
 
 void DECOMP_UI_INSTANCE_InitAll(void)
@@ -154,7 +155,7 @@ void DECOMP_UI_INSTANCE_InitAll(void)
     sdata->pushBuffer_DecalMP.distanceToScreen_PREV = gGT->pushBuffer->distanceToScreen_PREV;
 
 #ifdef USE_GASMOXIAN
-if (octr->special != 3) {
+if (octr->special != ITEMLESS) {
     sdata->ptrFruitDisp =
 		DECOMP_UI_INSTANCE_BirthWithThread(0x37,DECOMP_UI_ThTick_CountPickup,3,1,/*sdata->ptrPushBufferUI*/0,/*sdata->s_fruitdisp*/0);
 }

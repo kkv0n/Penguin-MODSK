@@ -1,9 +1,6 @@
 #include <common.h>
-#ifdef USE_GASMOXIAN
-#include "Gasmoxian/lap1.c"
-#endif
 
-#if !defined(USE_GASMOXIAN) && defined(USE_16BY9)
+#if defined(USE_16BY9)
 
 void ui16by9_ViewProj(struct PushBuffer* pb)
 {

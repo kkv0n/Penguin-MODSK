@@ -1,5 +1,6 @@
 #include <common.h>
 #include "global.h"
+#include "utils.h"
 
 extern int GetOverheadLen(struct Driver* d);
 
@@ -41,7 +42,7 @@ void DrawOverheadNames()
 
 
 		// if mirror mode
-		if(octr->special == 1)
+		if(octr->special == MIRROR)
 		{
 			ptrDest->Screen_posX =
 			0x200 - ptrDest->Screen_posX;

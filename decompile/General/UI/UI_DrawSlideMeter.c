@@ -2,6 +2,7 @@
 
 #ifdef USE_GASMOXIAN
 #include "../../General/AltMods/Gasmoxian/global.h"
+#include "../../General/AltMods/Gasmoxian/utils.h"
 #endif
 
 void DECOMP_UI_DrawSlideMeter(short posX, short posY, struct Driver* driver)
@@ -12,7 +13,7 @@ void DECOMP_UI_DrawSlideMeter(short posX, short posY, struct Driver* driver)
 	
 			//this is for boss race mode
     //using this file because it updates itself every second
-	if (octr->special == 7) {
+	if (octr->special == BOSS_RACE) {
 		if (driver->driverRank == 0 && driver->numWumpas == 99)
 	{   
 			driver->numWumpas = 0;

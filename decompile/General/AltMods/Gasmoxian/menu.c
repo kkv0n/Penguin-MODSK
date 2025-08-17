@@ -4,43 +4,41 @@ extern const char* options[16];
 extern int label;
 
 //special menu text, probably will move it later
+// OCTR SPECIAL MENU BY PENTA3
+char* special_name[] = {
 #ifdef GASMOX_ENG
-const char* special_0 = "NORMAL";
-const char* special_1 = "MIRROR MODE";
-const char* special_2 = "ICY TRACK";
-const char* special_3 = "TIME TRIAL";
-const char* special_4 = "MOON MODE";
-const char* special_5 = "RETROFUELED";
-const char* special_6 = "VOID WORLD";
-const char* special_7 = "BOSS RACE";
-const char* special_8 = "DEMO CAMERA";
-const char* special_9 = "N-VERTED";
+    "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETROFUELED", "VOID WORLD", "BOSS RACE", "DEMO CAMERA", "N-VERTED", "SHORTCUTLESS", "NIGHT MODE", "DARKNESS",
 #elif defined(GASMOX_ES)
-const char* special_0 = "NORMAL";
-const char* special_1 = "MODO ESPEJO";
-const char* special_2 = "PISO DE HIELO";
-const char* special_3 = "SIN ITEMS";
-const char* special_4 = "MODO LUNAR";
-const char* special_5 = "RETROFUELED";
-const char* special_6 = "MUNDO VACIO";
-const char* special_7 = "MODO JEFE";
-const char* special_8 = "CAMARA DEMO";
-const char* special_9 = "N-VERTED";
+    "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETROFUELED", "MUNDO VACIO", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE", "OSCURIDAD",
 #elif defined(GASMOX_BR)
-const char* special_0 = "NORMAL";
-const char* special_1 = "ESPELHADO";
-const char* special_2 = "PISTA GELO";
-const char* special_3 = "SEM ITENS";
-const char* special_4 = "MODO LUNAR";
-const char* special_5 = "RETROFUELED";
-const char* special_6 = "PISTA VAZIA";
-const char* special_7 = "CONTRA CHEFE";
-const char* special_8 = "DEMO CAMERA";
-const char* special_9 = "N-VERTED";
+    "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETROFUELED", "PISTA VAZIA", "CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO",
 #endif
+};
 
+short special_size = sizeof(special_name) / sizeof(special_name[0]);
 
+char* engine_names[] = {
+	#ifdef GASMOX_ENG
+	"BALANCED",
+	"ACCEL",
+	"SPEED",
+		"TURN"
+	#elif defined(GASMOX_ES)
+	"BALANCEADO",
+	"ACELERACION",
+	"VELOCIDAD",
+	"GIRO"
+	#elif defined(GASMOX_BR)
+	"EQUILIBRADO",
+	"ACELERACAO",
+	"VELOCIDADE",
+	"MAXIMIZADO"	
+	#endif
+};
 
+//todo: substract the rows for server country and engine menus
+//{stringIndex, rowOnPressUp, rowOnPressDown, rowOnPressLeft, rowOnPressRight}
+//stringIndex its the text from the menu option
 struct MenuRow menuRows[9] =
 {
 	{0,0,1,0,0},
@@ -107,10 +105,11 @@ int MenuFinished()
 }
 //server names can be changed without problems
 //for some reason when i change the number from 8 to 3 i got 20 extra bytebudget 
-char* countryNames[3] =
+char* countryNames[4] =
 {
 	"Mednafen Peru",
-	"Gasmox USA",
+	"Mednafen USA",
+	"Gasmox Chile",
 #ifdef GASMOX_ENG
     "Private server",
 #elif defined(GASMOX_ES) || defined(GASMOX_BR)
@@ -119,8 +118,19 @@ char* countryNames[3] =
 	
 };
 
+bool sv_menuopen;
+
 void NewPage_ServerCountry()
 {
+	//fix server menu
+	menuRows[3].rowOnPressDown = 3;
+	
+	if (!sv_menuopen)
+	{
+	  menu.rowSelected = 0;
+	  sv_menuopen = true;
+	}
+	
 	label = 0;
 	int i;
 
@@ -129,17 +139,23 @@ menu.posY_curr = 0x84;  // Y position
 
 	// override "LAPS" "3/5/7",
 	// and other unimportant strings
-	for(i = 0; i < 3; i++)
+	for(i = 0; i < 8; i++)
 	{
-		menuRows[i].stringIndex = 0x9a+i;
-		sdata->lngStrings[0x9a+i] = countryNames[i];
+		if (i < 4)
+		{
+		 menuRows[i].stringIndex = 0x9a+i;
+		 sdata->lngStrings[0x9a+i] = countryNames[i];
+		}
+		else
+		{
+		   menuRows[i].stringIndex = -1;
+	
+
+	       menuRows[i].stringIndex |= 0x8000;
+		}
+		
 	}
 
-	for(i = 3; i < 8; i++) {
-		menuRows[i].stringIndex = -1;
-	}
-
-	menuRows[i].stringIndex |= 0x8000;
 }
 
 void MenuWrites_ServerCountry()
@@ -180,6 +196,13 @@ void NewPage_ServerRoom()
 {
 	label = 0;
 	int i;
+	
+	sv_menuopen = false;
+	
+	
+	//remove server menu fix
+	menuRows[3].rowOnPressDown = 4;
+	
 
 	// override "LAPS" "3/5/7"
 	//room names, the names can be translated or rewrite
@@ -261,22 +284,27 @@ void NewPage_Tracks()
 {
 	label = 1;
 	int i, id;
-
-
+    
+	//restore menu if not in engine menu
+    menuRows[3].rowOnPressDown = 4;
+	
 	for (int i = 0; i < 8; i++)
 	{
+		
+		
 		int id = 8 * octr->PageNumber + i;
-		menuRows[i].stringIndex = data.metaDataLEV[id].name_LNG;
-
+		
+		menuRows[i].stringIndex = (id > TURBO_TRACK) ? 0x9a + i : data.metaDataLEV[id].name_LNG;
+		
 		if (id > TURBO_TRACK)
 		{
-			for (int j = TURBO_TRACK + 1; j <= id; j++)
-			{
-				sdata->lngStrings[data.metaDataLEV[j].name_LNG] = "-";
-			}
-
+			sdata->lngStrings[0x9a + i] = "-";
 			menuRows[i].stringIndex |= 0x8000;
 		}
+
+		
+		
+		   
 	}
 }
 
@@ -292,29 +320,22 @@ void NewPage_Events()
 	label = 2;
     int i;
 
+    for (i = 0; i < 8; i++)
+    {
+       int max = 8 * octr->PageNumber + i;
+	   menuRows[i].stringIndex = 0x9a + i;
+	   
+	   if (max < special_size) {
+        sdata->lngStrings[0x9a + i] = special_name[max];
+	   }
 
-
-    // OCTR SPECIAL MENU BY PENTA3
-	char* special_name[] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7, special_8, special_9 };
-	short special_size = sizeof(special_name) / sizeof(special_name[0]);
-
-	for (i = 0; i < 8; i++)
-		{
-		int max = 8 * octr->PageNumber + i;
-		
-		if (max < special_size) {
-			sdata->lngStrings[0x9a + i] = special_name[max];
-
-			
-			menuRows[i].stringIndex = 0x9a + i;
-		}
-
-		else {
-			
-			sdata->lngStrings[0x9a + i] = "-";
-			menuRows[i].stringIndex |= 0x8000;  
-		}
-	}
+     else {
+        
+        sdata->lngStrings[0x9a + i] = "-";
+        menuRows[i].stringIndex |= 0x8000;  
+    }
+	
+}
 }
 
 
@@ -344,6 +365,7 @@ void NewPage_Laps()
         
 
         menuRows[i].stringIndex = 0x9a + i;
+		
     }
 }
 
@@ -360,7 +382,10 @@ void NewPage_Characters()
 {
 	label = 4;
 	int i;
-
+	
+	//Restore menu if not in engine menu
+    menuRows[3].rowOnPressDown = 4;
+	
 	for(i = 0; i < 8; i++)
 	{
 		menuRows[i].stringIndex =
@@ -379,44 +404,25 @@ void NewPage_Engine()
 {
 	label = 5;
     int i;
-
-    #ifdef GASMOX_ENG
-    sdata->lngStrings[0x9a] = "BALANCED";
-    sdata->lngStrings[0x9b] = "ACCELERATION";
-    sdata->lngStrings[0x9c] = "SPEED";
-    sdata->lngStrings[0x9d] = "MAXIMUM";
-    sdata->lngStrings[0x9e] = "-";
-    sdata->lngStrings[0x9f] = "-";
-	sdata->lngStrings[0xa0] = "-";
-    sdata->lngStrings[0xa1] = "-";
-	#elif defined(GASMOX_ES)
-	sdata->lngStrings[0x9a] = "BALANCEADO";
-    sdata->lngStrings[0x9b] = "ACELERACION";
-    sdata->lngStrings[0x9c] = "VELOCIDAD";
-    sdata->lngStrings[0x9d] = "MAXIMO";
-    sdata->lngStrings[0x9e] = "-";
-    sdata->lngStrings[0x9f] = "-";
-    sdata->lngStrings[0xa0] = "-";
-    sdata->lngStrings[0xa1] = "-";	
-	#elif defined(GASMOX_BR)
-	sdata->lngStrings[0x9a] = "EQUILIBRADO";
-    sdata->lngStrings[0x9b] = "ACELERACAO";
-    sdata->lngStrings[0x9c] = "VELOCIDADE";
-    sdata->lngStrings[0x9d] = "MAXIMIZADO";
-    sdata->lngStrings[0x9e] = "-";
-    sdata->lngStrings[0x9f] = "-";	
-	sdata->lngStrings[0xa0] = "-";
-    sdata->lngStrings[0xa1] = "-";
-	#endif
-
+	
+	//fix menu bug
+    menuRows[3].rowOnPressDown = 3;
+			
     for (i = 0; i < 8; i++)
     {
+		if (i < 4)
+		sdata->lngStrings[0x9a + i] = engine_names[i];
+		
         menuRows[i].stringIndex = 0x9a + i;
+		
+		if (i > 3)
+		{
+			sdata->lngStrings[0x9a + i] = "-";
+			menuRows[i].stringIndex = -1;
+			
+		}
+		
     }
-	for (i = 4; i < 8; i++)
-	{
-	menuRows[i].stringIndex = -1;
-	}
 
 }
 
@@ -447,7 +453,9 @@ void UpdateMenu()
 	if (buttons & (BTN_LEFT | BTN_RIGHT)) { DECOMP_OtherFX_Play(0, 1); }
 
 	if (pageMax == 0) { return; }
-
+	
+	
+	//can just use sprintf there i think
 	int string =
 		(('1' + octr->PageNumber) << 0) |
 		('/' << 8) |
@@ -489,22 +497,20 @@ void PrintCharacterStats()
 	int i;
 	int color;
 
-//special events text when you are in a room
-//for the special events logic search octr special in cl_main.c
-char* special_titles[] = { special_0, special_1, special_2, special_3, special_4, special_5, special_6, special_7, special_8, special_9 };
 
 char* title = nullptr;
 
-
-if (octr->special >= 0 && octr->special < special_size) {
-    title = special_titles[octr->special];
+//special events text when you are in a room
+//for the special events logic search octr special in gasmox_client.c
+if (octr->special >= 0 && octr->special <= special_size) {
+    title = special_name[octr->special];
 } 
 else
 {
     
-    title = special_0;  
+    title = "DEV TEST MODE";
 }
-	DecalFont_DrawLine(title,0x100,0x18,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
+	DecalFont_DrawLine(title,0x100,0x18,FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
 
 
 
@@ -613,26 +619,44 @@ else
 		posX = 0x110;
 		sprintf(message, "%s:", str);
 		DecalFont_DrawLine(message,posX,posY,FONT_SMALL,color);
-
+		
 		if(octr->CurrState < LOBBY_CHARACTER_PICK)
 			continue;
+		
+		DECOMP_DecalHUD_DrawWeapon(
+		// pointer to icon, from array of icon pointers
+		sdata->gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[slot]].iconID],
+	
+		(int)(posX - 18),(int)(posY - 2),
+	
+		// PrimMem
+		&sdata->gGT->backBuffer->primMem,
+	
+		// OTMem
+		sdata->gGT->pushBuffer_UI.ptrOT,
+	
+		TRANS_50_DECAL,FP(0.40),0);
+		
+		
+		
 
-		char* characterName =
-			sdata->lngStrings[
-				data.MetaDataCharacters[
-					data.characterIDs[slot]
-				].name_LNG_short];
+		if(octr->CurrState < LOBBY_ENGINEPICK)
+			continue;
+
+		char* curr_engine =
+					engine_names[octr->enginetype[slot]];
+
 
 		posX = 0x18C;
-		DecalFont_DrawLine(characterName,posX,posY,FONT_SMALL,color);
+		DecalFont_DrawLine(curr_engine, (posX - 11),posY,FONT_SMALL,color);
 	}
 
 	posX = 0x11E;
 	int posY = 0xB3;
 #ifdef GASMOX_ENG
-	DecalFont_DrawLine("gasmoxian is a modified",posX,posY,FONT_SMALL,0);
-	DecalFont_DrawLine("version of onlinectr,we",posX-0x8,posY+0x8,FONT_SMALL,0);
-	DecalFont_DrawLine("do things for fans n fun",posX-0x18,posY+0x10,FONT_SMALL,PAPU_YELLOW);
+	DecalFont_DrawLine("Gasmoxian is a modified",posX,posY,FONT_SMALL,0);
+	DecalFont_DrawLine("version of OnlineCTR.",posX+0x10,posY+0x8,FONT_SMALL,0);
+	DecalFont_DrawLine("This is for the fans and fun!",posX-0x28,posY+0x10,FONT_SMALL,PAPU_YELLOW);
 #elif defined(GASMOX_ES)
 	DecalFont_DrawLine("gasmoxian es una version",posX,posY,FONT_SMALL,0);
 	DecalFont_DrawLine("modificada de onlinectr,",posX-0x8,posY+0x8,FONT_SMALL,0);

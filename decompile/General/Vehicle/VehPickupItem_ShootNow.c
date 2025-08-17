@@ -7,6 +7,7 @@ void RB_Warpball_ThTick(struct Thread* t);
 
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
+#include "../AltMods/Gasmoxian/utils.h"
 #endif
 
 void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
@@ -36,7 +37,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 		octr->warpclock = 1;
 	}
 	}
-if (octr->special == 7 && d->driverRank != 0)
+if (octr->special == BOSS_RACE && d->driverRank != 0)
 {
 	if (d->heldItemID == 0x3 || d->heldItemID == 0x4 || d->heldItemID == 0x1) {
 			

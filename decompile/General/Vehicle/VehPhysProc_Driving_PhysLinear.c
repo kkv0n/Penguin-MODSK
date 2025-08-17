@@ -1,6 +1,7 @@
 #include <common.h>
 #if defined USE_RETROFUELED && defined USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
+#include "../AltMods/Gasmoxian/utils.h"
 #endif
 
 // budget: 4624
@@ -533,7 +534,7 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 			bomb->flags |= 2;
 			driver->instBombThrow = NULL;
 			#if defined(USE_GASMOXIAN)
-			if (octr->special != 3 && driver->driverID == 0) octr->Shoot[0].boolNow = 1;
+			if (octr->special != ITEMLESS && driver->driverID == 0) octr->Shoot[0].boolNow = 1;
 			#endif
 			goto CheckJumpButtons;
 		}
@@ -546,7 +547,7 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 			shield->flags |= 2;
 			driver->instBubbleHold = NULL;
 			#if defined(USE_GASMOXIAN)
-			if (octr->special != 3 && driver->driverID == 0) octr->Shoot[0].boolNow = 1;
+			if (octr->special != ITEMLESS && driver->driverID == 0) octr->Shoot[0].boolNow = 1;
 			#endif
 			goto CheckJumpButtons;
 		}
@@ -700,7 +701,7 @@ CheckJumpButtons:
 	{
 		#if defined(USE_GASMOXIAN)
 		
-		if (octr->special != 5) //if not retro mode
+		if (octr->special != RETRO_FUELED) //if not retro mode
 			goto SKIP_RF;
 		#endif
 

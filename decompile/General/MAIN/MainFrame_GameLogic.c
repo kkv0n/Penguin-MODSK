@@ -7,6 +7,8 @@ typedef void (*VehicleFuncPtr)(struct Thread* thread, struct Driver* driver);
 void RunVehicleThread(VehicleFuncPtr func, struct Thread* thread, struct Driver* driver);
 #endif
 
+unsigned char boolPause;
+
 void DECOMP_MainFrame_GameLogic(struct GameTracker* gGT, struct GamepadSystem* gGamepads)
 {
 	char bVar1;
@@ -482,6 +484,10 @@ LAB_80035098:
 			{
 				for(iVar4 = 0; iVar4 < gGT->numPlyrCurrGame; iVar4++)
 				{
+					#ifdef USE_GASMOXIAN
+					struct RectMenu* audio_s = &data.menuRacingWheelConfig;
+					#endif
+											
 					if
 					(
 						(
@@ -502,12 +508,16 @@ LAB_80035098:
 						(gGT->overlayIndex_Threads != -1)
 					)
 					{
+						
 						gGT->unknownFlags_1d44 = (gGT->gameMode1 & 0x3e0020) | PAUSE_1;
 
 						DECOMP_MainFreeze_IfPressStart();
 
 						gGT->cooldownfromPauseUntilUnpause = FPS_DOUBLE(5);
+						
+
 					}
+					  
 				}
 			}
 		}

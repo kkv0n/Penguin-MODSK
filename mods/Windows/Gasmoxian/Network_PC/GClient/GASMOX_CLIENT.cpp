@@ -21,8 +21,8 @@
 #include "../../../../../decompile/General/AltMods/Gasmoxian/global.h"
 #include <enet/enet.h>
 
-clock_t timeStart;
-clock_t warpclockdelay;
+double timeStart;
+double warpclockdelay;
 clock_t  squaredelay [MAX_NUM_PLAYERS];
 
 char* pBuf;
@@ -37,6 +37,16 @@ ENetPeer* serverPeer;
 #ifdef __WINDOWS__
 void usleep(__int64 usec);
 #endif
+
+double timers[2];
+
+double getTimeInSeconds() {
+	LARGE_INTEGER frequency;
+	LARGE_INTEGER currentTime;
+	QueryPerformanceFrequency(&frequency);  
+	QueryPerformanceCounter(&currentTime);   
+	return static_cast<double>(currentTime.QuadPart) / frequency.QuadPart;
+}
 
 std::atomic<bool> lockengineandcharacter(false);
 int prev_warpclock = -1;
@@ -769,23 +779,32 @@ void StatePC_Launch_PickServer()
 		// MEDNAFEN PERU
 		case 0:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "insertheip"); //censored because some malicious person tried to raid us
+			strcpy_s(dns_string, sizeof(dns_string), "mednafen-peru2.ddns.net"); 
 			enet_address_set_host(&addr, dns_string);
-			addr.port = 0000; //censored because some malicious person tried to raid us
+			addr.port = 54321; 
 
 			break;
 		}
-		// GASMOX USA)
+		// MEDNAFEN USA)
 		case 1:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "insertheip"); //censored because some malicious person tried to raid us
+			strcpy_s(dns_string, sizeof(dns_string), "mednafen-us.ddns.net"); 
 			enet_address_set_host(&addr, dns_string);
-			addr.port = 0000; //censored because some malicious person tried to raid us
+			addr.port = 54321;
 
 			break;
 		}
-		// PRIVATE SERVER
+		//GASMOX CHILE
 		case 2:
+		{
+			strcpy_s(dns_string, sizeof(dns_string), "ctr.ryu7w7.xyz");
+			enet_address_set_host(&addr, dns_string);
+			addr.port = 5727;
+			break;
+		}
+
+		// PRIVATE SERVER
+		case 3:
 		{
 			StopAnimation();
 
@@ -1161,7 +1180,7 @@ void StatePC_Lobby_EnginePick()
 
 
 
-	mc.enginetype = octr->enginetype[octr->DriverID]; 
+	mc.enginetype = octr->enginetype[0]; //slot is not the same than octr->driverID. 
 	mc.boolLockedIn = octr->boolLockedInEnginee[octr->DriverID];  
 
 	if (
@@ -1331,13 +1350,18 @@ void StatePC_Game_StartRace()
 			prev_warpclock = octr->warpclock;
 
 
-			warpclockdelay = clock();
+			warpclockdelay = getTimeInSeconds();
 		}
 	}
 
 	//set banned time for orb/clock
 	if (sendwarpclock) {
-		if (((clock() - warpclockdelay) / CLOCKS_PER_SEC) >= 80) {
+		
+		timeStart = getTimeInSeconds();
+
+		timers[0] = timeStart - warpclockdelay;
+
+		if (timers[0] >= 50) {
 
 			octr->warpclock = 0;
 
@@ -1357,6 +1381,9 @@ void StatePC_Game_StartRace()
 
 			sendwarpclock = 0;
 			warpclockdelay = 0;
+			timers[0] = 0;
+			timeStart = 0;
+
 		}
 	}
 

@@ -1,13 +1,5 @@
 #include <common.h>
 
-#ifdef USE_GASMOXIAN
-#include "../../General/AltMods/Gasmoxian/pMoonGravity.c"
-
-//laps visual number
-    const char* options[16] = { "1", "3", "5", "7", "10", "15", "20", "25", 
-                                "30", "35", "40", "50", "69", "80", "90", "127" };
-#else
-
 
 void DECOMP_BOTS_InitNavPath(struct GameTracker* gGT, short index)
 {
@@ -64,4 +56,3 @@ void DECOMP_BOTS_InitNavPath(struct GameTracker* gGT, short index)
 
 	return;
 }
-#endif

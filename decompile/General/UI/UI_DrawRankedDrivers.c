@@ -1,5 +1,6 @@
 #include <common.h>
 #include "../AltMods/Gasmoxian/global.h"
+#include "../AltMods/Gasmoxian/utils.h"
 
 // Draw player icons on left side of screen
 // in Arcade mode and Boss mode, and draws
@@ -265,7 +266,7 @@ if (iVar12 == 0) {
 } else if (iVar14 != 0 && iVar12 != 0) {
     players_colors = JUSTIFY_CENTER | ORANGE;
 }
-		  if (octr->special == 7)
+		  if (octr->special == BOSS_RACE)
 		  {
 			defined_colors = players_colors; //only use this if boss race mode is enabled
 		  }

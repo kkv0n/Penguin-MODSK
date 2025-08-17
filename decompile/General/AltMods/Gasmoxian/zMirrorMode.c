@@ -1,5 +1,6 @@
 #include <common.h>
 #include "global.h"
+#include "utils.h"
 
 #define COLOR 1
 void ParseOT(u_long* startOT)
@@ -358,7 +359,7 @@ void OnlineMirrorMode(u_long* startOT)
 	// no special event
 	//if the room is special 1 then mirror mode will be enabled
 	
-	if (octr->special != 1)
+	if (octr->special != MIRROR)
 	{
 		return;
 	}

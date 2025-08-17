@@ -34,7 +34,7 @@ void ThreadFunc(struct Thread* t)
 	int isIdle = 0;
 
 	struct GameTracker* gGT = sdata->gGT;
-	octr->boolPlanetLEV = gGT->levelID == 33; //lobby level1
+	octr->boolPlanetLEV = gGT->levelID == INTRO_POLAR; //gasmoxian lobby
 
 	if(octr->boolPlanetLEV)
 	{
@@ -121,7 +121,7 @@ void ThreadFunc(struct Thread* t)
 		//sdata->Loading.stage = 0;
 
 		// load with flag animation
-		DECOMP_MainRaceTrack_RequestLoad(33);
+		DECOMP_MainRaceTrack_RequestLoad(INTRO_POLAR); //load gasmoxian lobby
 
 		// kill thread,
 		// dont execute again until game loads
@@ -161,6 +161,7 @@ void ThreadFunc(struct Thread* t)
 		//for now mute sounds in lobby to avoid sound bugs
 		//in the future move this to (HOST_TRACK_PICK - WAIT_FOR_LOADING) to allow lobby music
 		//tbh idk how to play lobby music
+		//update: actually i know how to play lobby music now but only faking the levelID lol 
 		
 		Music_Stop();
 	
@@ -170,10 +171,19 @@ void ThreadFunc(struct Thread* t)
 		
 	    //if not in race then erase driving function
 		
-        for (int loop = 0; loop < 0xd; loop++)
-        {
-            gGT->drivers[0]->funcPtrs[loop] = 0;
-        }
+		for (unsigned char p = 0; p < 8; p++)
+		{
+			//this poor soul had to read ctr code for a year to understand why this didnt worked with other players :c
+			//now it should work
+           for (int loop = 0; loop < 0xd; loop++)
+           {
+			   if (gGT->drivers[p] == 0 || gGT->drivers[p] == NULL)
+				   break;
+			   
+			   
+               gGT->drivers[p]->funcPtrs[loop] = 0;
+           }
+		}
 		
         //if not in race then disable all HUD flags
         gGT->hudFlags = 0;
@@ -182,10 +192,6 @@ void ThreadFunc(struct Thread* t)
 		PrintTimeStamp();
         lobbysquare();
 		
-		
-//delete this later -penta3
-//i forgot it XD
-//already deleted
 
 	}
 

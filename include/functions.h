@@ -211,7 +211,7 @@ void GAMEPROG_SyncGameAndCard(struct GameProgress* memcardProg, struct GameProgr
 void GAMEPROG_NewGame_OnBoot();
 void GAMEPROG_GetPtrHighScoreTrack();
 
-#ifndef USE_GASMOXIAN
+
 // GhostBuffer
 
 //void GhostReplay_ThTick();
@@ -221,7 +221,6 @@ void GAMEPROG_GetPtrHighScoreTrack();
 void GhostTape_WriteMoves(short param_1);
 void GhostTape_WriteBoosts(int reserves, u_char type, int fireLevel);
 void GhostTape_Destroy();
-#endif
 
 // OtherFX
 

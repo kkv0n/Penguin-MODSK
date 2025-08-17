@@ -18,7 +18,7 @@ void DECOMP_VehBirth_SetConsts(struct Driver* driver)
 unsigned char driverID = driver->driverID;
 
 //engine selection
-int engineID = octr->enginetype[i];
+int engineID = octr->enginetype[driverID];
 	
  
 //moon mode event

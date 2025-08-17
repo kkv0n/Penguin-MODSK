@@ -49,6 +49,8 @@ void DECOMP_MainFreeze_MenuPtrDefault(struct RectMenu* menu)
 	// stringID 14: "OPTIONS"
 	if (stringID == 14)
 	{
+
+		
 		// Set Menu to Options
 		sdata->ptrDesiredMenu = &data.menuRacingWheelConfig;
 
