@@ -136,6 +136,11 @@ void PreventShortcut(struct Driver* driver, int driverIndex) {
                 maxCheckpointSkip = (maxCheckpoint * 3) / 100;
             }
 
+            //10% for OXIDE_STATION if previous checkpoint is ahead 94 and before 117
+            if (gGT->levelID == OXIDE_STATION && prevCheckpoint > 94 && prevCheckpoint < 117) {
+                maxCheckpointSkip = (maxCheckpoint * 10) / 100;
+            }
+
             // Detect lap skip (NMZ abuse)
             if (
                 currentCheckpoint == maxCheckpoint 							//If player lands on NMZ
