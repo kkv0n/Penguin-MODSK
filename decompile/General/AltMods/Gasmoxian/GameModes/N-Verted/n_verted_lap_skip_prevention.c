@@ -12,6 +12,9 @@ extern void MaskGrab(struct Thread* t, struct Driver* d);
 // Prevent lap skips (NMZ Abuse)
 void PreventLapSkip(struct Driver* driver, int driverIndex) {
     struct GameTracker *gGT = sdata->gGT;
+
+    // sprintf(decalText, "CHK Index %d", (int)(unsigned char) driver->lastValid->checkpointIndex);
+    // DecalFont_DrawLine(decalText, 0x100, 0xc8 + 10, FONT_SMALL, (JUSTIFY_CENTER | ORANGE));
     
     // Continue only if driver has a valid quadblock
     if (driver != NULL && driver->lastValid != NULL) {

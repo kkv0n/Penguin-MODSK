@@ -80,6 +80,25 @@ void Boundless(struct Level *level){
     }
 }
 
+// Solidify a list of quadblocks as wall if they had no colision flag
+//qb->blockID
+void SolidifyWalls(struct Level *level, int* quadBlockIDs, int numIDs) {
+    struct mesh_info* mi = level->ptr_mesh_info;
+    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
+
+    for (int i = 0; i < mi->numQuadBlock; i++) {
+        struct QuadBlock* qb = &quadBlocks[i];
+        // If the quadblock is on the list
+        for (int j = 0; j < numIDs; j++) {
+            if (qb->blockID == quadBlockIDs[j]) {
+                qb->quadFlags &= ~Q_NO_COLL;
+                qb->quadFlags |= Q_WALL;
+                break;  // Exit inner loop once found
+            }
+        }
+    }
+}
+
 void SpeedwayPhys(struct Level *level){
     struct mesh_info* mi = level->ptr_mesh_info;
     struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;

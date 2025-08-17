@@ -167,7 +167,7 @@ void PreventShortcut(struct Driver* driver, int driverIndex) {
             else if (
                 gGT->levelID == TINY_ARENA
                 && (prevCheckpoint == maxCheckpoint || prevCheckpoint == maxCheckpoint - 1)
-                && currentCheckpoint == 141
+                && (currentCheckpoint == 141 || currentCheckpoint == 140)
             ) {
                 driver->lastValid = lastValid_prev[driverIndex];
                 MaskGrab(driver->instSelf->thread, driver);

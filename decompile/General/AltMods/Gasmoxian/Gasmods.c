@@ -388,8 +388,10 @@ void RunGamemodesUpdateHook() {
     if ((gGT->gameMode1 & PAUSE_ALL) != 0) return;
 
     // if the game is not in a race then quit
-	if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
+	if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING)){
+		initialized = false;
 		return;
+	}
 
     struct Driver* driver = sdata->gGT->drivers[0];
 

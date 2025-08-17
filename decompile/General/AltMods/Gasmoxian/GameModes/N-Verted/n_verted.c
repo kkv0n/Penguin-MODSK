@@ -112,6 +112,21 @@ void InvertCheckpoints(struct Level *level) {
             }
         }
     }
+
+    //Solidify walls (This is just used on cortex castle to avoid a weird lap skip)
+    //{265, 266, 601, 602, 603, 604, 267, 268, 586, 587, 588, 589}
+
+    if(levelID == CORTEX_CASTLE) {
+        int solidifyWallIDs[] = {
+            265, 266, 601, 602, 603, 604, 267, 268, 586, 587, 588, 589,
+            696, 689, 693, 1143, 697, 690, 694, 1097, 698, 695, 688, 1095
+        };
+
+        int numIDs = sizeof(solidifyWallIDs) / sizeof(solidifyWallIDs[0]);
+
+        extern void SolidifyWalls(struct Level *level, int* quadBlockIDs, int numIDs);
+        SolidifyWalls(level, solidifyWallIDs, numIDs);
+    }
 }
 
 void ReverseTrack(struct Level *level){
