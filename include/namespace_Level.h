@@ -352,8 +352,38 @@ struct RainBuffer
   short vanishRate;
 
   // 0x8
-  char unk_4[0x10];
+  char unk8_clock[4];
+  
+  //0xA
+  char unkA_boolPos; //noticeable changes are only 0 or -1
+  
+  //0xB
+  char unkB_particlePos;
+  
+  //0xC
+  char unkC_unused[2];
+  
+  //0xE
+  char fallAngleX;
+  
+  //0xF
+  char speedX;
+  
+  //0x10
+  char boolFastFalling; //noticeable changes are only 0 or -1
+  
+  //0x11
+  char speedY;
+  
+  //0x12
+  char fallAngleZ;
+  
+  //0x13
+  char speedZ;
 
+  //0x14
+  char unk14_visibilityBool[2]; //0 = show weather, any other value = weather not visible
+  
   // 0x18 (0x1a58)
   short cameraPos[3];
 
@@ -362,15 +392,18 @@ struct RainBuffer
 
   // 0x20
   // controls top color of particles
-  unsigned int colorRGBA_top;
+  unsigned int colorARGB_top;
 
   // 0x24
   // controls bottom color of particles
-  unsigned int colorRGBA_bottom;
+  unsigned int colorARGB_bottom;
 
   // 0x28
   // controls how particles are drawn
-  int renderMode[2];
+  int fillMode;
+  
+  //0x2C
+  int offsetOT;
 
   // 0x30 -- size of struct
 
@@ -498,6 +531,13 @@ struct CheckpointNode
 	unsigned char nextIndex_right;
 
 	// 0xC -- size
+};
+
+struct Stars {
+	short numStars;
+	short spread;
+	short seed;
+	short distance;
 };
 
 struct SkyboxFace {
@@ -732,12 +772,13 @@ struct Level
 	void* ptrSCVert;
 
 	// 0x17c - 0x182
-	short unkStarData[4];
+	struct Stars stars;
 
 	// split-lines
 	// for ice, mud, water
 	// 0x184
 	// 0x186
+	//latest decomp says that this can be 2 shorts instead of 4 chars
 	char splitLines[4];
 
 	// 0x188

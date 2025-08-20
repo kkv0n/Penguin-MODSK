@@ -139,8 +139,11 @@ int NightFilterBrightness = 255;
 int NightFilterBlueTint = 15;
 
 void NightSkybox(struct Level *level){
+    
     // if level is caves, sewer or labs dont modify skybox since are indoor levels
-    if (gGT->levelID != SEWER_SPEEDWAY && gGT->levelID != MYSTERY_CAVES && gGT->levelID != N_GIN_LABS) {
+    #define SHOULD_SKIP_SKYBOX(x) (x != SEWER_SPEEDWAY && x != MYSTERY_CAVES && x != N_GIN_LABS)
+    
+    if (SHOULD_SKIP_SKYBOX(gGT->levelID)) {
         // Add stars to the sky
         // If mirror mode is enabled don't add stars
         // if(!USE_MIRROR){
@@ -152,10 +155,10 @@ void NightSkybox(struct Level *level){
         // }
 
         gGT->renderFlags |= 8;
-        level->unkStarData[0] = 768;
-        level->unkStarData[1] = 0;
-        level->unkStarData[2] = 65535;
-        level->unkStarData[3] = 1022;
+        level->stars.numStars = 768;
+        level->stars.spread = 0;
+        level->stars.seed = 65535;
+        level->stars.distance = 1022;
 
         // Remove skybox
         level->ptr_skybox = NULL;
@@ -319,7 +322,11 @@ bool NightFilterApplied(struct Level* level) {
         level->ptr_skybox == NULL
         && (level->configFlags & 1)
         // && lev->stars.numStars > 0
+<<<<<<< HEAD
+        && level->stars.numStars > 0
+=======
         && level->unkStarData[0] > 0
+>>>>>>> e061c477ecff5a1d0474d3d4674c22120606003d
 
     ){
         return true;
@@ -387,6 +394,18 @@ void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
     struct RainBuffer* rainBuffer = &level->rainBuffer;
 
     //fillMode
+<<<<<<< HEAD
+	rainBuffer->fillMode = fillMode;
+    //offsetOT
+	rainBuffer->offsetOT = 1; 
+
+	rainBuffer->colorARGB_top = color_top;
+	rainBuffer->colorARGB_bottom = color_bottom;
+
+    rainBuffer->fallAngleX = fallingAngle;
+    rainBuffer->boolFastFalling = fallingSpeed;
+    rainBuffer->speedY = unk_verticalSpeed;
+=======
 	rainBuffer->renderMode[0] = fillMode;
     //offsetOT
 	rainBuffer->renderMode[1] = 1; 
@@ -397,6 +416,7 @@ void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
     rainBuffer->unk_4[8] = fallingAngle;
     rainBuffer->unk_4[10] = fallingSpeed;
     rainBuffer->unk_4[11] = unk_verticalSpeed;
+>>>>>>> e061c477ecff5a1d0474d3d4674c22120606003d
 
 	rainBuffer->unk_22 = 0;
 
