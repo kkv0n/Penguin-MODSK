@@ -35,6 +35,12 @@ enum GAME_MODES {
 	DARKNESS = 12,
 };
 
+enum WEATHER_TYPE {
+    WEATHER_NONE,
+    WEATHER_RAIN,
+    WEATHER_SNOW,
+};
+
 enum FIRE_LEVEL {
 	SACRED = 0x100,
 	USF = 0x800

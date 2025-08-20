@@ -311,21 +311,105 @@ void SeparateTrackSpawns(struct Level *level) {
     }
 }
 
-bool NightFilterApplied(struct Level* lev) {
-    if (!lev) return false;
+bool NightFilterApplied(struct Level* level) {
+    if (!level) return false;
 
     // Trivial check for skybox and stars
     if(
-        lev->ptr_skybox == NULL
-        && (lev->configFlags & 1)
+        level->ptr_skybox == NULL
+        && (level->configFlags & 1)
         // && lev->stars.numStars > 0
-        && lev->unkStarData[0] > 0
+        && level->unkStarData[0] > 0
 
     ){
         return true;
     }
 
     return false;
+}
+
+// About &level->rainBuffer->unk_4
+
+// These 4 are affected by the speed
+// 0: Constantly increasing value per frame, looks like a clock  (unknown)
+// 1: Constantly increasing value per second, looks like a clock  (unknown)
+// 2: Constantly decreasing value per frame, looks like a clock  (unknown)
+// 3: Constantly decreasing value per second, looks like a clock  (unknown)
+
+// 4: Changes particles position only when changing value from 0 to -1  (unknown)
+// 5: Changes particles position on each value change (unknown)
+// 6: Seems to do nothing (unknown)
+// 7: Seems to do nothing (unknown)
+// 8: Falling angle, based on a world axis (X?)
+// 9: Horizontal speed (X?)?  weather disappears outside [-15, 15] range and it freak out each value change, (unknown)
+// 10: Falling speed, -1 is the slowest and 0 the fastest (Y?)
+// 11: Same as 9 but on the new angle (Y?)  (unknown)
+// 12: Falling angle, based on a world axis (Z?)
+// 13: Same as 9 but on the new angle (Z?)  (unknown)
+// 14: Toggle? weather visible on 0, weather disappears on any other value  (unknown)
+// 15: Toggle? weather visible on 0, weather disappears on any other value (Again?)
+
+void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
+    int fillMode;
+    int color_top, color_bottom; //ARGB
+    char fallingAngle, fallingSpeed, unk_verticalSpeed;
+    char weather_intensity, weather_vanishRate;
+
+    switch(weather_type){
+        case WEATHER_RAIN:
+            fillMode = 0xe1000a60;
+            color_top = 0x00404040;
+            color_bottom = 0x00ffffff;
+            fallingAngle = 20;
+            fallingSpeed = -120;
+            unk_verticalSpeed = -1;
+            weather_intensity = 90;
+            weather_vanishRate = 9;
+        break;
+
+        case WEATHER_SNOW:
+            fillMode = 0xe1000a20;
+            color_top = 0x00ffffff;
+            color_bottom = 0x00ffffff;
+            fallingAngle = 0;
+            fallingSpeed = -8;
+            unk_verticalSpeed = -1;
+            weather_intensity = 60;
+            weather_vanishRate = 1;
+            break;
+
+        case WEATHER_NONE:
+            return;
+        default:
+            return;
+    }
+    //Rain buffer settings
+    struct RainBuffer* rainBuffer = &level->rainBuffer;
+
+    //fillMode
+	rainBuffer->renderMode[0] = fillMode;
+    //offsetOT
+	rainBuffer->renderMode[1] = 1; 
+
+	rainBuffer->colorRGBA_top = color_top;
+	rainBuffer->colorRGBA_bottom = color_bottom;
+
+    rainBuffer->unk_4[8] = fallingAngle;
+    rainBuffer->unk_4[10] = fallingSpeed;
+    rainBuffer->unk_4[11] = unk_verticalSpeed;
+
+	rainBuffer->unk_22 = 0;
+
+    // Enable weather on all quad blocks
+    struct mesh_info* mi = level->ptr_mesh_info;
+    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
+
+    for (int i = 0; i < mi->numQuadBlock; i++) {
+        struct QuadBlock* qb = &quadBlocks[i];
+
+        qb->weather_intensity = weather_intensity;
+        qb->weather_vanishRate = weather_vanishRate;
+    }
 }
 
 // void ApplyLevelModifiers(struct Level* lev) 
