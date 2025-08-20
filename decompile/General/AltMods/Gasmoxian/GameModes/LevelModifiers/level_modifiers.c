@@ -322,11 +322,7 @@ bool NightFilterApplied(struct Level* level) {
         level->ptr_skybox == NULL
         && (level->configFlags & 1)
         // && lev->stars.numStars > 0
-<<<<<<< HEAD
         && level->stars.numStars > 0
-=======
-        && level->unkStarData[0] > 0
->>>>>>> e061c477ecff5a1d0474d3d4674c22120606003d
 
     ){
         return true;
@@ -394,7 +390,6 @@ void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
     struct RainBuffer* rainBuffer = &level->rainBuffer;
 
     //fillMode
-<<<<<<< HEAD
 	rainBuffer->fillMode = fillMode;
     //offsetOT
 	rainBuffer->offsetOT = 1; 
@@ -405,18 +400,6 @@ void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
     rainBuffer->fallAngleX = fallingAngle;
     rainBuffer->boolFastFalling = fallingSpeed;
     rainBuffer->speedY = unk_verticalSpeed;
-=======
-	rainBuffer->renderMode[0] = fillMode;
-    //offsetOT
-	rainBuffer->renderMode[1] = 1; 
-
-	rainBuffer->colorRGBA_top = color_top;
-	rainBuffer->colorRGBA_bottom = color_bottom;
-
-    rainBuffer->unk_4[8] = fallingAngle;
-    rainBuffer->unk_4[10] = fallingSpeed;
-    rainBuffer->unk_4[11] = unk_verticalSpeed;
->>>>>>> e061c477ecff5a1d0474d3d4674c22120606003d
 
 	rainBuffer->unk_22 = 0;
 
