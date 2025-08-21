@@ -620,11 +620,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 				&& !NightFilterApplied(lev)
 			){
 				NightFilter(gGT->level1, NightFilterBrightness, NightFilterBlueTint);
-<<<<<<< HEAD
 				
-=======
-
->>>>>>> e061c477ecff5a1d0474d3d4674c22120606003d
 				extern void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type);
 
 				//Randomly select one WEATHER_TYPE

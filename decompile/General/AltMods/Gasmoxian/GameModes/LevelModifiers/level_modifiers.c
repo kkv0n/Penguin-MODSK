@@ -398,7 +398,7 @@ void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
 	rainBuffer->colorARGB_bottom = color_bottom;
 
     rainBuffer->fallAngleX = fallingAngle;
-    rainBuffer->boolFastFalling = fallingSpeed;
+    rainBuffer->fallingSpeed = fallingSpeed;
     rainBuffer->speedY = unk_verticalSpeed;
 
 	rainBuffer->unk_22 = 0;

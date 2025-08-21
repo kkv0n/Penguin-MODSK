@@ -370,7 +370,7 @@ struct RainBuffer
   char speedX;
   
   //0x12
-  char boolFastFalling; //noticeable changes are only 0 or -1
+  char fallingSpeed;
   
   //0x13
   char speedY;
