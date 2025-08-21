@@ -354,34 +354,34 @@ struct RainBuffer
   // 0x8
   char unk8_clock[4];
   
-  //0xA
+  //0xC
   char unkA_boolPos; //noticeable changes are only 0 or -1
   
-  //0xB
+  //0xD
   char unkB_particlePos;
   
-  //0xC
+  //0xE
   char unkC_unused[2];
   
-  //0xE
+  //0x10
   char fallAngleX;
   
-  //0xF
+  //0x11
   char speedX;
   
-  //0x10
+  //0x12
   char boolFastFalling; //noticeable changes are only 0 or -1
   
-  //0x11
+  //0x13
   char speedY;
   
-  //0x12
+  //0x14
   char fallAngleZ;
   
-  //0x13
+  //0x15
   char speedZ;
 
-  //0x14
+  //0x16
   char unk14_visibilityBool[2]; //0 = show weather, any other value = weather not visible
   
   // 0x18 (0x1a58)
