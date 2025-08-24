@@ -987,9 +987,9 @@ CheckJumpButtons:
 					// fire level, depending on numWumpa & driverRank
 					if (driver->driverRank >= 1) {
 	
-					superEngineFireLevel = 0x200;
+					superEngineFireLevel = MASK_SPEED;
 					if (driver->numWumpas > 9)
-						superEngineFireLevel = 0x400;
+						superEngineFireLevel = SUPER_ENGINE_GMOX;
 					}
 					else
 					{

@@ -1833,13 +1833,17 @@ void ban_demo_skip();
 ban_demo_skip();
 
 //trying to ban weapon hackers
-if (gGT->drivers[0] != NULL && gGT->drivers[0]->heldItemID != 0xf && gGT->levelID < INTRO_RACE_TODAY)
+if (gGT->drivers[0] != NULL && gGT->drivers[0]->heldItemID != ITEM_NONE && gGT->levelID < INTRO_RACE_TODAY)
 {
 	if (octr->special == ITEMLESS)
-		gGT->drivers[0]->heldItemID = 0xf;
+		gGT->drivers[0]->heldItemID = ITEM_NONE;
 
-	if (octr->special != BOSS_RACE && gGT->drivers[0]->heldItemID != 10 && gGT->drivers[0]->heldItemID != 11)
-	{
+	if (
+		octr->special != BOSS_RACE 
+		&& octr->special != ITEM_CHAOS
+		&& gGT->drivers[0]->heldItemID != ITEM_BOWLING_BOMB_X3
+		&& gGT->drivers[0]->heldItemID != ITEM_TRACKING_MISSILE_X3
+	){
 		if (gGT->drivers[0]->numHeldItems > 1)
 			gGT->drivers[0]->numHeldItems = 0;
 	}

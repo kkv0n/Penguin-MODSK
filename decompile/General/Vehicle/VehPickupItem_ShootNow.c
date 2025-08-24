@@ -22,26 +22,27 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 
 	#if defined(USE_GASMOXIAN)
 
-	if(octr->special != 3 && d->driverID == 0) //if not in time trial and is ourself
+	if(octr->special != ITEMLESS && d->driverID == 0) //if not in time trial and is ourself
 	{
 		octr->Shoot[0].boolJuiced = 0;
 		if(d->numWumpas >= 10) octr->Shoot[0].boolJuiced = 1;
 
 		// do not send weaponID, cause missile/bomb share
 		octr->Shoot[0].Weapon = d->heldItemID;
-		octr->Shoot[0].flags = flags & 3;
+		extern int bossflag;
+		octr->Shoot[0].flags = bossflag;
 
 		octr->Shoot[0].boolNow = 1;
-		
-		if (octr->Shoot[0].Weapon >= 8 && octr->Shoot[0].Weapon <= 9) {
-		octr->warpclock = 1;
-	}
+
+		if (octr->Shoot[0].Weapon == ITEM_N_TROPY_CLOCK || octr->Shoot[0].Weapon == ITEM_WARP_ORB) {
+			octr->warpclock = 1;
+		}
 	}
 if (octr->special == BOSS_RACE && d->driverRank != 0)
 {
-	if (d->heldItemID == 0x3 || d->heldItemID == 0x4 || d->heldItemID == 0x1) {
+	if (d->heldItemID == ITEM_EXPLOSIVE_CRATE || d->heldItemID == ITEM_N_BRIO_BEAKER || d->heldItemID == ITEM_BOWLING_BOMB) {
 			
-		d->numHeldItems = 0x0;
+		d->numHeldItems = 0;
 	}
 }
 
@@ -52,9 +53,18 @@ if (octr->special == BOSS_RACE && d->driverRank != 0)
 		// Turbo
 		case 0: {
 
-			int boost = 0x80;
-			if(d->numWumpas >= 10)
-				boost = 0x100;
+			int boost = ITEM_TURBO;
+
+			if(octr->special == ITEM_CHAOS){
+				boost = SACRED;
+				if(d->numWumpas >= 10)
+					boost = SUPER_TURBO_GMOX;
+			}
+			else{
+				if(d->numWumpas >= 10)
+					boost = SACRED;
+			}
+			
 
 			DECOMP_VehFire_Increment(d, 0x960, 9, boost);
 			} break;
@@ -135,8 +145,8 @@ if (octr->special == BOSS_RACE && d->driverRank != 0)
 
 			// bomb
 			if(
-				(d->heldItemID == 1) ||
-				(d->heldItemID == 10)
+				(d->heldItemID == ITEM_BOWLING_BOMB) ||
+				(d->heldItemID == ITEM_BOWLING_BOMB_X3)
 			  )
 			{
 				modelID = 0x3b;
@@ -612,9 +622,12 @@ int lastdriver = octr->NumDrivers - 1;
 				if(RB_Hazard_HurtDriver(victim, 1, 0, 0) != 0)
 				{
 					victim->clockReceive = hurtVal;
-				//if someone uses a clock then delete items of victims
-				victim->heldItemID = 15;
-				victim->numHeldItems = 0;
+					//if someone uses a clock then delete items of victims
+					if(octr->special != ITEM_CHAOS)
+					{
+						victim->heldItemID = ITEM_NONE;
+						victim->numHeldItems = 0;
+					}
 				}
 				}
 			}

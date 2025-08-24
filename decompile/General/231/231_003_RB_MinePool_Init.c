@@ -1,5 +1,8 @@
 #include <common.h>
 
+#include "../../General/AltMods/Gasmoxian/global.h"
+#include "../../General/AltMods/Gasmoxian/utils.h"
+
 extern struct WeaponSlot231 minePoolItem[40];
 extern struct LinkedList minePoolTaken;
 extern struct LinkedList minePoolFree;
@@ -18,6 +21,9 @@ void DECOMP_RB_MinePool_Init(void)
 	
 	// default
 	numMines = 10;
+	if(octr->special == ITEM_CHAOS){
+		numMines = 30;
+	}
 	
 	if ((gameMode & CRYSTAL_CHALLENGE) != 0)
 	{

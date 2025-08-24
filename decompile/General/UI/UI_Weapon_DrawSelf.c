@@ -157,9 +157,9 @@ void DECOMP_UI_Weapon_DrawSelf(short posX,short posY,short scale,struct Driver* 
   //print custom icons for super engine, invisibility and spring
   //i think all of these icons can just be used with DrawWeapon instead of a custom function
   //just need the pointer to character icons + correct index
-int customicon = (d->heldItemID == 5) ? 10 : (d->heldItemID == 12) ? 14 : 15;
+int customicon = (d->heldItemID == ITEM_SPRING) ? 10 : (d->heldItemID == ITEM_INVISIBILITY) ? 14 : 15;
 
-		if (d->heldItemID == 5 || d->heldItemID >= 12 && d->heldItemID <= 13)
+		if (d->heldItemID == ITEM_SPRING || d->heldItemID >= ITEM_INVISIBILITY && d->heldItemID <= ITEM_SUPER_ENGINE)
 		{
 			
 			ShowCharacterIcon(customicon , posX, posY);
@@ -180,6 +180,23 @@ int customicon = (d->heldItemID == 5) ? 10 : (d->heldItemID == 12) ? 14 : 15;
 	
 		TRANS_50_DECAL,(int)scale,1);
 		}
+
+	extern bool air_throw;
+	if(air_throw){
+		DECOMP_DecalHUD_DrawWeapon(
+			// pointer to icon, from array of icon pointers
+			sdata->gGT->ptrIcons[data.MetaDataCharacters[KOMODO_JOE].iconID],
+		
+			(int)(posX + 38),(int)(posY + 20),
+		
+			// PrimMem
+			&sdata->gGT->backBuffer->primMem,
+		
+			// OTMem
+			sdata->gGT->pushBuffer_UI.ptrOT,
+		
+			TRANS_50_DECAL,FP(0.50),0);
+	}
 #else
   DECOMP_DecalHUD_DrawWeapon(
 		// pointer to icon, from array of icon pointers
