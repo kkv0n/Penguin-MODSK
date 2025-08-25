@@ -436,7 +436,10 @@ void RunGamemodesUpdateHook() {
         HandleDynamicLighting(gGT->level1);
     }
 
-	if(driver->heldItemID == ITEM_NONE || gGT->gameMode1 & ROLLING_ITEM){
+	if(driver->heldItemID == ITEM_NONE
+		|| gGT->gameMode1 & ROLLING_ITEM
+		|| driver->thCloud != NULL // Hit a red potion
+	){
 		air_throw = false;
 	}
 
@@ -493,8 +496,6 @@ char ItemChaos_RNG_itemSetRace2[] = {
 char ItemChaos_RNG_itemSetRace3[] = {
     // 2/20 Turbo (0)
     0,0,
-    // 1/20 Bomb (1)
-    1,
     // 3/20 Missile (2)
     2,2,2,
     // 4/20 Crate (3)
@@ -505,26 +506,26 @@ char ItemChaos_RNG_itemSetRace3[] = {
     6,6,6,
     // 2/20 Mask (7)
     7,7,
+	// 1/20 Clock (8)
+    8,
     // 3/20 Warp Orb (9)
     9,9,9
 };
 
 // Rank 5,6
 char ItemChaos_RNG_itemSetRace4[] = {
-    // 3/20 Turbo (0)
-    0,0,0,
+    // 2/20 Turbo (0)
+    0,0
     // 1/20 Bomb (1)
     1,
     // 2/20 Missile (2)
     2,2,
     // 1/20 Crate (3)
     3,
-    // 1/20 Beaker (4)
-    4,
-    // 5/20 Mask (7)
-    7,7,7,7,7,
-    // 1/20 Clock (8)
-    8,
+    // 6/20 Mask (7)
+    7,7,7,7,7,7,
+    // 2/20 Clock (8)
+    8,8,
     // 5/20 Warp Orb (9)
     9,9,9,9,9,
     // 1/20 Super Engine (13)
@@ -533,10 +534,10 @@ char ItemChaos_RNG_itemSetRace4[] = {
 
 // Rank 7
 char ItemChaos_RNG_itemSetBattleDefault[] = {
-    // 2/20 Turbo (0)
-    0,0,
-    // 6/20 Mask (7)
-    7,7,7,7,7,7,
+    // 1/20 Turbo (0)
+    0,
+    // 7/20 Mask (7)
+    7,7,7,7,7,7,7
     // 2/20 Clock (8)
     8,8,
     // 7/20 Warp Orb (9)
