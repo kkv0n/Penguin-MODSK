@@ -75,9 +75,16 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 	}
 	//assign itemsets based on the driverrank, last place always get battledefault, if more than 5 players
 	if (driver->driverRank >= 1 && driver->driverRank <= 7) {
-		itemSet = (driver->driverRank == lastplace && octr->NumDrivers > 5) 
-				? ITEMSET_BattleDefault 
+
+		if(octr->NumDrivers > 5){
+			itemSet = (driver->driverRank == lastplace) 
+					? ITEMSET_BattleDefault 
+					: itemSets[driver->driverRank - 1];
+		} else{
+			itemSet = (driver->driverRank == lastplace) 
+				? ITEMSET_Race4
 				: itemSets[driver->driverRank - 1];
+		}
 	}
 
 	// Change charPtr RNG weights if ITEM_CHAOS is enabled
