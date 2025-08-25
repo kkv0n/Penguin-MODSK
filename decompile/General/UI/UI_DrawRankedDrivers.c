@@ -251,8 +251,31 @@ void DECOMP_UI_DrawRankedDrivers(void)
             1, iconScale, color);
 
 		  #ifdef USE_GASMOXIAN
-		  
-		  
+
+		  	// If player has a mask draw its icon next to the player using it 
+			struct Driver* d = gGT->drivers[iVar14];
+			if((d->actionsFlagSet & 0x00800000) != 0 && d->kartState != KS_MASK_GRABBED){
+				DECOMP_DecalHUD_DrawWeapon(
+					// pointer to icon, from array of icon pointers
+					sdata->gGT->ptrIcons[ITEM_MASK + 5],
+
+					(int)(pos.x - 10),(int)(pos.y),
+				
+					// PrimMem
+					&sdata->gGT->backBuffer->primMem,
+				
+					// OTMem
+					sdata->gGT->pushBuffer_UI.ptrOT,
+				
+					TRANS_50_DECAL,
+					
+					FP(0.40),
+					
+					1
+				);
+			}
+		
+		
 		  int defined_colors;
 		  int players_colors;
  //ivar12 is driver position in the race
