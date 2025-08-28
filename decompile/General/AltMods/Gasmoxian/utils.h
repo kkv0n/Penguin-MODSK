@@ -14,8 +14,10 @@ extern bool USE_NIGHT_FILTER;
 // extern bool USE_WALL_RIDE;
 // extern bool USE_SPEEDWAY_PHYSICS;
 extern bool USE_ITEM_CHAOS;
+extern bool USE_SURVIVAL;
 
 extern bool air_throw;
+extern int activeDriversCount;
 
 extern char* decalText;
 extern struct GameTracker *gGT;
@@ -36,7 +38,9 @@ enum GAME_MODES {
 	SHORTCUTLESS = 10,
 	NIGHT = 11,
 	DARKNESS = 12,
-	ITEM_CHAOS = 13
+	ITEM_CHAOS = 13,
+	SURVIVAL = 14,
+	SURVIVAL_TIMER = 15
 };
 
 enum WEATHER_TYPE {

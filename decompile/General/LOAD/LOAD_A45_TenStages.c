@@ -628,6 +628,21 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 				// AddWeather(gGT->level1, weather_type);
 			}
 
+			if(octr->special == SURVIVAL){
+				// Set laps amount based on num drivers
+				int numDead = 0;
+				for(int i = 0; i < octr->NumDrivers; i++)
+					if(octr->nameBuffer[i][0] == 0)
+						numDead++;
+				activeDriversCount = octr->NumDrivers - numDead;
+
+				gGT->numLaps = activeDriversCount < 2 ? 1 : activeDriversCount - 1;
+			}
+
+			if(octr->special == SURVIVAL_TIMER){
+				gGT->numLaps = 127;
+			}
+
 			////////////////////////
 			
 			// iVar9 is set to sdata->ptrLEV_DuringLoading at the top of the function

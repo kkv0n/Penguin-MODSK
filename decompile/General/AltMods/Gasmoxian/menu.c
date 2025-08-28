@@ -7,11 +7,11 @@ extern int label;
 // OCTR SPECIAL MENU BY PENTA3
 char* special_name[] = {
 #ifdef GASMOX_ENG
-    "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETROFUELED", "VOID WORLD", "BOSS RACE", "DEMO CAMERA", "N-VERTED", "SHORTCUTLESS", "NIGHT MODE", "DARKNESS", "ITEM CHAOS",
+    "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETROFUELED", "VOID WORLD", "BOSS RACE", "DEMO CAMERA", "N-VERTED", "SHORTCUTLESS", "NIGHT MODE", "DARKNESS", "ITEM CHAOS", "SURVIVAL", "SURVIVAL (TIME-BASED)",
 #elif defined(GASMOX_ES)
-    "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETROFUELED", "MUNDO VACIO", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE", "OSCURIDAD", "ITEM CHAOS",
+    "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETROFUELED", "MUNDO VACIO", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE", "OSCURIDAD", "ITEM CHAOS", "SUPERVIVENCIA", "SURVIVAL (TIME-BASED)",
 #elif defined(GASMOX_BR)
-    "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETROFUELED", "PISTA VAZIA", "CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO", "ITEM CHAOS",
+    "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETROFUELED", "PISTA VAZIA", "CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO", "ITEM CHAOS", "SUPERVIVÊNCIA", "SURVIVAL (TIME-BASED)"
 #endif
 };
 
@@ -358,14 +358,27 @@ void NewPage_Laps()
 
 //moved to other file
 
-    for(i = 0; i < 8; i++)
-    {
+	int numDead = 0;
+	for(int i = 0; i < octr->NumDrivers; i++)
+		if(octr->nameBuffer[i][0] == 0)
+			numDead++;
+	activeDriversCount = octr->NumDrivers - numDead;
 
-        sdata->lngStrings[0x9a + i] = options[8 * octr->PageNumber + i];
-        
+	// Add these static strings for survival mode
+    static char* playerCountStrings[] = {"1", "2", "3", "4", "5", "6", "7"};
+
+	for(i = 0; i < 8; i++)
+    {
+        sdata->lngStrings[0x9a + i] = 
+            octr->special == SURVIVAL ?
+            (activeDriversCount < 2 ? "1" : playerCountStrings[activeDriversCount - 2])
+            
+			: octr->special == SURVIVAL_TIMER ?
+			"127"
+			
+			: options[8 * octr->PageNumber + i];
 
         menuRows[i].stringIndex = 0x9a + i;
-		
     }
 }
 
