@@ -240,6 +240,13 @@ void DECOMP_UI_DrawRankedDrivers(void)
 
 		  Color color;
 		  color.self = local_30;
+
+		  if(octr->special == SURVIVAL || octr->special == SURVIVAL_TIMER){
+			// Color elimianted players with red
+			extern bool DriverIsEliminated(struct Driver* driver);
+			color.self = DriverIsEliminated(gGT->drivers[iVar14]) ? 0x0000FF : local_30;
+		  }
+
 		  DECOMP_UI_DrawDriverIcon(
 
             gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[iVar14]].iconID],
@@ -252,12 +259,13 @@ void DECOMP_UI_DrawRankedDrivers(void)
 
 		  #ifdef USE_GASMOXIAN
 
-		  	// If player has a mask draw its icon next to the player using it 
+		  	// If player its using a mask draw mask icon next to the player using it 
 			struct Driver* d = gGT->drivers[iVar14];
-			if((d->actionsFlagSet & 0x00800000) != 0 && d->kartState != KS_MASK_GRABBED){
+			if((d->actionsFlagSet & 0x00800000) != 0 && d->kartState != KS_MASK_GRABBED && d->kartState != KS_ENGINE_REVVING){
+				int iconIndex = DECOMP_VehPickupItem_MaskBoolGoodGuy(d) ? ITEM_MASK + 5 : 0x32;
 				DECOMP_DecalHUD_DrawWeapon(
 					// pointer to icon, from array of icon pointers
-					sdata->gGT->ptrIcons[ITEM_MASK + 5],
+					sdata->gGT->ptrIcons[iconIndex],
 
 					(int)(pos.x - 10),(int)(pos.y),
 				
@@ -289,26 +297,17 @@ if (iVar12 == 0) {
 } else if (iVar14 != 0 && iVar12 != 0) {
     players_colors = JUSTIFY_CENTER | ORANGE;
 }
-		  if (octr->special == BOSS_RACE)
-		  {
+		  if (octr->special == BOSS_RACE){
 			defined_colors = players_colors; //only use this if boss race mode is enabled
 		  }
-		  else
-		  {
-			 
-			 defined_colors = iVar14 == 0 ? (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN) : (JUSTIFY_CENTER | ORANGE);
-			 
+		  else{
+			defined_colors = iVar14 == 0 ? (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN) : (JUSTIFY_CENTER | ORANGE);
+			if(octr->special == SURVIVAL || octr->special == SURVIVAL_TIMER){
+				// Color elimianted players with red
+				extern bool DriverIsEliminated(struct Driver* driver);
+				defined_colors = JUSTIFY_CENTER | (DriverIsEliminated(gGT->drivers[iVar14]) ? CORTEX_RED : defined_colors);
+			}
 		  }		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		  
-		 
 		  if (checkpointTracker[iVar14].timer > 0)
 		  {
 			DECOMP_DecalFont_DrawLineStrlen(
