@@ -268,10 +268,6 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 			#endif
 		);
 
-#if defined(USE_RETROFUELED) && defined(USE_GASMOXIAN)
-	int retro = octr->special;
-	
-#endif
 	if
 	(
 		// any gain in boost,
@@ -295,7 +291,7 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 			(int)driver->const_SacredFireSpeed < (int)driver->fireSpeedCap &&
 			((driver->stepFlagSet & 2) == 0)
 			#if defined(USE_RETROFUELED) && defined(USE_GASMOXIAN)
-			&& (retro != 5) //is not retrofueled mode
+			&& (!USE_RETRO_FUELED) //is not retrofueled mode
 			#endif
 		)
 	)
