@@ -150,6 +150,10 @@ void FreezeDriver(struct Driver* driver)
     //Remove item
     driver->heldItemID = ITEM_NONE;
     driver->numHeldItems = 0;
+
+    // Burn driver (so it appears black)
+    // Since FreezeDriver is called by frame this keeps the timer refreshed
+    driver->burnTimer = 0xf00;
 }
 
 bool DriverIsEliminated(struct Driver* driver)
@@ -163,7 +167,18 @@ bool DriverIsEliminated(struct Driver* driver)
 
 // Global variables for time-based elimination
 unsigned int eliminationTimer = 0;
-const unsigned int eliminationTimeLimit = FPS_DOUBLE(32 * 60); // 60 seconds (1 minute)
+const unsigned int eliminationTimeLimits[] = {
+    FPS_DOUBLE(32 * 90), // 1:30
+    FPS_DOUBLE(32 * 60), // 1:00
+    FPS_DOUBLE(32 * 45), // 0:45
+    FPS_DOUBLE(32 * 45), // 0:45
+    FPS_DOUBLE(32 * 30), // 0:30
+    FPS_DOUBLE(32 * 30), // 0:30
+    FPS_DOUBLE(32 * 30), // 0:30
+    FPS_DOUBLE(32 * 30), // 0:30
+    FPS_DOUBLE(32 * 10), // 0:10
+};
+
 
 // Function declarations for time-based elimination
 void InitTimeBasedSurvivalMode(bool enabled);
@@ -181,8 +196,8 @@ void InitTimeBasedSurvivalMode(bool enabled) {
     }
     
     // Set initial timer
-    eliminationTimer = eliminationTimeLimit;
-    
+    eliminationTimer = eliminationTimeLimits[0];
+
     // Reset counter for text flashing
     frameCounter = 0;
 }
@@ -203,27 +218,29 @@ void HandleTimeBasedSurvivalMode(bool enabled) {
         return; // Skip the rest of the logic
     }
     
-    // Decrement timer
-    if(eliminationTimer > 0) {
+    // Decrement timer only when traffic lights run out
+    if(gGT->trafficLightsTimer < 1 && eliminationTimer > 0) {
         eliminationTimer--;
     }
     
     // Display timer on screen
-    DisplayEliminationTimer();
+    if(gGT->trafficLightsTimer < 1){
+        DisplayEliminationTimer();
+    }
     
     // Check if time's up
     if(eliminationTimer == 0) {
         // Eliminate the last non-eliminated driver
         EliminateLastDriver();
         
-        // Reset timer
-        eliminationTimer = eliminationTimeLimit;
-        
         // If only one driver remains, end the race
         if(CheckLastDriverRemaining()) {
             ForceRaceEnd();
             return;
         }
+
+        // Set timer for next elimination
+        eliminationTimer = eliminationTimeLimits[CountEliminatedDrivers()];
     }
     
     // Find the last non-eliminated driver for warning message
@@ -280,7 +297,7 @@ void DisplayEliminationTimer() {
     
     // Flash red when less than 10 seconds remaining
     if(totalSeconds < 10) {
-        textColor = frameCounter++ & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        textColor = frameCounter & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
     }
     
     sprintf(decalText, "NEXT ELIMINATION: %01d:%02d:%02d", minutes, seconds, frames);
@@ -325,4 +342,14 @@ bool CheckLastDriverRemaining() {
     }
     
     return (activeDrivers <= 1);
+}
+
+int CountEliminatedDrivers() {
+    int count = 0;
+    for(int i = 0; i < 8; i++) {
+        if(eliminatedDrivers[i]) {
+            count++;
+        }
+    }
+    return count;
 }
