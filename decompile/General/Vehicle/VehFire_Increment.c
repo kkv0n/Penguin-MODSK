@@ -3,6 +3,8 @@
 
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
+#include "../AltMods/Gasmoxian/utils.h"
+
 extern void saffi_fire(struct Driver * driver, int reserves);
 extern void saffi_fire2(struct Driver * driver, int reserves);
 void FixReservesIncrement(struct Driver * driver, int reserves);
