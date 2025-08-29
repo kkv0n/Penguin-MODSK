@@ -243,18 +243,18 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 if (gGT->gameMode1 & ARCADE_MODE)
 {
 	// ITEM CHAOS
-	if(octr->special == ITEM_CHAOS){
+	if(USE_ITEM_CHAOS){
 		extern void ItemChaosSetHeldItem(struct Driver * driver);
 		ItemChaosSetHeldItem(driver);
 	}
 
 	// Avoid Ghost BUG on mirror mode
-	if (octr->special == MIRROR && driver->heldItemID == ITEM_INVISIBILITY) {
+	if (USE_MIRROR && driver->heldItemID == ITEM_INVISIBILITY) {
 		driver->heldItemID = ITEM_TURBO_BOOST;		
 	}
 
 	// If gamemode is normal ban invisibility
-	if (octr->special == NORMAL && driver->heldItemID == ITEM_INVISIBILITY)
+	if (USE_NORMAL && driver->heldItemID == ITEM_INVISIBILITY)
 	{
 		driver->heldItemID = ITEM_MASK;
 	}
@@ -263,7 +263,7 @@ if (gGT->gameMode1 & ARCADE_MODE)
 	{
 		// if retrofueled, ngin labs or oxide station then replace warpball with an clock
 
-		// if (octr->special == RETRO_FUELED || octr->levelID == N_GIN_LABS || octr->levelID == OXIDE_STATION) {
+		// if (USE_RETRO_FUELED || octr->levelID == N_GIN_LABS || octr->levelID == OXIDE_STATION) {
 		// 	if (driver->heldItemID == ITEM_WARP_ORB){
 		// 		driver->heldItemID = ITEM_N_TROPY_CLOCK;
 		// 	}
@@ -272,7 +272,7 @@ if (gGT->gameMode1 & ARCADE_MODE)
 
 	//if someone drop an orb or clock
 	if (octr->warpclock == 1) {
-		if (octr->special != ITEM_CHAOS){
+		if (!USE_ITEM_CHAOS){
 			//give super engine to players when the warpball/clock are in cooldown
 			if (driver->heldItemID == ITEM_WARP_ORB || driver->heldItemID == ITEM_N_TROPY_CLOCK) {
 				driver->heldItemID = ITEM_SUPER_ENGINE;
@@ -295,7 +295,7 @@ if (gGT->gameMode1 & ARCADE_MODE)
 		|| driver->heldItemID == ITEM_WARP_ORB
 		|| driver->heldItemID == ITEM_SUPER_ENGINE
 		) && driver->lapIndex == 0
-		&& octr->special != ITEM_CHAOS
+		&& !USE_ITEM_CHAOS
 	) {
 		driver->heldItemID = ITEM_MASK;
 	}

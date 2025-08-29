@@ -606,16 +606,16 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			extern bool NightFilterApplied(struct Level *level);
 			extern void HandleDynamicLighting(struct Level *level);
 
-			if (octr->special == N_VERTED){
+			if (USE_N_VERTED){
 				ReverseTrack(gGT->level1);
 			}
 
-			if (octr->special == SHORTCUTLESS){
+			if (USE_SHORTCUTLESS){
 				RemoveOffRoadCHK(gGT->level1);
 			}
 
 			if (
-				(octr->special == NIGHT || octr->special == DARKNESS)
+				USE_NIGHT_FILTER
 				&& gGT->levelID <= INTRO_OXIDE
 				&& !NightFilterApplied(lev)
 			){
@@ -628,7 +628,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 				// AddWeather(gGT->level1, weather_type);
 			}
 
-			if(octr->special == SURVIVAL){
+			if(USE_SURVIVAL){
 				// Set laps amount based on num drivers
 				int numDead = 0;
 				for(int i = 0; i < octr->NumDrivers; i++)
@@ -639,7 +639,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 				gGT->numLaps = activeDriversCount < 2 ? 1 : activeDriversCount - 1;
 			}
 
-			if(octr->special == SURVIVAL_TIMER){
+			if(USE_SURVIVAL_TIMER){
 				gGT->numLaps = 127;
 			}
 

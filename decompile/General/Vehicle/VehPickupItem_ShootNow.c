@@ -22,7 +22,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 
 	#if defined(USE_GASMOXIAN)
 
-	if(octr->special != ITEMLESS && d->driverID == 0) //if not in time trial and is ourself
+	if(!USE_ITEMLESS && d->driverID == 0) //if not in time trial and is ourself
 	{
 		octr->Shoot[0].boolJuiced = 0;
 		if(d->numWumpas >= 10) octr->Shoot[0].boolJuiced = 1;
@@ -38,7 +38,7 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 			octr->warpclock = 1;
 		}
 	}
-if (octr->special == BOSS_RACE && d->driverRank != 0)
+if (USE_BOSS_RACE && d->driverRank != 0)
 {
 	if (d->heldItemID == ITEM_EXPLOSIVE_CRATE || d->heldItemID == ITEM_N_BRIO_BEAKER || d->heldItemID == ITEM_BOWLING_BOMB) {
 			
@@ -55,7 +55,7 @@ if (octr->special == BOSS_RACE && d->driverRank != 0)
 
 			int boost = ITEM_TURBO;
 
-			if(octr->special == ITEM_CHAOS){
+			if(USE_ITEM_CHAOS){
 				boost = SACRED;
 				if(d->numWumpas >= 10)
 					boost = SUPER_TURBO_GMOX;
@@ -623,7 +623,7 @@ int lastdriver = octr->NumDrivers - 1;
 				{
 					victim->clockReceive = hurtVal;
 					//if someone uses a clock then delete items of victims
-					if(octr->special != ITEM_CHAOS)
+					if(!USE_ITEM_CHAOS)
 					{
 						victim->heldItemID = ITEM_NONE;
 						victim->numHeldItems = 0;

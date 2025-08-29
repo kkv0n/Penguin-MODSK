@@ -87,7 +87,7 @@ int DECOMP_VehPhysGeneral_GetBaseSpeed(struct Driver* driver)
 		driver->const_DamagedSpeed *
 		((0x14 - driver->driverRank) >> 4);
 #ifdef USE_GASMOXIAN
-		if (octr->special == RETRO_FUELED){
+		if (USE_RETRO_FUELED){
 clockEffect = (int)(clockEffect * 2.0);
 }
 else

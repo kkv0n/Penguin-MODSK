@@ -155,7 +155,7 @@ void DECOMP_UI_INSTANCE_InitAll(void)
     sdata->pushBuffer_DecalMP.distanceToScreen_PREV = gGT->pushBuffer->distanceToScreen_PREV;
 
 #ifdef USE_GASMOXIAN
-if (octr->special != ITEMLESS) {
+if (!USE_ITEMLESS) {
     sdata->ptrFruitDisp =
 		DECOMP_UI_INSTANCE_BirthWithThread(0x37,DECOMP_UI_ThTick_CountPickup,3,1,/*sdata->ptrPushBufferUI*/0,/*sdata->s_fruitdisp*/0);
 }

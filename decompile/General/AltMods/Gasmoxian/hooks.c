@@ -71,7 +71,7 @@ void OnlineInit_Drivers(struct GameTracker* gGT)
 	for(i = 0; i < 8; i++)
 	{
 		gGT->drivers[i] = 0;
-		sdata->kartSpawnOrderArray[i] = (octr->special == ITEMLESS) ? 1 : i; //use time trial spawn for itemless mode
+		sdata->kartSpawnOrderArray[i] = (USE_ITEMLESS) ? 1 : i; //use time trial spawn for itemless mode
 	}
 
 	// if first boot

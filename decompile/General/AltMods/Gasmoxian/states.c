@@ -469,7 +469,7 @@ void StatePS1_Lobby_StartLoading()
 	{
 		
 		//boss mode event
-		if (octr->special == BOSS_RACE) {
+		if (USE_BOSS_RACE) {
 		
 		gGT->gameMode1 = LOADING | ADVENTURE_BOSS;
 		
@@ -477,7 +477,7 @@ void StatePS1_Lobby_StartLoading()
 		else
 		{
 			// for all other tracks
-		gGT->gameMode1 = (octr->special == ITEMLESS) ?  LOADING | TIME_TRIAL : LOADING | ARCADE_MODE;
+		gGT->gameMode1 = (USE_ITEMLESS) ?  LOADING | TIME_TRIAL : LOADING | ARCADE_MODE;
 		}
 	}
 
@@ -529,7 +529,7 @@ void StatePS1_Game_WaitForRace()
 	}
 	
 	//make everyone a ghost
-	if (octr->special == ITEMLESS)
+	if (USE_ITEMLESS)
 	ITEMLESS_MAIN(gGT);
 
 	gGT->trafficLightsTimer = 0xf40;

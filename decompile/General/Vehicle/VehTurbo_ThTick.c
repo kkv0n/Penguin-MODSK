@@ -32,7 +32,7 @@ void DECOMP_VehTurbo_ThTick(struct Thread* turboThread)
 	
 	
 	            #ifdef USE_GASMOXIAN
-				if (octr->special == ITEMLESS)
+				if (USE_ITEMLESS)
 				{
 					if (driver->driverID != 0)
 					{
@@ -316,7 +316,7 @@ void DECOMP_VehTurbo_ThTick(struct Thread* turboThread)
 	}
 	
 	            #ifdef USE_GASMOXIAN
-				if (octr->special == ITEMLESS)
+				if (USE_ITEMLESS)
 				{
 					if (driver->driverID != 0)
 					{

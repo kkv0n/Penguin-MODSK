@@ -359,7 +359,7 @@ void OnlineMirrorMode(u_long* startOT)
 	// no special event
 	//if the room is special 1 then mirror mode will be enabled
 	
-	if (octr->special != MIRROR)
+	if (!USE_MIRROR)
 	{
 		return;
 	}

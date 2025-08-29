@@ -55,7 +55,7 @@ void Retro_BF() {
 	
 	if (gGT->levelID >= INTRO_RACE_TODAY) return;
 	
-	if (octr->special != RETRO_FUELED) {
+	if (!USE_RETRO_FUELED) {
 		InjectRedFire();
       return;
 	}

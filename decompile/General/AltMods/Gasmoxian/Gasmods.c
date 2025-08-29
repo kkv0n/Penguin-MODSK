@@ -90,7 +90,7 @@ void spec_text() {
 void ban_demo_skip()
 {       
 
-if (octr->special == DEMO_CAMERA) {
+if (USE_DEMO_CAMERA) {
     data.gamepadMapBtn[8].output = BTN_R2; // if demo camera mode change L2 to R2
 }
 
@@ -141,7 +141,7 @@ void queuetojoin(){
 void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
 {
     // disable collisions in special 3 
-    if (octr->special == ITEMLESS) { 
+    if (USE_ITEMLESS) { 
         return;
     }
 	else 
@@ -346,6 +346,15 @@ void saffi_fire2(struct Driver * driver, int reserves) {
 
 // GAMEMODES HANDLING (From Unlimited)
 
+bool USE_NORMAL;
+bool USE_MIRROR;
+bool USE_ICY_TRACKS;
+bool USE_ITEMLESS;
+bool USE_MOON_GRAVITY;
+bool USE_RETRO_FUELED;
+bool USE_VOID_WORLD;
+bool USE_BOSS_RACE;
+bool USE_DEMO_CAMERA;
 bool USE_N_VERTED;
 bool USE_SHORTCUTLESS;
 bool USE_NIGHT_FILTER;
@@ -370,9 +379,21 @@ void RunGamemodesInitHook() {
     gGT = sdata->gGT;
 
 	//TODO: octr->special will be deprecated as we need to be able to combine gamemodes and not just 1 enabled
+	USE_NORMAL = octr->special == NORMAL;
+    USE_MIRROR = octr->special == MIRROR;
+    USE_ICY_TRACKS = octr->special == ICY_TRACKS;
+    USE_ITEMLESS = octr->special == ITEMLESS;
+    USE_MOON_GRAVITY = octr->special == MOON_MODE;
+    USE_RETRO_FUELED = octr->special == RETRO_FUELED;
+    USE_VOID_WORLD = octr->special == VOID_WORLD;
+    USE_BOSS_RACE = octr->special == BOSS_RACE;
+    USE_DEMO_CAMERA = octr->special == DEMO_CAMERA;
     USE_N_VERTED = octr->special == N_VERTED;
-	USE_SHORTCUTLESS = octr->special == SHORTCUTLESS;
-	USE_NIGHT_FILTER = octr->special == NIGHT;
+    USE_SHORTCUTLESS = octr->special == SHORTCUTLESS;
+    USE_NIGHT_FILTER = octr->special == NIGHT || octr->special == DARKNESS;
+    USE_ITEM_CHAOS = octr->special == ITEM_CHAOS;
+    USE_SURVIVAL = octr->special == SURVIVAL;
+    USE_SURVIVAL_TIMER = octr->special == SURVIVAL_TIMER;
 
     init_initialized = true;
 }
@@ -382,12 +403,21 @@ int activeDriversCount = 0;
 //Code to run each frame
 void RunGamemodesUpdateHook() {
 
+    USE_NORMAL = octr->special == NORMAL;
+    USE_MIRROR = octr->special == MIRROR;
+    USE_ICY_TRACKS = octr->special == ICY_TRACKS;
+    USE_ITEMLESS = octr->special == ITEMLESS;
+    USE_MOON_GRAVITY = octr->special == MOON_MODE;
+    USE_RETRO_FUELED = octr->special == RETRO_FUELED;
+    USE_VOID_WORLD = octr->special == VOID_WORLD;
+    USE_BOSS_RACE = octr->special == BOSS_RACE;
+    USE_DEMO_CAMERA = octr->special == DEMO_CAMERA;
     USE_N_VERTED = octr->special == N_VERTED;
-	USE_SHORTCUTLESS = octr->special == SHORTCUTLESS;
-	USE_NIGHT_FILTER = octr->special == NIGHT || octr->special == DARKNESS;
-	USE_ITEM_CHAOS = octr->special == ITEM_CHAOS;
-	USE_SURVIVAL = octr->special == SURVIVAL;
-	USE_SURVIVAL_TIMER = octr->special == SURVIVAL_TIMER;
+    USE_SHORTCUTLESS = octr->special == SHORTCUTLESS;
+    USE_NIGHT_FILTER = octr->special == NIGHT || octr->special == DARKNESS;
+    USE_ITEM_CHAOS = octr->special == ITEM_CHAOS;
+    USE_SURVIVAL = octr->special == SURVIVAL;
+    USE_SURVIVAL_TIMER = octr->special == SURVIVAL_TIMER;
 
 	if(octr->special == NIGHT){
 		NightFilterBrightness = 64;

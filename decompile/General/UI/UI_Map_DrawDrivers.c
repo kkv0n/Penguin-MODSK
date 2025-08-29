@@ -35,7 +35,7 @@ void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
 	kartColor = data.characterIDs[d->driverID] + 5;
 	
 	#ifdef USE_GASMOXIAN
-	if (((gGT->timer & FPS_DOUBLE(1)) != 0) && (octr->special == ITEMLESS) && (d->driverID != 0))
+	if (((gGT->timer & FPS_DOUBLE(1)) != 0) && (USE_ITEMLESS) && (d->driverID != 0))
 		kartColor = WHITE;
 	#endif
 	
@@ -56,7 +56,7 @@ void DECOMP_UI_Map_DrawDrivers(int ptrMap,struct Thread* bucket,short *param_3)
 		// If this is an even numbered frame
 		// ptrColors white value
 		#ifdef USE_GASMOXIAN
-		if (((gGT->timer & FPS_DOUBLE(2)) == 0) && (octr->special != ITEMLESS)) //dont swap our color with white in time trial
+		if (((gGT->timer & FPS_DOUBLE(2)) == 0) && (!USE_ITEMLESS)) //dont swap our color with white in time trial
 		#else
 		if ((gGT->timer & FPS_DOUBLE(2)) == 0)
 		#endif

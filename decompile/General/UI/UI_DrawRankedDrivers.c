@@ -241,7 +241,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
 		  Color color;
 		  color.self = local_30;
 
-		  if(octr->special == SURVIVAL || octr->special == SURVIVAL_TIMER){
+		  if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
 			// Color elimianted players with red
 			extern bool DriverIsEliminated(struct Driver* driver);
 			color.self = DriverIsEliminated(gGT->drivers[iVar14]) ? 0x0000FF : local_30;
@@ -297,12 +297,12 @@ if (iVar12 == 0) {
 } else if (iVar14 != 0 && iVar12 != 0) {
     players_colors = JUSTIFY_CENTER | ORANGE;
 }
-		  if (octr->special == BOSS_RACE){
+		  if (USE_BOSS_RACE){
 			defined_colors = players_colors; //only use this if boss race mode is enabled
 		  }
 		  else{
 			defined_colors = iVar14 == 0 ? (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN) : (JUSTIFY_CENTER | ORANGE);
-			if(octr->special == SURVIVAL || octr->special == SURVIVAL_TIMER){
+			if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
 				// Color elimianted players with red
 				extern bool DriverIsEliminated(struct Driver* driver);
 				defined_colors = JUSTIFY_CENTER | (DriverIsEliminated(gGT->drivers[iVar14]) ? CORTEX_RED : defined_colors);

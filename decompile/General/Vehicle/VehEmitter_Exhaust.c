@@ -26,7 +26,7 @@ struct Particle* DECOMP_VehEmitter_Exhaust(struct Driver *d, VECTOR *param_2, VE
 		return 0;
 	
 	#ifdef USE_GASMOXIAN
-	if (octr->special == ITEMLESS && d->driverID != 0) //Skip kart smoke from ghosts in time trial
+	if (USE_ITEMLESS && d->driverID != 0) //Skip kart smoke from ghosts in time trial
 		return;
 	#endif
 

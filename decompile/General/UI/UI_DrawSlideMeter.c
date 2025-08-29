@@ -13,7 +13,7 @@ void DECOMP_UI_DrawSlideMeter(short posX, short posY, struct Driver* driver)
 	
 			//this is for boss race mode
     //using this file because it updates itself every second
-	if (octr->special == BOSS_RACE) {
+	if (USE_BOSS_RACE) {
 		if (driver->driverRank == 0 && driver->numWumpas == 99)
 	{   
 			driver->numWumpas = 0;

@@ -21,7 +21,7 @@ void DECOMP_RB_MinePool_Init(void)
 	
 	// default
 	numMines = 10;
-	if(octr->special == ITEM_CHAOS){
+	if(USE_ITEM_CHAOS){
 		numMines = 30;
 	}
 	

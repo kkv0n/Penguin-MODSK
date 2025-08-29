@@ -4,17 +4,22 @@
 #include <common.h>
 
 //TODO: Commented need to replace octr->special with USE_
-// extern bool USE_RETRO_FUELED;
-extern bool USE_SHORTCUTLESS;
+extern bool USE_NORMAL; // Not adapted yet
+extern bool USE_MIRROR; // Not adapted yet
+extern bool USE_ICY_TRACKS; // Not adapted yet
+extern bool USE_ITEMLESS; // Not adapted yet
+extern bool USE_MOON_GRAVITY; // Not adapted yet
+extern bool USE_RETRO_FUELED; // Not adapted yet
+extern bool USE_VOID_WORLD; // Not adapted yet
+extern bool USE_BOSS_RACE; // Not adapted yet
+extern bool USE_DEMO_CAMERA; // Not adapted yet
+
 extern bool USE_N_VERTED;
-// extern bool USE_MIRROR;
-// extern bool USE_MOON_GRAVITY;
+extern bool USE_SHORTCUTLESS;
 extern bool USE_NIGHT_FILTER;
-// extern bool USE_BOUNDLESS;
-// extern bool USE_WALL_RIDE;
-// extern bool USE_SPEEDWAY_PHYSICS;
 extern bool USE_ITEM_CHAOS;
 extern bool USE_SURVIVAL;
+extern bool USE_SURVIVAL_TIMER;
 
 extern bool air_throw;
 extern int activeDriversCount;
