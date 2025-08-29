@@ -21,6 +21,25 @@
 #include "../../../../../decompile/General/AltMods/Gasmoxian/global.h"
 #include <enet/enet.h>
 
+enum GAME_MODES {
+	NORMAL = 0,
+	MIRROR = 1,
+	ICY_TRACKS = 2,
+	ITEMLESS = 3,
+	MOON_MODE = 4,
+	RETRO_FUELED = 5,
+	VOID_WORLD = 6,
+	BOSS_RACE = 7,
+	DEMO_CAMERA = 8,
+	N_VERTED = 9,
+	SHORTCUTLESS = 10,
+	NIGHT = 11,
+	DARKNESS = 12,
+	ITEM_CHAOS = 13,
+	SURVIVAL = 14,
+	SURVIVAL_TIMER = 15
+};
+
 double timeStart;
 double warpclockdelay;
 clock_t  squaredelay [MAX_NUM_PLAYERS];
@@ -269,61 +288,64 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			//pbuf= duckstation shared memory
 			*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;                  //turbo counter cheat 0x8000000
 
+			// update the value in the client
+			octr->special = r->special;
 
-					// update the value in the client
-					octr->special = r->special;
-
-					prev_special = r->special;
-
-
-					//in the future i will try to replace this with an array
-
-					if (octr->special == 0) {
-
-					}
-					// special 1
-					else if (octr->special == 1) {
-						printf("\033[1;36m\n  MODE: 🪞 MIRROR 🪞 \n\033[0m");
-
-					}
-					//special 2
-					else if (octr->special == 2) {           
-						printf("\033[1;34m\n MODE: ❄️ ICY TRACKS ❄️ \n\033[0m");
-						// icy tracks cheat
-						*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
-
-					}
-					//special 3
-					else if (octr->special == 3) {      
-						printf("\n MODE: 💥 ITEMLESS 💥 \n");
-
-					}
-					//special 4
-					else if (octr->special == 4) { 
-						printf("\033[1;33m\n MODE: 🌙 MOON 🌙 \n\033[0m");
-					}
-					//special 5
-					else if (octr->special == 5) { 
-						printf("\033[1;38;5;214m\n MODE: 🔥 RETRO FUELED 🔥 \n\033[0m");
-
-						//superturbo pad cheat
-						*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x100000;
-					}
-					//special 6
-					else if (octr->special == 6) { 
-						printf("\033[1;35m\n MODE: ✨ VOID WORLD ✨ \n\033[0m");
-					}
-					//special 7
-					else if (octr->special == 7) { 
-						printf("\033[1;31m\n MODE: 👔 BOSS RACE 👔 \n\033[0m");
-
-
-					}
-					else if (octr->special == 8) {
-						printf("\033[0;33m\n MODE: 📷 DEMO CAMERA 📷 \n\033[0m");
-
-
-					}
+			prev_special = r->special;
+			
+			switch(octr->special) {
+				case NORMAL:
+					break;
+				case MIRROR:
+					printf("\033[1;36m\n  MODE: 🪞 MIRROR 🪞 \n\033[0m");
+					break;
+				case ICY_TRACKS:
+					printf("\033[1;34m\n MODE: ❄️ ICY TRACKS ❄️ \n\033[0m");
+					// icy tracks cheat
+					*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
+					break;
+				case ITEMLESS:
+					printf("\n MODE: 💥 ITEMLESS 💥 \n");
+					break;
+				case MOON_MODE:
+					printf("\033[1;33m\n MODE: 🌙 MOON 🌙 \n\033[0m");
+					break;
+				case RETRO_FUELED:
+					printf("\033[1;38;5;214m\n MODE: 🔥 RETRO FUELED 🔥 \n\033[0m");
+					//superturbo pad cheat
+					*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x100000;
+					break;
+				case VOID_WORLD:
+					printf("\033[1;35m\n MODE: ✨ VOID WORLD ✨ \n\033[0m");
+					break;
+				case BOSS_RACE:
+					printf("\033[1;31m\n MODE: 👔 BOSS RACE 👔 \n\033[0m");
+					break;
+				case DEMO_CAMERA:
+					printf("\033[0;33m\n MODE: 📷 DEMO CAMERA 📷 \n\033[0m");
+					break;
+				case N_VERTED:
+					printf("\033[1;32m\n MODE: N-VERTED \n\033[0m");
+					break;
+				case SHORTCUTLESS:
+					printf("\033[1;35m\n MODE: SHORTCUTLESS \n\033[0m");
+					break;
+				case NIGHT:
+					printf("\033[1;34m\n MODE: NIGHT \n\033[0m");
+					break;
+				case DARKNESS:
+					printf("\033[1;30m\n MODE: DARKNESS \n\033[0m");
+					break;
+				case ITEM_CHAOS:
+					printf("\033[1;31m\n MODE: ITEM CHAOS \n\033[0m");
+					break;
+				case SURVIVAL:
+					printf("\033[1;32m\n MODE: SURVIVAL \n\033[0m");
+					break;
+				case SURVIVAL_TIMER:
+					printf("\033[1;33m\n MODE: SURVIVAL TIMER \n\033[0m");
+					break;
+			}
 
 			octr->CurrState = LOBBY_CHARACTER_PICK;
 			break;
@@ -1324,7 +1346,7 @@ void StatePC_Game_StartRace()
 		*(int*)&pBuf[(0x80096b20 + 0x1a10) & 0xffffff];
 
 	//demo camera mode
-	if (octr->special == 8) {
+	if (octr->special == DEMO_CAMERA) {
 		if (gGT_levelID < 18)
 			*(short*)&pBuf[(0x80098028) & 0xffffff] = 0x20;
 	}
