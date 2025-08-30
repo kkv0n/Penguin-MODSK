@@ -143,22 +143,16 @@ void NightSkybox(struct Level *level){
     // if level is caves, sewer or labs dont modify skybox since are indoor levels
     #define SHOULD_SKIP_SKYBOX(x) (x != SEWER_SPEEDWAY && x != MYSTERY_CAVES && x != N_GIN_LABS)
     
-    if (SHOULD_SKIP_SKYBOX(gGT->levelID)) {
+    if (SHOULD_SKIP_SKYBOX(gGT->levelID)){
         // Add stars to the sky
         // If mirror mode is enabled don't add stars
-        // if(!USE_MIRROR){
-        //     gGT->renderFlags |= 8;
-        //     level->stars.numStars = 768;
-        //     level->stars.spread = 0;
-        //     level->stars.seed = 65535;
-        //     level->stars.distance = 1022;
-        // }
-
-        gGT->renderFlags |= 8;
-        level->stars.numStars = 768;
-        level->stars.spread = 0;
-        level->stars.seed = 65535;
-        level->stars.distance = 1022;
+        if(!USE_MIRROR){
+            gGT->renderFlags |= 8;
+            level->stars.numStars = 768;
+            level->stars.spread = 0;
+            level->stars.seed = 65535;
+            level->stars.distance = 1022;
+        }
 
         // Remove skybox
         level->ptr_skybox = NULL;
