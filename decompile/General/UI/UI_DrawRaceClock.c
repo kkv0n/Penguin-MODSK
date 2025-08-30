@@ -12,6 +12,7 @@ struct
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
 extern char* special_name[];
+extern char* special_abbr[];
 extern short special_size;
 #endif
 
@@ -167,8 +168,38 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	textPosY = paramY;
 
 	#ifdef USE_GASMOXIAN
-	char* title_ = (octr->special <= special_size) ? special_name[octr->special] : "DEV TEST MODE";
-	DECOMP_DecalFont_DrawLine(title_, (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);
+	// Create a string containing all active gamemodes
+	char title_buffer[256] = "";
+	int mode_count = 0;
+	
+	// Skip NORMAL mode (i=0) and start from i=1
+	for (int i = 1; i < special_size; i++) {
+		if (octr->gamemodes[i]) {
+			if (mode_count > 0) {
+				strcat(title_buffer, "-");  // Use dash instead of plus
+			}
+			strcat(title_buffer, special_abbr[i]);  // Use abbreviation
+			mode_count++;
+			
+			// Break into new line if string gets too long
+			if (strlen(title_buffer) > 20) {
+				DECOMP_DecalFont_DrawLine(title_buffer, (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);
+				title_buffer[0] = '\0';
+				mode_count = 0;
+				paramY += 8;
+			}
+		}
+	}
+
+	// If no active modes besides NORMAL, show just NORMAL
+	if (mode_count == 0) {
+		strcpy(title_buffer, special_abbr[0]);
+	}
+
+	// Draw any remaining modes
+	if (strlen(title_buffer) > 0) {
+		DECOMP_DecalFont_DrawLine(title_buffer, (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);
+	}
 	#else
 	// str = 0x12: TIME
 	// str = 0x4d: TIME TRIAL

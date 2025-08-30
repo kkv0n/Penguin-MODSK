@@ -363,6 +363,7 @@ bool USE_SURVIVAL;
 bool USE_SURVIVAL_TIMER;
 
 bool air_throw;
+int activeDriversCount = 0;
 
 char* decalText = (char*)0x1F800000;
 struct GameTracker *gGT;
@@ -378,51 +379,49 @@ void RunGamemodesInitHook() {
     if (init_initialized) return;
     gGT = sdata->gGT;
 
-	//TODO: octr->special will be deprecated as we need to be able to combine gamemodes and not just 1 enabled
-	USE_NORMAL = octr->special == NORMAL;
-    USE_MIRROR = octr->special == MIRROR;
-    USE_ICY_TRACKS = octr->special == ICY_TRACKS;
-    USE_ITEMLESS = octr->special == ITEMLESS;
-    USE_MOON_GRAVITY = octr->special == MOON_MODE;
-    USE_RETRO_FUELED = octr->special == RETRO_FUELED;
-    USE_VOID_WORLD = octr->special == VOID_WORLD;
-    USE_BOSS_RACE = octr->special == BOSS_RACE;
-    USE_DEMO_CAMERA = octr->special == DEMO_CAMERA;
-    USE_N_VERTED = octr->special == N_VERTED;
-    USE_SHORTCUTLESS = octr->special == SHORTCUTLESS;
-    USE_NIGHT_FILTER = octr->special == NIGHT || octr->special == DARKNESS;
-    USE_ITEM_CHAOS = octr->special == ITEM_CHAOS;
-    USE_SURVIVAL = octr->special == SURVIVAL;
-    USE_SURVIVAL_TIMER = octr->special == SURVIVAL_TIMER;
+    // Initialize with the new array of booleans
+    USE_NORMAL = octr->gamemodes[NORMAL];
+    USE_MIRROR = octr->gamemodes[MIRROR];
+    USE_ICY_TRACKS = octr->gamemodes[ICY_TRACKS];
+    USE_ITEMLESS = octr->gamemodes[ITEMLESS];
+    USE_MOON_GRAVITY = octr->gamemodes[MOON_MODE];
+    USE_RETRO_FUELED = octr->gamemodes[RETRO_FUELED];
+    USE_VOID_WORLD = octr->gamemodes[VOID_WORLD];
+    USE_BOSS_RACE = octr->gamemodes[BOSS_RACE];
+    USE_DEMO_CAMERA = octr->gamemodes[DEMO_CAMERA];
+    USE_N_VERTED = octr->gamemodes[N_VERTED];
+    USE_SHORTCUTLESS = octr->gamemodes[SHORTCUTLESS];
+    USE_NIGHT_FILTER = octr->gamemodes[NIGHT] || octr->gamemodes[DARKNESS];
+    USE_ITEM_CHAOS = octr->gamemodes[ITEM_CHAOS];
+    USE_SURVIVAL = octr->gamemodes[SURVIVAL];
+    USE_SURVIVAL_TIMER = octr->gamemodes[SURVIVAL_TIMER];
 
     init_initialized = true;
 }
 
-int activeDriversCount = 0;
-
-//Code to run each frame
+// Code to run each frame
 void RunGamemodesUpdateHook() {
+    // Update with the new array of booleans
+    USE_NORMAL = octr->gamemodes[NORMAL];
+    USE_MIRROR = octr->gamemodes[MIRROR];
+    USE_ICY_TRACKS = octr->gamemodes[ICY_TRACKS];
+    USE_ITEMLESS = octr->gamemodes[ITEMLESS];
+    USE_MOON_GRAVITY = octr->gamemodes[MOON_MODE];
+    USE_RETRO_FUELED = octr->gamemodes[RETRO_FUELED];
+    USE_VOID_WORLD = octr->gamemodes[VOID_WORLD];
+    USE_BOSS_RACE = octr->gamemodes[BOSS_RACE];
+    USE_DEMO_CAMERA = octr->gamemodes[DEMO_CAMERA];
+    USE_N_VERTED = octr->gamemodes[N_VERTED];
+    USE_SHORTCUTLESS = octr->gamemodes[SHORTCUTLESS];
+    USE_NIGHT_FILTER = octr->gamemodes[NIGHT] || octr->gamemodes[DARKNESS];
+    USE_ITEM_CHAOS = octr->gamemodes[ITEM_CHAOS];
+    USE_SURVIVAL = octr->gamemodes[SURVIVAL];
+    USE_SURVIVAL_TIMER = octr->gamemodes[SURVIVAL_TIMER];
 
-    USE_NORMAL = octr->special == NORMAL;
-    USE_MIRROR = octr->special == MIRROR;
-    USE_ICY_TRACKS = octr->special == ICY_TRACKS;
-    USE_ITEMLESS = octr->special == ITEMLESS;
-    USE_MOON_GRAVITY = octr->special == MOON_MODE;
-    USE_RETRO_FUELED = octr->special == RETRO_FUELED;
-    USE_VOID_WORLD = octr->special == VOID_WORLD;
-    USE_BOSS_RACE = octr->special == BOSS_RACE;
-    USE_DEMO_CAMERA = octr->special == DEMO_CAMERA;
-    USE_N_VERTED = octr->special == N_VERTED;
-    USE_SHORTCUTLESS = octr->special == SHORTCUTLESS;
-    USE_NIGHT_FILTER = octr->special == NIGHT || octr->special == DARKNESS;
-    USE_ITEM_CHAOS = octr->special == ITEM_CHAOS;
-    USE_SURVIVAL = octr->special == SURVIVAL;
-    USE_SURVIVAL_TIMER = octr->special == SURVIVAL_TIMER;
-
-	if(octr->special == NIGHT){
+	if(octr->gamemodes[NIGHT]){
 		NightFilterBrightness = 64;
 		NightFilterBlueTint = 15;
-	}else if(octr->special == DARKNESS){
+	}else if(octr->gamemodes[DARKNESS]){
 		NightFilterBrightness = 5;
 		NightFilterBlueTint = 0;
 	}else{

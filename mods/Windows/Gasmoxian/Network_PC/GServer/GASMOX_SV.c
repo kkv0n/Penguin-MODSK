@@ -26,6 +26,24 @@
 #define CLOCKS_PER_SEC_FIX ((clock_t)100000) // Original value (1000000), I removed one zero
 #endif
 
+enum GAME_MODES {
+	NORMAL = 0,
+	MIRROR = 1,
+	ICY_TRACKS = 2,
+	ITEMLESS = 3,
+	MOON_MODE = 4,
+	RETRO_FUELED = 5,
+	VOID_WORLD = 6,
+	BOSS_RACE = 7,
+	DEMO_CAMERA = 8,
+	N_VERTED = 9,
+	SHORTCUTLESS = 10,
+	NIGHT = 11,
+	DARKNESS = 12,
+	ITEM_CHAOS = 13,
+	SURVIVAL = 14,
+	SURVIVAL_TIMER = 15
+};
 
 
 //SV_helper.c forward decls
@@ -530,23 +548,31 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 		ForeachPeerLPL(SendRoomData);
 		break;
 	}
-	case CG_SPECIAL: {
-		struct SG_MessageSpecial* s = &sgBuffer[0]; 
-		struct CG_MessageSpecial* r = recvBuf;     
 
-
+	case CG_SPECIAL:
+	{
+		// Create a message structure matching what the client sends
+		struct {
+			unsigned char type : 4;
+			unsigned char padding : 4;
+			bool gamemodes[16];
+		} *r = (void*)recvBuf;
 		
-		s->type = SG_SPECIAL;
-		s->special = r->special & 0xF;
-
-
-
-		printf("Gamemode %d was selected\n", s->special);
-		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageSpecial));
-
+		// Create the server's outgoing message
+		struct SG_MessageSpecial ms;
+		ms.type = SG_SPECIAL;
+		
+		// Copy all gamemode toggles from the client message
+		memcpy(ms.gamemodes, r->gamemodes, sizeof(ms.gamemodes));
+		
+		// Ensure NORMAL is always enabled
+		ms.gamemodes[NORMAL] = true;
+		
+		// Broadcast the gamemodes to all peers
+		broadcastToPeersReliable(ri, &ms, sizeof(struct SG_MessageSpecial));
 		break;
 	}
-
+	
 	case CG_CHARACTER:
 	{
 		struct SG_MessageCharacter* s = &sgBuffer[0];

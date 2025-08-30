@@ -3,6 +3,11 @@
 
 #define GASMOXIAN_VER 2
 
+#ifdef __cplusplus
+
+#else
+#include <stdbool.h>
+#endif
 
 #ifndef WINDOWS_INCLUDE
 #include <common.h>
@@ -157,6 +162,10 @@ struct OnlineCTR
 
 	//queue to join
 	int autoRetryJoinRoomIndex;
+
+	// Replace the single special value with an array of booleans
+	// old: unsigned char special;
+	bool gamemodes[16]; // Array of booleans for each gamemode
 };
 
 STATIC_ASSERT2(sizeof(struct OnlineCTR) <= 0x400, "Size of OnlineCTR must be lte 1kb");
@@ -306,12 +315,13 @@ struct SG_MessageTrack
 	unsigned char lapID : 8;
 };
 
+
 struct SG_MessageSpecial
 {
-	// 15 types, 15 bytes max
 	unsigned char type : 4;
 	unsigned char padding : 4;
-	unsigned char special : 4;
+	// Remove old: unsigned char special;
+	bool gamemodes[16];
 };
 
 // assign character,
@@ -418,7 +428,7 @@ STATIC_ASSERT2(sizeof(struct SG_MessageName) == 14, "Size of SG_MessageName must
 STATIC_ASSERT2(sizeof(struct SG_MessageCharacter) == 2, "Size of SG_MessageCharacter must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageEngine) == 3, "Size of SG_MessageEngine must be 3 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageTrack) == 3, "Size of SG_MessageTrack must be 3 bytes");
-STATIC_ASSERT2(sizeof(struct SG_MessageSpecial) == 2, "Size of SG_MessageSpecial must be 2 bytes");
+STATIC_ASSERT2(sizeof(struct SG_MessageSpecial) == (1 + sizeof(bool[16])), "Size of SG_MessageSpecial includes 16 gamemodes");
 STATIC_ASSERT2(sizeof(struct SG_EverythingKart) == 10, "Size of SG_EverythingKart must be 10 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageWeapon) == 2, "Size of SG_MessageWeapon must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageEndRace) == 12, "Size of SG_MessageEndRace must be 12 bytes");

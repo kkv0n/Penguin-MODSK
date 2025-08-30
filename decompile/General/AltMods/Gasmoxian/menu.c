@@ -3,6 +3,8 @@
 extern const char* options[16];
 extern int label;
 
+char gamemode_buffers[8][64];
+
 //special menu text, probably will move it later
 // OCTR SPECIAL MENU BY PENTA3
 char* special_name[] = {
@@ -12,6 +14,16 @@ char* special_name[] = {
     "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETROFUELED", "MUNDO VACIO", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE", "OSCURIDAD", "CAOS DE ITEMS", "SUPERVIVENCIA", "SUPERVIVENCIA POR TIEMPO",
 #elif defined(GASMOX_BR)
     "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETROFUELED", "PISTA VAZIA", "CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO", "CAOS DE ITENS", "SUPERVIVÊNCIA", "SUPERVIVÊNCIA POR TEMPO",
+#endif
+};
+
+char* special_abbr[] = {
+#ifdef GASMOX_ENG
+    "NRM", "MIRR", "ICY", "TT", "MOON", "RETRO", "VOID", "BOSS", "DEMO", "N-VER", "NOSC", "NIGHT", "DARK", "CHAOS", "SURV", "TMSRV",
+#elif defined(GASMOX_ES)
+    "NRM", "ESPJ", "HIELO", "NOITM", "LUNA", "RETRO", "VACIO", "JEFE", "DEMO", "N-VER", "NOATJ", "NOCHE", "OSCUR", "CAOS", "SUPER", "STIEM",
+#elif defined(GASMOX_BR)
+    "NRM", "ESPEL", "GELO", "NOITM", "LUNAR", "RETRO", "VAZIO", "CHEFE", "DEMO", "N-VER", "NOATJ", "NOITE", "ESCUR", "CAOS", "SUPER", "STIEM",
 #endif
 };
 
@@ -317,34 +329,72 @@ void MenuWrites_Tracks()
 
 void NewPage_Events()
 {
-	label = 2;
+    label = 2;
     int i;
+
+    // Add instruction text at the top
+    #ifdef GASMOX_ENG
+    DecalFont_DrawLine("PRESS TRIANGLE TO TOGGLE MODE", 0x100, 0x40, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    #elif defined(GASMOX_ES)
+    DecalFont_DrawLine("PRESIONA TRIANGULO PARA ALTERNAR", 0x100, 0x40, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    #elif defined(GASMOX_BR)
+    DecalFont_DrawLine("PRESSIONE TRIANGULO PARA ALTERNAR", 0x100, 0x40, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    #endif
 
     for (i = 0; i < 8; i++)
     {
        int max = 8 * octr->PageNumber + i;
-	   menuRows[i].stringIndex = 0x9a + i;
-	   
-	   if (max < special_size) {
-        sdata->lngStrings[0x9a + i] = special_name[max];
-	   }
-
-     else {
-        
-        sdata->lngStrings[0x9a + i] = "-";
-        menuRows[i].stringIndex |= 0x8000;  
+       menuRows[i].stringIndex = 0x9a + i;
+       
+       if (max < special_size) {
+            // Add an "X" to show enabled modes
+            sprintf(gamemode_buffers[i], "%s %s", 
+                octr->gamemodes[max] ? "X" : " ", 
+                special_name[max]);
+                
+            sdata->lngStrings[0x9a + i] = gamemode_buffers[i];
+            
+            // Always make NORMAL active
+            if (max == NORMAL) {
+                octr->gamemodes[NORMAL] = true;
+            }
+       }
+       else {
+            sdata->lngStrings[0x9a + i] = "-";
+            menuRows[i].stringIndex |= 0x8000;  
+       }
     }
-	
 }
-}
-
 
 void MenuWrites_Events()
 {
-	//1 PAGE
-	pageMax= 1;
-    OnPressX_SetPtr = &octr->special;
+    // Allow up to 2 pages of gamemodes
+    pageMax = 1;
+    
+    // Now we're done with the Events menu when Triangle is pressed
     OnPressX_SetLock = &octr->boolLockedInSpecial;
+    
+    // Handle Triangle button to toggle modes
+    int buttons = sdata->gGamepads->gamepad[0].buttonsTapped;
+    if (buttons & BTN_TRIANGLE) {
+        int selectedMode = (8 * octr->PageNumber) + menu.rowSelected;
+        if (selectedMode < special_size) {
+            ToggleGamemode(selectedMode);
+            // Refresh menu after toggling
+            NewPage_Events();
+        }
+    }
+}
+
+void ToggleGamemode(int index) {
+    // If it's NORMAL mode (0), always keep it enabled
+    if (index == NORMAL) return;
+    
+    // Toggle the gamemode
+    octr->gamemodes[index] = !octr->gamemodes[index];
+    
+    // Play a sound to indicate toggle
+    DECOMP_OtherFX_Play(1, 1);
 }
 
 //these are the laps available in the menu
@@ -481,18 +531,33 @@ void UpdateMenu()
 
 void RECTMENU_OnPressX(struct RectMenu* b)
 {
-	int i;
+    int i;
 
-	RECTMENU_Hide(b);
-	sdata->ptrDesiredMenu = 0;
+    // Special handling for the Events menu
+    if (label == 2) {
+        // Make sure NORMAL is always enabled
+        octr->gamemodes[NORMAL] = true;
+        
+        // Set the lock flag but DON'T hide the menu yet
+        octr->boolLockedInSpecial = 1;
+        
+        // Reset page number for next menu
+        octr->PageNumber = 0;
+        
+        // Don't do anything else - let the state machine handle the transition to laps menu
+        return;
+    }
 
-	*OnPressX_SetPtr = (8 * octr->PageNumber) + b->rowSelected;
-	*OnPressX_SetLock = 1;
+    RECTMENU_Hide(b);
+    sdata->ptrDesiredMenu = 0;
 
-	octr->PageNumber = 0;
-	pressedX = 1;
+    *OnPressX_SetPtr = (8 * octr->PageNumber) + b->rowSelected;
+    *OnPressX_SetLock = 1;
 
-	RECTMENU_ClearInput();
+    octr->PageNumber = 0;
+    pressedX = 1;
+
+    RECTMENU_ClearInput();
 }
 
 void PrintTimeStamp()
@@ -510,21 +575,27 @@ void PrintCharacterStats()
 	int i;
 	int color;
 
+    char title_buffer[256] = "";
+    int mode_count = 0;
 
-char* title = nullptr;
+    // Skip NORMAL (0) and show all active gamemodes in title
+    for (int i = 1; i < special_size; i++) {
+        if (octr->gamemodes[i]) {
+            if (mode_count > 0) {
+                strcat(title_buffer, "-");
+            }
+            strcat(title_buffer, special_abbr[i]);  // Use abbreviation
+            mode_count++;
+        }
+    }
 
-//special events text when you are in a room
-//for the special events logic search octr special in gasmox_client.c
-if (octr->special >= 0 && octr->special <= special_size) {
-    title = special_name[octr->special];
-} 
-else
-{
-    
-    title = "DEV TEST MODE";
-}
-	DecalFont_DrawLine(title,0x100,0x18,FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+    // If no additional modes are active, show just NORMAL mode
+    if (mode_count == 0) {
+        strcpy(title_buffer, special_abbr[NORMAL]);
+    }
 
+    // Display active gamemodes
+    DecalFont_DrawLine(title_buffer, 0x100, 0x18, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
 
 
 

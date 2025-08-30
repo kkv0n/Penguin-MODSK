@@ -40,6 +40,25 @@ enum GAME_MODES {
 	SURVIVAL_TIMER = 15
 };
 
+const char* special_name[] = {
+    "Normal Mode",
+    "Mirror Mode",
+    "Icy Tracks",
+    "Itemless",
+    "Moon Mode",
+    "Retro Fueled",
+    "Void World",
+    "Boss Race",
+    "Demo Camera",
+    "N. Verted",
+    "Shortcutless",
+    "Night Mode",
+    "Darkness Mode",
+    "Item Chaos",
+    "Survival",
+    "Survival Timer"
+};
+
 double timeStart;
 double warpclockdelay;
 clock_t  squaredelay [MAX_NUM_PLAYERS];
@@ -279,73 +298,46 @@ void ProcessReceiveEvent(ENetPacket* packet)
 		{
 			SG_MessageSpecial* r = reinterpret_cast<SG_MessageSpecial*>(recvBuf);
 
+			// Copy all gamemode toggles
+			memcpy(octr->gamemodes, r->gamemodes, sizeof(r->gamemodes));
+			
+			// Ensure NORMAL is always enabled
+			octr->gamemodes[NORMAL] = true;
 
-			// default, disable cheats
-//ps1ptr<int> cheats = pBuf.at<int>(0x80096b28);
+			// Set prev_special for backward compatibility
+			prev_special = 0;
+			for (int i = 0; i < 16; i++) {
+				if (octr->gamemodes[i]) {
+					prev_special |= (1 << i);
+				}
+			}
+			
+			// Apply specific cheat effects based on enabled modes
+			// Default, disable cheats
 			int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
 			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000 | 0x10000);
-
-			//pbuf= duckstation shared memory
-			*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;                  //turbo counter cheat 0x8000000
-
-			// update the value in the client
-			octr->special = r->special;
-
-			prev_special = r->special;
 			
-			switch(octr->special) {
-				case NORMAL:
-					break;
-				case MIRROR:
-					printf("\033[1;36m\n  MODE: 🪞 MIRROR 🪞 \n\033[0m");
-					break;
-				case ICY_TRACKS:
-					printf("\033[1;34m\n MODE: ❄️ ICY TRACKS ❄️ \n\033[0m");
-					// icy tracks cheat
-					*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x80000;
-					break;
-				case ITEMLESS:
-					printf("\n MODE: 💥 ITEMLESS 💥 \n");
-					break;
-				case MOON_MODE:
-					printf("\033[1;33m\n MODE: 🌙 MOON 🌙 \n\033[0m");
-					break;
-				case RETRO_FUELED:
-					printf("\033[1;38;5;214m\n MODE: 🔥 RETRO FUELED 🔥 \n\033[0m");
-					//superturbo pad cheat
-					*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x100000;
-					break;
-				case VOID_WORLD:
-					printf("\033[1;35m\n MODE: ✨ VOID WORLD ✨ \n\033[0m");
-					break;
-				case BOSS_RACE:
-					printf("\033[1;31m\n MODE: 👔 BOSS RACE 👔 \n\033[0m");
-					break;
-				case DEMO_CAMERA:
-					printf("\033[0;33m\n MODE: 📷 DEMO CAMERA 📷 \n\033[0m");
-					break;
-				case N_VERTED:
-					printf("\033[1;32m\n MODE: N-VERTED \n\033[0m");
-					break;
-				case SHORTCUTLESS:
-					printf("\033[1;35m\n MODE: SHORTCUTLESS \n\033[0m");
-					break;
-				case NIGHT:
-					printf("\033[1;34m\n MODE: NIGHT \n\033[0m");
-					break;
-				case DARKNESS:
-					printf("\033[1;30m\n MODE: DARKNESS \n\033[0m");
-					break;
-				case ITEM_CHAOS:
-					printf("\033[1;31m\n MODE: ITEM CHAOS \n\033[0m");
-					break;
-				case SURVIVAL:
-					printf("\033[1;32m\n MODE: SURVIVAL \n\033[0m");
-					break;
-				case SURVIVAL_TIMER:
-					printf("\033[1;33m\n MODE: SURVIVAL TIMER \n\033[0m");
-					break;
+			// Always set the turbo counter cheat
+			*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;
+			
+			// Apply ICY_TRACKS cheat if enabled
+			if (octr->gamemodes[ICY_TRACKS]) {
+				*(int*)&pBuf[(0x80096b28) & 0xffffff] |= 0x80000;
+				printf("\033[1;34m\n MODE: ❄️ ICY TRACKS ❄️ \n\033[0m");
 			}
+			
+			// Apply RETRO_FUELED cheat if enabled
+			if (octr->gamemodes[RETRO_FUELED]) {
+				*(int*)&pBuf[(0x80096b28) & 0xffffff] |= 0x100000;
+				printf("\033[1;38;5;214m\n MODE: 🔥 RETRO FUELED 🔥 \n\033[0m");
+			}
+
+            // Print all enabled modes
+            for (int i = 0; i < 16; i++) {
+                if (octr->gamemodes[i] && i != ICY_TRACKS && i != RETRO_FUELED) {
+                    printf("\n MODE: %s ENABLED\n", special_name[i]);
+                }
+            }
 
 			octr->CurrState = LOBBY_CHARACTER_PICK;
 			break;
@@ -1106,31 +1098,31 @@ void StatePC_Lobby_HostTrackPick()
 }
 
 void StatePC_Lobby_SpecialPick() {
+    if (!octr->boolLockedInSpecial) return;
+    
+    // Always send the full gamemode array whenever the special menu is confirmed
+    StopAnimation();
+    printf("Client: Sending gamemodes to the server...  ");
 
-	if (!octr->boolLockedInSpecial) return;
-
-	
-	
-	
-
-	if (octr->special != prev_special)
-	{
-
-		StopAnimation();
-		printf("Client: Sending gamemode to the server...  ");
-
-		CG_MessageSpecial mt = { 0 };
-		mt.type = CG_SPECIAL;
-		mt.special = octr->special;
-
-		prev_special = octr->special;
-
-
-		
-		sendToHostReliable(&mt, sizeof(CG_MessageSpecial));
-
-		octr->CurrState = LOBBY_CHARACTER_PICK;
-	}
+    // Create a custom message structure with the array of booleans
+    struct {
+        unsigned char type : 4;
+        unsigned char padding : 4;
+        bool gamemodes[16];
+    } customMsg;
+    
+    customMsg.type = CG_SPECIAL;
+    
+    // Copy all gamemode toggles
+    memcpy(customMsg.gamemodes, octr->gamemodes, sizeof(customMsg.gamemodes));
+    
+    // Always ensure NORMAL is enabled
+    customMsg.gamemodes[NORMAL] = true;
+    
+    // Send the entire structure to the server
+    sendToHostReliable(&customMsg, sizeof(customMsg));
+    
+    octr->CurrState = LOBBY_CHARACTER_PICK;
 }
 
 
@@ -1346,7 +1338,7 @@ void StatePC_Game_StartRace()
 		*(int*)&pBuf[(0x80096b20 + 0x1a10) & 0xffffff];
 
 	//demo camera mode
-	if (octr->special == DEMO_CAMERA) {
+	if (octr->gamemodes[DEMO_CAMERA]) {
 		if (gGT_levelID < 18)
 			*(short*)&pBuf[(0x80098028) & 0xffffff] = 0x20;
 	}

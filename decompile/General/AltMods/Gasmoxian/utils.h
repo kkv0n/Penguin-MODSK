@@ -3,7 +3,6 @@
 
 #include <common.h>
 
-//TODO: Commented need to replace octr->special with USE_
 extern bool USE_NORMAL; // Not adapted yet
 extern bool USE_MIRROR; // Not adapted yet
 extern bool USE_ICY_TRACKS; // Not adapted yet
@@ -27,8 +26,6 @@ extern int activeDriversCount;
 extern char* decalText;
 extern struct GameTracker *gGT;
 
-//TODO: octr->special will be deprecated as we need to be able to combine gamemodes and not just 1 enabled
-// Replace with bitmask like quadflags
 enum GAME_MODES {
 	NORMAL = 0,
 	MIRROR = 1,
