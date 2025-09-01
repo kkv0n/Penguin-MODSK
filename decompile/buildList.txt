@@ -35,8 +35,13 @@
 //
 //gasmoxian exclusive
 
-//gasmoxian online files / Unlimited game modes logic
+//gasmoxian online files
+
+// Gasmoxian logic & unlimited game modes logic
 common, iso, 0x80700000, 0x0, General/AltMods/Gasmoxian/Gasmods.c
+
+// Green flag
+common, exe, RaceFlag_DrawSelf, 0x0, General/AltMods/Gasmoxian/custom_flag.c
 
 //gasmoxian exclusive
 //
@@ -619,7 +624,7 @@ common, exe, RaceFlag_GetCanDraw, 0x0, General/RaceFlag/RaceFlag_t10_GetCanDraw.
 common, exe, RaceFlag_GetOT, 0x0, General/RaceFlag/RaceFlag_t11_GetOT.c
 common, exe, RaceFlag_ResetTextAnim, 0x0, General/RaceFlag/RaceFlag_t12_ResetTextAnim.c
 common, exe, RaceFlag_DrawLoadingString, 0x0, General/RaceFlag/RaceFlag_t13_DrawLoadingString.c
-common, exe, RaceFlag_DrawSelf, 0x0, General/RaceFlag/RaceFlag_t14_DrawSelf.c
+//common, exe, RaceFlag_DrawSelf, 0x0, General/RaceFlag/RaceFlag_t14_DrawSelf.c
 
 // RECTMENU
 common, exe, RECTMENU_DrawPolyGT4, 0x0, General/RECTMENU/RECTMENU_DrawPolyGT4.c
