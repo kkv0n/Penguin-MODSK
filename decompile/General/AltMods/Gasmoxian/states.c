@@ -175,14 +175,8 @@ void ResetPsxGlobals()
 // should rename to EnterRoom
 void StatePS1_Launch_PickRoom()
 {
-#ifdef GASMOX_ENG
-	DecalFont_DrawLine("BY ANZUP AND PENTA3", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
-#elif defined(GASMOX_ES)
-	DecalFont_DrawLine("POR ANZUP Y PENTA3", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
-#elif defined(GASMOX_BR)
-	DecalFont_DrawLine("POR ANZUP E PENTA3 ", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
-#endif
-	DECOMP_DecalFont_DrawLine("THX FARADISE", 25, 178, FONT_SMALL, PAPU_YELLOW);
+	DecalFont_DrawLine("GASMOXIAN", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+	// DECOMP_DecalFont_DrawLine("PENTA3 - ANZU - ANFROST", 25, 178, FONT_SMALL, PAPU_YELLOW);
 	ShowCharacterIcon(15, 120, 16);
 	MenuWrites_ServerRoom();
 
@@ -516,8 +510,6 @@ static void OnRaceInit()
 	sdata->gGT->drivers[0]->bestLapTime = HOURS(10);
 }
 
-extern void ITEMLESS_MAIN(struct GameTracker* gGT);
-
 void StatePS1_Game_WaitForRace()
 {
 	struct GameTracker* gGT = sdata->gGT;
@@ -527,10 +519,6 @@ void StatePS1_Game_WaitForRace()
 		OnRaceInit();
 		initRace = false;
 	}
-	
-	//make everyone a ghost
-	if (USE_ITEMLESS)
-	ITEMLESS_MAIN(gGT);
 
 	gGT->trafficLightsTimer = 0xf40;
 
