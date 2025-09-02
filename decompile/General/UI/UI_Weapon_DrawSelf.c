@@ -157,9 +157,9 @@ void DECOMP_UI_Weapon_DrawSelf(short posX,short posY,short scale,struct Driver* 
   //print custom icons for super engine, invisibility and spring
   //i think all of these icons can just be used with DrawWeapon instead of a custom function
   //just need the pointer to character icons + correct index
-int customicon = (d->heldItemID == ITEM_SPRING) ? 10 : (d->heldItemID == ITEM_INVISIBILITY) ? 14 : 15;
+int customicon = (d->heldItemID == ITEM_NOTHING) ? 10 : (d->heldItemID == ITEM_INVISIBILITY) ? 14 : 15;
 
-		if (d->heldItemID == ITEM_SPRING || d->heldItemID >= ITEM_INVISIBILITY && d->heldItemID <= ITEM_SUPER_ENGINE)
+		if (d->heldItemID == ITEM_NOTHING || d->heldItemID >= ITEM_INVISIBILITY && d->heldItemID <= ITEM_SUPER_ENGINE)
 		{
 			
 			ShowCharacterIcon(customicon , posX, posY);
