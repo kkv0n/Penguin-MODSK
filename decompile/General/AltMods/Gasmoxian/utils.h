@@ -3,7 +3,7 @@
 
 #include <common.h>
 
-extern bool USE_NORMAL; // Not adapted yet
+extern bool USE_NORMAL;
 extern bool USE_MIRROR; // Not adapted yet
 extern bool USE_ICY_TRACKS; // Not adapted yet
 extern bool USE_ITEMLESS; // Not adapted yet
