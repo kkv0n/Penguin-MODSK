@@ -14,7 +14,7 @@ void DECOMP_RB_Player_ToggleFlicker(void)
 
     if (
             // invincible timer
-            (0x2a0 < d->invincibleTimer) &&
+            (d->invincibleTimer > 0x2a0 && d->invisibleTimer == 0) &&
 
             // odd number frames
             ((gGT->timer & FPS_DOUBLE(1)) != 0)
