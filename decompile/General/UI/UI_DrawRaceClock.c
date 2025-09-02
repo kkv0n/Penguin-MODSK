@@ -168,6 +168,16 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	textPosY = paramY;
 
 	#ifdef USE_GASMOXIAN
+
+	// Dont draw gamemodes if player is eliminated (spectating)
+	if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
+		extern bool DriverIsEliminated(struct Driver* driver);
+		struct Driver* localDriver = gGT->drivers[0];
+		if(DriverIsEliminated(localDriver)) {
+			goto SKIP_DRAWING_TIME;
+		}
+	}
+
 	// Create a string containing all active gamemodes
 	char title_buffer[256] = "";
 	int mode_count = 0;
@@ -181,13 +191,13 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 			strcat(title_buffer, special_abbr[i]);  // Use abbreviation
 			mode_count++;
 			
-			// Break into new line if string gets too long
-			if (strlen(title_buffer) > 20) {
-				DECOMP_DecalFont_DrawLine(title_buffer, (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);
-				title_buffer[0] = '\0';
-				mode_count = 0;
-				paramY += 8;
-			}
+			// // Break into new line if string gets too long
+			// if (strlen(title_buffer) > 30) {
+			// 	DECOMP_DecalFont_DrawLine(title_buffer, (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);
+			// 	title_buffer[0] = '\0';
+			// 	mode_count = 0;
+			// 	paramY += 8;
+			// }
 		}
 	}
 
@@ -208,6 +218,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	DECOMP_DecalFont_DrawLine(sdata->lngStrings[str], (int)(short)paramX, (int)(short)paramY, fontType, (int)strFlags_but_its_also_posY);	
 	#endif
 	
+	SKIP_DRAWING_TIME:
 
 	// set string to use data.ptrColor[1], which is the periwinkle gradient seen in the LAP text on the HUD
 	// particularly used for relic race when the time is frozen
