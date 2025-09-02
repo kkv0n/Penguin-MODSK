@@ -334,7 +334,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			//if you are wondering why im adding numbers is for being able to search it more easy
 			//btw dont change this to track levels, just keep it in 0x26 or it will crash
 			// Load Region3 for planet
-			if(gGT->levelID == 33)
+			if(gGT->levelID == INTRO_POLAR)
 				ovrRegion3 = 3;
 			else
 			#endif
@@ -621,11 +621,6 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			){
 				NightFilter(gGT->level1, NightFilterBrightness, NightFilterBlueTint);
 				
-				extern void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type);
-
-				//Randomly select one WEATHER_TYPE
-				// enum WEATHER_TYPE weather_type = (enum WEATHER_TYPE)(rand() % 3);
-				// AddWeather(gGT->level1, weather_type);
 			}
 
 			if(USE_SURVIVAL){
@@ -641,6 +636,16 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 			if(USE_SURVIVAL_TIMER){
 				gGT->numLaps = 127;
+			}
+
+			extern void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type);
+
+			//Randomly select a WEATHER_TYPE (WEATHER_RAIN 2%, WEATHER_SNOW 1%)
+			int randVal = rand() % 100;
+			if (randVal < 2) {
+				AddWeather(gGT->level1, WEATHER_RAIN);
+			} else if (randVal < 3) {
+				AddWeather(gGT->level1, WEATHER_SNOW);
 			}
 
 			////////////////////////
