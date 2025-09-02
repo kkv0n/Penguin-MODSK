@@ -68,6 +68,10 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 		ITEMSET_Race4, // Rank 5
 		ITEMSET_Race4  // Rank 6
 	};
+
+	// Change charPtr RNG weights if ITEM_CHAOS is enabled
+	extern void ItemChaosItemSets();
+	ItemChaosItemSets();
 		
 	if (driver->driverRank == 0)
 	{
@@ -86,10 +90,6 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 				: itemSets[driver->driverRank - 1];
 		}
 	}
-
-	// Change charPtr RNG weights if ITEM_CHAOS is enabled
-	extern void ItemChaosItemSets();
-	ItemChaosItemSets();
 
 	//end of itemset assignation
 }
@@ -253,10 +253,14 @@ if (gGT->gameMode1 & ARCADE_MODE)
 		driver->heldItemID = ITEM_TURBO_BOOST;		
 	}
 
-	// If gamemode is normal ban invisibility
-	if (USE_NORMAL && driver->heldItemID == ITEM_INVISIBILITY)
+	// If only NORMAL its enabled, ban invisibility, nothing and super engine
+	extern bool ItsOnlyNormalEnabled();
+	if(ItsOnlyNormalEnabled())
 	{
-		driver->heldItemID = ITEM_MASK;
+		if (driver->heldItemID == ITEM_INVISIBILITY || driver->heldItemID == ITEM_NONE || driver->heldItemID == ITEM_SUPER_ENGINE)
+		{
+			driver->heldItemID = ITEM_TURBO;
+		}
 	}
 
 	if (octr->warpclock == 0) 
