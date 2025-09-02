@@ -10,7 +10,6 @@ bool eliminatedDrivers[8] = {false, false, false, false, false, false, false, fa
 int previousLapCheck = 0;
 bool checkForElimination = false;
 
-static unsigned frameCounter = 0;
 u_char hudFlagsBackup;
 
 void InitSurvivalMode(bool enabled){
@@ -80,14 +79,14 @@ void HandleSurvivalMode(bool enabled){
 
     // If local player its on last place show a warning message
     if(lastDriver->driverID == localDriver->driverID) {
-        int textColor = frameCounter++ & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        int textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
         sprintf(decalText, "LAST PLACE!!!");
         DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | textColor));
     }
 
     // If local player was eliminated, display the message
     if(DriverIsEliminated(localDriver)) {
-        int textColor = frameCounter++ & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        int textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
         sprintf(decalText, "ELIMINATED! POSITION: %d", localDriver->driverRank + 1);
         DecalFont_DrawLine(decalText, 0x100, 0x84, FONT_SMALL, (JUSTIFY_CENTER | textColor));
 
@@ -110,14 +109,24 @@ void HandleSurvivalMode(bool enabled){
 
 bool RaceShouldEnd()
 {
-    // Check if the race should end
+    // Race should end if any driver has finished
     for(int i = 0; i < 8; i++) {
         struct Driver* driver = gGT->drivers[i];
         if(driver != NULL && (driver->actionsFlagSet & ACTION_RACE_FINISHED) != 0) {
             return true;
         }
     }
-    return false;
+    
+    // Race also should end if a player if there is only eliminated and dead players
+    // dead players is a player with this condition == octr->nameBuffer[i][0] == 0
+    for(int i = 0; i < 8; i++) {
+        struct Driver* driver = gGT->drivers[i];
+        if(driver != NULL && !DriverIsEliminated(driver) && octr->nameBuffer[i][0] != 0) {
+            return false; // Found a player who is not eliminated and not dead
+        }
+    }
+
+    return true;
 }
 
 void ForceRaceEnd()
@@ -168,14 +177,14 @@ bool DriverIsEliminated(struct Driver* driver)
 // Global variables for time-based elimination
 unsigned int eliminationTimer = 0;
 const unsigned int eliminationTimeLimits[] = {
-    FPS_DOUBLE(32 * 90), // 1:30
     FPS_DOUBLE(32 * 60), // 1:00
     FPS_DOUBLE(32 * 45), // 0:45
-    FPS_DOUBLE(32 * 45), // 0:45
     FPS_DOUBLE(32 * 30), // 0:30
     FPS_DOUBLE(32 * 30), // 0:30
-    FPS_DOUBLE(32 * 30), // 0:30
-    FPS_DOUBLE(32 * 30), // 0:30
+    FPS_DOUBLE(32 * 20), // 0:20
+    FPS_DOUBLE(32 * 20), // 0:20
+    FPS_DOUBLE(32 * 20), // 0:20
+    FPS_DOUBLE(32 * 20), // 0:20
     FPS_DOUBLE(32 * 10), // 0:10
 };
 
@@ -197,9 +206,6 @@ void InitTimeBasedSurvivalMode(bool enabled) {
     
     // Set initial timer
     eliminationTimer = eliminationTimeLimits[0];
-
-    // Reset counter for text flashing
-    frameCounter = 0;
 }
 
 // Main function for time-based survival mode
@@ -230,6 +236,9 @@ void HandleTimeBasedSurvivalMode(bool enabled) {
     
     // Check if time's up
     if(eliminationTimer == 0) {
+        //Play sound
+        DECOMP_OtherFX_Play(fx_semaphor2, 1);
+
         // Eliminate the last non-eliminated driver
         EliminateLastDriver();
         
@@ -258,14 +267,14 @@ void HandleTimeBasedSurvivalMode(bool enabled) {
     
     // If local player is the last non-eliminated driver, show warning
     if(lastDriver != NULL && lastDriver->driverID == localDriver->driverID) {
-        int textColor = frameCounter++ & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        int textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
         sprintf(decalText, "LAST PLACE!!!");
         DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | textColor));
     }
     
     // If local player was eliminated, display the message
     if(DriverIsEliminated(localDriver)) {
-        int textColor = frameCounter++ & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        int textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
         sprintf(decalText, "ELIMINATED! POSITION: %d", localDriver->driverRank + 1);
         DecalFont_DrawLine(decalText, 0x100, 0x84, FONT_SMALL, (JUSTIFY_CENTER | textColor));
         
@@ -297,9 +306,14 @@ void DisplayEliminationTimer() {
     
     // Flash red when less than 10 seconds remaining
     if(totalSeconds < 10) {
-        textColor = frameCounter & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
     }
-    
+
+    // If 5 seconds or less play a warning sound each second
+    if(totalSeconds <= 5 && totalSeconds >= 1 && frames == 0) {
+        DECOMP_OtherFX_Play(fx_semaphor, 1);
+    }
+
     sprintf(decalText, "NEXT ELIMINATION: %01d:%02d:%02d", minutes, seconds, frames);
     DecalFont_DrawLine(decalText, 0x100, 0x32, FONT_SMALL, (JUSTIFY_CENTER | textColor));
 }
