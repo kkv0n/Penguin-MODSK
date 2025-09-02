@@ -53,10 +53,15 @@ void DECOMP_MainFrame_GameLogic(struct GameTracker* gGT, struct GamepadSystem* g
 	int lastdriver = octr->NumDrivers - 1;
 	
 		
-		//use clock icon instead of clock effect
-if (psVar9->clockReceive != 0 && psVar9->driverRank != lastdriver) {
-	iconclock();
+// 		//use clock icon instead of clock effect
+// if (psVar9->clockReceive != 0 && psVar9->driverRank != lastdriver) {
+// 	iconclock();
 
+// 	}
+
+	//use clock effect instead of clock icon
+	if (psVar9->clockReceive != 0 && psVar9->driverRank != lastdriver) {
+		DISPLAY_Blur_Main(pushBuffer, psVar9->clockReceive);
 	}
 	
     if (psVar9->clockReceive == 0) {
