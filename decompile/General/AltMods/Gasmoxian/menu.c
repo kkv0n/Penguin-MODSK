@@ -327,6 +327,48 @@ void MenuWrites_Tracks()
 	OnPressX_SetLock = &octr->boolLockedInLevel;
 }
 
+// Check if a gamemode is incompatible with enabled modes
+bool IsGamemodeIncompatible(int modeToCheck) {
+    // NORMAL is always compatible
+    if (modeToCheck == NORMAL) return false;
+    
+    // Check incompatibility rules
+    if (octr->gamemodes[ITEMLESS] && 
+        (modeToCheck == ITEM_CHAOS || modeToCheck == BOSS_RACE))
+        return true;
+        
+    if (octr->gamemodes[MOON_MODE] && modeToCheck == SHORTCUTLESS)
+        return true;
+        
+    if (octr->gamemodes[BOSS_RACE] && modeToCheck == ITEMLESS)
+        return true;
+        
+    if (octr->gamemodes[N_VERTED] && modeToCheck == SHORTCUTLESS)
+        return true;
+        
+    if (octr->gamemodes[SHORTCUTLESS] && 
+        (modeToCheck == N_VERTED || modeToCheck == MOON_MODE))
+        return true;
+        
+    if (octr->gamemodes[NIGHT] && modeToCheck == DARKNESS)
+        return true;
+        
+    if (octr->gamemodes[DARKNESS] && modeToCheck == NIGHT)
+        return true;
+        
+    if (octr->gamemodes[ITEM_CHAOS] && modeToCheck == ITEMLESS)
+        return true;
+        
+    if (octr->gamemodes[SURVIVAL] && modeToCheck == SURVIVAL_TIMER)
+        return true;
+        
+    if (octr->gamemodes[SURVIVAL_TIMER] && modeToCheck == SURVIVAL)
+        return true;
+        
+    return false;
+}
+
+
 void NewPage_Events()
 {
     label = 2;
@@ -334,11 +376,14 @@ void NewPage_Events()
 
     // Add instruction text at the top
     #ifdef GASMOX_ENG
-    DecalFont_DrawLine("PRESS TRIANGLE TO TOGGLE MODE", 0x100, 0x40, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    DecalFont_DrawLine("PRESS ^ TO TOGGLE", 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    DecalFont_DrawLine("PRESS * TO CONFIRM", 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
     #elif defined(GASMOX_ES)
-    DecalFont_DrawLine("PRESIONA TRIANGULO PARA ALTERNAR", 0x100, 0x40, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    DecalFont_DrawLine("PRESIONA ^ PARA ALTERNAR", 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    DecalFont_DrawLine("PRESIONA * PARA CONFIRMAR", 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
     #elif defined(GASMOX_BR)
-    DecalFont_DrawLine("PRESSIONE TRIANGULO PARA ALTERNAR", 0x100, 0x40, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    DecalFont_DrawLine("PRESSIONE ^ PARA ALTERNAR", 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    DecalFont_DrawLine("PRESSIONE * PARA CONFIRMAR", 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
     #endif
 
     for (i = 0; i < 8; i++)
@@ -347,9 +392,12 @@ void NewPage_Events()
        menuRows[i].stringIndex = 0x9a + i;
        
        if (max < special_size) {
+            // Check if this mode is incompatible with any enabled modes
+            bool incompatible = IsGamemodeIncompatible(max);
+            
             // Add an "X" to show enabled modes
             sprintf(gamemode_buffers[i], "%s %s", 
-                octr->gamemodes[max] ? "X" : " ", 
+                octr->gamemodes[max] ? "X" : "", 
                 special_name[max]);
                 
             sdata->lngStrings[0x9a + i] = gamemode_buffers[i];
@@ -358,12 +406,83 @@ void NewPage_Events()
             if (max == NORMAL) {
                 octr->gamemodes[NORMAL] = true;
             }
+            
+            // Disable incompatible modes in the menu
+            if (incompatible && !octr->gamemodes[max]) {
+                menuRows[i].stringIndex |= 0x8000;
+            }
        }
        else {
             sdata->lngStrings[0x9a + i] = "-";
             menuRows[i].stringIndex |= 0x8000;  
        }
     }
+}
+
+void ToggleGamemode(int index) {
+    // If it's NORMAL mode (0), always keep it enabled
+    if (index == NORMAL) return;
+    
+    // Check if this mode is incompatible with any enabled modes
+    if (IsGamemodeIncompatible(index)) {
+        // Play error sound and don't toggle
+        DECOMP_OtherFX_Play(fx_menu_locked, 1);
+        return;
+    }
+    
+    // Toggle the gamemode
+    octr->gamemodes[index] = !octr->gamemodes[index];
+    
+    // If turning ON a mode, check for incompatibilities
+    if (octr->gamemodes[index]) {
+        // Enforce incompatible mode restrictions by disabling incompatible modes
+        switch(index) {
+            case ITEMLESS:
+                octr->gamemodes[ITEM_CHAOS] = false;
+                octr->gamemodes[BOSS_RACE] = false;
+                break;
+                
+            case MOON_MODE:
+                octr->gamemodes[SHORTCUTLESS] = false;
+                break;
+                
+            case BOSS_RACE:
+                octr->gamemodes[ITEMLESS] = false;
+                break;
+                
+            case N_VERTED:
+                octr->gamemodes[SHORTCUTLESS] = false;
+                break;
+                
+            case SHORTCUTLESS:
+                octr->gamemodes[N_VERTED] = false;
+                octr->gamemodes[MOON_MODE] = false;
+                break;
+                
+            case NIGHT:
+                octr->gamemodes[DARKNESS] = false;
+                break;
+                
+            case DARKNESS:
+                octr->gamemodes[NIGHT] = false;
+                break;
+                
+            case ITEM_CHAOS:
+                octr->gamemodes[ITEMLESS] = false;
+                break;
+                
+            case SURVIVAL:
+                octr->gamemodes[SURVIVAL_TIMER] = false;
+                break;
+                
+            case SURVIVAL_TIMER:
+                octr->gamemodes[SURVIVAL] = false;
+                break;
+        }
+    }
+    
+    // Play a sound to indicate toggle
+    DECOMP_OtherFX_Play(fx_letter_del, 1);
 }
 
 void MenuWrites_Events()
@@ -376,7 +495,7 @@ void MenuWrites_Events()
     
     // Handle Triangle button to toggle modes
     int buttons = sdata->gGamepads->gamepad[0].buttonsTapped;
-    if (buttons & BTN_TRIANGLE) {
+    if ((label == 2) && buttons & BTN_TRIANGLE) {
         int selectedMode = (8 * octr->PageNumber) + menu.rowSelected;
         if (selectedMode < special_size) {
             ToggleGamemode(selectedMode);
@@ -384,17 +503,6 @@ void MenuWrites_Events()
             NewPage_Events();
         }
     }
-}
-
-void ToggleGamemode(int index) {
-    // If it's NORMAL mode (0), always keep it enabled
-    if (index == NORMAL) return;
-    
-    // Toggle the gamemode
-    octr->gamemodes[index] = !octr->gamemodes[index];
-    
-    // Play a sound to indicate toggle
-    DECOMP_OtherFX_Play(1, 1);
 }
 
 //these are the laps available in the menu
@@ -405,29 +513,13 @@ void NewPage_Laps()
 	label = 3;
 	int i;
 
+	// menu.rowSelected = 0;
 
 //moved to other file
 
-	int numDead = 0;
-	for(int i = 0; i < octr->NumDrivers; i++)
-		if(octr->nameBuffer[i][0] == 0)
-			numDead++;
-	activeDriversCount = octr->NumDrivers - numDead;
-
-	// Add these static strings for survival mode
-    static char* playerCountStrings[] = {"1", "2", "3", "4", "5", "6", "7"};
-
 	for(i = 0; i < 8; i++)
     {
-        sdata->lngStrings[0x9a + i] = 
-           USE_SURVIVAL ?
-            (activeDriversCount < 2 ? "1" : playerCountStrings[activeDriversCount - 2])
-            
-			:USE_SURVIVAL_TIMER ?
-			"127"
-			
-			: options[8 * octr->PageNumber + i];
-
+        sdata->lngStrings[0x9a + i] = options[8 * octr->PageNumber + i];
         menuRows[i].stringIndex = 0x9a + i;
     }
 }
@@ -529,6 +621,37 @@ void UpdateMenu()
 	DecalFont_DrawLine(&string,menu.posX_curr,0x48,FONT_BIG,JUSTIFY_CENTER|WHITE);
 }
 
+// void RECTMENU_OnPressX(struct RectMenu* b)
+// {
+//     int i;
+
+//     // Special handling for the Events menu
+//     if (label == 2) {
+//         // Make sure NORMAL is always enabled
+//         octr->gamemodes[NORMAL] = true;
+        
+//         // Set the lock flag but DON'T hide the menu yet
+//         octr->boolLockedInSpecial = 1;
+        
+//         // Reset page number for next menu
+//         octr->PageNumber = 0;
+        
+//         // Don't do anything else - let the state machine handle the transition to laps menu
+//         return;
+//     }
+
+//     RECTMENU_Hide(b);
+//     sdata->ptrDesiredMenu = 0;
+
+//     *OnPressX_SetPtr = (8 * octr->PageNumber) + b->rowSelected;
+//     *OnPressX_SetLock = 1;
+
+//     octr->PageNumber = 0;
+//     pressedX = 1;
+
+//     RECTMENU_ClearInput();
+// }
+
 void RECTMENU_OnPressX(struct RectMenu* b)
 {
     int i;
@@ -538,13 +661,34 @@ void RECTMENU_OnPressX(struct RectMenu* b)
         // Make sure NORMAL is always enabled
         octr->gamemodes[NORMAL] = true;
         
-        // Set the lock flag but DON'T hide the menu yet
+        // Set the lock flag
         octr->boolLockedInSpecial = 1;
+        
+        // If survival mode is active, auto-set laps and skip lap menu
+        if (octr->gamemodes[SURVIVAL] || octr->gamemodes[SURVIVAL_TIMER]) {
+            // Calculate player count for survival mode
+            int numDead = 0;
+            for(i = 0; i < octr->NumDrivers; i++)
+                if(octr->nameBuffer[i][0] == 0)
+                    numDead++;
+            int activePlayers = octr->NumDrivers - numDead;
+            
+            // Set lap count based on mode
+            if (octr->gamemodes[SURVIVAL]) {
+                // Set laps to player count or 1 if only one player
+                octr->lapID = (activePlayers < 2) ? 0 : (activePlayers - 2);
+            } else if (octr->gamemodes[SURVIVAL_TIMER]) {
+                // Set laps to 127 for timed survival
+                octr->lapID = 127;
+            }
+            
+            // Skip laps menu by setting the lock flag
+            octr->boolLockedInLap = 1;
+        }
         
         // Reset page number for next menu
         octr->PageNumber = 0;
         
-        // Don't do anything else - let the state machine handle the transition to laps menu
         return;
     }
 
@@ -578,26 +722,37 @@ void PrintCharacterStats()
     char title_buffer[256] = "";
     int mode_count = 0;
 
-    // Skip NORMAL (0) and show all active gamemodes in title
-    for (int i = 1; i < special_size; i++) {
-        if (octr->gamemodes[i]) {
-            if (mode_count > 0) {
-                strcat(title_buffer, "-");
-            }
-            strcat(title_buffer, special_abbr[i]);  // Use abbreviation
-            mode_count++;
-        }
-    }
+	int posX = 0x100;
+	int posY = 0x18;
 
-    // If no additional modes are active, show just NORMAL mode
-    if (mode_count == 0) {
-        strcpy(title_buffer, special_abbr[NORMAL]);
-    }
+	// Skip NORMAL mode (i=0) and start from i=1
+	for (int i = 1; i < special_size; i++) {
+		if (octr->gamemodes[i]) {
+			if (mode_count > 0) {
+				strcat(title_buffer, "-");  // Use dash instead of plus
+			}
+			strcat(title_buffer, special_abbr[i]);  // Use abbreviation
+			mode_count++;
+			
+			// Break into new line if string gets too long
+			if (strlen(title_buffer) > 30) {
+				DECOMP_DecalFont_DrawLine(title_buffer, posX, posY, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+				title_buffer[0] = '\0';
+				mode_count = 0;
+				posY += 8;
+			}
+		}
+	}
 
-    // Display active gamemodes
-    DecalFont_DrawLine(title_buffer, 0x100, 0x18, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
-
-
+	// If no active modes besides NORMAL, show just NORMAL
+	if (mode_count == 0) {
+		strcpy(title_buffer, special_abbr[0]);
+	}
+	
+	// Draw any remaining modes
+	if (strlen(title_buffer) > 0) {
+		DECOMP_DecalFont_DrawLine(title_buffer, posX, posY, FONT_SMALL, (JUSTIFY_CENTER | TINY_GREEN));
+	}
 
 
 	DecalFont_DrawLine(
@@ -618,8 +773,6 @@ void PrintCharacterStats()
 	for(i = 0; i < octr->NumDrivers; i++)
 		if(octr->nameBuffer[i][0] == 0)
 			numDead++;
-
-	int posX;
 
 	posX = 0x110;
 	sprintf(message, "Players: %d/8", (octr->NumDrivers-numDead));
@@ -642,8 +795,6 @@ void PrintCharacterStats()
 		if(octr->nameBuffer[i][0] == 0)
 			numDead++;
 
-	int posX;
-
 	posX = 0x110;
 	sprintf(message, "JUGADORES: %d/8", (octr->NumDrivers-numDead));
 	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
@@ -664,8 +815,6 @@ void PrintCharacterStats()
 	for(i = 0; i < octr->NumDrivers; i++)
 		if(octr->nameBuffer[i][0] == 0)
 			numDead++;
-
-	int posX;
 
 	posX = 0x110;
 	sprintf(message, "JOGADORES: %d/8", (octr->NumDrivers-numDead));
@@ -697,7 +846,7 @@ void PrintCharacterStats()
 		int color =
 	octr->boolLockedInEnginee[i] ? PURA_VIOLET : PAPU_YELLOW;
 
-		int posY = 0x60+h;
+		posY = 0x60+h;
 		h += 8;
 
 		posX = 0x110;
@@ -736,7 +885,7 @@ void PrintCharacterStats()
 	}
 
 	posX = 0x11E;
-	int posY = 0xB3;
+	posY = 0xB3;
 #ifdef GASMOX_ENG
 	DecalFont_DrawLine("Gasmoxian is a modified",posX,posY,FONT_SMALL,0);
 	DecalFont_DrawLine("version of OnlineCTR.",posX+0x10,posY+0x8,FONT_SMALL,0);
