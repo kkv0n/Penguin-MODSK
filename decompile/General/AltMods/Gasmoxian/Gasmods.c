@@ -140,8 +140,8 @@ void queuetojoin(){
 
 void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
 {
-    // disable collisions in special 3 
-    if (USE_ITEMLESS) { 
+    // disable collisions in special 3
+    if (USE_ITEMLESS) {
         return;
     }
 	else 
@@ -214,21 +214,35 @@ void RunVehicleSet13(struct Thread* dThread, struct Driver* dOnline)
 	}
 }
 
+//
+void GhostifyWheels(){
+	struct Turbo *turboObj;
+	struct Thread *fireThread;
+	struct GameTracker *gGT = sdata->gGT;
+	struct Icon **ptrIconArray;
+	struct Instance *inst;
 
-void ITEMLESS_MAIN(struct GameTracker* gGT)
+	for (int driverID = 1; driverID < MAX_NUM_PLAYERS; driverID++)	{
+		gGT->drivers[driverID]->wheelSprites = ICONGROUP_GETICONS(gGT->iconGroup[0xC]);
+	}
+}
+
+void GhostifyDrivers()
 {
-	
- for (unsigned char i = 1; i < 8; i++)
- {
-	 
-	 if (gGT->drivers[i] == 0 || gGT->drivers[i] == NULL) continue;
-	
-		gGT->drivers[i]->instSelf->flags |= GHOST_DRAW_TRANSPARENT;
-		
-		gGT->drivers[i]->instSelf->alphaScale = 0xA00;
-		gGT->drivers[i]->wheelSprites = ICONGROUP_GETICONS(gGT->iconGroup[0xc]);
- }
-	
+	struct Turbo *turboObj;
+	struct Thread *fireThread;
+	struct GameTracker *gGT = sdata->gGT;
+	struct Icon **ptrIconArray;
+	struct Instance *inst;
+
+	for (int driverID = 1; driverID < MAX_NUM_PLAYERS; driverID++)
+	{
+		// gGT->drivers[driverID]->wheelSprites = ICONGROUP_GETICONS(gGT->iconGroup[0xC]);
+		inst = gGT->drivers[driverID]->instSelf;
+		if (!inst) { continue; }
+		inst->flags |= 0x60000;
+		inst->alphaScale = 0xA00;
+	}
 }
 
 
@@ -374,49 +388,49 @@ static bool initialized = false;
 extern int NightFilterBrightness;
 extern int NightFilterBlueTint;
 
+void SetGamemodes() {
+	USE_NORMAL = octr->gamemodes[NORMAL];
+	USE_MIRROR = octr->gamemodes[MIRROR];
+	USE_ICY_TRACKS = octr->gamemodes[ICY_TRACKS];
+	USE_ITEMLESS = octr->gamemodes[ITEMLESS];
+	USE_MOON_GRAVITY = octr->gamemodes[MOON_MODE];
+	USE_RETRO_FUELED = octr->gamemodes[RETRO_FUELED];
+	USE_VOID_WORLD = octr->gamemodes[VOID_WORLD];
+	USE_BOSS_RACE = octr->gamemodes[BOSS_RACE];
+	USE_DEMO_CAMERA = octr->gamemodes[DEMO_CAMERA];
+	USE_N_VERTED = octr->gamemodes[N_VERTED];
+	USE_SHORTCUTLESS = octr->gamemodes[SHORTCUTLESS];
+	USE_NIGHT_FILTER = octr->gamemodes[NIGHT] || octr->gamemodes[DARKNESS];
+	USE_ITEM_CHAOS = octr->gamemodes[ITEM_CHAOS];
+	USE_SURVIVAL = octr->gamemodes[SURVIVAL];
+	USE_SURVIVAL_TIMER = octr->gamemodes[SURVIVAL_TIMER];
+}
+
+bool ItsOnlyNormalEnabled(){
+	for (int i = 0; i < sizeof(octr->gamemodes) / sizeof(octr->gamemodes[0]); i++) {
+		if (i != NORMAL && octr->gamemodes[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
 // Code to run once on game init
 void RunGamemodesInitHook() {
     if (init_initialized) return;
     gGT = sdata->gGT;
 
-    // Initialize with the new array of booleans
-    USE_NORMAL = octr->gamemodes[NORMAL];
-    USE_MIRROR = octr->gamemodes[MIRROR];
-    USE_ICY_TRACKS = octr->gamemodes[ICY_TRACKS];
-    USE_ITEMLESS = octr->gamemodes[ITEMLESS];
-    USE_MOON_GRAVITY = octr->gamemodes[MOON_MODE];
-    USE_RETRO_FUELED = octr->gamemodes[RETRO_FUELED];
-    USE_VOID_WORLD = octr->gamemodes[VOID_WORLD];
-    USE_BOSS_RACE = octr->gamemodes[BOSS_RACE];
-    USE_DEMO_CAMERA = octr->gamemodes[DEMO_CAMERA];
-    USE_N_VERTED = octr->gamemodes[N_VERTED];
-    USE_SHORTCUTLESS = octr->gamemodes[SHORTCUTLESS];
-    USE_NIGHT_FILTER = octr->gamemodes[NIGHT] || octr->gamemodes[DARKNESS];
-    USE_ITEM_CHAOS = octr->gamemodes[ITEM_CHAOS];
-    USE_SURVIVAL = octr->gamemodes[SURVIVAL];
-    USE_SURVIVAL_TIMER = octr->gamemodes[SURVIVAL_TIMER];
+    SetGamemodes();
 
     init_initialized = true;
 }
 
+bool room_has_retro_fueled;
+
 // Code to run each frame
 void RunGamemodesUpdateHook() {
     // Update with the new array of booleans
-    USE_NORMAL = octr->gamemodes[NORMAL];
-    USE_MIRROR = octr->gamemodes[MIRROR];
-    USE_ICY_TRACKS = octr->gamemodes[ICY_TRACKS];
-    USE_ITEMLESS = octr->gamemodes[ITEMLESS];
-    USE_MOON_GRAVITY = octr->gamemodes[MOON_MODE];
-    USE_RETRO_FUELED = octr->gamemodes[RETRO_FUELED];
-    USE_VOID_WORLD = octr->gamemodes[VOID_WORLD];
-    USE_BOSS_RACE = octr->gamemodes[BOSS_RACE];
-    USE_DEMO_CAMERA = octr->gamemodes[DEMO_CAMERA];
-    USE_N_VERTED = octr->gamemodes[N_VERTED];
-    USE_SHORTCUTLESS = octr->gamemodes[SHORTCUTLESS];
-    USE_NIGHT_FILTER = octr->gamemodes[NIGHT] || octr->gamemodes[DARKNESS];
-    USE_ITEM_CHAOS = octr->gamemodes[ITEM_CHAOS];
-    USE_SURVIVAL = octr->gamemodes[SURVIVAL];
-    USE_SURVIVAL_TIMER = octr->gamemodes[SURVIVAL_TIMER];
+    SetGamemodes();
 
 	if(octr->gamemodes[NIGHT]){
 		NightFilterBrightness = 64;
@@ -463,11 +477,18 @@ void RunGamemodesUpdateHook() {
             InitDynamicLighting(gGT->level1);
         }
 
+		InitItemChaos(USE_ITEM_CHAOS);
+
 		InitSurvivalMode(USE_SURVIVAL);
 
 		if(!USE_SURVIVAL){
 			InitTimeBasedSurvivalMode(USE_SURVIVAL_TIMER);
 		}
+
+		if (USE_ITEMLESS && !USE_MIRROR)
+			GhostifyWheels();
+
+		room_has_retro_fueled = USE_RETRO_FUELED;
 
         initialized = true;
     }
@@ -497,6 +518,35 @@ void RunGamemodesUpdateHook() {
 	HandleSurvivalMode(USE_SURVIVAL);
 	if(!USE_SURVIVAL){
 		HandleTimeBasedSurvivalMode(USE_SURVIVAL_TIMER);
+	}
+
+	// Convert all drivers to ghosts on itemless
+	// Doesnt work on mirror mode so skip it if enabled
+
+	// This shouldn't need to be called by frame but otherwise transparency
+	// only applies depending on quadblock vcolor
+	if (USE_ITEMLESS && !USE_MIRROR)
+		GhostifyDrivers();
+
+	//If using an oxide item enable retro fueled while using it
+	if(!room_has_retro_fueled){
+		if (driver->superEngineTimer > 0){
+			USE_RETRO_FUELED = true;
+			sdata->gGT->gameMode2 |= CHEAT_TURBOPAD;
+		} else{
+			USE_RETRO_FUELED = false;
+			sdata->gGT->gameMode2 &= ~CHEAT_TURBOPAD;
+		}
+	}
+
+	//If using invisibility make player immune
+	if(driver->invisibleTimer > 0){
+		driver->invincibleTimer = driver->invisibleTimer;
+	}
+
+	// Spring item will be replaced by nothing item with custom behavior
+	if(driver->heldItemID == ITEM_SPRING){
+		driver->heldItemID = ITEM_NOTHING;
 	}
 
 }

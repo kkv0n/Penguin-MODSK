@@ -1,6 +1,8 @@
 #include <common.h>
 #include "../../utils.h"
 
+int numTimesOrbWeaponUsed = 0;
+
 //Rank 0
 char ItemChaos_RNG_itemSetRace1[] = {
 	// 1/20 Bomb (1)
@@ -17,74 +19,76 @@ char ItemChaos_RNG_itemSetRace1[] = {
 char ItemChaos_RNG_itemSetRace2[] = {
     // 5/52 Turbo (0)
     0,0,0,0,0,
-    // 3/52 Bomb (1)
-    1,1,1,
+    // 2/52 Bomb (1)
+    1,1,
     // 5/52 Missile (2)
     2,2,2,2,2,
-    // 14/52 Crate (3)
-    3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+    // 11/52 Crate (3)
+    3,3,3,3,3,3,3,3,3,3,
     // 9/52 Beaker (4)
     4,4,4,4,4,4,4,4,4,
+	// 3/52 Spring (5)
+	14,14,14,
     // 7/52 Shield (6)
     6,6,6,6,6,6,6,6,
     // 3/52 Mask (7)
     7,7,7,
     // 3/52 Warp Orb (9)
     9,9,9,
-    // 2/52 Invisibility (12)
-    12,12
+    // 3/52 Invisibility (12)
+    12,12,12
 };
 
 // Rank 3,4
 char ItemChaos_RNG_itemSetRace3[] = {
-    // 2/20 Turbo (0)
-    0,0,
+    // 1/20 Turbo (0)
+    0,
     // 3/20 Missile (2)
     2,2,2,
-    // 4/20 Crate (3)
-    3,3,3,3,
-    // 2/20 Beaker (4)
-    4,4,
-    // 3/20 Shield (6)
-    6,6,6,
-    // 2/20 Mask (7)
-    7,7,
+    // 1/20 Crate (3)
+    3,
+	// 2/20 Spring (5)
+	14,14,
+    // 2/20 Shield (6)
+    6,6,
+    // 3/20 Mask (7)
+    7,7,7,7,
 	// 1/20 Clock (8)
     8,
-    // 3/20 Warp Orb (9)
-    9,9,9
+    // 4/20 Warp Orb (9)
+    9,9,9,9,
+	// 2/20 Invincibility (12)
+	12,12
 };
 
 // Rank 5,6
 char ItemChaos_RNG_itemSetRace4[] = {
-    // 2/20 Turbo (0)
-    0,0,
-    // 1/20 Bomb (1)
-    1,
-    // 2/20 Missile (2)
-    2,2,
+    // 1/20 Turbo (0)
+    0,
+    // 1/20 Missile (2)
+    2,
+	// 1/20 Spring (5)
+	14,
     // 6/20 Mask (7)
     7,7,7,7,7,7,
     // 2/20 Clock (8)
     8,8,
     // 5/20 Warp Orb (9)
     9,9,9,9,9,
-    // 2/20 Super Engine (13)
-    13,13
+    // 4/20 Super Engine (13)
+    13,13,13,13
 };
 
 // Rank 7
 char ItemChaos_RNG_itemSetBattleDefault[] = {
-    // 1/20 Turbo (0)
-    0,
-    // 7/20 Mask (7)
-    7,7,7,7,7,7,7,
+    // 6/20 Mask (7)
+    7,7,7,7,7,7,
     // 2/20 Clock (8)
     8,8,
-    // 7/20 Warp Orb (9)
-    9,9,9,9,9,9,9,
-    // 3/20 Super Engine (13)
-    13,13,13
+    // 6/20 Warp Orb (9)
+    9,9,9,9,9,9,
+    // 5/20 Super Engine (13)
+    13,13,13,13,13
 };
 
 extern char* charPtr[7];
@@ -196,6 +200,38 @@ void ItemChaosSetHeldItem(struct Driver * driver){
 			driver->numHeldItems = (rand() % 5 == 0) ? 2 : 1;
 		}
 	}
+
+	if(driver->heldItemID == ITEM_NOTHING){
+		// 60% chance of 1, 25% chance of 2, 15% chance of 3
+		driver->numHeldItems = (rand() % 100 < 60) ? 1 : (rand() % 100 < 85) ? 2 : 3;
+	}
+
+	// Restrict orbs and clock abuse
+	// This is to avoid players to keep smashing crates and get constant items
+
+	if(driver->heldItemID == ITEM_WARP_ORB){
+		if(numTimesOrbWeaponUsed > max(gGT->numLaps + 1, 7)){
+			driver->heldItemID = ITEM_TURBO_BOOST;
+			return;
+		}
+	}
+
+	if(driver->heldItemID == ITEM_N_TROPY_CLOCK){
+		if(driver->numTimesClockWeaponUsed >  max(gGT->numLaps, 4)){
+			driver->heldItemID = ITEM_TURBO_BOOST;
+			return;
+		}
+	}
+}
+
+void InitItemChaos(bool enabled) {
+    if(!enabled) return;
+
+	struct Driver* driver = gGT->drivers[0];
+    if(driver == NULL) return;
+
+	driver->numTimesClockWeaponUsed = 0;
+    numTimesOrbWeaponUsed = 0;
 }
 
 void HandleItemChaos(bool enabled){

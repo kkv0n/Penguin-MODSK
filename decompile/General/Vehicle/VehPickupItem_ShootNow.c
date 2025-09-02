@@ -511,6 +511,18 @@ RunMineCOLL:
 				goto RunMineCOLL;
 			}
 			break;
+		
+		//Custom spring item
+		case ITEM_NOTHING:
+			d->forcedJump_trampoline = 2;
+            d->jump_unknown = 0x180;
+            d->jump_InitialVelY = d->const_JumpForce * 12;
+			if(d->numWumpas >= 10)
+				d->jump_InitialVelY = d->const_JumpForce * 18;
+
+			DECOMP_OtherFX_Play(fx_weapon_spring, 1);
+
+			break;
 
 		// Shield Bubble
 		case 6:
@@ -623,11 +635,11 @@ int lastdriver = octr->NumDrivers - 1;
 				{
 					victim->clockReceive = hurtVal;
 					//if someone uses a clock then delete items of victims
-					if(!USE_ITEM_CHAOS)
-					{
-						victim->heldItemID = ITEM_NONE;
-						victim->numHeldItems = 0;
-					}
+					// if(!USE_ITEM_CHAOS)
+					// {
+					// 	victim->heldItemID = ITEM_NONE;
+					// 	victim->numHeldItems = 0;
+					// }
 				}
 				}
 			}
@@ -652,6 +664,9 @@ int lastdriver = octr->NumDrivers - 1;
 
 		// Warpball
 		case 9:
+
+			extern int numTimesOrbWeaponUsed;
+			numTimesOrbWeaponUsed++;
 
 			dInst = d->instSelf;
 			GAMEPAD_ShockFreq(d, 8, 0);
@@ -782,9 +797,9 @@ int lastdriver = octr->NumDrivers - 1;
 		// Super Oxide Engine
 		case 0xd: {
 //more engine duration
-			int engine = 0x3c00;
+			int engine = SECONDS(12);
 			if(d->numWumpas >= 10)
-				engine = 0x7530;
+				engine = SECONDS(18);
 
 			d->superEngineTimer = engine;
 			} break;
