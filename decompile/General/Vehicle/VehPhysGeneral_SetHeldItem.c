@@ -259,9 +259,15 @@ if (gGT->gameMode1 & ARCADE_MODE)
 	{
 		if (driver->heldItemID == ITEM_INVISIBILITY || driver->heldItemID == ITEM_NONE || driver->heldItemID == ITEM_SUPER_ENGINE)
 		{
-			driver->heldItemID = ITEM_TURBO;
+			driver->heldItemID = ITEM_TURBO_BOOST;
 		}
 	}
+
+	// If shortcutless ban nothing
+	if (USE_SHORTCUTLESS && driver->heldItemID == ITEM_NOTHING) {
+		driver->heldItemID = ITEM_TURBO_BOOST;
+	}
+
 
 	if (octr->warpclock == 0) 
 	{
