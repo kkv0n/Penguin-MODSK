@@ -641,11 +641,13 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			extern void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type);
 
 			//Randomly select a WEATHER_TYPE (WEATHER_RAIN 2%, WEATHER_SNOW 1%)
-			int randVal = rand() % 100;
-			if (randVal < 2) {
-				AddWeather(gGT->level1, WEATHER_RAIN);
-			} else if (randVal < 3) {
-				AddWeather(gGT->level1, WEATHER_SNOW);
+			if(gGT->levelID != INTRO_POLAR){
+				int randVal = rand() % 100;
+				if (randVal < 2) {
+					AddWeather(gGT->level1, WEATHER_RAIN);
+				} else if (randVal < 3) {
+					AddWeather(gGT->level1, WEATHER_SNOW);
+				}
 			}
 
 			////////////////////////
