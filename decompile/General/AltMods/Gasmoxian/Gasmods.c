@@ -485,10 +485,15 @@ void RunGamemodesUpdateHook() {
 			InitTimeBasedSurvivalMode(USE_SURVIVAL_TIMER);
 		}
 
-		if (USE_ITEMLESS && !USE_MIRROR)
+		if(USE_ITEMLESS && !USE_MIRROR)
 			GhostifyWheels();
 
 		room_has_retro_fueled = USE_RETRO_FUELED;
+
+		if(!USE_DEMO_CAMERA){
+			extern bool DemoCameraSpectator;
+			DemoCameraSpectator = false;
+		} 
 
         initialized = true;
     }
