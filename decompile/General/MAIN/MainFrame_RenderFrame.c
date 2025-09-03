@@ -1854,9 +1854,9 @@ if (gGT->drivers[0] != NULL && gGT->drivers[0]->heldItemID != ITEM_NONE && gGT->
 void menu_tittle();
 menu_tittle();
 
-//mirror mode enabled
-	void OnlineMirrorMode(u_long* ot);
-	OnlineMirrorMode(ot);
+// mirror mode
+extern void HandleMirrorMode(u_long* ot, bool enabled);
+HandleMirrorMode(ot, USE_MIRROR);
 
 #endif
 

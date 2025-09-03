@@ -1,9 +1,14 @@
+// From MirrorModeV2 by Niko
+// https://github.com/CTR-tools/CTR-ModSDK/tree/94abf1a4753ed7de60dcc0877ab7c1cb74d03a5e/mods/Modules/MirrorModeV2
+
 #include <common.h>
-#include "global.h"
-#include "utils.h"
+#include "../../utils.h"
+
+void DF_ParseOT(u_long* startOT);
+void HandleMirrorMode(u_long* ot, bool enabled);
 
 #define COLOR 1
-void ParseOT(u_long* startOT)
+void DF_ParseOT(u_long* startOT)
 {
   u_int* header;
 
@@ -12,7 +17,7 @@ void ParseOT(u_long* startOT)
   int centerX;
   int centerY;
   int backup;
-
+  
   unsigned int endOT;
   int windowWidth;
 
@@ -24,10 +29,10 @@ void ParseOT(u_long* startOT)
 	// dont flip TitleFlag
 	startOT-=4;
   }
-
+  
   // stop when ptrOT-4 is in tag, so ptrOT-0 is flipped
   endOT = (unsigned int)gGT->pushBuffer[gGT->numPlyrCurrGame-1].ptrOT-4;
-
+  
   windowWidth = gGT->pushBuffer[0].rect.w;
 
   // divide by two (more zoom out)
@@ -111,7 +116,7 @@ void ParseOT(u_long* startOT)
 	  ((POLY_FT3*)header)->v0 = ((POLY_FT3*)header)->v1;
 	  ((POLY_FT3*)header)->v1 = backup;
       break;
-
+	  
 	// 0x30 PolyG3
     case 0x30:
       ((POLY_G3*)header)->x0 = (windowWidth - ((POLY_G3*)header)->x0);
@@ -197,7 +202,7 @@ void ParseOT(u_long* startOT)
 	  ((POLY_G4*)header)->b2 = backup;
 #endif
 	  break;
-
+	  
 	// 0x2C PolyFT4
     case 0x2c:
       ((POLY_FT4*)header)->x0 = (windowWidth - ((POLY_FT4*)header)->x0);
@@ -340,39 +345,11 @@ void ParseOT(u_long* startOT)
   };
 }
 
-void SwapDirection(u_int toggle)
+void HandleMirrorMode(u_long* ot, bool enabled)
 {
-	char normal[] = {BTN_LEFT, BTN_RIGHT};
-	char swap[] = {BTN_RIGHT, BTN_LEFT};
-	for (char i = 0; i < 2; i++)
-		data.gamepadMapBtn[i + 2].output = (toggle) ? swap[i] : normal[i];
-}
-//mirror mode enabled
-void OnlineMirrorMode(u_long* startOT)
-{
-	// restore default
-	data.hud_1P_P1[0xC].x = 286;
-	// do NOT set 2p3p4p, this is online only
+	if(!enabled) return;
 
-	SwapDirection(0);
-
-	// no special event
-	//if the room is special 1 then mirror mode will be enabled
-	
-	if (!USE_MIRROR)
-	{
-		return;
-	}
-	// no mirroring on this track
-	if (sdata->gGT->levelID >= INTRO_RACE_TODAY)
-		return;
-
-	// flip the wumpa shine manually
-	// I know this sucks, whatever
-	data.hud_1P_P1[0xC].x = 0xAA;
-	// do NOT set 2p3p4p, this is online only
-
-	SwapDirection(1);
-
-	ParseOT(startOT);
+	// only mirror track levels
+	if (USE_MIRROR && (sdata->gGT->levelID < INTRO_RACE_TODAY))
+		DF_ParseOT(ot);
 }

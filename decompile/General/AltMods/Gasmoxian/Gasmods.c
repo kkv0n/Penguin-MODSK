@@ -19,11 +19,14 @@
 #include "bluefire.c"
 #include "changecamera.c"
 #include "setnextcamera.c"
-#include "zMirrorMode.c"
 #include "spectator_icons.c"
 #include "pMoonGravity.c"
 
 // Unlimited Gamemodes //////////////////////////////////////////
+
+//Mirror
+#include "GameModes/MirrorMode/mirror.c"
+#include "GameModes/MirrorMode/mirror_pad_remap.c"
 
 //Shortcutless
 #include "GameModes/Shortcutless/shortcutless.c"
@@ -443,6 +446,11 @@ void RunGamemodesUpdateHook() {
 		NightFilterBlueTint = 0;
 	}
 
+	// Restore d-pad input
+    // So mirror mode remap doesnt apply on menus
+    if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
+        RestoreDpadMapping();
+
     //Only run if game is not paused
     if ((gGT->gameMode1 & PAUSE_ALL) != 0) return;
 
@@ -493,7 +501,14 @@ void RunGamemodesUpdateHook() {
 		if(!USE_DEMO_CAMERA){
 			extern bool DemoCameraSpectator;
 			DemoCameraSpectator = false;
-		} 
+		}
+		
+		//If mirror mode flip wumpa shine
+        if(USE_MIRROR){
+            data.hud_1P_P1[0xC].x = 0xAA;
+        }else{
+	        data.hud_1P_P1[0xC].x = 286;
+        }
 
         initialized = true;
     }
@@ -503,6 +518,8 @@ void RunGamemodesUpdateHook() {
     }
     // ---------------------------------------------------------------------------------------------
     
+	HandleMirrorInput();
+
 	// Handle shortcutless logic, detect and prevent shortcuts
     if(!USE_N_VERTED){
         HandleShortcutless(USE_SHORTCUTLESS);
