@@ -30,6 +30,9 @@ void DECOMP_VehFire_Increment(struct Driver* driver, int reserves, u_int type, i
 	struct Instance* turboInst2;
 
 	struct GameTracker* gGT = sdata->gGT;
+
+	// If retro fueled and its a turbo pad give 1 second reserves
+	reserves = (USE_RETRO_FUELED && ((type & (TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD)) != 0)) ? 960 : reserves;
 	if
 	(
 		// if this is a turbo pad
