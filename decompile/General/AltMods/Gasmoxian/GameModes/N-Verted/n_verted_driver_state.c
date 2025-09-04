@@ -41,7 +41,8 @@ bool updateDriverFloatState(unsigned char driverIndex, struct Driver* driver) {
         
         // Give player sacred fire while waiting for jump
         if (driver) {
-            int fire = 0x100;
+            int fire = SACRED;
+            if(USE_RETRO_FUELED) fire = USF;
             VehFire_Increment(driver, 960, (TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD), fire);
         }
 
@@ -83,7 +84,8 @@ bool updateDriverFloatState(unsigned char driverIndex, struct Driver* driver) {
                     OtherFX_Play_Echo(0x09, 0, 1); // Play spring sound
                     
                     // Give sacred fire on first frame
-                    int fire = 0x100;
+                    int fire = SACRED;
+                    if(USE_RETRO_FUELED) fire = USF;
                     VehFire_Increment(driver, 960, (TURBO_PAD | FREEZE_RESERVES_ON_TURBO_PAD), fire);
                 }
                 
