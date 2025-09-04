@@ -16,13 +16,15 @@
 #include "drawoverheadnames.c"
 #include "drawoverheadcalibration.c"
 #include "updatetimes.c"
-#include "bluefire.c"
 #include "changecamera.c"
 #include "setnextcamera.c"
 #include "spectator_icons.c"
 #include "pMoonGravity.c"
 
 // Unlimited Gamemodes //////////////////////////////////////////
+
+// Retro Fueled
+#include "GameModes/RetroFueled/retro_fueled_bluefire.c"
 
 //Mirror
 #include "GameModes/MirrorMode/mirror.c"
@@ -518,6 +520,15 @@ void RunGamemodesUpdateHook() {
     }
     // ---------------------------------------------------------------------------------------------
     
+	// Handle retro fueled bluefire (visuals)
+    // Rest of retro fueled logic is on physlinear and vehfire
+    HandleBlueFire(USE_RETRO_FUELED);
+	if(USE_RETRO_FUELED){
+		sdata->gGT->gameMode2 |= CHEAT_TURBOPAD;
+	}else{
+		sdata->gGT->gameMode2 &= ~CHEAT_TURBOPAD;
+	}
+
 	HandleMirrorInput();
 
 	// Handle shortcutless logic, detect and prevent shortcuts
@@ -554,10 +565,8 @@ void RunGamemodesUpdateHook() {
 	if(!room_has_retro_fueled){
 		if (driver->superEngineTimer > 0){
 			USE_RETRO_FUELED = true;
-			sdata->gGT->gameMode2 |= CHEAT_TURBOPAD;
 		} else{
 			USE_RETRO_FUELED = false;
-			sdata->gGT->gameMode2 &= ~CHEAT_TURBOPAD;
 		}
 	}
 

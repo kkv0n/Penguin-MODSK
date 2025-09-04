@@ -8,7 +8,7 @@ extern bool USE_MIRROR;
 extern bool USE_ICY_TRACKS; // Not adapted yet
 extern bool USE_ITEMLESS; // Not adapted yet
 extern bool USE_MOON_GRAVITY; // Not adapted yet
-extern bool USE_RETRO_FUELED; // Not adapted yet
+extern bool USE_RETRO_FUELED;
 extern bool USE_VOID_WORLD; // Not adapted yet
 extern bool USE_BOSS_RACE; // Not adapted yet
 extern bool USE_DEMO_CAMERA; // Not adapted yet

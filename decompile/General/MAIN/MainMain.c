@@ -548,12 +548,6 @@ FinishLoading:
 
 				DECOMP_MainFrame_RenderFrame(gGT, gGS);
 				
-				#if defined(USE_GASMOXIAN) && defined(USE_RETROFUELED)
-				//swap fire clut for retro fueled
-                void Retro_BF();
-				Retro_BF();
-				#endif
-				
 #ifdef REBUILD_PC
 				PsyX_EndScene();
 				int NikoCalcFPS();
