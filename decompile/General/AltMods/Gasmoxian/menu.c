@@ -34,7 +34,7 @@ char* engine_names[] = {
 	"BALANCED",
 	"ACCEL",
 	"SPEED",
-		"TURN"
+	"TURN"
 	#elif defined(GASMOX_ES)
 	"BALANCEADO",
 	"ACELERACION",
@@ -595,7 +595,11 @@ void UpdateMenu()
 	if (pressedX == 1)
 	{
 		pressedX = 0;
+
 		menu.rowSelected = 0;
+		// Set default engine selection based on selected character
+		if (label == 5 - 1)
+			menu.rowSelected = data.MetaDataCharacters[data.characterIDs[octr->DriverID]].engineID;
 	}
 
 	RECTMENU_Show(&menu);
