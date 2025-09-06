@@ -19,7 +19,6 @@
 #include "changecamera.c"
 #include "setnextcamera.c"
 #include "spectator_icons.c"
-#include "pMoonGravity.c"
 
 // Unlimited Gamemodes //////////////////////////////////////////
 
@@ -37,6 +36,9 @@
 #include "GameModes/N-Verted/n_verted.c"
 #include "GameModes/N-Verted/n_verted_driver_state.c"
 #include "GameModes/N-Verted/n_verted_lap_skip_prevention.c"
+
+//Stats Modifiers (Gravity, Speed, etc...)
+#include "GameModes/stats_modifiers.c"
 
 //Level Modifiers
 #include "GameModes/LevelModifiers/level_modifiers.c"
@@ -504,6 +506,10 @@ void RunGamemodesUpdateHook() {
 			extern bool DemoCameraSpectator;
 			DemoCameraSpectator = false;
 		}
+
+		// Stats modifiers
+        SetGravity(USE_MOON_GRAVITY ? 369 : 900);
+        ApplyModifiers();
 		
 		//If mirror mode flip wumpa shine
         if(USE_MIRROR){
@@ -519,15 +525,42 @@ void RunGamemodesUpdateHook() {
         initialized = false;
     }
     // ---------------------------------------------------------------------------------------------
+
+	//Disable super engine if player is in first place (check all drivers)
+	for (int i = 0; i < MAX_NUM_PLAYERS; i++) {
+		struct Driver* d = sdata->gGT->drivers[i];
+		if (!d) continue;
+		if (d->driverRank < 1 && d->superEngineTimer > 0) {
+			d->superEngineTimer = 0;
+		}
+	}
+	//If using an oxide item enable retro fueled while using it
+	if(!room_has_retro_fueled){
+		USE_RETRO_FUELED = driver->superEngineTimer > 0;
+	}
+	//If first place and helding an oxide item remove it
+	if (driver->driverRank < 1 && driver->heldItemID == ITEM_SUPER_ENGINE) {
+		driver->heldItemID = ITEM_NONE;
+	}
+
+	//If using invisibility make player immune
+	if(driver->invisibleTimer > 0){
+		driver->invincibleTimer = driver->invisibleTimer;
+	}
+
+	// Spring item will be replaced by nothing item with custom behavior
+	if(driver->heldItemID == ITEM_SPRING){
+		driver->heldItemID = ITEM_NOTHING;
+	}
     
 	// Handle retro fueled bluefire (visuals)
     // Rest of retro fueled logic is on physlinear and vehfire
-    HandleBlueFire(USE_RETRO_FUELED);
 	if(USE_RETRO_FUELED){
 		sdata->gGT->gameMode2 |= CHEAT_TURBOPAD;
 	}else{
 		sdata->gGT->gameMode2 &= ~CHEAT_TURBOPAD;
 	}
+	HandleBlueFire(USE_RETRO_FUELED);
 
 	HandleMirrorInput();
 
@@ -560,25 +593,6 @@ void RunGamemodesUpdateHook() {
 	// only applies depending on quadblock vcolor
 	if (USE_ITEMLESS && !USE_MIRROR)
 		GhostifyDrivers();
-
-	//If using an oxide item enable retro fueled while using it
-	if(!room_has_retro_fueled){
-		if (driver->superEngineTimer > 0){
-			USE_RETRO_FUELED = true;
-		} else{
-			USE_RETRO_FUELED = false;
-		}
-	}
-
-	//If using invisibility make player immune
-	if(driver->invisibleTimer > 0){
-		driver->invincibleTimer = driver->invisibleTimer;
-	}
-
-	// Spring item will be replaced by nothing item with custom behavior
-	if(driver->heldItemID == ITEM_SPRING){
-		driver->heldItemID = ITEM_NOTHING;
-	}
 
 }
 
