@@ -98,7 +98,7 @@ extern char* countryNames[4];
 bool initString = true;
 //oxide icon
 
-void ShowCharacterIcon(int characterID, int x, int y)
+void ShowCharacterIcon(int characterID, int x, int y, int scale)
 {
 	if (octr->boolClientBusy || driver->heldItemID == 0x7 || driver->heldItemID == 0xe || driver->heldItemID == 0x6)
 	{
@@ -107,11 +107,7 @@ void ShowCharacterIcon(int characterID, int x, int y)
     
     struct Icon* icon = sdata->gGT->ptrIcons[data.MetaDataCharacters[characterID].iconID];
 
-    
     Point pos = MakePoint(x, y);
-    int scale = FP(1); 
-
-    
     DECOMP_UI_DrawDriverIcon(icon, pos, sdata->gGT->pushBuffer_UI.ptrOT, 1, scale, MakeColor(0x80, 0x80, 0x80));
 }
 
@@ -131,7 +127,7 @@ DecalFont_DrawLine("BIENVENIDO,GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | O
 DecalFont_DrawLine("BEMVINDO AO GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
 #endif
 	//print oxide icon
-	ShowCharacterIcon(15, 235, 82);
+	ShowCharacterIcon(15, 235, 82, FP(1));
 
 	MenuWrites_ServerCountry();
 
@@ -177,7 +173,7 @@ void StatePS1_Launch_PickRoom()
 {
 	DecalFont_DrawLine("GASMOXIAN", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
 	// DECOMP_DecalFont_DrawLine("PENTA3 - ANZU - ANFROST", 25, 178, FONT_SMALL, PAPU_YELLOW);
-	ShowCharacterIcon(15, 120, 16);
+	ShowCharacterIcon(15, 120, 16, FP(1));
 	MenuWrites_ServerRoom();
 
 	// If already picked
