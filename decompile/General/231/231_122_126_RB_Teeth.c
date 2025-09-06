@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../AltMods/Gasmoxian/utils.h"
 //tiger temple door
 //tiger temple shortcut
 //tiger temple bomb
@@ -11,7 +12,7 @@ void DECOMP_RB_Teeth_LInB(struct Instance* inst)
   
   // If in relic race
   #ifdef USE_GASMOXIAN
-  if((sdata->gGT->gameMode1 & (TIME_TRIAL | RELIC_RACE)) != 0)
+  if(USE_ITEMLESS)
   #else
   if ((sdata->gGT->gameMode1 & RELIC_RACE) != 0) 
   #endif
