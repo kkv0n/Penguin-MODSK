@@ -77,6 +77,7 @@ char ItemChaos_RNG_itemSetRace4[] = {
     9,9,9,9,9,
     // 4/20 Super Engine (13)
     13,13,13,13
+	// 13,13,13,13,13,13,13,13,13,13,7,7,7,7,7,7,7,7,7,7 // For testing
 };
 
 // Rank 7
