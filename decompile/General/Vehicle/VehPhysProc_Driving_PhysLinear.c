@@ -984,19 +984,11 @@ CheckJumpButtons:
 				{
 					driver->actionsFlagSet = uVar20;
 #ifdef USE_GASMOXIAN
-					// fire level, depending on numWumpa & driverRank
-					if (driver->driverRank >= 1) {
-	
+					// fire level, depending on numWumpa
 					superEngineFireLevel = MASK_SPEED;
 					if (driver->numWumpas > 9)
 						superEngineFireLevel = SUPER_ENGINE_GMOX;
-					}
-					else
-					{
-					//super oxide engine is funny but need an nerf
-					driver->superEngineTimer = 0;
-						
-					}
+
 					
 #else
 	
