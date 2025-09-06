@@ -162,7 +162,7 @@ int customicon = (d->heldItemID == ITEM_NOTHING) ? 10 : (d->heldItemID == ITEM_I
 		if (d->heldItemID == ITEM_NOTHING || d->heldItemID >= ITEM_INVISIBILITY && d->heldItemID <= ITEM_SUPER_ENGINE)
 		{
 			
-			ShowCharacterIcon(customicon , posX, posY);
+			ShowCharacterIcon(customicon , posX, posY, FP(1));
 		}
 		else
 		{
@@ -183,19 +183,20 @@ int customicon = (d->heldItemID == ITEM_NOTHING) ? 10 : (d->heldItemID == ITEM_I
 
 	extern bool air_throw;
 	if(air_throw){
-		DECOMP_DecalHUD_DrawWeapon(
-			// pointer to icon, from array of icon pointers
-			sdata->gGT->ptrIcons[data.MetaDataCharacters[KOMODO_JOE].iconID],
+		ShowCharacterIcon(KOMODO_JOE, posX + 38, posY + 17, FP(0.5));
+		// DECOMP_DecalHUD_DrawWeapon(
+		// 	// pointer to icon, from array of icon pointers
+		// 	sdata->gGT->ptrIcons[data.MetaDataCharacters[KOMODO_JOE].iconID],
 		
-			(int)(posX + 38),(int)(posY + 20),
+		// 	(int)(posX + 38),(int)(posY + 20),
 		
-			// PrimMem
-			&sdata->gGT->backBuffer->primMem,
+		// 	// PrimMem
+		// 	&sdata->gGT->backBuffer->primMem,
 		
-			// OTMem
-			sdata->gGT->pushBuffer_UI.ptrOT,
+		// 	// OTMem
+		// 	sdata->gGT->pushBuffer_UI.ptrOT,
 		
-			TRANS_50_DECAL,FP(0.50),0);
+		// 	TRANS_50_DECAL,FP(0.50),0);
 	}
 #else
   DECOMP_DecalHUD_DrawWeapon(
