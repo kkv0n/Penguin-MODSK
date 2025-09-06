@@ -59,3 +59,44 @@ void EndOfRace_Icons()
     const RECT bgRect = {.x = 0, .y = yStart - rectSpace, .w = 512, .h = rectSpace * 2 + iconHeight * rectHeightMultiplier - 3};
     DECOMP_RECTMENU_DrawInnerRect(&bgRect, 0, sdata->gGT->backBuffer->otMem.startPlusFour);
 }
+
+void EndOfRace_Icons_Survival()
+{
+    const int playersPerRow = 4;
+    const int rectSpace = 5;
+    const int iconSpacing = 126;
+    const int iconHeight = 28;
+    const int xStart = 0;
+    const int yStart = 20;
+    const int scale = FP(1);
+    int playersFinished = 0;
+    int rectHeightMultiplier = 1;
+    Point pos = MakePoint(xStart, yStart);
+
+    for (int i = 0; i < octr->NumDrivers; i++)
+    {
+        int index = octr->raceStats[i].slot;
+        if (octr->nameBuffer[index][0] == 0) { continue; }
+
+        struct Icon * icon = sdata->gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[index]].iconID];
+        char racePos = i + '1';
+
+        // Draw position and name only
+        DECOMP_DecalFont_DrawLineStrlen(&racePos, 1, pos.x + 27, pos.y, FONT_SMALL, RED);
+        DECOMP_DecalFont_DrawLineStrlen(octr->nameBuffer[index], NAME_LEN, pos.x + 38, pos.y + 1, FONT_SMALL, index == 0 ? OXIDE_LIGHT_GREEN : ORANGE);
+
+        // Draw driver icon
+        DECOMP_UI_DrawDriverIcon(icon, pos, sdata->gGT->pushBuffer_UI.ptrOT, 1, scale, MakeColor(0x80, 0x80, 0x80));
+
+        pos.x += iconSpacing;
+        playersFinished++;
+        if (playersFinished == playersPerRow)
+        {
+            pos.x = xStart;
+            pos.y += iconHeight;
+        }
+        else if (playersFinished > playersPerRow) { rectHeightMultiplier = 2; }
+    }
+    const RECT bgRect = {.x = 0, .y = yStart - rectSpace, .w = 512, .h = rectSpace * 2 + iconHeight * rectHeightMultiplier - 3};
+    DECOMP_RECTMENU_DrawInnerRect(&bgRect, 0, sdata->gGT->backBuffer->otMem.startPlusFour);
+}

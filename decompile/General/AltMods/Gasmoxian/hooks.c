@@ -207,13 +207,17 @@ void OnlineEndOfRace()
 	
 	finishracetimer();
 	EndOfRace_Camera();
-	EndOfRace_Icons();
+	if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
+		EndOfRace_Icons_Survival();
+	}else{
+		EndOfRace_Icons();
+	}
 
 
 	if (HasRaceEnded())
 	{
 
-shouldExecuteSpecText = 0;
+		shouldExecuteSpecText = 0;
 
 	}
 
