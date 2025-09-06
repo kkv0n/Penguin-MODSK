@@ -6,10 +6,10 @@
 extern bool USE_NORMAL;
 extern bool USE_MIRROR;
 extern bool USE_ICY_TRACKS; // Not adapted yet
-extern bool USE_ITEMLESS; // Not adapted yet
-extern bool USE_MOON_GRAVITY; // Not adapted yet
+extern bool USE_ITEMLESS;
+extern bool USE_MOON_GRAVITY;
 extern bool USE_RETRO_FUELED;
-extern bool USE_VOID_WORLD; // Not adapted yet
+extern bool USE_VOID_WORLD;
 extern bool USE_BOSS_RACE; // Not adapted yet
 extern bool USE_DEMO_CAMERA; // Not adapted yet
 
@@ -55,8 +55,8 @@ enum FIRE_LEVEL {
 	ITEM_TURBO = 0x80,
 	SACRED = 0x100, //70
 	MASK_SPEED = 0x200, //77
-	SUPER_TURBO_GMOX = 0x250,
-	SUPER_ENGINE_GMOX = 0x400, //93
+	SUPER_TURBO_GMOX = 0x250, // 80
+	SUPER_ENGINE_GMOX = 0x380, 
 	USF = 0x800 //100
 };
 
