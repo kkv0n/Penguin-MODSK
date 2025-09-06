@@ -490,7 +490,6 @@ void MenuWrites_Events()
     // Allow up to 2 pages of gamemodes
     pageMax = 1;
     
-    // Now we're done with the Events menu when Triangle is pressed
     OnPressX_SetLock = &octr->boolLockedInSpecial;
     
     // Handle Triangle button to toggle modes
@@ -688,6 +687,8 @@ void RECTMENU_OnPressX(struct RectMenu* b)
         
         // Reset page number for next menu
         octr->PageNumber = 0;
+
+		pressedX = 1;
         
         return;
     }
