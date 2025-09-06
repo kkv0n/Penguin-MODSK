@@ -259,26 +259,34 @@ void DECOMP_UI_DrawRankedDrivers(void)
 
 		  #ifdef USE_GASMOXIAN
 
-		  	// If player its using a mask draw mask icon next to the player using it 
+		  	// If player its using a mask or super engine, draw item icon next to the character icon
 			struct Driver* d = gGT->drivers[iVar14];
-			if((d->actionsFlagSet & 0x00800000) != 0 && d->kartState != KS_MASK_GRABBED && d->kartState != KS_ENGINE_REVVING){
-				int iconIndex = DECOMP_VehPickupItem_MaskBoolGoodGuy(d) ? ITEM_MASK + 5 : 0x32;
+
+			bool usingMask = (d->actionsFlagSet & 0x00800000) != 0 && d->kartState != KS_MASK_GRABBED && d->kartState != KS_ENGINE_REVVING;
+			bool usingSuperEngine = d->superEngineTimer > 0;
+
+			int iconIndex;
+			if(usingSuperEngine){
+				// iconIndex = data.MetaDataCharacters[NITROS_OXIDE].iconID;
+				extern void ShowCharacterIcon(int characterID, int x, int y, int scale);
+				ShowCharacterIcon(
+					NITROS_OXIDE,
+					(int)(pos.x - 12),(int)(pos.y),
+					FP(0.5)
+				);
+			}
+			else if(usingMask){
+				iconIndex = DECOMP_VehPickupItem_MaskBoolGoodGuy(d) ? ITEM_MASK + 5 : 0x32;
 				DECOMP_DecalHUD_DrawWeapon(
 					// pointer to icon, from array of icon pointers
 					sdata->gGT->ptrIcons[iconIndex],
-
 					(int)(pos.x - 10),(int)(pos.y),
-				
 					// PrimMem
 					&sdata->gGT->backBuffer->primMem,
-				
 					// OTMem
 					sdata->gGT->pushBuffer_UI.ptrOT,
-				
 					TRANS_50_DECAL,
-					
-					FP(0.40),
-					
+					FP(0.4),
 					1
 				);
 			}
