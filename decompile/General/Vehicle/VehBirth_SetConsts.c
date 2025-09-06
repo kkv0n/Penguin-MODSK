@@ -2,7 +2,6 @@
 
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
-extern void moongravity();
 #endif
 
 void DECOMP_VehBirth_SetConsts(struct Driver* driver)
@@ -20,9 +19,6 @@ unsigned char driverID = driver->driverID;
 //engine selection
 int engineID = octr->enginetype[driverID];
 	
- 
-//moon mode event
-moongravity();
 
 #else
 
