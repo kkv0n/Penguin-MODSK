@@ -491,6 +491,8 @@ void RunGamemodesUpdateHook() {
 
 		InitItemChaos(USE_ITEM_CHAOS);
 
+		InitBossRace(USE_BOSS_RACE);
+
 		InitSurvivalMode(USE_SURVIVAL);
 
 		if(!USE_SURVIVAL){
@@ -517,6 +519,8 @@ void RunGamemodesUpdateHook() {
         }else{
 	        data.hud_1P_P1[0xC].x = 286;
         }
+
+		air_throw = false;
 
         initialized = true;
     }
@@ -577,8 +581,28 @@ void RunGamemodesUpdateHook() {
         HandleDynamicLighting(gGT->level1);
     }
 
+	//Handle air throw (komodo TNTs)
+	if(
+		// driver->heldItemID == ITEM_NONE // If no item is held
+
+		// If not holding tnt or beaker
+		(driver->heldItemID != ITEM_EXPLOSIVE_CRATE && driver->heldItemID != ITEM_N_BRIO_BEAKER) 
+		// If hit a red potion
+		|| driver->thCloud != NULL
+
+		// If rolling item
+		|| (driver->driverRank > 0 && gGT->gameMode1 & ROLLING_ITEM)
+	){
+		air_throw = false;
+	}
+	extern int bossflag;
+	bossflag = air_throw ? 2 : 0;
+
 	// Handle item chaos logic
 	HandleItemChaos(USE_ITEM_CHAOS);
+
+	// Handle boss race logic
+	HandleBossRace(USE_BOSS_RACE);
 
 	// Handle survival mode logic
 	HandleSurvivalMode(USE_SURVIVAL);

@@ -241,19 +241,119 @@ void HandleItemChaos(bool enabled){
     struct Driver* driver = gGT->drivers[0];
     if(driver == NULL) return;
 
-    //Handle air throw (komodo TNTs)
-    if(driver->heldItemID == ITEM_NONE // If no item is held
-		|| gGT->gameMode1 & ROLLING_ITEM // If rolling item
-		|| driver->thCloud != NULL // If hit a red potion
-	){
-		air_throw = false;
-	}
-	extern int bossflag;
-	extern int bossrace;
-	bossflag = bossrace || air_throw ? 2 : 0;
-
     //Give player infinte wumpas on last lap
 	if (driver->lapIndex == gGT->numLaps - 1) {
 		driver->numWumpas = 99;
+	}
+}
+
+//////////////////////////////////////////////////////////
+
+void WeaponRoulette(struct Driver* driver, int roll_timer) {
+    // If driver already has a weapon, quit
+    if ((driver->heldItemID != 0xF) && (driver->noItemTimer == 0)) {
+        return;
+    }
+
+    // Held item count
+    if (driver->numHeldItems != 0) {
+        return;
+    }
+
+    // If driver is firing weapon, quit
+    if ((driver->actionsFlagSet & 0x8000) != 0) {
+        return;
+    }
+
+    // If driver has raincloud and weapon is shuffling, quit
+    if (driver->thCloud != 0) {
+        struct RainCloud* rainCloud = (struct RainCloud*)driver->thCloud->object;
+        if (rainCloud->boolScrollItem == 1) {
+            return;
+        }
+    }
+
+    // If driver is influenced by clock weapon, quit
+    if (driver->clockReceive != 0) {
+        return;
+    }
+
+    // Set weapon to roulette
+    driver->heldItemID = 0x10;
+
+    // Increment
+    driver->numTimesHitWeaponBox++;
+
+    // Timer for weapon roulette
+    driver->itemRollTimer = FPS_DOUBLE(roll_timer); //Default 90 (3 seconds)
+
+    // If no roulette is active
+    if ((gGT->gameMode1 & ROLLING_ITEM) == 0) {
+        // Start sound
+        OtherFX_Play(0x5D, 0);
+        
+        // Set rolling item flag
+        gGT->gameMode1 |= ROLLING_ITEM;
+    }
+
+    driver->noItemTimer = 0;
+}
+
+int rouletteTimerCooldown;
+
+void InitBossRace(bool enabled) {
+	if(!enabled) return;
+
+	rouletteTimerCooldown = FPS_DOUBLE(160);
+}
+
+void HandleBossRace(bool enabled) {
+	if (!enabled) return;
+
+    if(gGT->trafficLightsTimer < 1 && rouletteTimerCooldown > 0) {
+		rouletteTimerCooldown--;
+    }
+
+	struct Driver* localDriver = gGT->drivers[0];
+	if (localDriver == NULL) return;
+	
+	if(rouletteTimerCooldown <= 0){
+		// If player its in first position Keep rolling items indefinitely
+		if(localDriver->driverRank == 0 && localDriver->kartState != KS_MASK_GRABBED && localDriver->kartState != KS_ENGINE_REVVING){
+			WeaponRoulette(localDriver, 20);
+			rouletteTimerCooldown = FPS_DOUBLE(10);
+		}
+	}
+
+	// if (driver->driverRank == 0 && driver->numWumpas == 99){   
+	// 		driver->numWumpas = 0;
+	// }
+
+	// if (driver->driverRank > 0) {
+	// 	driver->numWumpas = 99;
+	// }
+}
+
+//Rank 0
+char BossRace_RNG_itemSetRace1[] = {
+	// 4/20 Bomb (1)
+	1,1,1,1,
+	// 4/20 x3 Bomb (10)
+	10,10,10,10,
+	// 7/20 Crate (3)
+	3,3,3,3,3,3,3,
+	// 6520 Beaker (4)
+	4,4,4,4,4
+};
+
+// Override only for Rank 0
+void BossRaceItemSets(void){
+	if(USE_BOSS_RACE) {
+		// Set item sets for Rank 0
+		charPtr[0] = &BossRace_RNG_itemSetRace1[0]; // Rank 0
+	}
+	else {
+		// Restore default item sets for Rank 0
+		charPtr[0] = &data.RNG_itemSetRace1[0]; // Rank 0
 	}
 }

@@ -4,8 +4,7 @@
 #include "../AltMods/Gasmoxian/global.h"
 #include "../AltMods/Gasmoxian/utils.h"
 
-//if boss race
-bool bossrace = 0;
+//for air throw
 int bossflag;
 
 	
@@ -53,8 +52,6 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 {
 	//start of itemset assignation
 	
-	bossrace = 0;
-	
 	int lastplace = octr->NumDrivers - 1;
 	
 	//just in case something breaks then assign itemset1 to this player
@@ -72,6 +69,9 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 	// Change charPtr RNG weights if ITEM_CHAOS is enabled
 	extern void ItemChaosItemSets();
 	ItemChaosItemSets();
+
+	extern void BossRaceItemSets();
+	BossRaceItemSets();
 		
 	if (driver->driverRank == 0)
 	{
@@ -248,6 +248,18 @@ if (gGT->gameMode1 & ARCADE_MODE)
 		ItemChaosSetHeldItem(driver);
 	}
 
+	// In BOSS RACE allow air throw
+	if(USE_BOSS_RACE && driver->driverRank == 0){
+		if(driver->heldItemID == ITEM_EXPLOSIVE_CRATE || driver->heldItemID == ITEM_N_BRIO_BEAKER){
+			extern bool air_throw;
+			if (rand() % 2 == 0) {
+				air_throw = true;
+			} else {
+				air_throw = false;
+			}
+		}
+	}
+
 	// Avoid Ghost BUG on mirror mode
 	if (USE_MIRROR && driver->heldItemID == ITEM_INVISIBILITY) {
 		driver->heldItemID = ITEM_TURBO_BOOST;		
@@ -312,21 +324,18 @@ if (gGT->gameMode1 & ARCADE_MODE)
 }
 
 // if boss race special
-if (gGT->gameMode1 & ADVENTURE_BOSS){
-	if (driver->driverRank == 0){
-			bossrace = 1;  
-			driver->numHeldItems = 7;
-			driver->numWumpas = 0;
+if (USE_BOSS_RACE){
+	// if first place
+	if (driver->driverRank == 0){ 
+			// driver->numHeldItems = 7;
+			// driver->numWumpas = 0;
 			
-			if (driver->heldItemID == ITEM_POWER_SHIELD || driver->heldItemID == ITEM_TURBO_BOOST) {
-				driver->heldItemID = ITEM_BOWLING_BOMB;
-			}
+			// if (driver->heldItemID == ITEM_POWER_SHIELD || driver->heldItemID == ITEM_TURBO_BOOST) {
+			// 	driver->heldItemID = ITEM_BOWLING_BOMB;
+			// }
 	}
 
-	if (driver->driverRank != 0) {
-		
-		bossrace = 0;
-		
+	if (driver->driverRank > 0) {	
 		if (driver->heldItemID == ITEM_N_BRIO_BEAKER || driver->heldItemID == ITEM_BOWLING_BOMB || driver->heldItemID == ITEM_EXPLOSIVE_CRATE) {
 			driver->heldItemID = ITEM_TRACKING_MISSILE;		
 		}
