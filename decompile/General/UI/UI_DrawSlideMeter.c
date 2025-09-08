@@ -8,21 +8,7 @@
 void DECOMP_UI_DrawSlideMeter(short posX, short posY, struct Driver* driver)
 {
 	const struct GameTracker * gGT = sdata->gGT;
-	#ifdef USE_GASMOXIAN
-	
-	
-			//this is for boss race mode
-    //using this file because it updates itself every second
-	if (USE_BOSS_RACE) {
-		if (driver->driverRank == 0 && driver->numWumpas == 99)
-	{   
-			driver->numWumpas = 0;
-	}
-	if (driver->driverRank != 0) {
-		driver->numWumpas = 99;
-	}
-	}
-	
+	#ifdef USE_GASMOXIAN	
 	
 	const int xOffset = 2;
 	const int barWidth = 36;
