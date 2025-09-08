@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../AltMods/Gasmoxian/utils.h"
 
 void RB_Hazard_HurtDriver(
 	struct Driver* driverVictim, 
@@ -12,6 +13,7 @@ void RB_Hazard_HurtDriver(
 	if ((driverVictim->actionsFlagSet & 0x100000) == 0)
 	{
 		#ifndef REBUILD_PS1
+		if(USE_BOSS_RACE && driverVictim->driverRank == 0 && damageType != 0) damageType = 1;
 		VehPickState_NewState(driverVictim, damageType, driverAttacker, reason);
 		#endif
 		
