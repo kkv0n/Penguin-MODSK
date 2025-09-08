@@ -87,7 +87,7 @@ enum WeaponIcons
     MISSILEX1_ICON,
     TNT_ICON,
     GREEN_BEAKER_ICON,
-    GREEN_SHIELD_ICON,
+    GREEN_SHIELD_ICON = 11,
     AKUAKU_ICON,
     TROPY_CLOCK_ICON,
     WARPBALL_ICON,
@@ -97,8 +97,8 @@ enum WeaponIcons
     RED_BEAKER_ICON,
     BLUE_SHIELD_ICON = 23,
     UKAUKA_ICON = 50
+    
 };
-
 enum QUADBLOCKFLAGS {
 
 	Q_NONE = 0,
