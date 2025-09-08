@@ -5,8 +5,11 @@ bool RaceShouldEnd(void);
 void ForceRaceEnd(void);
 void FreezeDriver(struct Driver* driver);
 bool DriverIsEliminated(struct Driver* driver);
+int GetDriverEliminationPosition(int driverID);
 
 bool eliminatedDrivers[8] = {false, false, false, false, false, false, false, false};
+int eliminationOrder[8] = {-1, -1, -1, -1, -1, -1, -1, -1}; // -1 means not eliminated yet
+int eliminationCount = 0;  // Number of drivers eliminated so far
 int previousLapCheck = 0;
 bool checkForElimination = false;
 
@@ -17,7 +20,9 @@ void InitSurvivalMode(bool enabled){
 
     for(int i = 0; i < 8; i++) {
         eliminatedDrivers[i] = false;
+        eliminationOrder[i] = -1;  // Reset elimination order
     }
+    eliminationCount = 0;
     previousLapCheck = 0;
     checkForElimination = false;
 }
@@ -69,6 +74,8 @@ void HandleSurvivalMode(bool enabled){
     if(secondLastDriver->lapIndex > lastDriver->lapIndex) {
         // Mark the driver as eliminated
         eliminatedDrivers[lastDriver->driverID] = true;
+        // Record elimination order
+        eliminationOrder[eliminationCount++] = lastDriver->driverID;
         activeDriversCount--;
         
         // If this is the local player, freeze
@@ -126,6 +133,45 @@ void HandleSurvivalMode(bool enabled){
     }
 }
 
+void EliminateAllPlayersExceptFirst(void){
+    // Find the actual winner - either someone who finished or the first in race order
+    struct Driver* winnerDriver = NULL;
+    
+    // First, check if any driver has finished the race legitimately
+    for(int i = 0; i < 8; i++) {
+        struct Driver* driver = gGT->drivers[i];
+        if(driver != NULL && (driver->actionsFlagSet & ACTION_RACE_FINISHED) != 0) {
+            winnerDriver = driver;
+            break; // Found a driver who finished
+        }
+    }
+    
+    // If no driver finished, the first non-eliminated driver in race order is the winner
+    if(winnerDriver == NULL) {
+        for(int i = 0; i < 8; i++) {
+            struct Driver* driver = gGT->driversInRaceOrder[i];
+            if(driver != NULL && !DriverIsEliminated(driver)) {
+                winnerDriver = driver;
+                break; // Found the leader
+            }
+        }
+    }
+    
+    // If still no winner found (unlikely), just exit
+    if(winnerDriver == NULL) return;
+    
+    // Now mark all drivers except the winner as eliminated
+    for(int i = 0; i < 8; i++) {
+        struct Driver* driver = gGT->drivers[i];
+        if(driver != NULL && driver != winnerDriver && !DriverIsEliminated(driver)) {
+            // Mark the driver as eliminated
+            eliminatedDrivers[driver->driverID] = true;
+            // Record elimination order
+            eliminationOrder[eliminationCount++] = driver->driverID;
+            activeDriversCount--;
+        }
+    }
+}
 
 bool RaceShouldEnd()
 {
@@ -142,7 +188,8 @@ bool RaceShouldEnd()
     for(int i = 0; i < 8; i++) {
         struct Driver* driver = gGT->drivers[i];
         if(driver != NULL && !DriverIsEliminated(driver) && octr->nameBuffer[i][0] != 0) {
-            return false; // Found a player who is not eliminated and not dead
+            // Found a player who is not eliminated and not dead
+            return false; 
         }
     }
 
@@ -154,6 +201,8 @@ void ForceRaceEnd()
     // Restore HUD flags
     // gGT->hudFlags = hudFlagsBackup;
 
+    EliminateAllPlayersExceptFirst();
+
     // Force the race to end for all drivers
     for(int i = 0; i < 8; i++) {
         struct Driver* driver = gGT->drivers[i];
@@ -161,6 +210,7 @@ void ForceRaceEnd()
             if((driver->actionsFlagSet & ACTION_RACE_FINISHED) == 0){
                 FreezeDriver(driver); //Just in case
             }
+
             driver->actionsFlagSet |= ACTION_RACE_FINISHED;
         }
     }
@@ -364,6 +414,7 @@ void DisplayEliminationTimer() {
         #endif
         minutes, seconds, frames
     );
+    DecalFont_DrawLine(decalText, 0x100, 0x32, FONT_SMALL, (JUSTIFY_CENTER | textColor));
 
 }
 
@@ -387,6 +438,8 @@ void EliminateLastDriver() {
     
     // Mark the driver as eliminated
     eliminatedDrivers[lastDriver->driverID] = true;
+    // Record elimination order
+    eliminationOrder[eliminationCount++] = lastDriver->driverID;
     activeDriversCount--;
     
     // Freeze the driver
@@ -415,4 +468,22 @@ int CountEliminatedDrivers() {
         }
     }
     return count;
+}
+
+int GetDriverEliminationPosition(int driverID) {
+    // Check if driver is eliminated
+    if (!eliminatedDrivers[driverID]) {
+        // Not eliminated yet, should be ranked first
+        return -1; // Special value for non-eliminated drivers
+    }
+
+    // Find position in elimination order
+    for (int i = 0; i < 8; i++) {
+        if (eliminationOrder[i] == driverID) {
+            return i;
+        }
+    }
+    
+    // Should never reach here
+    return -1;
 }
