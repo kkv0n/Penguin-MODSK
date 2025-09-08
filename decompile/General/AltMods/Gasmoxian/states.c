@@ -577,7 +577,7 @@ void StatePS1_Game_StartRace()
 
 			struct Driver* d = sdata->gGT->drivers[i];
 
-			if (d->instBombThrow != 0)
+			if (d->instBombThrow != 0 && !USE_BOSS_RACE)
 			{
 
 	          // Detonate the bomb

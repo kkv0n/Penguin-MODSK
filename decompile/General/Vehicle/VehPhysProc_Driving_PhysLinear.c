@@ -527,7 +527,7 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 	{
 
 		// If there is a Bomb Pointer
-		if (driver->instBombThrow != 0)
+		if (driver->instBombThrow != 0 && !USE_BOSS_RACE)
 		{
 			// Detonate the bomb
 			bomb = (struct TrackerWeapon*)driver->instBombThrow->thread->object;
@@ -557,7 +557,7 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 		{
 			// circle button ends timer, if
 			// less than 70 frames (2.3s) remain
-			if (driver->itemRollTimer < FPS_DOUBLE(70))
+			if (driver->itemRollTimer < FPS_DOUBLE(70) && !USE_BOSS_RACE)
 				driver->itemRollTimer = 0;
 
 			// skip weapon firing check
