@@ -240,7 +240,7 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 	}
 
 #ifdef USE_GASMOXIAN
-if (gGT->gameMode1 & ARCADE_MODE)
+if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 {
 	// ITEM CHAOS
 	if(USE_ITEM_CHAOS){
@@ -339,15 +339,15 @@ if (USE_BOSS_RACE){
 		if (driver->heldItemID == ITEM_N_BRIO_BEAKER || driver->heldItemID == ITEM_BOWLING_BOMB || driver->heldItemID == ITEM_EXPLOSIVE_CRATE) {
 			driver->heldItemID = ITEM_TRACKING_MISSILE;		
 		}
-		else if (driver->heldItemID == ITEM_INVISIBILITY) {
-			driver->heldItemID = ITEM_POWER_SHIELD;
-		}
-		else if (driver->heldItemID == ITEM_TURBO_BOOST) {
-		driver->heldItemID = ITEM_TRACKING_MISSILE_X3;
-		}
-		else if (driver->heldItemID == ITEM_N_TROPY_CLOCK || driver->heldItemID == ITEM_WARP_ORB) {
-		driver->heldItemID = ITEM_SUPER_ENGINE;
-		}
+		// else if (driver->heldItemID == ITEM_INVISIBILITY) {
+		// 	driver->heldItemID = ITEM_POWER_SHIELD;
+		// }
+		// else if (driver->heldItemID == ITEM_TURBO_BOOST) {
+		// driver->heldItemID = ITEM_TRACKING_MISSILE_X3;
+		// }
+		// else if (driver->heldItemID == ITEM_N_TROPY_CLOCK || driver->heldItemID == ITEM_WARP_ORB) {
+		// driver->heldItemID = ITEM_SUPER_ENGINE;
+		// }
 	}
 }
 
