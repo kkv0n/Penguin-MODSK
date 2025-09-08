@@ -7,6 +7,7 @@
 int shortcutAttempts[4] = {0, 0, 0, 0};
 
 // Array of progressively more frustrated messages
+#ifdef GASMOX_ENG
 const char* shortcutMessages[] = {
     "NO SHORTCUTS!",
     "SERIOUSLY, NO SHORTCUTS!",
@@ -20,6 +21,35 @@ const char* shortcutMessages[] = {
     "YOU'RE VERY PERSISTENT, AREN'T YOU?",
     "YOU COULD'VE FINISHED THE RACE BY NOW"
 };
+#elif defined(GASMOX_ES)
+const char* shortcutMessages[] = {
+    "SIN ATAJOS!",
+    "EN SERIO, SIN ATAJOS!",
+    "OYE! ¿NO LEISTE LAS REGLAS?",
+    "LOS TRAMPOSOS NUNCA PROSPERAN",
+    "VI ESO",
+    "¿QUÉ PARTE DE 'SIN ATAJOS' NO ENTIENDES?",
+    "OK, AHORA SOLO ESTÁS BROMEANDO CONMIGO",
+    "ESTO SE ESTÁ VOLVIENDO RIDÍCULO...",
+    "BIEN, SIGUE INTENTÁNDOLO. NO FUNCIONARÁ",
+    "ERES MUY PERSISTENTE, ¿NO?",
+    "PODRÍAS HABER TERMINADO LA CARRERA PARA AHORA"
+};
+#elif defined(GASMOX_BR)
+const char* shortcutMessages[] = {
+    "SEM ATAJOS!",
+    "SÉRIO, SEM ATAJOS!",
+    "EI! VOCÊ NÃO LEU AS REGRAS?",
+    "TRAPACEIROS NUNCA PROSPERAM",
+    "EU VI ISSO",
+    "QUE PARTE DE 'SEM ATAJOS' VOCÊ NÃO ENTENDE?",
+    "OK, AGORA VOCÊ ESTÁ SÓ BRINCANDO COMIGO",
+    "ISSO ESTÁ FICANDO RIDÍCULO...",
+    "TUDO BEM, CONTINUE TENTANDO. NÃO VAI FUNCIONAR",
+    "VOCÊ É MUITO PERSISTENTE, NÉ?",
+    "VOCÊ JÁ PODERIA TER TERMINADO A CORRIDA"
+};
+#endif
 
 #define NUM_SHORTCUT_MESSAGES (sizeof(shortcutMessages) / sizeof(shortcutMessages[0]))
 

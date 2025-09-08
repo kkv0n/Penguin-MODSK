@@ -27,7 +27,16 @@ s_text = shouldExecuteSpecText ? s_switchCam : s_gg;
 
 	// Toggle demo camera with triangle
 	extern char* decalText;
-	sprintf(decalText, "PRESS ^ TO TOGGLE DEMO CAMERA");
+	sprintf(
+		decalText,
+		#ifdef GASMOX_ENG
+		"PRESS ^ TO TOGGLE DEMO CAMERA"
+		#elif defined(GASMOX_ES)
+		"PRESIONA ^ PARA ALTERNAR CAM DEMO"
+		#elif defined(GASMOX_BR)
+		"PRESSIONE ^ PARA ALTERNAR CAM DEMO"
+		#endif
+	);
 	DECOMP_DecalFont_DrawLine(decalText, 0x100, 13, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
 	if (pad->buttonsTapped & BTN_TRIANGLE) {
 		DemoCameraSpectator = !DemoCameraSpectator;
