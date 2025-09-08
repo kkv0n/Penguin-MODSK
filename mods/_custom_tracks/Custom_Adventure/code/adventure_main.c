@@ -88,6 +88,9 @@ void custom_adventure(unsigned char levelID, bool boss)
 
 bool playXA;
 
+
+struct Instance* inst;
+
 //overlay 222 modified
 //this is responsible of end of race UI, teleporting and prizes in adventure
 void adventure_endrace(unsigned int endTime, unsigned int requiredTime) 
@@ -194,6 +197,8 @@ void adventure_endrace(unsigned int endTime, unsigned int requiredTime)
 	// If you have not pressed X
 	if ((sdata->AnyPlayerTap & 0x50) == 0)
 		return;
+	
+	inst = 0;
 
 	// === If Pressed X ===
 
@@ -342,8 +347,7 @@ TIGER_TEMPLE, COCO_PARK, PAPU_PYRAMID, DINGO_CANYON, BLIZZARD_BLUFF, DRAGON_MINE
 
 }
 	
-//im not sure if this dont clears itself, so im avoiding possible crashes leaving it there
-struct Instance* inst;
+
 
 
 void adventure_main()
@@ -413,9 +417,11 @@ void adventure_main()
 	}
 	
 	
-	//execute this only in one of the first frames of the race to avoid wumpa bug	
-  if (gGT->trafficLightsTimer >= 3490 && gGT->trafficLightsTimer <= 3500
-                 && gGT->levelID < GEM_STONE_VALLEY)
+	if (sdata->Loading.stage == -5 || gGT->levelID >= GEM_STONE_VALLEY)
+		inst = 0;
+	
+	//avoid hud instance bug
+  if (gGT->trafficLightsTimer > 0 && inst == 0 && gGT->levelID < GEM_STONE_VALLEY)
 	{
 		if (hardcore)
 		{
@@ -430,8 +436,19 @@ void adventure_main()
     
 		 
 		 //fix wumpa
+		 if (hardcore)
+		 {
 		    sdata->ptrFruitDisp =
 		(int)  UI_INSTANCE_BirthWithThread(0x37,(int) UI_ThTick_CountPickup,3,1,sdata->ptrPushBufferUI,/*sdata->s_fruitdisp*/0);
+		 }
+		 else
+		 {
+		  //fix wumpa
+		    inst =
+		  UI_INSTANCE_BirthWithThread(0x37,(int) UI_ThTick_CountPickup,3,1,sdata->ptrPushBufferUI,/*sdata->s_fruitdisp*/0);
+		
+		sdata->ptrFruitDisp = (int)inst;
+		 }
 	}
 	
 
