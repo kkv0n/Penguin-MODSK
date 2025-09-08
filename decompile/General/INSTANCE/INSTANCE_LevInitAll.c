@@ -1,9 +1,12 @@
 #include <common.h>
+#include "../AltMods/Gasmoxian/utils.h"
 
 // param1 - pointer to Instance Descriptions
 // param2 - number of instances
 void DECOMP_INSTANCE_LevInitAll(struct InstDef *levInstDef, int numInst)
 {
+	// if(USE_ITEMLESS) return;
+
     short sVar5;
     u_short modelID;
     int *dst;

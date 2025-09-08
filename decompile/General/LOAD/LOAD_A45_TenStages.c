@@ -606,6 +606,12 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			extern bool NightFilterApplied(struct Level *level);
 			extern void HandleDynamicLighting(struct Level *level);
 
+			// if(USE_ITEMLESS){
+			// 	sdata->gGT->gameMode2 |= DISABLE_LEV_INSTANCE;
+			// }else{
+			// 	sdata->gGT->gameMode2 &= ~DISABLE_LEV_INSTANCE;
+			// }
+
 			if (USE_N_VERTED){
 				ReverseTrack(gGT->level1);
 			}
