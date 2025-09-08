@@ -50,6 +50,10 @@ void DECOMP_UI_BattleDrawHeadArrows(struct Driver *player)
 			(i == playerID) || 
 			(currDriver->invisibleTimer != 0) || 
 			((currDriver->actionsFlagSet & 0x2000000) != 0)
+      #ifdef USE_GASMOXIAN
+      // if boss race skip all players except the first one
+      || (USE_BOSS_RACE && currDriver->driverRank > 0)
+      #endif
 		)
 	{
       continue;

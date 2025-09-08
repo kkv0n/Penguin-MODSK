@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../AltMods/Gasmoxian/utils.h"
 
 // To do: add a header
 void DECOMP_AA_EndEvent_DisplayTimeAA_EndEvent_DisplayTime(u_short, short);
@@ -611,7 +612,12 @@ if ((gameMode1 & (RELIC_RACE | TIME_TRIAL | BATTLE_MODE)) == 0)
 			DECOMP_UI_TrackerSelf(playerStruct);
 
 			// If you're in Battle
-			if ((gameMode1 & BATTLE_MODE) != 0)
+			if (
+				(gameMode1 & BATTLE_MODE) != 0
+				#ifdef USE_GASMOXIAN
+				|| USE_BOSS_RACE
+				#endif
+			)
 			{
 				// Draw arrows over the heads of other players (not AIs)
 				DECOMP_UI_BattleDrawHeadArrows(playerStruct);
