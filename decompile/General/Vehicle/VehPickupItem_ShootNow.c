@@ -38,13 +38,13 @@ void DECOMP_VehPickupItem_ShootNow(struct Driver* d, int weaponID, int flags)
 			octr->warpclock = 1;
 		}
 	}
-if (USE_BOSS_RACE && d->driverRank != 0)
-{
-	if (d->heldItemID == ITEM_EXPLOSIVE_CRATE || d->heldItemID == ITEM_N_BRIO_BEAKER || d->heldItemID == ITEM_BOWLING_BOMB) {
+// if (USE_BOSS_RACE && d->driverRank != 0)
+// {
+// 	if (d->heldItemID == ITEM_EXPLOSIVE_CRATE || d->heldItemID == ITEM_N_BRIO_BEAKER || d->heldItemID == ITEM_BOWLING_BOMB) {
 			
-		d->numHeldItems = 0;
-	}
-}
+// 		d->numHeldItems = 0;
+// 	}
+// }
 
 	#endif
 
@@ -261,6 +261,11 @@ if (USE_BOSS_RACE && d->driverRank != 0)
 			{
 				struct GamepadBuffer* gb =
 					&sdata->gGamepads->gamepad[d->driverID];
+
+				// if first place on boss race force flag 2
+				if(USE_BOSS_RACE && d->driverRank == 0){
+					flags |= 2;
+				}
 
 				if(
 					// hold d-pad DOWN
