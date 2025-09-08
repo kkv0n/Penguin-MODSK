@@ -554,10 +554,11 @@ void DECOMP_VehPhysProc_Driving_PhysLinear(struct Thread* thread, struct Driver*
 
 		// item is rolling
 		if (driver->itemRollTimer != 0)
-		{
+		{	
+			if (USE_BOSS_RACE && driver->driverRank == 0) goto CheckJumpButtons;
 			// circle button ends timer, if
 			// less than 70 frames (2.3s) remain
-			if (driver->itemRollTimer < FPS_DOUBLE(70) && !USE_BOSS_RACE)
+			if (driver->itemRollTimer < FPS_DOUBLE(70))
 				driver->itemRollTimer = 0;
 
 			// skip weapon firing check
