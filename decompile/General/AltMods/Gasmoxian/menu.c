@@ -9,11 +9,11 @@ char gamemode_buffers[8][64];
 // OCTR SPECIAL MENU BY PENTA3
 char* special_name[] = {
 #ifdef GASMOX_ENG
-    "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETRO FUELED", "VOID WORLD", "BOSS RACE", "DEMO CAMERA", "N-VERTED", "SHORTCUTLESS", "NIGHT MODE", "DARKNESS", "ITEM CHAOS", "SURVIVAL", "SURVIVAL TIMED",
+    "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETRO FUELED", "VOID WORLD", "BOSS RACE", "DEMO CAMERA", "N-VERTED", "SHORTCUTLESS", "NIGHT MODE", "DARKNESS", "ITEM CHAOS", "SURVIVAL", "TIMED SURVIVAL",
 #elif defined(GASMOX_ES)
-    "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETRO FUELED", "MUNDO VACIO", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE", "OSCURIDAD", "CAOS DE ITEMS", "SUPERVIVENCIA", "SUPERVIVENCIA POR TIEMPO",
+    "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETRO FUELED", "MUNDO VACIO", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE", "OSCURIDAD", "CAOS DE ITEMS", "SUPERVIVENCIA", "SUPERVIVENCIA-T",
 #elif defined(GASMOX_BR)
-    "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETRO FUELED", "PISTA VAZIA", "CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO", "CAOS DE ITENS", "SUPERVIVÊNCIA", "SUPERVIVÊNCIA POR TEMPO",
+    "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETRO FUELED", "PISTA VAZIA", "CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO", "CAOS DE ITENS", "SUPERVIVÊNCIA", "SUPERVIVÊNCIA-T",
 #endif
 };
 
@@ -364,6 +364,11 @@ bool IsGamemodeIncompatible(int modeToCheck) {
         
     if (octr->gamemodes[SURVIVAL_TIMER] && modeToCheck == SURVIVAL)
         return true;
+	
+	if (octr->gamemodes[N_VERTED] && modeToCheck == DEMO_CAMERA)
+		return true;
+	if (octr->gamemodes[DEMO_CAMERA] && modeToCheck == N_VERTED)
+		return true;
         
     return false;
 }
@@ -386,6 +391,10 @@ void NewPage_Events()
     DecalFont_DrawLine("PRESSIONE * PARA CONFIRMAR", 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
     #endif
 
+    // Base position for menu rows
+    int baseY = 105;
+    int iconOffsetX = 30;
+    
     for (i = 0; i < 8; i++)
     {
        int max = 8 * octr->PageNumber + i;
@@ -395,12 +404,31 @@ void NewPage_Events()
             // Check if this mode is incompatible with any enabled modes
             bool incompatible = IsGamemodeIncompatible(max);
             
-            // Add an "X" to show enabled modes
-            sprintf(gamemode_buffers[i], "%s %s", 
-                octr->gamemodes[max] ? "X" : "", 
-                special_name[max]);
-                
+            // Show mode name
+            sprintf(gamemode_buffers[i], "%s", special_name[max]);
             sdata->lngStrings[0x9a + i] = gamemode_buffers[i];
+            
+            // Calculate Y position for this row (16 pixels between rows)
+            int posY = baseY + (i * 8);
+            
+            // Draw appropriate icon based on mode status
+            if (octr->gamemodes[max]) {
+                // Mode is enabled - draw NITRO icon
+                DECOMP_DecalHUD_DrawWeapon(
+                    sdata->gGT->ptrIcons[NITRO_ICON],
+                    iconOffsetX, posY,
+                    &sdata->gGT->backBuffer->primMem,
+                    sdata->gGT->pushBuffer_UI.ptrOT,
+                    TRANS_50_DECAL, FP(0.31), 1);
+            } else {
+                // Mode is disabled - draw TNT icon
+                DECOMP_DecalHUD_DrawWeapon(
+                    sdata->gGT->ptrIcons[TNT_ICON],
+                    iconOffsetX, posY,
+                    &sdata->gGT->backBuffer->primMem,
+                    sdata->gGT->pushBuffer_UI.ptrOT,
+                    TRANS_50_DECAL, FP(0.31), 1);
+            }
             
             // Always make NORMAL active
             if (max == NORMAL) {
@@ -599,7 +627,7 @@ void UpdateMenu()
 		menu.rowSelected = 0;
 		// Set default engine selection based on selected character
 		if (label == 5 - 1)
-			menu.rowSelected = data.MetaDataCharacters[data.characterIDs[octr->DriverID]].engineID;
+			menu.rowSelected = data.MetaDataCharacters[data.characterIDs[0]].engineID;
 	}
 
 	RECTMENU_Show(&menu);
