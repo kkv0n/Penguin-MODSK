@@ -95,16 +95,71 @@ void InvertCheckpoints(struct Level *level) {
     // Invert the checkpointIndex of each QuadBlock
     struct mesh_info* mi = level->ptr_mesh_info;
     struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
+
+    int sourceID = 0;
+    if(levelID == N_GIN_LABS) sourceID = 1175;
+    else if(levelID == DINGO_CANYON) sourceID = 770;
+    else if(levelID == BLIZZARD_BLUFF) sourceID = 321;
+    else if(levelID == MYSTERY_CAVES) sourceID = 2466;
+    else if(levelID == HOT_AIR_SKYWAY) sourceID = 385;
+    else if(levelID == POLAR_PASS) sourceID = 2358;
+    else if(levelID == CORTEX_CASTLE) sourceID = 294;
+    else if(levelID == SEWER_SPEEDWAY) sourceID = 1646;
+    else if(levelID == PAPU_PYRAMID) sourceID = 0;
+    else if(levelID == OXIDE_STATION) sourceID = 2264;
     
+    struct QuadBlock* sourceBlock = NULL;
+
+    // Find the block
+    for (int j = 0; j < mi->numQuadBlock; j++) {
+        if (quadBlocks[j].blockID == sourceID) {
+            sourceBlock = &quadBlocks[j];
+            break;
+        }
+    }
+
+    struct LevVertex* vertices = mi->ptrVertexArray;
+
     for (int i = 0; i < mi->numQuadBlock; i++) {
         struct QuadBlock* qb = &quadBlocks[i];
+
+        unsigned char frames = 0, delay = 0;
+        if (isJumpBlock(levelID, qb->blockID, &frames, &delay)) {
+            if(!(frames == 0 && delay == 0)){ //Ignore the "no respawns" blocks
+                // Change texture pointers of jumpBlocks
+                if (sourceBlock != NULL) {
+                    // Copy all texture pointers from the source block to the jump block
+                    qb->ptr_texture_mid[0] = sourceBlock->ptr_texture_mid[0];
+                    qb->ptr_texture_mid[1] = sourceBlock->ptr_texture_mid[1];
+                    qb->ptr_texture_mid[2] = sourceBlock->ptr_texture_mid[2];
+                    qb->ptr_texture_mid[3] = sourceBlock->ptr_texture_mid[3];
+                    qb->ptr_texture_low = sourceBlock->ptr_texture_low;
+
+                    // Color jumpBlocks
+                    // Loop through the 9 vertex indices in this quadblock
+                    // for (int j = 0; j < 9; j++) {
+                    //     if (qb->index[j] >= 0 && qb->index[j] < mi->numVertex) {
+                    //         // Set vertex color
+                    //         vertices[qb->index[j]].color_hi[0] = 0; // R
+                    //         vertices[qb->index[j]].color_hi[1] = 10;   // G
+                    //         vertices[qb->index[j]].color_hi[2] = 150;   // B
+                            
+                    //         // Also set the low color
+                    //         vertices[qb->index[j]].color_lo[0] = 0; // R
+                    //         vertices[qb->index[j]].color_lo[1] = 10;   // G
+                    //         vertices[qb->index[j]].color_lo[2] = 150;   // B
+                    //     }
+                    // }
+                }
+            }
+        }
 
         if (qb->checkpointIndex != -1) {
             if (qb->checkpointIndex != 0) {
                 qb->checkpointIndex = numCheckpoints - qb->checkpointIndex;
                 
-                // Avoid respawns on top of jump blocks
                 if (isJumpBlock(levelID, qb->blockID, NULL, NULL)) {
+                    // Avoid respawns on top of jump blocks
                     if (qb->checkpointIndex > 2) {
                         qb->checkpointIndex = qb->checkpointIndex - 2; // Move back 2 checkpoints
                     }

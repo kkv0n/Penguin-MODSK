@@ -41,14 +41,22 @@ JumpBlock MYSTERY_CAVES_blocks[] = {
     //Jump 1
     {2313, 4, 0},
     {1789, 4, 0},
+    {2311, 0, 1},
+    {2355, 0, 1},
+    {1772, 0, 1},
+    {1764, 0, 1},
 
     //Jump 2
     {2427, 2, 0},
+    {2424, 0, 1},
+    {2408, 0, 1},
     
     //Jump 3
     {2485, 3, 0},
     {2480, 3, 0},
     {2539, 3, 0},
+    {2520, 0, 1},
+    {2481, 0, 1},
 
     //Turtle ponds
     {768, 1, 1},
@@ -91,8 +99,11 @@ JumpBlock HOT_AIR_SKYWAY_blocks[] = {
 
 JumpBlock PAPU_PYRAMID_blocks[] = {
     //Bottom stairs 
-    {472, 3, 0},
-    {518, 3, 0},
+    {472, 33, 0}, // Increased from 3 to 33
+    {518, 33, 0}, // Increased from 3 to 33
+
+    // {469, 3, 8},
+    // {517, 3, 8},
 
     //Middle stairs
     // {542, 17, 0},
@@ -124,6 +135,11 @@ JumpBlock SEWER_SPEEDWAY_blocks[] = {
     {1543, 4, 0},
     {1544, 4, 0},
 
+    {1537, 5, 4},
+    {1538, 5, 4},
+    {1539, 5, 4},
+    {1540, 5, 4},
+
     //Disable respawns here)
     {1213, 0, 0},
     {1192, 0, 0},
@@ -134,6 +150,8 @@ JumpBlock SEWER_SPEEDWAY_blocks[] = {
 JumpBlock CORTEX_CASTLE_blocks[] = {
     //Big fall
     {627, 65, 9},
+    {616, 0, 1},
+    {615, 0, 1},
 
     //Stairs bottom
     {1401, 34, 0},
@@ -161,7 +179,9 @@ JumpBlock CORTEX_CASTLE_blocks[] = {
     {1343, 3, 3},
 
     //Wood ramp
-    {1501, 9, 4}
+    {1501, 9, 4},
+    {1518, 0, 1},
+    {1500, 0, 1},
 };
 
 JumpBlock POLAR_PASS_blocks[] = {
@@ -188,16 +208,33 @@ JumpBlock POLAR_PASS_blocks[] = {
 JumpBlock N_GIN_LABS_blocks[] = {
     //Big jump
     {705, 29, 0},
+    {763, 0, 1},
+    {764, 0, 1},
 
     // small jump (barrels)
     {1101, 5, 6},
+    {1098, 0, 1},
+    {1145, 0, 1},
+    {1096, 0, 1},
+    {1097, 0, 1},
+
 
     //small jump (intersection)
     {910, 6, 1},
 
     {519, 9, 16},
+    {548, 0, 1},
+    {547, 0, 1},
+    {550, 0, 1},
+    {549, 0, 1},
 
-    {1821, 4, 13}
+
+    {1821, 4, 13},
+    {2094, 0, 1},
+    {2107, 0, 1},
+    {1819, 0, 1},
+    {1818, 0, 1}
+
 };
 
 JumpBlock OXIDE_STATION_blocks[] = {

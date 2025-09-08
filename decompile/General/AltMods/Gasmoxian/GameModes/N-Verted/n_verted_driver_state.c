@@ -70,6 +70,33 @@ bool updateDriverFloatState(unsigned char driverIndex, struct Driver* driver) {
             unsigned char frames = 0, delay = 0;
             
             if (isJumpBlock(gGT->levelID, currentBlockID, &frames, &delay)) {
+
+                // Retro fueled its just too fast, remove delay
+                if(USE_RETRO_FUELED){
+                    if(gGT->levelID == CORTEX_CASTLE && currentBlockID == 627){
+                        if(delay > 0) delay = 1; 
+                    }
+                    if(gGT->levelID == HOT_AIR_SKYWAY){
+                        if(delay > 0) delay = 1; 
+                    }
+                }
+
+                // On MOON GRAVITY reduce frames
+                if(USE_MOON_GRAVITY){
+                    if(gGT->levelID == N_GIN_LABS && currentBlockID != 705){
+                        frames = 1;
+                    }
+
+                    if(gGT->levelID == OXIDE_STATION ){
+                        if(currentBlockID == 581 || currentBlockID == 1737){
+                            frames -= 15;
+                        }
+                        // else{
+                        //     if(frames > 0) frames = 1;
+                        // }
+                    }
+                }
+
                 state->frameTimer = frames;
                 state->frameTimerDelay = delay;
                 
