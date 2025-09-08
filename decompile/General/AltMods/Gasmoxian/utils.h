@@ -10,7 +10,7 @@ extern bool USE_ITEMLESS;
 extern bool USE_MOON_GRAVITY;
 extern bool USE_RETRO_FUELED;
 extern bool USE_VOID_WORLD;
-extern bool USE_BOSS_RACE; // Not adapted yet
+extern bool USE_BOSS_RACE;
 extern bool USE_DEMO_CAMERA; // Not adapted yet
 
 extern bool USE_N_VERTED;
@@ -77,6 +77,26 @@ enum ITEMS {
 	ITEM_SUPER_ENGINE = 13, //D
 	ITEM_NOTHING = 14, //E
 	ITEM_NONE = 15, //F
+};
+
+enum WeaponIcons
+{
+    TURBO1_ICON = 2,
+    TURBO2_ICON = 5,
+    BOWLING_BOMBX1_ICON,
+    MISSILEX1_ICON,
+    TNT_ICON,
+    GREEN_BEAKER_ICON,
+    GREEN_SHIELD_ICON,
+    AKUAKU_ICON,
+    TROPY_CLOCK_ICON,
+    WARPBALL_ICON,
+    BOWLING_BOMBX3_ICON,
+    MISSILEX3_ICON,
+    NITRO_ICON = 20,
+    RED_BEAKER_ICON,
+    BLUE_SHIELD_ICON = 23,
+    UKAUKA_ICON = 50
 };
 
 enum QUADBLOCKFLAGS {
