@@ -606,6 +606,9 @@ void NewPage_Engine()
 		
     }
 
+	extern void DrawClassStats(Point pos, u_char engineID);
+	DrawClassStats(MakePoint(106, 48), octr->enginetype[0]);
+
 }
 
 void MenuWrites_Engine()
@@ -683,6 +686,8 @@ void UpdateMenu()
 //     RECTMENU_ClearInput();
 // }
 
+int numLapsSurvival;
+
 void RECTMENU_OnPressX(struct RectMenu* b)
 {
     int i;
@@ -703,14 +708,19 @@ void RECTMENU_OnPressX(struct RectMenu* b)
                 if(octr->nameBuffer[i][0] == 0)
                     numDead++;
             int activePlayers = octr->NumDrivers - numDead;
-            
+
+			numLapsSurvival = sdata->gGT->numLaps;
             // Set lap count based on mode
             if (octr->gamemodes[SURVIVAL]) {
                 // Set laps to player count or 1 if only one player
-                octr->lapID = (activePlayers < 2) ? 0 : (activePlayers - 2);
+				numLapsSurvival = (activePlayers < 2) ? 1 : (activePlayers - 1);
+				octr->lapID = numLapsSurvival;
+				sdata->gGT->numLaps = numLapsSurvival;
             } else if (octr->gamemodes[SURVIVAL_TIMER]) {
                 // Set laps to 127 for timed survival
-                octr->lapID = 127;
+				numLapsSurvival = 127;
+				octr->lapID = numLapsSurvival;
+				sdata->gGT->numLaps = numLapsSurvival;
             }
             
             // Skip laps menu by setting the lock flag
@@ -876,8 +886,7 @@ void PrintCharacterStats()
 
 		// 0x19 - red
 		// 0x1A - green
-		int color =
-	octr->boolLockedInEnginee[i] ? PURA_VIOLET : PAPU_YELLOW;
+		int color = octr->boolLockedInEnginee[i] ? PURA_VIOLET : PAPU_YELLOW;
 
 		posY = 0x60+h;
 		h += 8;
@@ -912,7 +921,6 @@ void PrintCharacterStats()
 		char* curr_engine =
 					engine_names[octr->enginetype[slot]];
 
-
 		posX = 0x18C;
 		DecalFont_DrawLine(curr_engine, (posX - 11),posY,FONT_SMALL,color);
 	}
@@ -922,15 +930,15 @@ void PrintCharacterStats()
 #ifdef GASMOX_ENG
 	DecalFont_DrawLine("Gasmoxian is a modified",posX,posY,FONT_SMALL,0);
 	DecalFont_DrawLine("version of OnlineCTR.",posX+0x10,posY+0x8,FONT_SMALL,0);
-	DecalFont_DrawLine("This is for the fans and fun!",posX-0x28,posY+0x10,FONT_SMALL,PAPU_YELLOW);
+	DecalFont_DrawLine("BY PENTA3-ANZU-ANFROST",posX,posY+0x10,FONT_SMALL, PAPU_YELLOW);
 #elif defined(GASMOX_ES)
 	DecalFont_DrawLine("gasmoxian es una version",posX,posY,FONT_SMALL,0);
 	DecalFont_DrawLine("modificada de onlinectr,",posX-0x8,posY+0x8,FONT_SMALL,0);
-	DecalFont_DrawLine("hacemos esto por los fans",posX-0x18,posY+0x10,FONT_SMALL,PAPU_YELLOW);
+	DecalFont_DrawLine("POR PENTA3-ANZU-ANFROST",posX,posY+0x10,FONT_SMALL,PAPU_YELLOW);
 #elif defined(GASMOX_BR)
     DecalFont_DrawLine("gasmoxian eh uma versao",posX,posY,FONT_SMALL,0);
     DecalFont_DrawLine("modificada do octr, para",posX-0x8,posY+0x8,FONT_SMALL,0);
-    DecalFont_DrawLine("diversao de todos os fas",posX-0x18,posY+0x10,FONT_SMALL,PAPU_YELLOW); 
+    DecalFont_DrawLine("POR PENTA3-ANZU-ANFROST",posX,posY+0x10,FONT_SMALL,PAPU_YELLOW);
 
 #endif
 	}
@@ -957,10 +965,20 @@ sprintf(message, "Pista: %s",
 
 	int posX = 0x0F8;
 
+	if(octr->gamemodes[SURVIVAL] || octr->gamemodes[SURVIVAL_TIMER]){
+		sdata->gGT->numLaps = numLapsSurvival;
+	}
+
 	int numLaps = sdata->gGT->numLaps;
 	onlineLapString[6] = '0' + ((numLaps / 100) % 10);
 	onlineLapString[7] = '0' + ((numLaps / 10) % 10);
 	onlineLapString[8] = '0' + (numLaps % 10);
+
+	if(octr->gamemodes[SURVIVAL_TIMER]){
+		onlineLapString[6] = '-';
+		onlineLapString[7] = '-';
+		onlineLapString[8] = '-';
+	}
 
 	DecalFont_DrawLine(message,posX,0x38,FONT_SMALL,PAPU_YELLOW);
 	DecalFont_DrawLine(onlineLapString,posX+2,0x40,FONT_SMALL,PAPU_YELLOW);
