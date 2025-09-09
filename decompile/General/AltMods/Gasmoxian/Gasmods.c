@@ -20,6 +20,8 @@
 #include "setnextcamera.c"
 #include "spectator_icons.c"
 
+#include "Class_stats_Box.c"
+
 // Unlimited Gamemodes //////////////////////////////////////////
 
 // Retro Fueled
