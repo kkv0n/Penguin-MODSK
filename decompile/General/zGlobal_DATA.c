@@ -7627,10 +7627,10 @@ struct Data data =
 		#ifdef USE_GASMOXIAN
 		//idk why they used statsupgrade i think this is a better idea
 		//speed & accel stats rebalanced
-		{PHYSWRAP(0x428, 2, 544, 544, 544, 544, 544)},
-		{PHYSWRAP(0x42a, 2, 1152, 1152, 1152, 1152, 1152)},
-		{PHYSWRAP(0x42c, 2, 13900, 13900, 13900, 13900, 13900)},
-		{PHYSWRAP(0x42e, 2, 15400, 15400, 15400, 15400, 15400)},
+		{PHYSWRAP(0x428, 2, 544, 544, 544, 544, 544)}, //accel
+		{PHYSWRAP(0x42a, 2, 1152, 1152, 1152, 1152, 1152)}, //something
+		{PHYSWRAP(0x42c, 2, 13900, 13900, 13900, 13900, 13900)}, //speed
+		{PHYSWRAP(0x42e, 2, 15400, 15400, 15400, 15400, 15400)}, //speedometer offset
 		#else
 		{PHYSWRAP(0x428, 2, 480, 544, 448, 512, 544)},
 		{PHYSWRAP(0x42a, 2, 1152, 1152, 1152, 1152, 1152)},
