@@ -127,7 +127,7 @@ DecalFont_DrawLine("BIENVENIDO,GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | O
 DecalFont_DrawLine("BEMVINDO AO GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
 #endif
 	//print oxide icon
-	ShowCharacterIcon(15, 235, 82, FP(1));
+	ShowCharacterIcon(NITROS_OXIDE, 235, 80, FP(1));
 
 	MenuWrites_ServerCountry();
 
@@ -173,7 +173,7 @@ void StatePS1_Launch_PickRoom()
 {
 	DecalFont_DrawLine("GASMOXIAN", 274, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
 	// DECOMP_DecalFont_DrawLine("PENTA3 - ANZU - ANFROST", 25, 178, FONT_SMALL, PAPU_YELLOW);
-	ShowCharacterIcon(15, 120, 16, FP(1));
+	ShowCharacterIcon(NITROS_OXIDE, 180, 16, FP(1));
 	MenuWrites_ServerRoom();
 
 	// If already picked
