@@ -25,30 +25,32 @@ s_text = shouldExecuteSpecText ? s_switchCam : s_gg;
 	DECOMP_DecalFont_DrawLine(octr->nameBuffer[currCam], 252, 195, FONT_BIG, JUSTIFY_CENTER | TINY_GREEN);
 	struct GamepadBuffer* pad = &sdata->gGamepads->gamepad[0];
 
-	// Toggle demo camera with triangle
-	extern char* decalText;
-	sprintf(
-		decalText,
-		#ifdef GASMOX_ENG
-		"PRESS ^ TO TOGGLE DEMO CAMERA"
-		#elif defined(GASMOX_ES)
-		"PRESIONA ^ PARA ALTERNAR CAM DEMO"
-		#elif defined(GASMOX_BR)
-		"PRESSIONE ^ PARA ALTERNAR CAM DEMO"
-		#endif
-	);
-	DECOMP_DecalFont_DrawLine(decalText, 0x100, 13, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
-	if (pad->buttonsTapped & BTN_TRIANGLE) {
-		DemoCameraSpectator = !DemoCameraSpectator;
-	}
-
-	if(DemoCameraSpectator){
-		gGT->cameraDC[0].flags |= 0x20;
-		gGT->cameraDC[0].flags |= 0x1000;
-	} else {
-		gGT->cameraDC[0].flags &= ~0x20;
-		gGT->cameraDC[0].flags &= ~0x1000;
-		gGT->cameraDC[0].cameraMode = 0;
+	if(!USE_FIRST_PERSON){
+		// Toggle demo camera with triangle
+		extern char* decalText;
+		sprintf(
+			decalText,
+			#ifdef GASMOX_ENG
+			"PRESS ^ TO TOGGLE DEMO CAMERA"
+			#elif defined(GASMOX_ES)
+			"PRESIONA ^ PARA ALTERNAR CAM DEMO"
+			#elif defined(GASMOX_BR)
+			"PRESSIONE ^ PARA ALTERNAR CAM DEMO"
+			#endif
+		);
+		DECOMP_DecalFont_DrawLine(decalText, 0x100, 13, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
+		if (pad->buttonsTapped & BTN_TRIANGLE) {
+			DemoCameraSpectator = !DemoCameraSpectator;
+		}
+	
+		if(DemoCameraSpectator){
+			gGT->cameraDC[0].flags |= 0x20;
+			gGT->cameraDC[0].flags |= 0x1000;
+		} else {
+			gGT->cameraDC[0].flags &= ~0x20;
+			gGT->cameraDC[0].flags &= ~0x1000;
+			gGT->cameraDC[0].cameraMode = 0;
+		}
 	}
 
 	if (pad->buttonsTapped & BTN_R1) { SetNextCamera(true); }
