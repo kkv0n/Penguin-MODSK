@@ -304,8 +304,6 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 			// 226-229
 			// placeholder for DrawLevelOvr1P
 			#ifdef USE_GASMOXIAN
-			//void world mode
-			if (!USE_VOID_WORLD){
 			TEST_226(
 				0,
 				&gGT->pushBuffer[i],
@@ -313,7 +311,6 @@ void DECOMP_MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem*
 				&gGT->backBuffer->primMem,
 				0,
 				0); // waterEnvMap?
-			}
 			#else
 			TEST_226(
 				0,
@@ -1207,7 +1204,6 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 		// 226-229
 		#ifdef USE_GASMOXIAN
 		//void world mode
-		if (!USE_VOID_WORLD){
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
@@ -1215,7 +1211,6 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			&gGT->backBuffer->primMem,
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
-		}
 		#else
 			DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
@@ -1356,7 +1351,6 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			
 #ifdef USE_GASMOXIAN
 //void world mode
-		if (!USE_VOID_WORLD){
 		// 226-229
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
@@ -1365,7 +1359,6 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			&gGT->backBuffer->primMem,
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
-		}
 #else
 		// 226-229
 		DrawLevelOvr1P(
@@ -1827,10 +1820,6 @@ void RenderSubmit(struct GameTracker* gGT)
 	void* ot = &gGT->pushBuffer[0].ptrOT[0x3ff];
 
 #ifdef USE_GASMOXIAN
-
-//ban demo camera skip when using L2
-void ban_demo_skip();
-ban_demo_skip();
 
 //trying to ban weapon hackers
 if (gGT->drivers[0] != NULL && gGT->drivers[0]->heldItemID != ITEM_NONE && gGT->levelID < INTRO_RACE_TODAY)

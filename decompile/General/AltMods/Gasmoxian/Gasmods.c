@@ -96,20 +96,9 @@ void spec_text() {
     
 }
 
-void ban_demo_skip()
-{       
-
-if (USE_DEMO_CAMERA) {
-    data.gamepadMapBtn[8].output = BTN_R2; // if demo camera mode change L2 to R2
-}
-
-	if (octr->CurrState < LOBBY_WAIT_FOR_LOADING)
-	{
-	  data.gamepadMapBtn[8].output = BTN_L2_one; // if not in demo camera mode use L2 as L2
-
-	} 
-	
-	return;
+void DisableL2(bool disabled){       
+	// if forced camera mode change L2 to R2 else use L2 as L2
+	data.gamepadMapBtn[8].output = disabled ? BTN_R2 : BTN_L2_one; 
 }
 
 void queuetojoin(){
@@ -375,7 +364,7 @@ bool USE_ICY_TRACKS;
 bool USE_ITEMLESS;
 bool USE_MOON_GRAVITY;
 bool USE_RETRO_FUELED;
-bool USE_VOID_WORLD;
+bool USE_FIRST_PERSON;
 bool USE_BOSS_RACE;
 bool USE_DEMO_CAMERA;
 bool USE_N_VERTED;
@@ -404,7 +393,7 @@ void SetGamemodes() {
 	USE_ITEMLESS = octr->gamemodes[ITEMLESS];
 	USE_MOON_GRAVITY = octr->gamemodes[MOON_MODE];
 	USE_RETRO_FUELED = octr->gamemodes[RETRO_FUELED];
-	USE_VOID_WORLD = octr->gamemodes[VOID_WORLD];
+	USE_FIRST_PERSON = octr->gamemodes[FIRST_PERSON];
 	USE_BOSS_RACE = octr->gamemodes[BOSS_RACE];
 	USE_DEMO_CAMERA = octr->gamemodes[DEMO_CAMERA];
 	USE_N_VERTED = octr->gamemodes[N_VERTED];
@@ -452,21 +441,29 @@ void RunGamemodesUpdateHook() {
 		NightFilterBlueTint = 0;
 	}
 
-	// Restore d-pad input
-    // So mirror mode remap doesnt apply on menus
+	// Restore d-pad input and L2 button if not in race
     if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING))
         RestoreDpadMapping();
+		DisableL2(false);
+		
+	//Only run if game is not paused
+	if ((gGT->gameMode1 & PAUSE_ALL) != 0) return;
+		
+	struct Driver* driver = sdata->gGT->drivers[0];
 
-    //Only run if game is not paused
-    if ((gGT->gameMode1 & PAUSE_ALL) != 0) return;
+	if (gGT->gameMode1 & END_OF_RACE) {
+
+		// if game already ended revert first person
+		if(USE_FIRST_PERSON)
+			gGT->cameraDC[0].cameraMode = 0;
+			driver->instSelf->flags &= ~0x80;
+	}
 
     // if the game is not in a race then quit
 	if (sdata->gGT->gameMode1 & (START_OF_RACE | MAIN_MENU | END_OF_RACE | GAME_CUTSCENE | LOADING)){
 		initialized = false;
 		return;
 	}
-
-    struct Driver* driver = sdata->gGT->drivers[0];
 
     // Run once before the race starts (should be replaced with a hook injection)
     // ---------------------------------------------------------------------------------------------
@@ -531,6 +528,16 @@ void RunGamemodesUpdateHook() {
         initialized = false;
     }
     // ---------------------------------------------------------------------------------------------
+
+	if(USE_FIRST_PERSON){
+		// *(char*)0x80098052 = 0x10;
+		gGT->cameraDC[0].cameraMode = 0x10;
+
+		// Make player invisible
+		driver->instSelf->flags |= 0x80;
+	}
+
+	DisableL2(USE_DEMO_CAMERA || USE_FIRST_PERSON);
 
 	//Disable super engine if player is in first place (check all drivers)
 	for (int i = 0; i < MAX_NUM_PLAYERS; i++) {

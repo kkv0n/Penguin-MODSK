@@ -9,7 +9,7 @@ extern bool USE_ICY_TRACKS; // Not adapted yet
 extern bool USE_ITEMLESS;
 extern bool USE_MOON_GRAVITY;
 extern bool USE_RETRO_FUELED;
-extern bool USE_VOID_WORLD;
+extern bool USE_FIRST_PERSON;
 extern bool USE_BOSS_RACE;
 extern bool USE_DEMO_CAMERA; // Not adapted yet
 
@@ -33,7 +33,7 @@ enum GAME_MODES {
 	ITEMLESS = 3,
 	MOON_MODE = 4,
 	RETRO_FUELED = 5,
-	VOID_WORLD = 6,
+	FIRST_PERSON = 6,
 	BOSS_RACE = 7,
 	DEMO_CAMERA = 8,
 	N_VERTED = 9,

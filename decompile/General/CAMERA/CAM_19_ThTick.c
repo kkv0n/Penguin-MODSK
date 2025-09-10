@@ -1,5 +1,6 @@
 #include <common.h>
 #ifdef USE_GASMOXIAN
+#include "../../General/AltMods/Gasmoxian/utils.h"
 extern bool oxidecam;
 #endif
 
@@ -421,7 +422,7 @@ LAB_8001c128:
 						pb->pos[2] = sdata->FirstPersonCamera.posOffset[2] + (short)((u_int)d->posCurr.z >> 8);
 
 						pb->rot[0] = sdata->FirstPersonCamera.rotOffset[0] + (d->rotCurr).x;
-						pb->rot[1] = sdata->FirstPersonCamera.rotOffset[1] + (d->rotCurr).y;
+						pb->rot[1] = sdata->FirstPersonCamera.rotOffset[1] + (sVar5 == 0xf ? (d->rotCurr).y : d->angle);
 						pb->rot[2] = sdata->FirstPersonCamera.rotOffset[2] + (d->rotCurr).z;
 					}
 					else
