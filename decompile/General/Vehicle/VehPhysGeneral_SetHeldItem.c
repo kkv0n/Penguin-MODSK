@@ -4,9 +4,10 @@
 #include "../AltMods/Gasmoxian/global.h"
 #include "../AltMods/Gasmoxian/utils.h"
 
+extern bool ItsOnlyNormalEnabled();
+
 //for air throw
 int bossflag;
-
 	
 #endif
 
@@ -48,6 +49,8 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 		itemSet = ITEMSET_BattleDefault;
 	
 #ifdef USE_GASMOXIAN
+bool itsNormalMode = ItsOnlyNormalEnabled();
+
 if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 {
 	//start of itemset assignation
@@ -89,7 +92,13 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 			extern int survivalActiveDriversCount;
 			driversCount = survivalActiveDriversCount;
 		}
-		if(driversCount > 5){
+
+		if(itsNormalMode){
+			itemSet = (driver->driverRank == lastplaceRank) 
+					? ITEMSET_Race3
+					: itemSets[driver->driverRank - 1];
+		}
+		else if(driversCount > 5){
 			itemSet = (driver->driverRank == lastplaceRank) 
 					? ITEMSET_BattleDefault 
 					: itemSets[driver->driverRank - 1];
@@ -275,8 +284,7 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 	}
 
 	// If only NORMAL its enabled, ban invisibility, nothing and super engine
-	extern bool ItsOnlyNormalEnabled();
-	if(ItsOnlyNormalEnabled())
+	if(itsNormalMode)
 	{
 		if (driver->heldItemID == ITEM_INVISIBILITY || driver->heldItemID == ITEM_NONE || driver->heldItemID == ITEM_SUPER_ENGINE)
 		{
