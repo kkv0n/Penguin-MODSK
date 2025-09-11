@@ -615,7 +615,7 @@ if ((gameMode1 & (RELIC_RACE | TIME_TRIAL | BATTLE_MODE)) == 0)
 			if (
 				(gameMode1 & BATTLE_MODE) != 0
 				#ifdef USE_GASMOXIAN
-				|| USE_BOSS_RACE
+				|| (USE_BOSS_RACE && !USE_MIRROR)
 				#endif
 			)
 			{
