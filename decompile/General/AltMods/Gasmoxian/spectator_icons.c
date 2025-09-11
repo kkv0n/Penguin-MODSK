@@ -1,6 +1,6 @@
 #include <common.h>
 #include "global.h"
-
+#include "utils.h" 
 
 extern int bestCourseIndex;
 extern int bestLapIndex;
@@ -21,17 +21,48 @@ void EndOfRace_Icons()
     int rectHeightMultiplier = 1;
     Point pos = MakePoint(xStart, yStart);
     UpdateBestTimes();
-    for (int i = 0; i < octr->NumDrivers; i++)
-    {
+    
+    // Create a structure to hold driver data for sorting
+    typedef struct {
+        int position;      // Original race position 
+        int finalTime;     // Final race time
+    } DriverTimeData;
+    
+    DriverTimeData driverData[8];
+    int validDriverCount = 0;
+    
+    // Collect driver data for valid drivers
+    for (int i = 0; i < octr->NumDrivers; i++) {
         int index = octr->raceStats[i].slot;
         if ((octr->nameBuffer[index][0] == 0) ||
             (octr->raceStats[i].finalTime == 0)) { continue; }
-
+            
+        driverData[validDriverCount].position = i;
+        driverData[validDriverCount].finalTime = octr->raceStats[i].finalTime;
+        validDriverCount++;
+    }
+    
+    // Sort drivers by final time (best/fastest time first)
+    for (int i = 0; i < validDriverCount - 1; i++) {
+        for (int j = 0; j < validDriverCount - i - 1; j++) {
+            if (driverData[j].finalTime > driverData[j+1].finalTime) {
+                DriverTimeData temp = driverData[j];
+                driverData[j] = driverData[j+1];
+                driverData[j+1] = temp;
+            }
+        }
+    }
+    
+    // Now draw the icons in the sorted order
+    for (int i = 0; i < validDriverCount; i++) {
+        int position = driverData[i].position;
+        int index = octr->raceStats[position].slot;
+        
         struct Icon * icon = sdata->gGT->ptrIcons[data.MetaDataCharacters[data.characterIDs[index]].iconID];
-        char racePos = i + '1';
+        char racePos = position + '1';  // Original race position
         DECOMP_DecalFont_DrawLineStrlen(&racePos, 1, pos.x + 27, pos.y, FONT_SMALL, RED);
         DECOMP_DecalFont_DrawLineStrlen(octr->nameBuffer[index], NAME_LEN, pos.x + 38, pos.y + 1, FONT_SMALL, index == 0 ? OXIDE_LIGHT_GREEN : ORANGE);
-        ElapsedTimeToTotalTime(&tt, octr->raceStats[i].finalTime);
+        ElapsedTimeToTotalTime(&tt, octr->raceStats[position].finalTime);
         if (tt.hours > 0)
         {
             sprintf(s_time, "%d:%02d:%02d", tt.hours, tt.minutes, tt.seconds);
@@ -41,7 +72,7 @@ void EndOfRace_Icons()
             sprintf(s_time, "%d:%02d.%03d", tt.minutes, tt.seconds, tt.miliseconds);
         }
         DECOMP_DecalFont_DrawLine(s_time, pos.x + 38, pos.y + 8 + 1, FONT_SMALL, index == bestCourseIndex ? SILVER : PINSTRIPE_PALE_DARK_BLUE);
-        ElapsedTimeToTotalTime(&tt, octr->raceStats[i].bestLap);
+        ElapsedTimeToTotalTime(&tt, octr->raceStats[position].bestLap);
         tt.minutes = min(tt.minutes, 120);
         sprintf(s_time, "%d:%02d.%03d", tt.minutes, tt.seconds, tt.miliseconds);
         DECOMP_DecalFont_DrawLine(s_time, pos.x + 38, pos.y + 16 + 1, FONT_SMALL, index == bestLapIndex ? PURA_VIOLET : PINSTRIPE_PALE_DARK_BLUE);
