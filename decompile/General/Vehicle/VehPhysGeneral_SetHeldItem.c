@@ -52,7 +52,11 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 {
 	//start of itemset assignation
 	
-	int lastplace = octr->NumDrivers - 1;
+	int lastplaceRank = activeDriversCount - 1;
+	if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
+		extern int survivalActiveDriversCount;
+		lastplaceRank = survivalActiveDriversCount - 1;
+	}
 	
 	//just in case something breaks then assign itemset1 to this player
 	itemSet = ITEMSET_Race1; //Rank 0
@@ -80,12 +84,17 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 	//assign itemsets based on the driverrank, last place always get battledefault, if more than 5 players
 	if (driver->driverRank >= 1 && driver->driverRank <= 7) {
 
-		if(octr->NumDrivers > 5){
-			itemSet = (driver->driverRank == lastplace) 
+		int driversCount = activeDriversCount;
+		if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
+			extern int survivalActiveDriversCount;
+			driversCount = survivalActiveDriversCount;
+		}
+		if(driversCount > 5){
+			itemSet = (driver->driverRank == lastplaceRank) 
 					? ITEMSET_BattleDefault 
 					: itemSets[driver->driverRank - 1];
 		} else{
-			itemSet = (driver->driverRank == lastplace) 
+			itemSet = (driver->driverRank == lastplaceRank) 
 				? ITEMSET_Race4
 				: itemSets[driver->driverRank - 1];
 		}

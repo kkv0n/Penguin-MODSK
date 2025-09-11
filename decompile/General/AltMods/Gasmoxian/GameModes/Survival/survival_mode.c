@@ -12,6 +12,7 @@ int eliminationOrder[8] = {-1, -1, -1, -1, -1, -1, -1, -1}; // -1 means not elim
 int eliminationCount = 0;  // Number of drivers eliminated so far
 int previousLapCheck = 0;
 bool checkForElimination = false;
+int survivalActiveDriversCount; // Counts active players that are not eliminated 
 
 u_char hudFlagsBackup;
 
@@ -25,13 +26,15 @@ void InitSurvivalMode(bool enabled){
     eliminationCount = 0;
     previousLapCheck = 0;
     checkForElimination = false;
+
+    survivalActiveDriversCount = raceInitActiveDriversCount;
 }
 
 void HandleSurvivalMode(bool enabled){
     if(!enabled) return;
 
     // Check if there are at least 2 players
-    if(activeDriversCount < 2)
+    if(raceInitActiveDriversCount < 2)
         return;
 
     struct Driver* localDriver = gGT->drivers[0];
@@ -60,7 +63,7 @@ void HandleSurvivalMode(bool enabled){
     }
     
     // If no last driver found (unlikely) or only one driver left, exit
-    if(lastDriver == NULL || activeDriversCount <= 1) 
+    if(lastDriver == NULL || survivalActiveDriversCount <= 1) 
         return;
     
     if(lastDriverPos - 1 < 0) return;
@@ -76,7 +79,7 @@ void HandleSurvivalMode(bool enabled){
         eliminatedDrivers[lastDriver->driverID] = true;
         // Record elimination order
         eliminationOrder[eliminationCount++] = lastDriver->driverID;
-        activeDriversCount--;
+        survivalActiveDriversCount--;
         
         // If this is the local player, freeze
         if(lastDriver->driverID == localDriver->driverID) {
@@ -168,7 +171,7 @@ void EliminateAllPlayersExceptFirst(void){
             eliminatedDrivers[driver->driverID] = true;
             // Record elimination order
             eliminationOrder[eliminationCount++] = driver->driverID;
-            activeDriversCount--;
+            survivalActiveDriversCount--;
         }
     }
 }
@@ -283,7 +286,7 @@ void HandleTimeBasedSurvivalMode(bool enabled) {
     if(!enabled) return;
     
     // Check if there are at least 2 players
-    if(activeDriversCount < 2)
+    if(raceInitActiveDriversCount < 2)
         return;
     
     struct Driver* localDriver = gGT->drivers[0];
@@ -440,7 +443,7 @@ void EliminateLastDriver() {
     eliminatedDrivers[lastDriver->driverID] = true;
     // Record elimination order
     eliminationOrder[eliminationCount++] = lastDriver->driverID;
-    activeDriversCount--;
+    survivalActiveDriversCount--;
     
     // Freeze the driver
     FreezeDriver(lastDriver);

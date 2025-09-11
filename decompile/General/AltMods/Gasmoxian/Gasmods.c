@@ -356,6 +356,15 @@ void saffi_fire2(struct Driver * driver, int reserves) {
 		}
 }
 
+int GetActiveDriversCount() {
+	int numDead = 0;
+	for(int i = 0; i < octr->NumDrivers; i++)
+		if(octr->nameBuffer[i][0] == 0)
+			numDead++;
+			
+	return octr->NumDrivers - numDead;
+}
+
 // GAMEMODES HANDLING (From Unlimited)
 
 bool USE_NORMAL;
@@ -376,6 +385,7 @@ bool USE_SURVIVAL_TIMER;
 
 bool air_throw;
 int activeDriversCount = 0;
+int raceInitActiveDriversCount = 0;
 
 char* decalText = (char*)0x1F800000;
 struct GameTracker *gGT;
@@ -469,12 +479,8 @@ void RunGamemodesUpdateHook() {
     // ---------------------------------------------------------------------------------------------
     if (gGT->trafficLightsTimer > 0 && !initialized) {
 
-		int numDead = 0;
-		for(int i = 0; i < octr->NumDrivers; i++)
-			if(octr->nameBuffer[i][0] == 0)
-				numDead++;
-				
-    	activeDriversCount = octr->NumDrivers - numDead;
+    	raceInitActiveDriversCount = GetActiveDriversCount();
+		activeDriversCount = raceInitActiveDriversCount;
 
 		// Reset timers and skip prevention structs
         if(!USE_N_VERTED){
@@ -528,6 +534,8 @@ void RunGamemodesUpdateHook() {
         initialized = false;
     }
     // ---------------------------------------------------------------------------------------------
+
+	activeDriversCount = GetActiveDriversCount();
 
 	if(USE_FIRST_PERSON){
 		// *(char*)0x80098052 = 0x10;

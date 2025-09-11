@@ -707,24 +707,20 @@ void RECTMENU_OnPressX(struct RectMenu* b)
         
         // If survival mode is active, auto-set laps and skip lap menu
         if (octr->gamemodes[SURVIVAL] || octr->gamemodes[SURVIVAL_TIMER]) {
-            // Calculate player count for survival mode
-            int numDead = 0;
-            for(i = 0; i < octr->NumDrivers; i++)
-                if(octr->nameBuffer[i][0] == 0)
-                    numDead++;
-            int activePlayers = octr->NumDrivers - numDead;
+			extern int GetActiveDriversCount();
+            int player_count = GetActiveDriversCount();
 
 			numLapsSurvival = sdata->gGT->numLaps;
             // Set lap count based on mode
             if (octr->gamemodes[SURVIVAL]) {
                 // Set laps to player count or 1 if only one player
-				numLapsSurvival = (activePlayers < 2) ? 1 : (activePlayers - 1);
-				octr->lapID = numLapsSurvival;
+				numLapsSurvival = (player_count < 2) ? 1 : (player_count - 1);
+				// octr->lapID = numLapsSurvival;
 				sdata->gGT->numLaps = numLapsSurvival;
             } else if (octr->gamemodes[SURVIVAL_TIMER]) {
                 // Set laps to 127 for timed survival
 				numLapsSurvival = 127;
-				octr->lapID = numLapsSurvival;
+				// octr->lapID = numLapsSurvival;
 				sdata->gGT->numLaps = numLapsSurvival;
             }
             

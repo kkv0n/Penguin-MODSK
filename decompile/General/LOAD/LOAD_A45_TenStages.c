@@ -631,13 +631,10 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 			if(USE_SURVIVAL){
 				// Set laps amount based on num drivers
-				int numDead = 0;
-				for(int i = 0; i < octr->NumDrivers; i++)
-					if(octr->nameBuffer[i][0] == 0)
-						numDead++;
-				activeDriversCount = octr->NumDrivers - numDead;
+				extern int GetActiveDriversCount();
+				int player_count = GetActiveDriversCount();
 
-				gGT->numLaps = activeDriversCount < 2 ? 1 : activeDriversCount - 1;
+				gGT->numLaps = player_count < 2 ? 1 : player_count - 1;
 			}
 
 			if(USE_SURVIVAL_TIMER){

@@ -21,7 +21,8 @@ extern bool USE_SURVIVAL;
 extern bool USE_SURVIVAL_TIMER;
 
 extern bool air_throw;
-extern int activeDriversCount;
+extern int activeDriversCount; //updates every frame after the race starts
+extern int raceInitActiveDriversCount; //updates once at race start
 
 extern char* decalText;
 extern struct GameTracker *gGT;
