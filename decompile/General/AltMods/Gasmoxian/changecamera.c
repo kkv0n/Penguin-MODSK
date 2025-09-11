@@ -25,7 +25,7 @@ s_text = shouldExecuteSpecText ? s_switchCam : s_gg;
 	DECOMP_DecalFont_DrawLine(octr->nameBuffer[currCam], 252, 195, FONT_BIG, JUSTIFY_CENTER | TINY_GREEN);
 	struct GamepadBuffer* pad = &sdata->gGamepads->gamepad[0];
 
-	if(!USE_FIRST_PERSON){
+	if(!USE_FIRST_PERSON && !USE_N_VERTED){
 		// Toggle demo camera with triangle
 		extern char* decalText;
 		sprintf(
