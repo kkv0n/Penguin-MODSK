@@ -1,83 +1,107 @@
 #include <common.h>
 
 #include "../../utils.h"
+#include "../../global.h"
 
-void WallRide(struct Level *level){
-    struct mesh_info* mi = level->ptr_mesh_info;
-    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
+// Define maximum sizes for skybox data
+#define MAX_SKYBOX_VERTICES 5000
+#define MAX_SKYBOX_FACES_PER_SEGMENT 1000
 
-    for (int i = 0; i < mi->numQuadBlock; i++) {
-        struct QuadBlock* qb = &quadBlocks[i];
+static struct {
+    bool initialized;
+    int numVertex;
+    struct ShortVertex vertices[MAX_SKYBOX_VERTICES];
+    short numFaces[NUM_SKYBOX_SEGMENTS];
+    struct SkyboxFace faces[NUM_SKYBOX_SEGMENTS][MAX_SKYBOX_FACES_PER_SEGMENT];
+} g_Skybox = {0};
 
-        // Add SpeedImpact to all walls
-        // if (qb->quadFlags & Q_WALL) {
-        //     qb->speedImpact = -127;
-        // }
+// Create a static skybox structure that we'll use to replace the level's skybox
+static struct Skybox SkyboxCopy;
+// Static arrays to store face pointers
+static struct SkyboxFace* facePointers[NUM_SKYBOX_SEGMENTS];
 
-        //Mark all walls as ground
-        if (qb->quadFlags & Q_WALL) {
-            qb->quadFlags |= Q_GROUND;
-            qb->quadFlags &= ~Q_WALL;
+// Function to capture the skybox
+bool CaptureSkybox(struct Level* level) {
+    if (!level || !level->ptr_skybox || g_Skybox.initialized)
+        return false;
+
+    struct Skybox* skybox = level->ptr_skybox;
+    
+    // Check if we have enough space
+    if (skybox->numVertex > MAX_SKYBOX_VERTICES)
+        return false;
+        
+    // Copy vertex data
+    g_Skybox.numVertex = skybox->numVertex;
+    memcpy(g_Skybox.vertices, skybox->ptrVertex, g_Skybox.numVertex * sizeof(struct ShortVertex));
+    
+    // Copy face counts and faces
+    for (int i = 0; i < NUM_SKYBOX_SEGMENTS; i++) {
+        g_Skybox.numFaces[i] = skybox->numFaces[i];
+        
+        if (g_Skybox.numFaces[i] > 0) {
+            if (g_Skybox.numFaces[i] > MAX_SKYBOX_FACES_PER_SEGMENT)
+                continue; // Skip if too many faces
+                
+            memcpy(g_Skybox.faces[i], skybox->ptrFaces[i], 
+                   g_Skybox.numFaces[i] * sizeof(struct SkyboxFace));
         }
-
     }
+    
+    g_Skybox.initialized = true;
+    return true;
 }
 
-void Boundless(struct Level *level){
-    struct mesh_info* mi = level->ptr_mesh_info;
-    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
-
-    for (int i = 0; i < mi->numQuadBlock; i++) {
-        struct QuadBlock* qb = &quadBlocks[i];
-
-        //ignore Turbo pads
-        if (
-            qb->quadFlags & Q_TRIGGER_SCRIPT
-            // && (qb->terrain_type == TERRAIN_GRASS || qb->terrain_type == TERRAIN_DIRT) 
-        ){
-            continue;
-        }
-
-        //ignore kickers2 (idk why but this break some killplanes in n gin labs)
-        if (gGT->levelID == N_GIN_LABS && qb->quadFlags & Q_KICKERS2) {
-            continue;
-        }
-
-        //Remove Mask Grad and Out of Bounds from all quads
-        qb->quadFlags &= ~(Q_MASK_GRAB | Q_OOF_BOUNDS);
-
-        //Remove collition from killplanes and invisible walls
-        if (qb->quadFlags & Q_INV_TRIGGERS){
-            if(
-                qb->terrain_type != TERRAIN_MUD //Avoid holes in tiny arena
-                && qb->weather_intensity == 0 //Avoid holes on weather quadblocks
-                && !((
-                    gGT->levelID == CRASH_COVE
-                    || gGT->levelID == MYSTERY_CAVES
-                    || gGT->levelID == N_GIN_LABS
-                    || gGT->levelID == CORTEX_CASTLE
-                ) && (qb->quadFlags & Q_GROUND)) //Don't remove ground flags in these levels, it makes holes
-            ){ 
-                qb->quadFlags &= ~(Q_WALL | Q_GROUND);
-            }     
-        }
-        //Replace offroad terrains
-        if (
-            qb->terrain_type == TERRAIN_GRASS
-            || qb->terrain_type == TERRAIN_DIRT
-            || qb->terrain_type == TERRAIN_SNOW
-            || qb->terrain_type == TERRAIN_SLOWGRASS
-            || qb->terrain_type == TERRAIN_SLOWDIRT
-            || qb->terrain_type == TERRAIN_WATER
-            // || qb->terrain_type == TERRAIN_RIVERASPHALT
-            // || qb->terrain_type == TERRAIN_OCEANASPHALT
-            // || qb->terrain_type == TERRAIN_STEAMASPHALT
-            || qb->terrain_type == TERRAIN_MUD
-            || qb->terrain_type == TERRAIN_TRACK
-        ) {
-            qb->terrain_type = TERRAIN_ASPHALT;
-        }
+// Function to apply the stored skybox to another level
+bool ApplySkybox(struct Level* level) {
+    if (!level || !g_Skybox.initialized)
+        return false;
+    
+    // Set up the static skybox structure
+    SkyboxCopy.numVertex = g_Skybox.numVertex;
+    SkyboxCopy.ptrVertex = g_Skybox.vertices;
+    
+    // Set up face pointers
+    for (int i = 0; i < NUM_SKYBOX_SEGMENTS; i++) {
+        SkyboxCopy.numFaces[i] = g_Skybox.numFaces[i];
+        facePointers[i] = g_Skybox.faces[i];
+        SkyboxCopy.ptrFaces[i] = facePointers[i];
     }
+    
+    // Apply the skybox to the level
+    level->ptr_skybox = &SkyboxCopy;
+    
+    return true;
+}
+
+// Function to transform skybox colors to green variants
+bool GreenSkybox(struct Level* level) {
+    if (!level || !level->ptr_skybox)
+        return false;
+        
+    struct Skybox* skybox = level->ptr_skybox;
+    
+    // Process skybox vertices
+    for (int i = 0; i < skybox->numVertex; i++) {
+        // Access color as bytes
+        unsigned char* color = (unsigned char*)&skybox->ptrVertex[i].Color;
+        
+        // Extract original RGB values
+        unsigned char r = color[0];
+        unsigned char g = color[1]; 
+        unsigned char b = color[2];
+        
+        // Calculate luminance (brightness)
+        unsigned char luminance = (r + g + b) / 3;
+        
+        // Make green dominant while preserving some original color variation
+        color[0] = luminance / 4;          // Reduce red
+        color[1] = luminance + (g / 2);    // Enhance green (but don't overflow)
+        if (color[1] > 255) color[1] = 255;
+        color[2] = luminance / 3;          // Reduce blue
+    }
+    
+    return true;
 }
 
 // Solidify a list of quadblocks as wall if they had no colision flag
@@ -95,20 +119,6 @@ void SolidifyWalls(struct Level *level, int* quadBlockIDs, int numIDs) {
                 qb->quadFlags |= Q_WALL;
                 break;  // Exit inner loop once found
             }
-        }
-    }
-}
-
-void SpeedwayPhys(struct Level *level){
-    struct mesh_info* mi = level->ptr_mesh_info;
-    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
-
-    for (int i = 0; i < mi->numQuadBlock; i++) {
-        struct QuadBlock* qb = &quadBlocks[i];
-
-        // Add SpeedImpact
-        if (qb->quadFlags & (Q_GROUND | Q_WALL)) {
-            qb->speedImpact = -127;
         }
     }
 }
@@ -154,8 +164,24 @@ void NightSkybox(struct Level *level){
             level->stars.distance = 1022;
         }
 
+        // Apply skybox
+        if (g_Skybox.initialized) {
+            ApplySkybox(level);
+
+            // Enable a pitch black gradient
+            level->configFlags |= 1;
+            level->clearColorRGBA = 0x000000;
+            level->glowGradient[0].colorFrom = 0x000000;
+            level->glowGradient[0].colorTo = 0x000000;
+            level->glowGradient[0].pointFrom = 140;
+            level->glowGradient[0].pointTo = -120;
+
+            return;
+        }
+
         // Remove skybox
         level->ptr_skybox = NULL;
+
         // Enable the gradient
         level->configFlags |= 1;
 
@@ -264,50 +290,8 @@ void NightFilter(struct Level *level, int brightness, int blueTint) {
 
 }
 
-void SeparateTrackSpawns(struct Level *level) {
-    // Get rotation of spawn 1 (our pivot point)
-    short baseRot = level->DriverSpawn[1].rot[1];
-    short baseAngle = (baseRot + 0x400) & 0xfff;
-
-    // Calculate left/right direction
-    short leftRightAngle = (baseAngle - 1000) & 0xfff;
-
-    // Separation distance
-    int separationDistance = 0x100;
-
-    // For each spawn point
-    for (int i = 0; i < 8; i++) {
-        int sideOffset = 0;
-        int backOffset = 0;
-
-        // Skip spawn 1 (our reference point)
-        if (i == 1) continue;
-
-        // Determine offsets based on spawn index
-        switch (i) {
-            case 0: sideOffset = -separationDistance; break;
-            case 2: sideOffset = separationDistance; break;
-            case 3: sideOffset = separationDistance * 2; break;
-            case 4: sideOffset = -separationDistance; backOffset = -separationDistance; break;
-            case 5: backOffset = -separationDistance; break;
-            case 6: sideOffset = separationDistance; backOffset = -separationDistance; break;
-            case 7: sideOffset = separationDistance * 2; backOffset = -separationDistance; break;
-        }
-
-        // Apply side offset (left/right)
-        if (sideOffset != 0) {
-            level->DriverSpawn[i].pos[0] += (MATH_Sin(leftRightAngle) * sideOffset) >> 12;
-            level->DriverSpawn[i].pos[2] += (MATH_Cos(leftRightAngle) * sideOffset) >> 12;
-        }
-
-        // Apply back offset
-        if (backOffset != 0) {
-            level->DriverSpawn[i].pos[0] += (MATH_Sin(baseAngle) * backOffset) >> 12;
-            level->DriverSpawn[i].pos[2] += (MATH_Cos(baseAngle) * backOffset) >> 12;
-        }
-    }
-}
-
+// This its only needed if its possible to restart the race, since this is online, it wont happen
+# if 0 
 bool NightFilterApplied(struct Level* level) {
     if (!level) return false;
 
@@ -324,6 +308,7 @@ bool NightFilterApplied(struct Level* level) {
 
     return false;
 }
+#endif
 
 // About &level->rainBuffer->unk_4
 
@@ -409,42 +394,144 @@ void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
     }
 }
 
-// void ApplyLevelModifiers(struct Level* lev) 
-// {
-//     if (!lev) return;
-    
-//     if(gGT->numPlyrCurrGame > 1
-//         && IS_CUSTOM_TRACK_ID(gGT->levelID)
-//         && ((gGT->gameMode1 & (BATTLE_MODE | ADVENTURE_MODE)) == 0)
-//     ) {
-//         SeparateTrackSpawns(lev);
-//     }
+// Unused unlimited gamemodes
+#if 0
+void WallRide(struct Level *level){
+    struct mesh_info* mi = level->ptr_mesh_info;
+    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
 
-//     if (USE_SHORTCUTLESS && gGT->levelID <= TURBO_TRACK) {
-//         RemoveOffRoadCHK(lev);
-//     }
+    for (int i = 0; i < mi->numQuadBlock; i++) {
+        struct QuadBlock* qb = &quadBlocks[i];
 
-//     if (USE_N_VERTED && gGT->levelID <= LAB_BASEMENT) {
-//         ReverseTrack(lev);
-//     }
+        // Add SpeedImpact to all walls
+        // if (qb->quadFlags & Q_WALL) {
+        //     qb->speedImpact = -127;
+        // }
 
-//     if (
-//         USE_NIGHT_FILTER
-//         && (gGT->levelID <= INTRO_OXIDE || gGT->levelID == ADVENTURE_GARAGE)
-//         && !NightFilterApplied(lev)
-//     ){
-//         NightFilter(lev, NightFilterBrightness, NightFilterBlueTint);
-//     }
+        //Mark all walls as ground
+        if (qb->quadFlags & Q_WALL) {
+            qb->quadFlags |= Q_GROUND;
+            qb->quadFlags &= ~Q_WALL;
+        }
 
-//     if (USE_BOUNDLESS && gGT->levelID < INTRO_RACE_TODAY) {
-//         Boundless(lev);
-//     }
+    }
+}
 
-//     if (USE_WALL_RIDE && gGT->levelID < INTRO_RACE_TODAY) {
-//         WallRide(lev);
-//     }
+void Boundless(struct Level *level){
+    struct mesh_info* mi = level->ptr_mesh_info;
+    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
 
-//     if (USE_SPEEDWAY_PHYSICS && gGT->levelID <= LAB_BASEMENT) {
-//         SpeedwayPhys(lev);
-//     }
-// }
+    for (int i = 0; i < mi->numQuadBlock; i++) {
+        struct QuadBlock* qb = &quadBlocks[i];
+
+        //ignore Turbo pads
+        if (
+            qb->quadFlags & Q_TRIGGER_SCRIPT
+            // && (qb->terrain_type == TERRAIN_GRASS || qb->terrain_type == TERRAIN_DIRT) 
+        ){
+            continue;
+        }
+
+        //ignore kickers2 (idk why but this break some killplanes in n gin labs)
+        if (gGT->levelID == N_GIN_LABS && qb->quadFlags & Q_KICKERS2) {
+            continue;
+        }
+
+        //Remove Mask Grad and Out of Bounds from all quads
+        qb->quadFlags &= ~(Q_MASK_GRAB | Q_OOF_BOUNDS);
+
+        //Remove collition from killplanes and invisible walls
+        if (qb->quadFlags & Q_INV_TRIGGERS){
+            if(
+                qb->terrain_type != TERRAIN_MUD //Avoid holes in tiny arena
+                && qb->weather_intensity == 0 //Avoid holes on weather quadblocks
+                && !((
+                    gGT->levelID == CRASH_COVE
+                    || gGT->levelID == MYSTERY_CAVES
+                    || gGT->levelID == N_GIN_LABS
+                    || gGT->levelID == CORTEX_CASTLE
+                ) && (qb->quadFlags & Q_GROUND)) //Don't remove ground flags in these levels, it makes holes
+            ){ 
+                qb->quadFlags &= ~(Q_WALL | Q_GROUND);
+            }     
+        }
+        //Replace offroad terrains
+        if (
+            qb->terrain_type == TERRAIN_GRASS
+            || qb->terrain_type == TERRAIN_DIRT
+            || qb->terrain_type == TERRAIN_SNOW
+            || qb->terrain_type == TERRAIN_SLOWGRASS
+            || qb->terrain_type == TERRAIN_SLOWDIRT
+            || qb->terrain_type == TERRAIN_WATER
+            // || qb->terrain_type == TERRAIN_RIVERASPHALT
+            // || qb->terrain_type == TERRAIN_OCEANASPHALT
+            // || qb->terrain_type == TERRAIN_STEAMASPHALT
+            || qb->terrain_type == TERRAIN_MUD
+            || qb->terrain_type == TERRAIN_TRACK
+        ) {
+            qb->terrain_type = TERRAIN_ASPHALT;
+        }
+    }
+}
+
+void SpeedwayPhys(struct Level *level){
+    struct mesh_info* mi = level->ptr_mesh_info;
+    struct QuadBlock* quadBlocks = mi->ptrQuadBlockArray;
+
+    for (int i = 0; i < mi->numQuadBlock; i++) {
+        struct QuadBlock* qb = &quadBlocks[i];
+
+        // Add SpeedImpact
+        if (qb->quadFlags & (Q_GROUND | Q_WALL)) {
+            qb->speedImpact = -127;
+        }
+    }
+}
+#endif
+
+// Unused on online, this its meant to separate track spawns on custom tracks on unlimited mod
+# if 0
+void SeparateTrackSpawns(struct Level *level) {
+    // Get rotation of spawn 1 (our pivot point)
+    short baseRot = level->DriverSpawn[1].rot[1];
+    short baseAngle = (baseRot + 0x400) & 0xfff;
+
+    // Calculate left/right direction
+    short leftRightAngle = (baseAngle - 1000) & 0xfff;
+
+    // Separation distance
+    int separationDistance = 0x100;
+
+    // For each spawn point
+    for (int i = 0; i < 8; i++) {
+        int sideOffset = 0;
+        int backOffset = 0;
+
+        // Skip spawn 1 (our reference point)
+        if (i == 1) continue;
+
+        // Determine offsets based on spawn index
+        switch (i) {
+            case 0: sideOffset = -separationDistance; break;
+            case 2: sideOffset = separationDistance; break;
+            case 3: sideOffset = separationDistance * 2; break;
+            case 4: sideOffset = -separationDistance; backOffset = -separationDistance; break;
+            case 5: backOffset = -separationDistance; break;
+            case 6: sideOffset = separationDistance; backOffset = -separationDistance; break;
+            case 7: sideOffset = separationDistance * 2; backOffset = -separationDistance; break;
+        }
+
+        // Apply side offset (left/right)
+        if (sideOffset != 0) {
+            level->DriverSpawn[i].pos[0] += (MATH_Sin(leftRightAngle) * sideOffset) >> 12;
+            level->DriverSpawn[i].pos[2] += (MATH_Cos(leftRightAngle) * sideOffset) >> 12;
+        }
+
+        // Apply back offset
+        if (backOffset != 0) {
+            level->DriverSpawn[i].pos[0] += (MATH_Sin(baseAngle) * backOffset) >> 12;
+            level->DriverSpawn[i].pos[2] += (MATH_Cos(baseAngle) * backOffset) >> 12;
+        }
+    }
+}
+#endif    
