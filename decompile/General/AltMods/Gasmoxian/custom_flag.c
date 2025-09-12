@@ -12,9 +12,9 @@ int scratchpadBuf[0x1000];
 // Three values for R-G-B channels.
 // Set these to the brightest of the color you want for each tile
 // Decimal or Hex numbers is accepted, with maximum value of 255, no negative
-u_char lightTile[3] = {0x3F, 0xCD, 0x48};
-u_char darkTile[3] = {0x2C, 0x96, 0x32};
-// These specific colors are similar to Nitro-Fueled theme colors
+u_char lightTile[3] = {0x03, 0x42, 0x03};
+u_char darkTile[3] = {0x02, 0x1c, 0x03};
+
 force_inline unsigned char RaceFlag_CalculateBrightness(u_int sine, u_char darker)
 {
 	// This is the shader effect for wave shadow
