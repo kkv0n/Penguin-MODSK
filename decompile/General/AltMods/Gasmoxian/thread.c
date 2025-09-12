@@ -34,7 +34,7 @@ void ThreadFunc(struct Thread* t)
 	int isIdle = 0;
 
 	struct GameTracker* gGT = sdata->gGT;
-	octr->boolPlanetLEV = gGT->levelID == INTRO_POLAR; //gasmoxian lobby
+	octr->boolPlanetLEV = gGT->levelID == LOBBY_LEVEL_ID; //gasmoxian lobby
 
 	if(octr->boolPlanetLEV)
 	{
@@ -46,19 +46,19 @@ void ThreadFunc(struct Thread* t)
         // freecam mode
         gGT->cameraDC[0].cameraMode = 3;
 
-//pushbuffer
+		//pushbuffer
 		struct PushBuffer* pb = &gGT->pushBuffer[0];
 
-//cam position to right or left
+		//cam position to right or left
 		pb->pos[0] = 0x96C;
-// cam position to up or down
+		// cam position to up or down
 		pb->pos[1] = 0xA64;
-//zoom in or zoom out the camera		
+		//zoom in or zoom out the camera		
 		pb->pos[2] = 0xF879;
-//same thing but with rotation "0 = left or right" "1 = up or down"
-// "2 = zoom in or zoom out btw probably im wrong about the order"
+		//same thing but with rotation "0 = left or right" "1 = up or down"
+		// "2 = zoom in or zoom out btw probably im wrong about the order"
 		pb->rot[0] = 0x841 + 300;
-		pb->rot[1] = 0x77c + 400;
+		pb->rot[1] = 0x77c - 300;
 		pb->rot[2] = 0xff5;
 	}
 
@@ -121,7 +121,7 @@ void ThreadFunc(struct Thread* t)
 		//sdata->Loading.stage = 0;
 
 		// load with flag animation
-		DECOMP_MainRaceTrack_RequestLoad(INTRO_POLAR); //load gasmoxian lobby
+		DECOMP_MainRaceTrack_RequestLoad(LOBBY_LEVEL_ID); //load gasmoxian lobby
 
 		// kill thread,
 		// dont execute again until game loads

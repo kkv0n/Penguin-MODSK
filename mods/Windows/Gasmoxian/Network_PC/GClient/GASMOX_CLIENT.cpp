@@ -761,7 +761,7 @@ void StatePC_Launch_PickServer()
 	int gGT_levelID = *(int*)&pBuf[(0x80096b20 + 0x1a10) & 0xffffff];
 
 	// must be in cutscene level to see country selector
-	if (gGT_levelID!= 33)
+	if (gGT_levelID!= LOBBY_LEVEL_ID)
 		return;
 
 	// quit if in loading screen (force-reconnect)

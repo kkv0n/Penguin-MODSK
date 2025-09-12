@@ -1,5 +1,9 @@
 #include <common.h>
 
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/global.h"
+#endif
+
 void StateZero();
 
 //#define FastBoot
@@ -780,7 +784,7 @@ void StateZero()
 	gGT->levelID = NAUGHTY_DOG_CRATE;
 
 	#ifdef USE_GASMOXIAN
-	gGT->levelID = INTRO_POLAR; //gasmoxian lobby
+	gGT->levelID = LOBBY_LEVEL_ID; //gasmoxian lobby
 	#endif
 
 	#ifdef FastBoot

@@ -334,7 +334,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			//if you are wondering why im adding numbers is for being able to search it more easy
 			//btw dont change this to track levels, just keep it in 0x26 or it will crash
 			// Load Region3 for planet
-			if(gGT->levelID == INTRO_POLAR)
+			if(gGT->levelID == LOBBY_LEVEL_ID)
 				ovrRegion3 = 3;
 			else
 			#endif
@@ -603,8 +603,14 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 			extern int NightFilterBrightness;
 			extern int NightFilterBlueTint;
-			extern bool NightFilterApplied(struct Level *level);
 			extern void HandleDynamicLighting(struct Level *level);
+
+			extern bool CaptureSkybox(struct Level* level);
+			extern bool GreenSkybox(struct Level* level);
+			if(gGT->levelID == LOBBY_LEVEL_ID){
+				CaptureSkybox(lev);
+				GreenSkybox(lev);
+			}
 
 			// if(USE_ITEMLESS){
 			// 	sdata->gGT->gameMode2 |= DISABLE_LEV_INSTANCE;
@@ -622,8 +628,11 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 			if (
 				USE_NIGHT_FILTER
-				&& gGT->levelID <= INTRO_OXIDE
+				&& gGT->levelID <= TURBO_TRACK
+				#if 0
+				extern bool NightFilterApplied(struct Level *level);
 				&& !NightFilterApplied(lev)
+				# endif
 			){
 				NightFilter(gGT->level1, NightFilterBrightness, NightFilterBlueTint);
 				
@@ -644,7 +653,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			extern void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type);
 
 			//Randomly select a WEATHER_TYPE (WEATHER_RAIN 2%, WEATHER_SNOW 1%)
-			if(gGT->levelID != INTRO_POLAR){
+			if(gGT->levelID != LOBBY_LEVEL_ID){
 				int randVal = rand() % 100;
 				if (randVal < 2) {
 					AddWeather(gGT->level1, WEATHER_RAIN);

@@ -44,6 +44,7 @@
 #define DISCONNECT_AT_UNSYNCED_FRAMES   60
 #endif
 
+#define LOBBY_LEVEL_ID 38
 
 enum ClientState
 {

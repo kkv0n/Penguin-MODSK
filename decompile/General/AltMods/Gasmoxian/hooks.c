@@ -171,7 +171,7 @@ void OnlineInit_Drivers(struct GameTracker* gGT)
 		#endif
 	}
 
-	if (gGT->levelID != INTRO_POLAR) //lobby level2
+	if (gGT->levelID != LOBBY_LEVEL_ID) //lobby level2
 	{
 		octr->CurrState = GAME_WAIT_FOR_RACE;
 	}
