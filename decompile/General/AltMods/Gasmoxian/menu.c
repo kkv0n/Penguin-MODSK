@@ -982,5 +982,8 @@ sprintf(message, "Pista: %s",
 	}
 
 	DecalFont_DrawLine(message,posX,0x38,FONT_SMALL,PAPU_YELLOW);
-	DecalFont_DrawLine(onlineLapString,posX+2,0x40,FONT_SMALL,PAPU_YELLOW);
+
+	if(!octr->gamemodes[SURVIVAL] && !octr->gamemodes[SURVIVAL_TIMER]){ // screw this, string still bugs sometimes
+		DecalFont_DrawLine(onlineLapString,posX+2,0x40,FONT_SMALL,PAPU_YELLOW);
+	}
 }
