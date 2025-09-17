@@ -19,6 +19,7 @@
 #include "changecamera.c"
 #include "setnextcamera.c"
 #include "spectator_icons.c"
+#include "draw_mask_warning.c"
 
 #include "Class_stats_Box.c"
 
@@ -365,6 +366,35 @@ int GetActiveDriversCount() {
 	return octr->NumDrivers - numDead;
 }
 
+int SquaredDistanceDrivers(struct Driver* d1, struct Driver* d2)
+{
+	int dx = d1->instSelf->matrix.t[0] - d2->instSelf->matrix.t[0];
+	int dz = d1->instSelf->matrix.t[2] - d2->instSelf->matrix.t[2];
+	return (dx * dx) + (dz * dz);
+}
+
+void CrossDotProductsDriversPos(struct Driver* d1, struct Driver* d2, int *crossProduct, int*dotProduct)
+{
+	// Get positions
+	int d1X = d1->instSelf->matrix.t[0];
+	int d1Z = d1->instSelf->matrix.t[2];
+	int d2X = d2->instSelf->matrix.t[0];
+	int d2Z = d2->instSelf->matrix.t[2];
+
+	// Get d1's facing direction from matrix
+	int forwardX = d1->matrixFacingDir.m[0][2];
+	int forwardZ = d1->matrixFacingDir.m[2][2];
+
+	// Vector from d1 to d2
+	int dirX = d2X - d1X;
+	int dirZ = d2Z - d1Z;
+
+	// Cross product to determine left/right
+	*crossProduct = (forwardX * dirZ) - (forwardZ * dirX);
+	// Dot product to determine front/back
+	*dotProduct = (forwardX * dirX) + (forwardZ * dirZ);
+}
+
 // GAMEMODES HANDLING (From Unlimited)
 
 bool USE_NORMAL;
@@ -634,6 +664,8 @@ void RunGamemodesUpdateHook() {
 	// only applies depending on quadblock vcolor
 	if (USE_ITEMLESS && !USE_MIRROR)
 		GhostifyDrivers();
+
+	HandleMaskWarning();
 
 }
 
