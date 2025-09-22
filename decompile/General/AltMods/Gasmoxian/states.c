@@ -17,15 +17,40 @@ void menu_tittle() {
 	}
 	else
 	{
-     #ifdef GASMOX_ENG
-	char* text[7] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SELECT CHARACTER", "TURNING STYLE", "GOOD LUCK EVERYONE!" };
-	#elif defined(GASMOX_ES)
-	char* text[7] = { "GASMOXIAN", "ELIGE PISTA", "ELIGE MODO", "VUELTAS", "ELIG PERSONAJE", "GIRO DE MOTOR", "SUERTE A TODOS!" };
-	#elif defined(GASMOX_BR)
-	char* text[7] = { "GASMOXIAN", "SELEC pista", "SELEC MODO", "VOLTAS", "SEL PERSONAGEM", "CURVA DE MOTOR", "boa sorte a todos!" };
-	#endif
-		//the text above the server list
-		strcpy(sdata->lngStrings[0x4e], text[label]);
+		
+		 unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+
+	char* textEN[7] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SELECT CHARACTER", "TURNING STYLE", "GOOD LUCK EVERYONE!" };
+
+	char* textES[7] = { "GASMOXIAN", "ELIGE PISTA", "ELIGE MODO", "VUELTAS", "ELIG PERSONAJE", "GIRO DE MOTOR", "SUERTE A TODOS!" };
+
+	char* textPT[7] = { "GASMOXIAN", "SELEC pista", "SELEC MODO", "VOLTAS", "SEL PERSONAGEM", "CURVA DE MOTOR", "boa sorte a todos!" };
+
+	
+	char** curr_language[] = {textEN, textES, textPT};
+	
+     //the text above the server list
+	 //does this really needs strcpy? i dont think so --penta3
+	 strcpy(sdata->lngStrings[0x4e], curr_language[desired_index][label]);
+		
+	for (unsigned char i = 355; i < 370; i++)
+	{
+	   //overwrite boss challenges text
+      sdata->lngStrings[i] = curr_language[desired_index][label];
+	}
 	}
 }
 
@@ -78,20 +103,34 @@ void afktimer()
 }
 void StatePS1_Launch_EnterPID()
 {
+	
+		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
+		char* clientText[3] =
+		{
+		 	"Attach Windows Client To Continue",
+			"ABRE EL CLIENTE PARA CONTINUAR",
+			"Conecte com o Client para Continuar"
+		};
+		
 	//client closed text message
-#ifdef GASMOX_ENG
-	DECOMP_DecalFont_DrawLine(
-		"Attach Windows Client To Continue",
+	DECOMP_DecalFont_DrawLine(clientText[desired_index],
+		
 		0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
-#elif defined(GASMOX_ES)
-				DECOMP_DecalFont_DrawLine(
-		"ABRE EL CLIENTE PARA CONTINUAR",
-		0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
-#elif defined(GASMOX_BR)
-							DECOMP_DecalFont_DrawLine(
-		"Conecte com o Client para Continuar",
-		0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
-#endif
+
 }
 
 extern char* countryNames[4];
@@ -100,6 +139,7 @@ bool initString = true;
 
 void ShowCharacterIcon(int characterID, int x, int y, int scale)
 {
+	//this is not needed for items if we use drawWeapon instead.
 	if (octr->boolClientBusy || driver->heldItemID == 0x7 || driver->heldItemID == 0xe || driver->heldItemID == 0x6)
 	{
 		return;
@@ -118,16 +158,33 @@ void StatePS1_Launch_PickServer()
 	octr->autoRetryJoinRoomIndex = -1;
 
 
+		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
 
-#ifdef GASMOX_ENG
-DecalFont_DrawLine("WELCOME TO GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
-#elif defined(GASMOX_ES)
-DecalFont_DrawLine("BIENVENIDO,GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
-#elif defined(GASMOX_BR)
-DecalFont_DrawLine("BEMVINDO AO GASMOXIAN", 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
-#endif
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
+		char* welcmText[3] =
+		{
+			"WELCOME TO GASMOXIAN",
+			"BIENVENIDO,GASMOXIAN",
+			"BEMVINDO AO GASMOXIAN"
+		};
+		
+
+DecalFont_DrawLine(welcmText[desired_index], 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+
 	//print oxide icon
-	ShowCharacterIcon(NITROS_OXIDE, 235, 80, FP(1));
+	ShowCharacterIcon(NITROS_OXIDE, 235, 67, FP(1));
 
 	MenuWrites_ServerCountry();
 
@@ -193,20 +250,42 @@ for (int i = 0; i < 16; i++) {
     serverTotal += curr;
 }
 
+
+		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
 // Players online counter
-#ifdef GASMOX_ENG
-char text[25] = "Players Online: 000";
-#elif defined(GASMOX_ES)
-char text[25] = "Jugadores actv: 000";
-#elif defined(GASMOX_BR)
-char text[25] = "Jogadores aqui: 000";
-#endif
-text[16] = '0' + ((serverTotal / 100) % 10);
-text[17] = '0' + ((serverTotal / 10) % 10);
-text[18] = '0' + (serverTotal % 10);
+
+char* text[] = {
+ "Players Online: ",
+ "Jugadores activos: ",
+ "Jogadores aqui: "
+};
+
+
+char numPlyr[27];
+
+//i guess the person who did this didnt heard about sprintfs
+//text[16] = '0' + ((serverTotal / 100) % 10);
+//text[17] = '0' + ((serverTotal / 10) % 10);
+//text[18] = '0' + (serverTotal % 10);
+
+sprintf(numPlyr, "%s%d", text[desired_index], serverTotal); 
 
 	DecalFont_DrawLine(
-		text,
+		numPlyr,
 		menu.posX_curr,0xb8,
 		FONT_SMALL,JUSTIFY_CENTER|PAPU_YELLOW);
 		
@@ -216,16 +295,33 @@ text[18] = '0' + (serverTotal % 10);
 
 void StatePS1_Launch_Error()
 {
-	char str[32];
-#ifdef GASMOX_ENG
+	
+	
+		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
 
-	char* str2 = "PLEASE UPDATE YOUR GAME TO PLAY";
-#elif defined(GASMOX_ES)
-char* str2 = "ACTUALIZA TU JUEGO PARA JUGAR.";
-#elif defined(GASMOX_BR)
-char* str2 = "PLEASE UPDATE YOUR GAME TO PLAY";
-#endif
-	DECOMP_DecalFont_DrawLine(str2,0x100,0x74,FONT_SMALL,JUSTIFY_CENTER);
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+
+
+char* updateText[3] = {
+
+	"PLEASE UPDATE YOUR GAME BEFORE!",
+	"ACTUALIZA TU JUEGO PARA PODER JUGAR",
+	"ATUALIZE SEU JOGO PARA PODER JOGAR",
+};
+
+
+	DECOMP_DecalFont_DrawLine(updateText[desired_index],0x100,0x74,FONT_SMALL,JUSTIFY_CENTER);
 
 	sdata->ptrActiveMenu = 0;
 }
@@ -312,35 +408,45 @@ void StatePS1_Lobby_GuestTrackWait()
 
 	// close menu
 	sdata->ptrActiveMenu = 0;
+	
+		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
+		char* text1[3] = {
+			"waiting for host",
+			"esperando a que el",
+			"Esperando o lider"
+		};
+		
+		char* text2[3] = {
+			"to pick the track",
+			"host elija pista",
+			"escolher a pista"	
+		};
+
+//cant remember if these text lines are broken and are actually never showed --penta3
 //ready to start the race text
-#ifdef GASMOX_ENG
 	DECOMP_DecalFont_DrawLine(
-		"waiting for host",
+		text1[desired_index],
 		menu.posX_curr,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 
 	DECOMP_DecalFont_DrawLine(
-		"to pick the track",
+		text2[desired_index],
 		menu.posX_curr,0x7C,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 		
-#elif defined(GASMOX_ES)
-			DECOMP_DecalFont_DrawLine(
-		"esperando a que el",
-		menu.posX_curr,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 
-	DECOMP_DecalFont_DrawLine(
-		"host elija pista",
-		menu.posX_curr,0x7C,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
-		
-#elif defined(GASMOX_BR)
-			DECOMP_DecalFont_DrawLine(
-		"Esperando o lider",
-		menu.posX_curr,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
-
-	DECOMP_DecalFont_DrawLine(
-		"escolher a pista",
-		menu.posX_curr,0x7C,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
-		
-#endif
 }
 
 void StatePS1_Lobby_CharacterPick()
@@ -369,6 +475,7 @@ void StatePS1_Lobby_CharacterPick()
 		data.characterIDs[0] = (8 * octr->PageNumber) + b->rowSelected;
 		
 		//oxide custom cam
+		//this can be done in other ways, overwriting data.NearCam and data.Farcam on execution time is one option
         if (data.characterIDs[0] == NITROS_OXIDE)
         {
             oxidecam = 1;
@@ -430,6 +537,7 @@ void StatePS1_Lobby_StartLoading()
 	endRace = true;
 	PrintCharacterStats();
 	PrintRecvTrack();
+	
 //i think this is the loading track text in the online menu
 	DECOMP_DecalFont_DrawLine(
 		"LOADING...",
@@ -491,6 +599,7 @@ RECT drawTimeRECT =
 
 extern unsigned int checkpointTimes[(MAX_LAPS * CPS_PER_LAP) + 1];
 
+//this is to reset the custom checkpoint count (most likely custom checkpoint are only for times);
 static void OnRaceInit()
 {
 	for (int i = 0; i < MAX_NUM_PLAYERS; i++)
@@ -528,23 +637,35 @@ void StatePS1_Game_WaitForRace()
 
 	posY = 0x46;
 	drawTimeRECT.h = 0;
+	
+			unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
+		char* waitText[3] =
+		{
+			"WAITING FOR PLAYERS...",
+			"ESPERANDO JUGADORES...",
+			"ESPERANDO JOGADORES...",
+		};
+		
 //more ui text for rooms
-#ifdef GASMOX_ENG
 	DECOMP_DecalFont_DrawLine(
-		"WAITING FOR PLAYERS...",
+		waitText[desired_index],
 		0x100, posY + drawTimeRECT.h,
 		FONT_SMALL, (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN));
-#elif defined(GASMOX_ES)
-			DECOMP_DecalFont_DrawLine(
-		"ESPERANDO JUGADORES...",
-		0x100, posY + drawTimeRECT.h,
-		FONT_SMALL, (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN));
-#elif defined(GASMOX_BR)
-			DECOMP_DecalFont_DrawLine(
-		"ESPERANDO JOGADORES...",
-		0x100, posY + drawTimeRECT.h,
-		FONT_SMALL, (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN));
-#endif
+
 
 	// add for each line
 	drawTimeRECT.h += 8;

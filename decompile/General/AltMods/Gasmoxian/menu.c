@@ -7,45 +7,51 @@ char gamemode_buffers[8][64];
 
 //special menu text, probably will move it later
 // OCTR SPECIAL MENU BY PENTA3
-char* special_name[] = {
-#ifdef GASMOX_ENG
+char* special_nameEN[] = {
+
     "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETRO FUELED", "FIRST PERSON", "BOSS RACE", "DEMO CAMERA", "N-VERTED", "SHORTCUTLESS", "NIGHT MODE", "DARKNESS", "ITEM CHAOS", "SURVIVAL", "TIMED SURVIVAL",
-#elif defined(GASMOX_ES)
+};
+char* special_nameES[] = {
     "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETRO FUELED", "PRIMERA PERSONA", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE", "OSCURIDAD", "CAOS DE ITEMS", "SUPERVIVENCIA", "SUPERVIVENCIA-T",
-#elif defined(GASMOX_BR)
+};
+char* special_namePT[] = {
     "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETRO FUELED", "PRIMEIRA PESSOA", "CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO", "CAOS DE ITENS", "SUPERVIVÊNCIA", "SUPERVIVÊNCIA-T",
-#endif
 };
 
-char* special_abbr[] = {
-#ifdef GASMOX_ENG
+char* special_abbrEN[] = {
     "NRM", "MIRR", "ICY", "TT", "MOON", "RETRO", "FP", "BOSS", "DEMO", "N-VER", "NOSC", "NIGHT", "DARK", "CHAOS", "SURV", "TMSRV",
-#elif defined(GASMOX_ES)
+};
+char* special_abbrES[] = {
     "NRM", "ESPJ", "HIELO", "NOITM", "LUNA", "RETRO", "PP", "JEFE", "DEMO", "N-VER", "NOATJ", "NOCHE", "OSCUR", "CAOS", "SUPER", "STIEM",
-#elif defined(GASMOX_BR)
+};
+char* special_abbrPT[] = {
     "NRM", "ESPEL", "GELO", "NOITM", "LUNAR", "RETRO", "PP", "CHEFE", "DEMO", "N-VER", "NOATJ", "NOITE", "ESCUR", "CAOS", "SUPER", "STIEM",
-#endif
 };
 
-short special_size = sizeof(special_name) / sizeof(special_name[0]);
+char** abbrLangs[] = {special_abbrEN, special_abbrES, special_abbrPT};
 
-char* engine_names[] = {
-	#ifdef GASMOX_ENG
+short special_size = sizeof(special_nameEN) / sizeof(special_nameEN[0]);
+
+char* engine_namesEN[] = {
+		
 	"BALANCED",
 	"ACCEL",
 	"SPEED",
 	"TURN"
-	#elif defined(GASMOX_ES)
+};
+char* engine_namesES[] = {
 	"BALANCEADO",
 	"ACELERACION",
 	"VELOCIDAD",
 	"GIRO"
-	#elif defined(GASMOX_BR)
+};
+
+char* engine_namesPT[] = {
 	"EQUILIBRADO",
 	"ACELERACAO",
 	"VELOCIDADE",
 	"MAXIMIZADO"	
-	#endif
+
 };
 
 //todo: substract the rows for server country and engine menus
@@ -116,18 +122,14 @@ int MenuFinished()
 	return *OnPressX_SetLock;
 }
 //server names can be changed without problems
-//for some reason when i change the number from 8 to 3 i got 20 extra bytebudget 
+
+//TO DO: add "private" translation for every language later.
 char* countryNames[4] =
 {
 	"Mednafen Peru",
 	"Mednafen USA",
 	"Gasmox Chile",
-#ifdef GASMOX_ENG
-    "Private server",
-#elif defined(GASMOX_ES) || defined(GASMOX_BR)
-    "Sala privada",
-#endif
-	
+    "Private server",	
 };
 
 bool sv_menuopen;
@@ -181,25 +183,30 @@ int GetNumRoom()
 {
 	int numRooms = 0;
 
+//what is this --penta3
+/*
 #if 0
 	switch(octr->serverCountry)
 	{
 
 	}
 #endif
+*/
 
 	return 16;
 }
 //room letters//number
 int GetRoomChar(int pn)
 {
+	//again, this can be done with sprintf
+	//this shows the room name
     if (pn <= 9)
     {
         return '0' + pn;
     }
     else
     {
-        return 'A' + (pn-10);
+        return 'A' + (pn-10); //and i dont think we should use hexadecimal to represent room numbers
     }
 }
 
@@ -215,10 +222,25 @@ void NewPage_ServerRoom()
 	//remove server menu fix
 	menuRows[3].rowOnPressDown = 4;
 	
+	    unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
 
 	// override "LAPS" "3/5/7"
 	//room names, the names can be translated or rewrite
-	#ifdef GASMOX_ENG
+	if (desired_index == 0)
+	{
 	sdata->lngStrings[0x9a] = "ROOM 1 - x/8";
 	sdata->lngStrings[0x9b] = "ROOM 2 - x/8";
 	sdata->lngStrings[0x9c] = "ROOM 3 - x/8";
@@ -227,7 +249,9 @@ void NewPage_ServerRoom()
 	sdata->lngStrings[0x9f] = "ROOM 6 - x/8";
 	sdata->lngStrings[0xa0] = "ROOM 7 - x/8";
 	sdata->lngStrings[0xa1] = "ROOM 8 - x/8";
-	#elif defined(GASMOX_ES) || defined(GASMOX_BR)
+	}
+	else
+	{
 	sdata->lngStrings[0x9a] = "SALA 1 - x/8";
 	sdata->lngStrings[0x9b] = "SALA 2 - x/8";
 	sdata->lngStrings[0x9c] = "SALA 3 - x/8";
@@ -236,12 +260,11 @@ void NewPage_ServerRoom()
 	sdata->lngStrings[0x9f] = "SALA 6 - x/8";
 	sdata->lngStrings[0xa0] = "SALA 7 - x/8";
 	sdata->lngStrings[0xa1] = "SALA 8 - x/8";	
-		
-	
-	#endif
+	}
 
 	int pn = octr->PageNumber;
-
+    
+	//all of this can use sprintf instead, but im too lazy to change it --penta3
 	for(i = 0; i < 8; i++)
 	{
 		menuRows[i].stringIndex = 0x809a+i;
@@ -383,19 +406,42 @@ void NewPage_Events()
 {
     label = 2;
     int i;
-
+    
+	
+	      unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+	
+	char* press1Text[3] =
+	{
+		"PRESS ^ TO TOGGLE",
+		"PRESIONA ^ PARA ALTERNAR",
+		"PRESSIONE ^ PARA ALTERNAR"
+	};
+	
+	char* press2Text[3] =
+	{
+		"PRESS * TO CONFIRM",
+		"PRESIONA * PARA CONFIRMAR",
+		"PRESSIONE * PARA CONFIRMAR"
+	};
+	
     // Add instruction text at the top
-    #ifdef GASMOX_ENG
-    DecalFont_DrawLine("PRESS ^ TO TOGGLE", 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
-    DecalFont_DrawLine("PRESS * TO CONFIRM", 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
-    #elif defined(GASMOX_ES)
-    DecalFont_DrawLine("PRESIONA ^ PARA ALTERNAR", 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
-    DecalFont_DrawLine("PRESIONA * PARA CONFIRMAR", 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
-    #elif defined(GASMOX_BR)
-    DecalFont_DrawLine("PRESSIONE ^ PARA ALTERNAR", 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
-    DecalFont_DrawLine("PRESSIONE * PARA CONFIRMAR", 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
-    #endif
+    DecalFont_DrawLine(press1Text[desired_index], 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    DecalFont_DrawLine(press2Text[desired_index], 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
 
+    char** specials[] = {special_nameEN, special_nameES, special_namePT};
+	
     // Base position for menu rows
     int baseY = 105;
     int iconOffsetX = 30;
@@ -409,8 +455,10 @@ void NewPage_Events()
             // Check if this mode is incompatible with any enabled modes
             bool incompatible = IsGamemodeIncompatible(max);
             
+			char* curr_name = specials[desired_index][max];
+			
             // Show mode name
-            sprintf(gamemode_buffers[i], "%s", special_name[max]);
+            sprintf(gamemode_buffers[i], "%s", curr_name);
             sdata->lngStrings[0x9a + i] = gamemode_buffers[i];
             
             // Calculate Y position for this row (16 pixels between rows)
@@ -594,11 +642,30 @@ void NewPage_Engine()
 	
 	//fix menu bug
     menuRows[3].rowOnPressDown = 3;
-			
+	
+	
+		 unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+	
+	char** langs[] = {
+		engine_namesEN, engine_namesES, engine_namesPT
+	};
+	
     for (i = 0; i < 8; i++)
     {
 		if (i < 4)
-		sdata->lngStrings[0x9a + i] = engine_names[i];
+		sdata->lngStrings[0x9a + i] = langs[desired_index][i];
 		
         menuRows[i].stringIndex = 0x9a + i;
 		
@@ -649,7 +716,7 @@ void UpdateMenu()
 	if (pageMax == 0) { return; }
 	
 	
-	//can just use sprintf there i think
+	//can just use sprintf there i think //YES IT CAN.
 	int string =
 		(('1' + octr->PageNumber) << 0) |
 		('/' << 8) |
@@ -768,14 +835,34 @@ void PrintCharacterStats()
 
 	int posX = 0x100;
 	int posY = 0x18;
-
+	
+	
+		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+    
+	
+	
 	// Skip NORMAL mode (i=0) and start from i=1
 	for (int i = 1; i < special_size; i++) {
 		if (octr->gamemodes[i]) {
 			if (mode_count > 0) {
 				strcat(title_buffer, "-");  // Use dash instead of plus
 			}
-			strcat(title_buffer, special_abbr[i]);  // Use abbreviation
+			
+			char* current_abbr = abbrLangs[desired_index][i];
+			
+			strcat(title_buffer, current_abbr);  // Use abbreviation
 			mode_count++;
 			
 			// Break into new line if string gets too long
@@ -790,7 +877,7 @@ void PrintCharacterStats()
 
 	// If no active modes besides NORMAL, show just NORMAL
 	if (mode_count == 0) {
-		strcpy(title_buffer, special_abbr[0]);
+		strcpy(title_buffer, abbrLangs[desired_index][0]);
 	}
 	
 	// Draw any remaining modes
@@ -802,11 +889,27 @@ void PrintCharacterStats()
 	DecalFont_DrawLine(
 		countryNames[octr->serverCountry],
 		0x10, 0x10, FONT_SMALL, 0);
+		
+
+char* roomText[3] = {
+	"ROOM x",
+	"SALA x",
+	"SALA x",	
+};
+
+char* playersText[3] =
+{
+	"Players: ",
+	"JUGADORES: ",
+	"JOGADORES: "
+	
+};
+
 //i think this is the room name in the top left of the screen
-#ifdef GASMOX_ENG
-	char* roomName = "ROOM x";
-	roomName[5] = GetRoomChar(octr->serverRoom+1);
 
+	char* roomName = roomText[desired_index];
+	
+	roomName[5] = GetRoomChar(octr->serverRoom+1); //sprintf pls
 	DecalFont_DrawLine(
 		roomName,
 		0x10, 0x18, FONT_SMALL, 0);
@@ -819,53 +922,12 @@ void PrintCharacterStats()
 			numDead++;
 
 	posX = 0x110;
-	sprintf(message, "Players: %d/8", (octr->NumDrivers-numDead));
+	sprintf(message, "%s%d/8", playersText[desired_index],(octr->NumDrivers-numDead));
 	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
 
 	int h = 0;
 
-#elif defined(GASMOX_ES)
-	char* roomName = "SALA x";
-	roomName[5] = GetRoomChar(octr->serverRoom+1);
 
-	DecalFont_DrawLine(
-		roomName,
-		0x10, 0x18, FONT_SMALL, 0);
-
-
-
-	int numDead = 0;
-	for(i = 0; i < octr->NumDrivers; i++)
-		if(octr->nameBuffer[i][0] == 0)
-			numDead++;
-
-	posX = 0x110;
-	sprintf(message, "JUGADORES: %d/8", (octr->NumDrivers-numDead));
-	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
-
-	int h = 0;
-
-#elif defined(GASMOX_BR)
-	char* roomName = "SALA x";
-	roomName[5] = GetRoomChar(octr->serverRoom+1);
-
-	DecalFont_DrawLine(
-		roomName,
-		0x10, 0x18, FONT_SMALL, 0);
-
-
-
-	int numDead = 0;
-	for(i = 0; i < octr->NumDrivers; i++)
-		if(octr->nameBuffer[i][0] == 0)
-			numDead++;
-
-	posX = 0x110;
-	sprintf(message, "JOGADORES: %d/8", (octr->NumDrivers-numDead));
-	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
-
-	int h = 0;
-#endif
 
 
 	// UI-test
@@ -918,9 +980,13 @@ void PrintCharacterStats()
 
 		if(octr->CurrState < LOBBY_ENGINEPICK)
 			continue;
-
+        
+			char** langs[] = {
+		engine_namesEN, engine_namesES, engine_namesPT
+	};
+	
 		char* curr_engine =
-					engine_names[octr->enginetype[slot]];
+					langs[desired_index][octr->enginetype[slot]];
 
 		posX = 0x18C;
 		DecalFont_DrawLine(curr_engine, (posX - 11),posY,FONT_SMALL,color);
@@ -928,33 +994,67 @@ void PrintCharacterStats()
 
 	posX = 0x11E;
 	posY = 0xB3;
-#ifdef GASMOX_ENG
-	DecalFont_DrawLine("Gasmoxian is a modified",posX,posY,FONT_SMALL,0);
-	DecalFont_DrawLine("version of OnlineCTR.",posX+0x10,posY+0x8,FONT_SMALL,0);
-	DecalFont_DrawLine("BY PENTA3-ANZU-ANFROST",posX,posY+0x10,FONT_SMALL, PAPU_YELLOW);
-#elif defined(GASMOX_ES)
-	DecalFont_DrawLine("gasmoxian es una version",posX,posY,FONT_SMALL,0);
-	DecalFont_DrawLine("modificada de onlinectr,",posX-0x8,posY+0x8,FONT_SMALL,0);
-	DecalFont_DrawLine("POR PENTA3-ANZU-ANFROST",posX,posY+0x10,FONT_SMALL,PAPU_YELLOW);
-#elif defined(GASMOX_BR)
-    DecalFont_DrawLine("gasmoxian eh uma versao",posX,posY,FONT_SMALL,0);
-    DecalFont_DrawLine("modificada do octr, para",posX-0x8,posY+0x8,FONT_SMALL,0);
-    DecalFont_DrawLine("POR PENTA3-ANZU-ANFROST",posX,posY+0x10,FONT_SMALL,PAPU_YELLOW);
+	
+	char* g1Text[3] = {
+		"Gasmoxian is a modified",
+		"gasmoxian es una version",
+		"gasmoxian eh uma versao"
+	};
+	
+	char* g2Text[3] =
+	{
+	  	"version of OnlineCTR.",
+		"modificada de onlinectr,",
+		"modificada do octr, para",
+		
+	};
+	
+	char* g3Text[3] =
+	{
+		"BY PENTA3-ANZU-ANFROST",
+		"POR PENTA3-ANZU-ANFROST",
+		"POR PENTA3-ANZU-ANFROST"
+	};
+	
 
-#endif
-	}
+//i think a function to draw multiple lines already exists.
+	DecalFont_DrawLine(g1Text[desired_index],posX,posY,FONT_SMALL,0);
+	DecalFont_DrawLine(g2Text[desired_index],posX+0x10,posY+0x8,FONT_SMALL,0);
+	DecalFont_DrawLine(g3Text[desired_index],posX,posY+0x10,FONT_SMALL, PAPU_YELLOW);
+
+}
 	
 
 char* onlineLapString = "Laps: 000\0";
 void PrintRecvTrack()
 {
 	char message[32];
+	
+			unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
+		char* trackText[3] =
+		{
+			"Track: ",
+			"Pista: ",
+			"Pista: "
+		};
 
-#ifdef GASMOX_ENG
-	sprintf(message, "Track: %s",
-#elif defined(GASMOX_ES) || defined(GASMOX_BR)
-sprintf(message, "Pista: %s",
-#endif
+
+
+	sprintf(message, "%s%s", trackText[desired_index],
+
 				sdata->lngStrings
 				[
 					data.metaDataLEV[octr->levelID].name_LNG
@@ -971,6 +1071,8 @@ sprintf(message, "Pista: %s",
 	}
 
 	int numLaps = sdata->gGT->numLaps;
+	
+	//can do sprintf
 	onlineLapString[6] = '0' + ((numLaps / 100) % 10);
 	onlineLapString[7] = '0' + ((numLaps / 10) % 10);
 	onlineLapString[8] = '0' + (numLaps % 10);

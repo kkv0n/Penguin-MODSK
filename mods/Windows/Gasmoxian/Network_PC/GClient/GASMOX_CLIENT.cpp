@@ -316,9 +316,9 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			// Default, disable cheats
 			int* cheats = (int*)&pBuf[0x80096b28 & 0xffffff];
 			*cheats &= ~(0x100000 | 0x80000 | 0x400 | 0x80000 | 0x400000 | 0x8000000 | 0x10000);
-			
-			// Always set the turbo counter cheat
-			*(int*)&pBuf[(0x80096b28) & 0xffffff] = 0x8000000;
+
+
+			//turbo counter cheat not needed on client side, can be enabled on the launcher
 			
 			// Apply ICY_TRACKS cheat if enabled
 			if (octr->gamemodes[ICY_TRACKS]) {
@@ -357,9 +357,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			short* characterIDV = (short*)&pBuf[(0x80086e84 + (2 * slot)) & 0xffffff];
 			*characterIDV = characterID;
 
-			//this defines the default engine if enginetype is 4-5, but only for other players.
-			//needed because my code in engineaudio overwrittes the value in zdataglobal ._XD
-			//anyways it is better than only have the default audio
+			//this defines the default engine if enginetype is > 4 (max), but only for other players, if driver->driverID != 0
 
 			//int desiredengines[] = { 0, 0, 2, 1, 1, 2, 3, 3,
 			//		  1, 2, 3, 0, 2, 3, 0, 0 };
@@ -1165,9 +1163,8 @@ void StatePC_Lobby_CharacterPick()
 		sendToHostReliable(&mc, sizeof(CG_MessageCharacter));
 	}
 
-	//this defines the default engine if enginetype is 4-5, but only for your player [0].
-//needed because my code in engineaudio overwrittes the value in zdataglobal ._XD
-//anyways it is better than only have the default audio
+	//this defines the default engine if enginetype is > 4(MAX), but only for your gGT->drivers[0].
+
 
 	//unsigned char ogEngine = mc.characterID;
 

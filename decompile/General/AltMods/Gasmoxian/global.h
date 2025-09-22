@@ -1,7 +1,7 @@
 #ifndef ONLINE_GLOBAL_H
 #define ONLINE_GLOBAL_H
 
-#define GASMOXIAN_VER 2
+#define GASMOXIAN_VER 3
 
 #ifdef __cplusplus
 

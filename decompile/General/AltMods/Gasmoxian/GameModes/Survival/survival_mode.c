@@ -32,6 +32,22 @@ void InitSurvivalMode(bool enabled){
 
 void HandleSurvivalMode(bool enabled){
     if(!enabled) return;
+    
+    
+        unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
 
     // Check if there are at least 2 players
     if(raceInitActiveDriversCount < 2)
@@ -91,32 +107,32 @@ void HandleSurvivalMode(bool enabled){
     if(lastDriver->driverID == localDriver->driverID) {
         int textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
         
+
+        
+        char* lastText[3] = {
+            "LAST PLACE!!!",
+            "ULTIMO LUGAR!!!",
+            "ULTIMO LUGAR!!!"
+        };
+            
         sprintf(
-            decalText, 
-            #ifdef GASMOX_ENG
-            "LAST PLACE!!!"
-            #elif defined(GASMOX_ES)
-            "ULTIMO LUGAR!!!"
-            #elif defined(GASMOX_BR)
-            "ULTIMO LUGAR!!!"
-            #endif
-        );
+            decalText, lastText[desired_index]);
             DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | textColor));
     }
 
     // If local player was eliminated, display the message
     if(DriverIsEliminated(localDriver)) {
         int textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        char* posText[3] = {
+            "ELIMINATED! POSITION: ",
+            "ELIMINADO! POSICION: ",
+            "ELIMINADO! POSIÇÃO: "
+        };
+        
         sprintf(
-            decalText, 
-            #ifdef GASMOX_ENG
-            "ELIMINATED! POSITION: %d",
-            #elif defined(GASMOX_ES)
-            "ELIMINADO! POSICION: %d",
-            #elif defined(GASMOX_BR)
-            "ELIMINADO! POSIÇÃO: %d",
-            #endif
-            localDriver->driverRank + 1
+            decalText, "%s%d",
+
+            posText[desired_index], localDriver->driverRank + 1
         );
         DecalFont_DrawLine(decalText, 0x100, 0x84, FONT_SMALL, (JUSTIFY_CENTER | textColor));
 
@@ -285,6 +301,20 @@ void InitTimeBasedSurvivalMode(bool enabled) {
 void HandleTimeBasedSurvivalMode(bool enabled) {
     if(!enabled) return;
     
+         unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+    
     // Check if there are at least 2 players
     if(raceInitActiveDriversCount < 2)
         return;
@@ -341,31 +371,35 @@ void HandleTimeBasedSurvivalMode(bool enabled) {
     // If local player is the last non-eliminated driver, show warning
     if(lastDriver != NULL && lastDriver->driverID == localDriver->driverID) {
         int textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        
+        
+
+		
+        
+        char* LASTpos[3] = {
+            "LAST PLACE!!!",
+            "ULTIMO LUGAR!!!",
+            "ULTIMO LUGAR!!!"
+        };
+        
         sprintf(
-            decalText, 
-            #ifdef GASMOX_ENG
-            "LAST PLACE!!!"
-            #elif defined(GASMOX_ES)
-            "ULTIMO LUGAR!!!"
-            #elif defined(GASMOX_BR)
-            "ULTIMO LUGAR!!!"
-            #endif
-        );
+            decalText, LASTpos[desired_index]);
+            
         DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | textColor));
     }
     
     // If local player was eliminated, display the message
     if(DriverIsEliminated(localDriver)) {
         int textColor = gGT->timer & FPS_DOUBLE(5) ? CORTEX_RED : PENTA_WHITE;
+        
+        char* elimText[3] = {
+            "ELIMINATED! POSITION: ",
+            "ELIMINADO! POSICION: ",
+            "ELIMINADO! POSIÇÃO: "
+            
+        };
         sprintf(
-            decalText, 
-            #ifdef GASMOX_ENG
-            "ELIMINATED! POSITION: %d",
-            #elif defined(GASMOX_ES)
-            "ELIMINADO! POSICION: %d",
-            #elif defined(GASMOX_BR)
-            "ELIMINADO! POSIÇÃO: %d",
-            #endif
+            decalText, "%s%d", elimText[desired_index],
             localDriver->driverRank + 1
         );
         DecalFont_DrawLine(decalText, 0x100, 0x84, FONT_SMALL, (JUSTIFY_CENTER | textColor));
@@ -405,16 +439,34 @@ void DisplayEliminationTimer() {
     if(totalSeconds <= 5 && totalSeconds >= 1 && frames == 0) {
         DECOMP_OtherFX_Play(fx_semaphor, 1);
     }
+    
+         unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+        
+        char* timerText[3] = {
+
+        "NEXT ELIMINATION: ",
+
+        "PROXIMA ELIMINACION: ",
+
+        "PRÓXIMA ELIMINAÇÃO: "
+
+        };
 
     sprintf(
-        decalText,
-        #ifdef GASMOX_ENG
-        "NEXT ELIMINATION: %01d:%02d:%02d",
-        #elif defined(GASMOX_ES)
-        "PROXIMA ELIMINACION: %01d:%02d:%02d",
-        #elif defined(GASMOX_BR)
-        "PRÓXIMA ELIMINAÇÃO: %01d:%02d:%02d",
-        #endif
+        decalText, "%s%01d:%02d:%02d", timerText[desired_index],
+
         minutes, seconds, frames
     );
     DecalFont_DrawLine(decalText, 0x100, 0x32, FONT_SMALL, (JUSTIFY_CENTER | textColor));

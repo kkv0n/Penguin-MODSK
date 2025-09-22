@@ -66,30 +66,53 @@ const char* spec_mode;
 								
 
 
-#ifdef GASMOX_ENG
-const char specting[] = "SPECTATING...";
-const char finish_race[] = "FINISHING RACE!";
 
-	const char s_switchCam[] = "Press R1 or L1 to change the camera";
-    const char s_gg[] = "GG Thanks For Playing!";
+char* specting[] = {
+	"SPECTATING...",
+	"ESPECTEANDO..",
+	"ESPECTANDO..."	
+};
+
+
+char* finish_race[] = {
+	"FINISHING RACE!",
+	"ACABANDO CARRERA!",
+	"FINALIZANDO CORRIDA!"
+};
+
+char* s_switchCam[] = {
+	"Press R1 or L1 to change the camera",
+	"Presiona L1 o R1 para cambiar camara",
+	"Pressione R1 ou L1 para alternar cam"
 	
-#elif defined(GASMOX_ES)
-	const char specting[] = "ESPECTEANDO..";
-const char finish_race[] = "ACABANDO CARRERA!";
+};
 
-	const char s_switchCam[] = "Presiona L1 o R1 para cambiar camara";
-    const char s_gg[] = "GG Gracias por jugar!";
+
+char* s_gg[] = {
+	"GG Thanks For Playing!",
+	"GG Gracias por jugar!",
+	"Terminado,Boa Corrida!!"	
+};
 	
-#elif defined(GASMOX_BR)
-	const char specting[] = "ESPECTANDO...";
-const char finish_race[] = "FINALIZANDO CORRIDA!";
 
-	const char s_switchCam[] = "Pressione R1 ou L1 para alternar cam";
-    const char s_gg[] = "Terminado,Boa Corrida!!";
-#endif
 								
 void spec_text() {
-        spec_mode = shouldExecuteSpecText ? specting : finish_race;
+	
+		 unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
+        spec_mode = shouldExecuteSpecText ? specting[desired_index] : finish_race[desired_index];
         static unsigned frameCounter = 0;
         int spec_color = frameCounter++ & FPS_DOUBLE(1) ? ORANGE : WHITE;
         DECOMP_DecalFont_DrawLine(spec_mode, 0x100, 0x74, FONT_SMALL, JUSTIFY_CENTER | spec_color);
@@ -102,18 +125,78 @@ void DisableL2(bool disabled){
 	data.gamepadMapBtn[8].output = disabled ? BTN_R2 : BTN_L2_one; 
 }
 
+void SetLanguage(struct GameTracker* gGT)
+{
+	static bool langLoaded = false;
+	
+	switch(sdata->unused_8008d700)
+	{
+		default:
+		case 0:
+		{
+			gGT->langIndex = 1; //english
+			break;
+		}
+		case 1:
+		{
+			gGT->langIndex = 6; //spanish
+			break;
+		}
+		case 2:
+		{
+			gGT->langIndex = 5; //italian
+			break;
+		}
+		case 4:
+		{
+			gGT->langIndex = 4; //German
+			break;
+		}
+		
+		
+	}
+	
+
+    if (!langLoaded && gGT->langIndex != 0)
+	{
+		
+		DECOMP_LOAD_LangFile(sdata->ptrBigfile1, gGT->langIndex);
+		langLoaded = true;
+	}
+}
+
 void queuetojoin(){
 	
 	if (octr->autoRetryJoinRoomIndex != -1)
 	{
-		#ifdef GASMOX_ENG
-		char* wtj = "Joining, please wait...";
-		#elif defined(GASMOX_ES)
-		char* wtj = "entrando, espera.. ->";
-		#elif defined(GASMOX_BR)
-		char* wtj = "na fila, aguarde. ->";
 		
-		#endif
+		 unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
+		char* waitQText[3] =
+		{
+			"Joining, please wait...",
+			"entrando, espera.. ->",
+			"na fila, aguarde. ->"		
+		};
+		
+		
+
+		char* wtj = waitQText[desired_index];
+
+		
+	
 		int lineInd = octr->autoRetryJoinRoomIndex % 8;
 		int pageNum = octr->autoRetryJoinRoomIndex / 8;
 		if (pageNum == octr->PageNumber)

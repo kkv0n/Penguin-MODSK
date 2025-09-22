@@ -11,9 +11,9 @@ struct
 
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
-extern char* special_name[];
 extern char* special_abbr[];
 extern short special_size;
+extern char** abbrLangs[];
 #endif
 
 // used for both finished lap time and current race time
@@ -168,7 +168,21 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	textPosY = paramY;
 
 	#ifdef USE_GASMOXIAN
-
+    
+		    unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
 	// Dont draw gamemodes if player is eliminated (spectating)
 	if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
 		extern bool DriverIsEliminated(struct Driver* driver);
@@ -188,7 +202,8 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 			if (mode_count > 0) {
 				strcat(title_buffer, "-");  // Use dash instead of plus
 			}
-			strcat(title_buffer, special_abbr[i]);  // Use abbreviation
+			
+			strcat(title_buffer, abbrLangs[desired_index][i]);  // Use abbreviation
 			mode_count++;
 			
 			// // Break into new line if string gets too long
@@ -203,7 +218,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 
 	// If no active modes besides NORMAL, show just NORMAL
 	if (mode_count == 0) {
-		strcpy(title_buffer, special_abbr[0]);
+		strcpy(title_buffer, abbrLangs[desired_index][0]);
 	}
 
 	// Draw any remaining modes

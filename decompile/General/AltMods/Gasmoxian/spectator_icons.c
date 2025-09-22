@@ -168,25 +168,44 @@ void EndOfRace_Icons_Survival()
         DECOMP_DecalFont_DrawLineStrlen(&racePos, 1, pos.x + 27, pos.y, FONT_SMALL, RED);
         DECOMP_DecalFont_DrawLineStrlen(octr->nameBuffer[index], NAME_LEN, pos.x + 38, pos.y + 1, FONT_SMALL, 
             index == 0 ? OXIDE_LIGHT_GREEN : ORANGE);
+            
+         unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+         
+    		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
         
         // Add "WINNER" text for the non-eliminated driver
         if (driverData[i].elimPosition == -1 && i == 0) {
-            #ifdef GASMOX_ENG
-            DECOMP_DecalFont_DrawLine("WINNER", pos.x + 38, pos.y + 10, FONT_SMALL, PAPU_YELLOW);
-            #elif defined(GASMOX_ES)
-            DECOMP_DecalFont_DrawLine("GANADOR", pos.x + 38, pos.y + 10, FONT_SMALL, PAPU_YELLOW);
-            #elif defined(GASMOX_BR)
-            DECOMP_DecalFont_DrawLine("VENCEDOR", pos.x + 38, pos.y + 10, FONT_SMALL, PAPU_YELLOW);
-            #endif
+            
+            char* winText[3] = {
+                "WINNER",
+                "GANADOR",
+                "VENCEDOR"
+            };
+            
+            DECOMP_DecalFont_DrawLine(winText[desired_index], pos.x + 38, pos.y + 10, FONT_SMALL, PAPU_YELLOW);
+
         } else {
+            
+            char* loseText[3] =
+            {
+                "ELIMINATED",
+                "ELIMINADO",
+                "ELIMINADO"
+            };
+            
             // Add "ELIMINATED" text for eliminated drivers
-            #ifdef GASMOX_ENG
-            DECOMP_DecalFont_DrawLine("ELIMINATED", pos.x + 38, pos.y + 10, FONT_SMALL, CORTEX_RED);
-            #elif defined(GASMOX_ES)
-            DECOMP_DecalFont_DrawLine("ELIMINADO", pos.x + 38, pos.y + 10, FONT_SMALL, CORTEX_RED);
-            #elif defined(GASMOX_BR)
-            DECOMP_DecalFont_DrawLine("ELIMINADO", pos.x + 38, pos.y + 10, FONT_SMALL, CORTEX_RED);
-            #endif
+            DECOMP_DecalFont_DrawLine(loseText[desired_index], pos.x + 38, pos.y + 10, FONT_SMALL, CORTEX_RED);
+
         }
 
         // Draw driver icon

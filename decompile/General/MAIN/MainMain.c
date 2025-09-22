@@ -544,11 +544,16 @@ FinishLoading:
 #ifdef REBUILD_PC
 				PsyX_BeginScene();
 #endif	
+                #ifdef USE_GASMOXIAN
 				// GAMEMODES HANDLING (From Unlimited)
-				extern void RunGamemodesInitHook();
-				extern void RunGamemodesUpdateHook();
-				RunGamemodesInitHook();
-				RunGamemodesUpdateHook();
+				//extern void RunGamemodesInitHook();
+				//extern void RunGamemodesUpdateHook();
+				//RunGamemodesInitHook();
+				//RunGamemodesUpdateHook();
+				
+				//void SetLanguage(struct GameTracker* gGT);
+				//SetLanguage(gGT);
+				#endif
 
 				DECOMP_MainFrame_RenderFrame(gGT, gGS);
 				
@@ -757,19 +762,7 @@ void StateZero()
 	#endif
 
 	
-	#ifdef USE_GASMOXIAN
-	DECOMP_LOAD_LangFile(sdata->ptrBigfile1,
-	#ifdef GASMOX_ENG
-	1
-	#elif defined (GASMOX_ES)
-	6
-	#elif defined (GASMOX_BR)
-	1 //place holder
-	#endif
-	);
-	DECOMP_GAMEPROG_NewGame_OnBoot();
-	gGT->overlayIndex_null_notUsed = 0;
-	#else
+
 	#ifndef FastBoot
 	// English=1
 	// PAL SCES02105 calls it multiple times
@@ -778,7 +771,6 @@ void StateZero()
 	
 	DECOMP_GAMEPROG_NewGame_OnBoot();
 	gGT->overlayIndex_null_notUsed = 0;
-	#endif
 	#endif
 
 	gGT->levelID = NAUGHTY_DOG_CRATE;

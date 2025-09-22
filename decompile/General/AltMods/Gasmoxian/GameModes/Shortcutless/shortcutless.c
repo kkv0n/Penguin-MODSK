@@ -7,8 +7,8 @@
 int shortcutAttempts[4] = {0, 0, 0, 0};
 
 // Array of progressively more frustrated messages
-#ifdef GASMOX_ENG
-const char* shortcutMessages[] = {
+
+const char* shortcutMessagesEN[] = {
     "NO SHORTCUTS!",
     "SERIOUSLY, NO SHORTCUTS!",
     "HEY! DID YOU NOT READ THE RULES?",
@@ -21,8 +21,8 @@ const char* shortcutMessages[] = {
     "YOU'RE VERY PERSISTENT, AREN'T YOU?",
     "YOU COULD'VE FINISHED THE RACE BY NOW"
 };
-#elif defined(GASMOX_ES)
-const char* shortcutMessages[] = {
+
+const char* shortcutMessagesES[] = {
     "SIN ATAJOS!",
     "EN SERIO, SIN ATAJOS!",
     "OYE! ¿NO LEISTE LAS REGLAS?",
@@ -35,8 +35,8 @@ const char* shortcutMessages[] = {
     "ERES MUY PERSISTENTE, ¿NO?",
     "PODRÍAS HABER TERMINADO LA CARRERA PARA AHORA"
 };
-#elif defined(GASMOX_BR)
-const char* shortcutMessages[] = {
+
+const char* shortcutMessagesPT[] = {
     "SEM ATAJOS!",
     "SÉRIO, SEM ATAJOS!",
     "EI! VOCÊ NÃO LEU AS REGRAS?",
@@ -49,9 +49,9 @@ const char* shortcutMessages[] = {
     "VOCÊ É MUITO PERSISTENTE, NÉ?",
     "VOCÊ JÁ PODERIA TER TERMINADO A CORRIDA"
 };
-#endif
 
-#define NUM_SHORTCUT_MESSAGES (sizeof(shortcutMessages) / sizeof(shortcutMessages[0]))
+
+#define NUM_SHORTCUT_MESSAGES (sizeof(shortcutMessagesEN) / sizeof(shortcutMessagesEN[0]))
 
 // Helper function for absolute value
 int abs_val(int value) { return value < 0 ? -value : value; }
@@ -265,12 +265,29 @@ void HandleShortcutless(bool enabled) {
         if (gGT->levelID > TURBO_TRACK) continue;
         
         PreventShortcut(driver, i);
+        
+       char** curr_language[] = {shortcutMessagesEN, shortcutMessagesES, shortcutMessagesPT};
+       unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+        
 
         // Display "NO SHORTCUTS!" message if timer is active
         if (noShortcutMsgTimer[i] > 0) {
             if (gGT->numPlyrCurrGame == 1) {
                 int msgIndex = (shortcutAttempts[i] - 1) % NUM_SHORTCUT_MESSAGES;
-                sprintf(decalText, "%s", shortcutMessages[msgIndex]);
+                sprintf(decalText, "%s", curr_language[desired_index][msgIndex]);
                 DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | RED));
             }
             noShortcutMsgTimer[i]--;

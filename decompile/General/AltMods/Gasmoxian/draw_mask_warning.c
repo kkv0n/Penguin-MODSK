@@ -58,14 +58,30 @@ void HandleMaskWarning(){
 
 	// Warning text
 	int warningColor = (gGT->timer & FPS_DOUBLE(2)) != 0 ? PAPU_YELLOW : CORTEX_RED;
-	const char* warningText;
-	#ifdef GASMOX_ENG
-	warningText = "MASK";
-	#elif defined(GASMOX_ES)
-	warningText = "MASCARA";
-	#elif defined(GASMOX_BR)
-	warningText = "MÁSCARA";
-	#endif
+	char* Wtext[3] = {
+	"MASK",
+	"MASCARA",
+	"MÁSCARA"
+
+	};
+	
+
+		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+
+
+		char* warningText = Wtext[desired_index];
 	
 	int posY = 0x90;
 	// Draw the warning

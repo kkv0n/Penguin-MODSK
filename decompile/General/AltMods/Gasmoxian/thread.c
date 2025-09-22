@@ -143,15 +143,30 @@ void ThreadFunc(struct Thread* t)
 	// if connecting, or entering IP
 	if (octr->boolClientBusy)
 	{
-		DecalFont_DrawLine(
 		
-#ifdef GASMOX_ENG
-"SEE CLIENT WINDOW",
-#elif defined(GASMOX_ES)
-"REVISA EL CLIENTE",
-#elif defined(GASMOX_BR)
-"VERIFIQUE CLIENTE",
-#endif
+		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
+		
+		char* clientText[3] = {
+			"SEE CLIENT WINDOW",
+			"REVISA EL CLIENTE",
+			"VERIFIQUE CLIENTE",
+			
+		};
+		
+		DecalFont_DrawLine(clientText[desired_index],	
 			0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 	}
 

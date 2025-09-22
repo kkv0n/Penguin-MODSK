@@ -3604,9 +3604,11 @@ struct sData
 
 	// 8008d6fc
 	int* ptrArray_NumXAs;
-
+    
+	
 	// 8008d700
-	int unused_8008d700;
+	//unused_8008d700
+	int unused_8008d700; //rename this to gasmoxLang once it works
 
 	// 8008d704
 	int countPass_CdReadyCallback;

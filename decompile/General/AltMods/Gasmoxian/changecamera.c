@@ -7,19 +7,34 @@ extern void spec_text();
 extern int shouldExecuteSpecText;
 static bool DemoCameraSpectator = false;
 
-extern const char s_switchCam[];
-extern const char s_gg[];
+extern char* s_switchCam[];
+extern char* s_gg[];
 const char* s_text;
 	
 void EndOfRace_Camera()
 {
-//change l1 & r1 text
-s_text = shouldExecuteSpecText ? s_switchCam : s_gg;
-	DECOMP_DecalFont_DrawLine(s_text, 0x100, 5, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
+
 
 //change spectator text
 	 spec_text();
+	 
+	 	unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
+		
+		if (sdata->unused_8008d700 > 1)
+		{
+			if (sdata->unused_8008d700 == 3)
+			{
+			    desired_index = 2;
+			}
+			else
+			{
+				desired_index = 0;
+			}
+		}
 
+//change l1 & r1 text
+s_text = shouldExecuteSpecText ? s_switchCam[desired_index] : s_gg[desired_index];
+	DECOMP_DecalFont_DrawLine(s_text, 0x100, 5, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
     
 
 	DECOMP_DecalFont_DrawLine(octr->nameBuffer[currCam], 252, 195, FONT_BIG, JUSTIFY_CENTER | TINY_GREEN);
@@ -28,16 +43,18 @@ s_text = shouldExecuteSpecText ? s_switchCam : s_gg;
 	if(!USE_FIRST_PERSON && !USE_N_VERTED){
 		// Toggle demo camera with triangle
 		extern char* decalText;
+		
+		char* text[3] = {
+			"PRESS ^ TO TOGGLE DEMO CAMERA",
+			"PRESIONA ^ PARA ALTERNAR CAM DEMO",
+			"PRESSIONE ^ PARA ALTERNAR CAM DEMO"			
+		};
+		
+
+
+
 		sprintf(
-			decalText,
-			#ifdef GASMOX_ENG
-			"PRESS ^ TO TOGGLE DEMO CAMERA"
-			#elif defined(GASMOX_ES)
-			"PRESIONA ^ PARA ALTERNAR CAM DEMO"
-			#elif defined(GASMOX_BR)
-			"PRESSIONE ^ PARA ALTERNAR CAM DEMO"
-			#endif
-		);
+			decalText, text[desired_index]);
 		DECOMP_DecalFont_DrawLine(decalText, 0x100, 13, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
 		if (pad->buttonsTapped & BTN_TRIANGLE) {
 			DemoCameraSpectator = !DemoCameraSpectator;
