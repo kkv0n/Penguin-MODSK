@@ -1,4 +1,7 @@
 #include <common.h>
+#ifdef USE_GASMOXIAN
+#include "../AltMods/Gasmoxian/utils.h"
+#endif
 
 struct LngFile
 {
@@ -23,17 +26,29 @@ void DECOMP_LOAD_LangFile(int bigfilePtr, int lang)
 	DECOMP_CTR_ErrorScreen(0, 0, 0);
 	VSync(0);
 #endif
-
+	
+    
 	if (sdata->lngFile == 0)
 	{
+		
 		sdata->lngFile =
 			DECOMP_MEMPACK_AllocMem(sdata->langBufferSize /* "lang buffer" */);
+			
+		#ifdef USE_GASMOXIAN		
+		DECOMP_LOAD_LangFile(bigfilePtr, Get_MaxLNGSize()); //load the biggest language file first
+		#endif
+		
 	}
 
-	lngFile =
+
+		
+	
+		lngFile =
 		DECOMP_LOAD_ReadFile(
 			bigfilePtr, 1, BI_LANGUAGEFILE + lang, 
 			sdata->lngFile, &size, 0);
+			
+
 
 	// This is not ReadFileAsync, this is ReadFile,
 	// so the program halts until completion of read
@@ -54,4 +69,5 @@ void DECOMP_LOAD_LangFile(int bigfilePtr, int lang)
 	// set voicelines to new lang
 	DECOMP_CDSYS_SetXAToLang(lang);
 #endif
+
 }

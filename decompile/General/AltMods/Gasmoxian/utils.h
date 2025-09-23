@@ -29,6 +29,8 @@ extern int raceInitActiveDriversCount; //updates once at race start
 extern char* decalText;
 extern struct GameTracker *gGT;
 
+extern int Get_MaxLNGSize(); //to get the heavier lng file stored on the rom files
+
 enum GAME_MODES {
 	NORMAL = 0,
 	MIRROR = 1,

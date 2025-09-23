@@ -126,11 +126,12 @@ int MenuFinished()
 //server names can be changed without problems
 
 //TO DO: add "private" translation for every language later.
-char* countryNames[4] =
+char* countryNames[5] =
 {
 	"Mednafen Peru",
 	"Mednafen USA",
 	"Gasmox Chile",
+	"Gasmox Brasil",
     "Private server",	
 };
 
@@ -138,8 +139,11 @@ bool sv_menuopen;
 
 void NewPage_ServerCountry()
 {
-	//fix server menu
-	menuRows[3].rowOnPressDown = 3;
+	//fix server menu row
+	menuRows[4].rowOnPressDown = 4;
+	
+	//fix if someone leave the room after engine menu was shown
+	menuRows[3].rowOnPressDown = 4;
 	
 	if (!sv_menuopen)
 	{
@@ -157,7 +161,7 @@ menu.posY_curr = 0x84;  // Y position
 	// and other unimportant strings
 	for(i = 0; i < 8; i++)
 	{
-		if (i < 4)
+		if (i < 5)
 		{
 		 menuRows[i].stringIndex = 0x9a+i;
 		 sdata->lngStrings[0x9a+i] = countryNames[i];
@@ -222,7 +226,7 @@ void NewPage_ServerRoom()
 	
 	
 	//remove server menu fix
-	menuRows[3].rowOnPressDown = 4;	
+	menuRows[4].rowOnPressDown = 5;	
 
 	// override "LAPS" "3/5/7"
 	//room names, the names can be translated or rewrite
@@ -612,7 +616,7 @@ void NewPage_Engine()
 	label = 5;
     int i;
 	
-	//fix menu bug
+	//fix menu row bug
     menuRows[3].rowOnPressDown = 3;
 	
 	char** langs[] = {

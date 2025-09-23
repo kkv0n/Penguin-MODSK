@@ -124,6 +124,12 @@ u_int DECOMP_main()
 			// Main Gameplay Update
 			// Makes up all normal interaction with the game
 			case 3:
+			#ifdef USE_GASMOXIAN
+			if ((gGT->gameMode2 & LNG_CHANGE) != 0)
+			SetLanguage(sdata->gGT);
+		   
+			#endif
+			
 			#ifdef USE_LANG
 			if ((gGT->gameMode2 & LNG_CHANGE) != 0) {
 				LOAD_LangFile(sdata->ptrBigfileCdPos_2, gGT->langIndex);
@@ -554,6 +560,7 @@ FinishLoading:
 
 				DECOMP_MainFrame_RenderFrame(gGT, gGS);
 				
+				
 #ifdef REBUILD_PC
 				PsyX_EndScene();
 				int NikoCalcFPS();
@@ -613,14 +620,17 @@ void StateZero()
 {
 	u_short *clockEffect;
 	int vramSize;
+	struct GameTracker* gGT;
+	gGT = sdata->gGT;
+
 	
 	#ifdef USE_GASMOXIAN
 	//this is filled with the size of our gasmods.bin later
 	int ramSize;
+	sdata->unused_8008d700 = 10;
+	gGT->gameMode2 |= LNG_CHANGE;
 	#endif
 
-	struct GameTracker* gGT;
-	gGT = sdata->gGT;
 
 	struct GamepadSystem* gGS;
 	gGS = sdata->gGamepads;
@@ -667,12 +677,12 @@ void StateZero()
 	#ifdef USE_GASMOXIAN
 	//load mods from an external file to avoid byte budget
 	DECOMP_LOAD_ReadFile_NoCallback("\\GASMODSC.BIN;1", (void*)(MEMPACK_SIZE ADD_PSX_ADDRESS), &ramSize);
-	void octr_entryHook(); octr_entryHook();
+	void octr_entryHook();
+	octr_entryHook();
 	#endif
 	
 
-	
-//yes
+
 
 #ifndef REBUILD_PS1
 	DECOMP_MainInit_VRAMClear();
@@ -763,11 +773,8 @@ void StateZero()
 	#ifndef FastBoot
 	// English=1
 	// PAL SCES02105 calls it multiple times
-	#ifdef USE_GASMOXIAN
-	SetLanguage(sdata->gGT);
-	#else
 	DECOMP_LOAD_LangFile(sdata->ptrBigfile1, 1);
-	#endif
+
 	
 	DECOMP_GAMEPROG_NewGame_OnBoot();
 	gGT->overlayIndex_null_notUsed = 0;

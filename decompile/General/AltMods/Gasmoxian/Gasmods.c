@@ -113,12 +113,47 @@ void DisableL2(bool disabled){
 	data.gamepadMapBtn[8].output = disabled ? BTN_R2 : BTN_L2_one; 
 }
 
+
+int Get_MaxLNGSize()
+{
+	int higherSize;
+	u_char biggestLNGFile;
+	
+	
+	for (unsigned char i = 0; i < 8; i++)
+	{
+		    int currSize;
+			unsigned int* temp;
+			
+			DECOMP_LOAD_ReadFile(
+			sdata->ptrBigfileCdPos_2, 1, BI_LANGUAGEFILE + i, 
+			temp, &currSize, 0); //get the size of this language
+			
+
+			
+			if (currSize > higherSize) //if the size is higher than previous ones then update
+			{
+				higherSize = currSize;
+				biggestLNGFile = i;
+			}
+	}
+	
+	return biggestLNGFile; //return the biggest language index so we can load it first to reserver memory
+};
+
+
+
 void SetLanguage(struct GameTracker* gGT)
 {	
 	static bool language_set = false;
 	if(language_set) return;
 
 	int index = sdata->unused_8008d700;
+
+	
+	if (index == 10) return;
+
+	
 	switch(index)
 	{
 		default:
@@ -146,12 +181,15 @@ void SetLanguage(struct GameTracker* gGT)
 		
 	}
 	
-
-	DECOMP_LOAD_LangFile(sdata->ptrBigfile1, gGT->langIndex);
+	//we already loaded english in MainMain
+    if (gGT->langIndex != 1)
+	DECOMP_LOAD_LangFile(sdata->ptrBigfileCdPos_2, gGT->langIndex);
 
 	SetLanguageIndex();
 
 	language_set = true;
+	gGT->gameMode2 &= ~(LNG_CHANGE);
+	
 }
 
 void SetLanguageIndex()

@@ -814,9 +814,17 @@ void StatePC_Launch_PickServer()
 			addr.port = 5727;
 			break;
 		}
+		//GASMOX BRASIL
+		case 3:
+		{
+			strcpy_s(dns_string, sizeof(dns_string), "gasmoxbr.duckdns.org");
+			enet_address_set_host(&addr, dns_string);
+			addr.port = 5029;
+			break;
+		}
 
 		// PRIVATE SERVER
-		case 3:
+		case 4:
 		{
 			StopAnimation();
 
