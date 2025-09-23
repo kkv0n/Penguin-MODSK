@@ -54,6 +54,8 @@
 // Survival
 #include "GameModes/Survival/survival_mode.c"
 
+unsigned char gmoxLngIndex = 0;
+
 unsigned int checkpointTimes[(MAX_LAPS * CPS_PER_LAP) + 1];
 
 int shouldExecuteSpecText = 0;
@@ -97,22 +99,8 @@ char* s_gg[] = {
 
 								
 void spec_text() {
-	
-		 unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-		
-        spec_mode = shouldExecuteSpecText ? specting[desired_index] : finish_race[desired_index];
+
+        spec_mode = shouldExecuteSpecText ? specting[gmoxLngIndex] : finish_race[gmoxLngIndex];
         static unsigned frameCounter = 0;
         int spec_color = frameCounter++ & FPS_DOUBLE(1) ? ORANGE : WHITE;
         DECOMP_DecalFont_DrawLine(spec_mode, 0x100, 0x74, FONT_SMALL, JUSTIFY_CENTER | spec_color);
@@ -163,26 +151,31 @@ void SetLanguage(struct GameTracker* gGT)
 		DECOMP_LOAD_LangFile(sdata->ptrBigfile1, gGT->langIndex);
 		langLoaded = true;
 	}
+
+	SetLanguageIndex();
+}
+
+void SetLanguageIndex()
+{
+	gmoxLngIndex = (unsigned char)sdata->unused_8008d700;
+	
+	if (sdata->unused_8008d700 > 1)
+	{
+		if (sdata->unused_8008d700 == 3)
+		{
+			gmoxLngIndex = 2;
+		}
+		else
+		{
+			gmoxLngIndex = 0;
+		}
+	}
 }
 
 void queuetojoin(){
 	
 	if (octr->autoRetryJoinRoomIndex != -1)
 	{
-		
-		 unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 		char* waitQText[3] =
 		{
@@ -191,12 +184,8 @@ void queuetojoin(){
 			"na fila, aguarde. ->"		
 		};
 		
-		
+		char* wtj = waitQText[gmoxLngIndex];
 
-		char* wtj = waitQText[desired_index];
-
-		
-	
 		int lineInd = octr->autoRetryJoinRoomIndex % 8;
 		int pageNum = octr->autoRetryJoinRoomIndex / 8;
 		if (pageNum == octr->PageNumber)
@@ -539,7 +528,9 @@ bool ItsOnlyNormalEnabled(){
 // Code to run once on game init
 void RunGamemodesInitHook() {
     if (init_initialized) return;
+
     gGT = sdata->gGT;
+	SetLanguage(gGT);
 
     SetGamemodes();
 
@@ -550,6 +541,7 @@ bool room_has_retro_fueled;
 
 // Code to run each frame
 void RunGamemodesUpdateHook() {
+
     // Update with the new array of booleans
     SetGamemodes();
 

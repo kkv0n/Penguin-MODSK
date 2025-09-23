@@ -32,22 +32,6 @@ void InitSurvivalMode(bool enabled){
 
 void HandleSurvivalMode(bool enabled){
     if(!enabled) return;
-    
-    
-        unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 
     // Check if there are at least 2 players
     if(raceInitActiveDriversCount < 2)
@@ -116,7 +100,7 @@ void HandleSurvivalMode(bool enabled){
         };
             
         sprintf(
-            decalText, lastText[desired_index]);
+            decalText, lastText[gmoxLngIndex]);
             DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | textColor));
     }
 
@@ -132,7 +116,7 @@ void HandleSurvivalMode(bool enabled){
         sprintf(
             decalText, "%s%d",
 
-            posText[desired_index], localDriver->driverRank + 1
+            posText[gmoxLngIndex], localDriver->driverRank + 1
         );
         DecalFont_DrawLine(decalText, 0x100, 0x84, FONT_SMALL, (JUSTIFY_CENTER | textColor));
 
@@ -301,20 +285,6 @@ void InitTimeBasedSurvivalMode(bool enabled) {
 void HandleTimeBasedSurvivalMode(bool enabled) {
     if(!enabled) return;
     
-         unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-    
     // Check if there are at least 2 players
     if(raceInitActiveDriversCount < 2)
         return;
@@ -383,7 +353,7 @@ void HandleTimeBasedSurvivalMode(bool enabled) {
         };
         
         sprintf(
-            decalText, LASTpos[desired_index]);
+            decalText, LASTpos[gmoxLngIndex]);
             
         DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | textColor));
     }
@@ -399,7 +369,7 @@ void HandleTimeBasedSurvivalMode(bool enabled) {
             
         };
         sprintf(
-            decalText, "%s%d", elimText[desired_index],
+            decalText, "%s%d", elimText[gmoxLngIndex],
             localDriver->driverRank + 1
         );
         DecalFont_DrawLine(decalText, 0x100, 0x84, FONT_SMALL, (JUSTIFY_CENTER | textColor));
@@ -440,20 +410,6 @@ void DisplayEliminationTimer() {
         DECOMP_OtherFX_Play(fx_semaphor, 1);
     }
     
-         unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-        
         char* timerText[3] = {
 
         "NEXT ELIMINATION: ",
@@ -465,7 +421,7 @@ void DisplayEliminationTimer() {
         };
 
     sprintf(
-        decalText, "%s%01d:%02d:%02d", timerText[desired_index],
+        decalText, "%s%01d:%02d:%02d", timerText[gmoxLngIndex],
 
         minutes, seconds, frames
     );

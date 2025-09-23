@@ -11,6 +11,7 @@ struct
 
 #ifdef USE_GASMOXIAN
 #include "../AltMods/Gasmoxian/global.h"
+#include "../AltMods/Gasmoxian/utils.h"
 extern char* special_abbr[];
 extern short special_size;
 extern char** abbrLangs[];
@@ -168,20 +169,6 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 	textPosY = paramY;
 
 	#ifdef USE_GASMOXIAN
-    
-		    unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 	// Dont draw gamemodes if player is eliminated (spectating)
 	if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
@@ -203,7 +190,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 				strcat(title_buffer, "-");  // Use dash instead of plus
 			}
 			
-			strcat(title_buffer, abbrLangs[desired_index][i]);  // Use abbreviation
+			strcat(title_buffer, abbrLangs[gmoxLngIndex][i]);  // Use abbreviation
 			mode_count++;
 			
 			// // Break into new line if string gets too long
@@ -218,7 +205,7 @@ void DECOMP_UI_DrawRaceClock(u_short paramX, u_short paramY, u_int flags, struct
 
 	// If no active modes besides NORMAL, show just NORMAL
 	if (mode_count == 0) {
-		strcpy(title_buffer, abbrLangs[desired_index][0]);
+		strcpy(title_buffer, abbrLangs[gmoxLngIndex][NORMAL]);
 	}
 
 	// Draw any remaining modes

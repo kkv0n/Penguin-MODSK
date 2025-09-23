@@ -546,13 +546,10 @@ FinishLoading:
 #endif	
                 #ifdef USE_GASMOXIAN
 				// GAMEMODES HANDLING (From Unlimited)
-				//extern void RunGamemodesInitHook();
-				//extern void RunGamemodesUpdateHook();
-				//RunGamemodesInitHook();
-				//RunGamemodesUpdateHook();
-				
-				//void SetLanguage(struct GameTracker* gGT);
-				//SetLanguage(gGT);
+				extern void RunGamemodesInitHook();
+				extern void RunGamemodesUpdateHook();
+				RunGamemodesInitHook();
+				RunGamemodesUpdateHook();
 				#endif
 
 				DECOMP_MainFrame_RenderFrame(gGT, gGS);

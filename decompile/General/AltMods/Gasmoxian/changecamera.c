@@ -1,5 +1,6 @@
 #include <common.h>
 #include "global.h"
+#include "utils.h"
 
 extern int currCam;
 extern void SetNextCamera(bool increase);
@@ -17,23 +18,9 @@ void EndOfRace_Camera()
 
 //change spectator text
 	 spec_text();
-	 
-	 	unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 
 //change l1 & r1 text
-s_text = shouldExecuteSpecText ? s_switchCam[desired_index] : s_gg[desired_index];
+s_text = shouldExecuteSpecText ? s_switchCam[gmoxLngIndex] : s_gg[gmoxLngIndex];
 	DECOMP_DecalFont_DrawLine(s_text, 0x100, 5, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
     
 
@@ -53,8 +40,7 @@ s_text = shouldExecuteSpecText ? s_switchCam[desired_index] : s_gg[desired_index
 
 
 
-		sprintf(
-			decalText, text[desired_index]);
+		sprintf(decalText, text[gmoxLngIndex]);
 		DECOMP_DecalFont_DrawLine(decalText, 0x100, 13, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
 		if (pad->buttonsTapped & BTN_TRIANGLE) {
 			DemoCameraSpectator = !DemoCameraSpectator;

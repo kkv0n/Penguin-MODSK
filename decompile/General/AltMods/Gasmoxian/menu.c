@@ -1,5 +1,7 @@
 #include <common.h>
 #include "global.h"
+#include "utils.h"
+
 extern const char* options[16];
 extern int label;
 
@@ -220,26 +222,11 @@ void NewPage_ServerRoom()
 	
 	
 	//remove server menu fix
-	menuRows[3].rowOnPressDown = 4;
-	
-	    unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-		
+	menuRows[3].rowOnPressDown = 4;	
 
 	// override "LAPS" "3/5/7"
 	//room names, the names can be translated or rewrite
-	if (desired_index == 0)
+	if (gmoxLngIndex == 0)
 	{
 	sdata->lngStrings[0x9a] = "ROOM 1 - x/8";
 	sdata->lngStrings[0x9b] = "ROOM 2 - x/8";
@@ -407,21 +394,6 @@ void NewPage_Events()
     label = 2;
     int i;
     
-	
-	      unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-	
 	char* press1Text[3] =
 	{
 		"PRESS ^ TO TOGGLE",
@@ -437,8 +409,8 @@ void NewPage_Events()
 	};
 	
     // Add instruction text at the top
-    DecalFont_DrawLine(press1Text[desired_index], 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
-    DecalFont_DrawLine(press2Text[desired_index], 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
+    DecalFont_DrawLine(press1Text[gmoxLngIndex], 0x074, 0x30, FONT_SMALL, JUSTIFY_CENTER | TINY_GREEN);
+    DecalFont_DrawLine(press2Text[gmoxLngIndex], 0x074, 0x38, FONT_SMALL, JUSTIFY_CENTER | CRASH_BLUE);
 
     char** specials[] = {special_nameEN, special_nameES, special_namePT};
 	
@@ -455,7 +427,7 @@ void NewPage_Events()
             // Check if this mode is incompatible with any enabled modes
             bool incompatible = IsGamemodeIncompatible(max);
             
-			char* curr_name = specials[desired_index][max];
+			char* curr_name = specials[gmoxLngIndex][max];
 			
             // Show mode name
             sprintf(gamemode_buffers[i], "%s", curr_name);
@@ -643,21 +615,6 @@ void NewPage_Engine()
 	//fix menu bug
     menuRows[3].rowOnPressDown = 3;
 	
-	
-		 unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-	
 	char** langs[] = {
 		engine_namesEN, engine_namesES, engine_namesPT
 	};
@@ -665,7 +622,7 @@ void NewPage_Engine()
     for (i = 0; i < 8; i++)
     {
 		if (i < 4)
-		sdata->lngStrings[0x9a + i] = langs[desired_index][i];
+		sdata->lngStrings[0x9a + i] = langs[gmoxLngIndex][i];
 		
         menuRows[i].stringIndex = 0x9a + i;
 		
@@ -834,24 +791,7 @@ void PrintCharacterStats()
     int mode_count = 0;
 
 	int posX = 0x100;
-	int posY = 0x18;
-	
-	
-		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-    
-	
+	int posY = 0x18;	
 	
 	// Skip NORMAL mode (i=0) and start from i=1
 	for (int i = 1; i < special_size; i++) {
@@ -859,9 +799,9 @@ void PrintCharacterStats()
 			if (mode_count > 0) {
 				strcat(title_buffer, "-");  // Use dash instead of plus
 			}
-			
-			char* current_abbr = abbrLangs[desired_index][i];
-			
+
+			char* current_abbr = abbrLangs[gmoxLngIndex][i];
+
 			strcat(title_buffer, current_abbr);  // Use abbreviation
 			mode_count++;
 			
@@ -877,7 +817,7 @@ void PrintCharacterStats()
 
 	// If no active modes besides NORMAL, show just NORMAL
 	if (mode_count == 0) {
-		strcpy(title_buffer, abbrLangs[desired_index][0]);
+		strcpy(title_buffer, abbrLangs[gmoxLngIndex][NORMAL]);
 	}
 	
 	// Draw any remaining modes
@@ -907,7 +847,7 @@ char* playersText[3] =
 
 //i think this is the room name in the top left of the screen
 
-	char* roomName = roomText[desired_index];
+	char* roomName = roomText[gmoxLngIndex];
 	
 	roomName[5] = GetRoomChar(octr->serverRoom+1); //sprintf pls
 	DecalFont_DrawLine(
@@ -922,7 +862,7 @@ char* playersText[3] =
 			numDead++;
 
 	posX = 0x110;
-	sprintf(message, "%s%d/8", playersText[desired_index],(octr->NumDrivers-numDead));
+	sprintf(message, "%s%d/8", playersText[gmoxLngIndex],(octr->NumDrivers-numDead));
 	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
 
 	int h = 0;
@@ -986,7 +926,7 @@ char* playersText[3] =
 	};
 	
 		char* curr_engine =
-					langs[desired_index][octr->enginetype[slot]];
+					langs[gmoxLngIndex][octr->enginetype[slot]];
 
 		posX = 0x18C;
 		DecalFont_DrawLine(curr_engine, (posX - 11),posY,FONT_SMALL,color);
@@ -1018,9 +958,9 @@ char* playersText[3] =
 	
 
 //i think a function to draw multiple lines already exists.
-	DecalFont_DrawLine(g1Text[desired_index],posX,posY,FONT_SMALL,0);
-	DecalFont_DrawLine(g2Text[desired_index],posX+0x10,posY+0x8,FONT_SMALL,0);
-	DecalFont_DrawLine(g3Text[desired_index],posX,posY+0x10,FONT_SMALL, PAPU_YELLOW);
+	DecalFont_DrawLine(g1Text[gmoxLngIndex],posX,posY,FONT_SMALL,0);
+	DecalFont_DrawLine(g2Text[gmoxLngIndex],posX+0x10,posY+0x8,FONT_SMALL,0);
+	DecalFont_DrawLine(g3Text[gmoxLngIndex],posX,posY+0x10,FONT_SMALL, PAPU_YELLOW);
 
 }
 	
@@ -1029,20 +969,6 @@ char* onlineLapString = "Laps: 000\0";
 void PrintRecvTrack()
 {
 	char message[32];
-	
-			unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 		char* trackText[3] =
 		{
@@ -1053,7 +979,7 @@ void PrintRecvTrack()
 
 
 
-	sprintf(message, "%s%s", trackText[desired_index],
+	sprintf(message, "%s%s", trackText[gmoxLngIndex],
 
 				sdata->lngStrings
 				[

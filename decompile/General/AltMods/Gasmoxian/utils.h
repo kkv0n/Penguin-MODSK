@@ -3,6 +3,8 @@
 
 #include <common.h>
 
+extern unsigned char gmoxLngIndex;
+
 extern bool USE_NORMAL;
 extern bool USE_MIRROR;
 extern bool USE_ICY_TRACKS; // Not adapted yet

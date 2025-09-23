@@ -64,25 +64,9 @@ void HandleMaskWarning(){
 	"MÁSCARA"
 
 	};
-	
 
-		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
+		char* warningText = Wtext[gmoxLngIndex];
 
-
-		char* warningText = Wtext[desired_index];
-	
 	int posY = 0x90;
 	// Draw the warning
 	DECOMP_DecalFont_DrawLine(warningText, warningX, posY, FONT_SMALL, JUSTIFY_CENTER | warningColor);

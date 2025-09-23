@@ -17,21 +17,6 @@ void menu_tittle() {
 	}
 	else
 	{
-		
-		 unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 
 	char* textEN[7] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SELECT CHARACTER", "TURNING STYLE", "GOOD LUCK EVERYONE!" };
 
@@ -44,13 +29,15 @@ void menu_tittle() {
 	
      //the text above the server list
 	 //does this really needs strcpy? i dont think so --penta3
-	 strcpy(sdata->lngStrings[0x4e], curr_language[desired_index][label]);
-		
-	for (unsigned char i = 355; i < 370; i++)
+	 strcpy(sdata->lngStrings[0x4e], curr_language[gmoxLngIndex][label]);
+
+	#if 0 // This crashes the game
+	//overwrite boss challenges text
+	for (unsigned char i = 355; i < 360; i++) 
 	{
-	   //overwrite boss challenges text
-      sdata->lngStrings[i] = curr_language[desired_index][label];
+		sdata->lngStrings[i] = curr_language[gmoxLngIndex][label];
 	}
+	#endif
 	}
 }
 
@@ -103,21 +90,6 @@ void afktimer()
 }
 void StatePS1_Launch_EnterPID()
 {
-	
-		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 		char* clientText[3] =
 		{
@@ -127,7 +99,7 @@ void StatePS1_Launch_EnterPID()
 		};
 		
 	//client closed text message
-	DECOMP_DecalFont_DrawLine(clientText[desired_index],
+	DECOMP_DecalFont_DrawLine(clientText[gmoxLngIndex],
 		
 		0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 
@@ -156,22 +128,6 @@ void StatePS1_Launch_PickServer()
 	
 	
 	octr->autoRetryJoinRoomIndex = -1;
-
-
-		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 		char* welcmText[3] =
 		{
@@ -181,7 +137,7 @@ void StatePS1_Launch_PickServer()
 		};
 		
 
-DecalFont_DrawLine(welcmText[desired_index], 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
+DecalFont_DrawLine(welcmText[gmoxLngIndex], 257, 23, FONT_BIG, JUSTIFY_CENTER | OXIDE_LIGHT_GREEN);
 
 	//print oxide icon
 	ShowCharacterIcon(NITROS_OXIDE, 235, 67, FP(1));
@@ -249,22 +205,6 @@ for (int i = 0; i < 16; i++) {
     if (curr > 8) curr -= 8;
     serverTotal += curr;
 }
-
-
-		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 // Players online counter
 
@@ -282,7 +222,7 @@ char numPlyr[27];
 //text[17] = '0' + ((serverTotal / 10) % 10);
 //text[18] = '0' + (serverTotal % 10);
 
-sprintf(numPlyr, "%s%d", text[desired_index], serverTotal); 
+sprintf(numPlyr, "%s%d", text[gmoxLngIndex], serverTotal); 
 
 	DecalFont_DrawLine(
 		numPlyr,
@@ -295,23 +235,6 @@ sprintf(numPlyr, "%s%d", text[desired_index], serverTotal);
 
 void StatePS1_Launch_Error()
 {
-	
-	
-		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-
 
 char* updateText[3] = {
 
@@ -321,7 +244,7 @@ char* updateText[3] = {
 };
 
 
-	DECOMP_DecalFont_DrawLine(updateText[desired_index],0x100,0x74,FONT_SMALL,JUSTIFY_CENTER);
+	DECOMP_DecalFont_DrawLine(updateText[gmoxLngIndex],0x100,0x74,FONT_SMALL,JUSTIFY_CENTER);
 
 	sdata->ptrActiveMenu = 0;
 }
@@ -408,21 +331,6 @@ void StatePS1_Lobby_GuestTrackWait()
 
 	// close menu
 	sdata->ptrActiveMenu = 0;
-	
-		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 		char* text1[3] = {
 			"waiting for host",
@@ -439,11 +347,11 @@ void StatePS1_Lobby_GuestTrackWait()
 //cant remember if these text lines are broken and are actually never showed --penta3
 //ready to start the race text
 	DECOMP_DecalFont_DrawLine(
-		text1[desired_index],
+		text1[gmoxLngIndex],
 		menu.posX_curr,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 
 	DECOMP_DecalFont_DrawLine(
-		text2[desired_index],
+		text2[gmoxLngIndex],
 		menu.posX_curr,0x7C,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 		
 
@@ -637,21 +545,6 @@ void StatePS1_Game_WaitForRace()
 
 	posY = 0x46;
 	drawTimeRECT.h = 0;
-	
-			unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 		char* waitText[3] =
 		{
@@ -662,7 +555,7 @@ void StatePS1_Game_WaitForRace()
 		
 //more ui text for rooms
 	DECOMP_DecalFont_DrawLine(
-		waitText[desired_index],
+		waitText[gmoxLngIndex],
 		0x100, posY + drawTimeRECT.h,
 		FONT_SMALL, (JUSTIFY_CENTER | OXIDE_LIGHT_GREEN));
 

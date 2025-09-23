@@ -1,6 +1,7 @@
 //these make it not compile?
 //#include <common.h>
 //#include "global.h"
+#include "utils.h"
 void (*funcs[NUM_STATES]) () =
 {
 	StatePS1_Launch_EnterPID,
@@ -144,20 +145,6 @@ void ThreadFunc(struct Thread* t)
 	if (octr->boolClientBusy)
 	{
 		
-		unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
 		
 		char* clientText[3] = {
 			"SEE CLIENT WINDOW",
@@ -166,7 +153,7 @@ void ThreadFunc(struct Thread* t)
 			
 		};
 		
-		DecalFont_DrawLine(clientText[desired_index],	
+		DecalFont_DrawLine(clientText[gmoxLngIndex],	
 			0x100,0x74,FONT_SMALL,JUSTIFY_CENTER|OXIDE_LIGHT_GREEN);
 	}
 

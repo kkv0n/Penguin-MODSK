@@ -267,27 +267,12 @@ void HandleShortcutless(bool enabled) {
         PreventShortcut(driver, i);
         
        char** curr_language[] = {shortcutMessagesEN, shortcutMessagesES, shortcutMessagesPT};
-       unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-
-		
-		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
-        
 
         // Display "NO SHORTCUTS!" message if timer is active
         if (noShortcutMsgTimer[i] > 0) {
             if (gGT->numPlyrCurrGame == 1) {
                 int msgIndex = (shortcutAttempts[i] - 1) % NUM_SHORTCUT_MESSAGES;
-                sprintf(decalText, "%s", curr_language[desired_index][msgIndex]);
+                sprintf(decalText, "%s", curr_language[gmoxLngIndex][msgIndex]);
                 DecalFont_DrawLine(decalText, 0x100, 0xc8, FONT_SMALL, (JUSTIFY_CENTER | RED));
             }
             noShortcutMsgTimer[i]--;

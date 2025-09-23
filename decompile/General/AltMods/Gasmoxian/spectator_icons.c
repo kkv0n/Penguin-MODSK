@@ -169,19 +169,6 @@ void EndOfRace_Icons_Survival()
         DECOMP_DecalFont_DrawLineStrlen(octr->nameBuffer[index], NAME_LEN, pos.x + 38, pos.y + 1, FONT_SMALL, 
             index == 0 ? OXIDE_LIGHT_GREEN : ORANGE);
             
-         unsigned char desired_index = (unsigned char)sdata->unused_8008d700;
-         
-    		if (sdata->unused_8008d700 > 1)
-		{
-			if (sdata->unused_8008d700 == 3)
-			{
-			    desired_index = 2;
-			}
-			else
-			{
-				desired_index = 0;
-			}
-		}
         
         // Add "WINNER" text for the non-eliminated driver
         if (driverData[i].elimPosition == -1 && i == 0) {
@@ -192,7 +179,7 @@ void EndOfRace_Icons_Survival()
                 "VENCEDOR"
             };
             
-            DECOMP_DecalFont_DrawLine(winText[desired_index], pos.x + 38, pos.y + 10, FONT_SMALL, PAPU_YELLOW);
+            DECOMP_DecalFont_DrawLine(winText[gmoxLngIndex], pos.x + 38, pos.y + 10, FONT_SMALL, PAPU_YELLOW);
 
         } else {
             
@@ -204,7 +191,7 @@ void EndOfRace_Icons_Survival()
             };
             
             // Add "ELIMINATED" text for eliminated drivers
-            DECOMP_DecalFont_DrawLine(loseText[desired_index], pos.x + 38, pos.y + 10, FONT_SMALL, CORTEX_RED);
+            DECOMP_DecalFont_DrawLine(loseText[gmoxLngIndex], pos.x + 38, pos.y + 10, FONT_SMALL, CORTEX_RED);
 
         }
 
