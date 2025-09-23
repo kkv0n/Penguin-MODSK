@@ -53,3 +53,6 @@ games/settings.json
 
 # MyMods folder
 mods/MyMods/*
+
+# Logs
+logs.txt
