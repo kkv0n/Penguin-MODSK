@@ -763,8 +763,11 @@ void StateZero()
 	#ifndef FastBoot
 	// English=1
 	// PAL SCES02105 calls it multiple times
+	#ifdef USE_GASMOXIAN
+	SetLanguage(sdata->gGT);
+	#else
 	DECOMP_LOAD_LangFile(sdata->ptrBigfile1, 1);
-	
+	#endif
 	
 	DECOMP_GAMEPROG_NewGame_OnBoot();
 	gGT->overlayIndex_null_notUsed = 0;

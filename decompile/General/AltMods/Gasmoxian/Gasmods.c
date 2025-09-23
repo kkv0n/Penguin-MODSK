@@ -114,10 +114,12 @@ void DisableL2(bool disabled){
 }
 
 void SetLanguage(struct GameTracker* gGT)
-{
-	static bool langLoaded = false;
-	
-	switch(sdata->unused_8008d700)
+{	
+	static bool language_set = false;
+	if(language_set) return;
+
+	int index = sdata->unused_8008d700;
+	switch(index)
 	{
 		default:
 		case 0:
@@ -145,23 +147,24 @@ void SetLanguage(struct GameTracker* gGT)
 	}
 	
 
-    if (!langLoaded && gGT->langIndex != 0)
-	{
-		
-		DECOMP_LOAD_LangFile(sdata->ptrBigfile1, gGT->langIndex);
-		langLoaded = true;
-	}
+	DECOMP_LOAD_LangFile(sdata->ptrBigfile1, gGT->langIndex);
 
 	SetLanguageIndex();
+
+	language_set = true;
 }
 
 void SetLanguageIndex()
 {
+	gmoxLngIndex = 0;
 	gmoxLngIndex = (unsigned char)sdata->unused_8008d700;
+
+	if(gmoxLngIndex > 3)
+		gmoxLngIndex = 0;
 	
-	if (sdata->unused_8008d700 > 1)
+	if (gmoxLngIndex > 1)
 	{
-		if (sdata->unused_8008d700 == 3)
+		if (gmoxLngIndex == 3)
 		{
 			gmoxLngIndex = 2;
 		}
@@ -530,8 +533,6 @@ void RunGamemodesInitHook() {
     if (init_initialized) return;
 
     gGT = sdata->gGT;
-	SetLanguage(gGT);
-
     SetGamemodes();
 
     init_initialized = true;
