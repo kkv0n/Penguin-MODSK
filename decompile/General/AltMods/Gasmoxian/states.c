@@ -105,7 +105,7 @@ void StatePS1_Launch_EnterPID()
 
 }
 
-extern char* countryNames[5];
+extern char* countryNames[6];
 bool initString = true;
 //oxide icon
 

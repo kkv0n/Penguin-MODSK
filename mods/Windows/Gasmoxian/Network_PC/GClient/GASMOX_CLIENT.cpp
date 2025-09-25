@@ -822,9 +822,17 @@ void StatePC_Launch_PickServer()
 			addr.port = 5029;
 			break;
 		}
+		//GASMOX ASIA
+		case 4:
+		{
+			strcpy_s(dns_string, sizeof(dns_string), "38.47.191.253");
+			enet_address_set_host(&addr, dns_string);
+			addr.port = 7777;
+			break;
+		}
 
 		// PRIVATE SERVER
-		case 4:
+		case 5:
 		{
 			StopAnimation();
 
