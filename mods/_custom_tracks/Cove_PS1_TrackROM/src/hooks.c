@@ -266,6 +266,10 @@ void RunUpdateHook()
 {
 	struct GameTracker* gGT = sdata->gGT;
 	
+	//high lod fix
+	*(unsigned int*)0x800AB460 = 0x800A6F40;
+
+	
 		if ((gGT->numPlyrCurrGame == 1) && ((gGT->gameMode1 & END_OF_RACE) == 0))
 		{
 	DrawReservesMeter(data.hud_1P_P1[0x8].x, data.hud_1P_P1[0x8].y + 5, (struct Driver*)sdata->gGT->threadBuckets[0].thread->object);
