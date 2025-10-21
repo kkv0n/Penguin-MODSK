@@ -29,9 +29,6 @@ void Cove_Main()
 {
 	struct GameTracker* gGT = sdata->gGT;
 	    	
-	//high lod fix
-	//DrawLevelOvr1P
-	*(unsigned int*)0x800AB460 = 0x800A6F40;
 	
 	if (gGT->levelID < GEM_STONE_VALLEY && gGT->cameraDC->unk8E != 0)
 		gGT->cameraDC->unk8E = 0;
