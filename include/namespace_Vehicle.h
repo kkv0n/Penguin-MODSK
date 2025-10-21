@@ -294,6 +294,28 @@ struct MetaPhys
 	int value[NUM_CLASSES];
 };
 
+/*
+decomp removed unusedDebugStr which breaks vanilla mods
+
+how to use:
+to write:
+GetRetailMetaPhys(metaphys->variable) = value;
+
+to read:
+value = GetRetailMetaPhys(metaphys->variable);
+
+*/
+#define GetRetailMetaPhys(x) (*((int*)&(x) + 1)) //read or write
+
+
+//vehicle stat address
+#define VehStat(driver, offset) ((char*)(driver) + offset)
+
+//read or rewrite vehicle stat, works per driver keeping metaphys untouched
+//newval = custom_value, d = struct driver*, offset = data.metaPhys[index].offset, size = data.metaPhys[index].size
+#define VehStat_Update(nval, driver, offset, size) (memcpy(VehStat(driver, offset), &nval, size))
+#define VehStat_Read(d, offst, sz) ((sz == 1) ? *(char*)(VehStat(d, offst)) : (sz == 2) ? *(short*)(VehStat(d, offst)) : *(int*)(VehStat(d, offst)))
+
 
 struct Turbo
 {
