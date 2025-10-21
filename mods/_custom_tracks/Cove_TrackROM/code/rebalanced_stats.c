@@ -1,7 +1,7 @@
 #include <common.h>
 
 
-force_inline char MetaIndex(char x, struct MetaPhys* metaphys)
+force_inline char MetaIndex(char x, struct MetaPhys* metaphys, char engineID)
 {
     //these are metaphys indexes
     static const unsigned char desired_indexes[3] = {0x9, 0xb, 0xc};
@@ -21,7 +21,7 @@ force_inline char MetaIndex(char x, struct MetaPhys* metaphys)
 	{
 	 if (x == desired_indexes[m])
      {
-         GetRetailMetaPhys(metaphys->value) = custom_stats[m];
+         GetRetailMetaPhys(metaphys->value[engineID]) = custom_stats[m];
 		 return 1;
      }
 	}
@@ -60,7 +60,7 @@ void VehBirth_SetConsts(struct Driver* driver)
 		metaPhysSize = GetRetailMetaPhys(metaPhys->size);
         
         //check the stat index
-        MetaIndex(i, metaPhys);
+        MetaIndex(i, metaPhys, engineID);
         
         engineStat = GetRetailMetaPhys(metaPhys->value[engineID]);
     
