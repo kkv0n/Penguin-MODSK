@@ -5,7 +5,8 @@ struct Model* VehBirth_GetModelByName(char *searchName)
     struct Model *m;
     struct Model **models;
     int i;
-
+	
+		
     // array to character models loaded,
     // maximum of 4, used in VS mode
     models = (struct Model **)&data.driverModelExtras[0];

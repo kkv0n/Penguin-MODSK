@@ -40,7 +40,7 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 	u_char podiumModel;
 	int iVar12;
 	char* levelNamePtr;
-	int* piVar15;
+	unsigned int* ptrToModelOrMPK;
 	u_int uVar16;
 	u_int uVar17;
 	int vramSize;
@@ -305,7 +305,7 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 		if ((gGT->gameMode2 & (LEV_SWAP | CREDITS)) != 0) break;
 		if ((gGT->gameMode1 & (GAME_CUTSCENE | MAIN_MENU)) != 0) break;
 
-		//  load time trial overlay (probably unused anyways)
+		//  load time trial overlay (customized)
 		ovrRegion1 = 3;
 
 		LOAD_OvrEndRace(ovrRegion1);
@@ -387,18 +387,18 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 		data.driverModelExtras[2] = 0;
 		sdata->load_inProgress = 1;
 		
+		//clear custom model pointers on every load
+		memset(&ptrCharacterModels, 0, (sizeof(unsigned int) * 16));
+		
 
 	
 
 			
 			
 			
-			
 
-		if (gGT->levelID >= GEM_STONE_VALLEY)
-			LOAD_DriverMPK((unsigned int)bigfile, sdata->levelLOD, &LOAD_Callback_DriverModels);
-		else
-			LOAD_Custom_LOD_Driver(bigfile, 1, &LOAD_Callback_DriverModels);
+		//always use custom model lod function
+		LOAD_Custom_LOD_Driver(bigfile, 1, &LOAD_Callback_DriverModels);
 		
 
 		
@@ -458,17 +458,29 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 		// == banks are done parsing ===
 
 
-#define NUM_CHECK 4 // modding: 8 drivers
+		u_char NUM_CHECK = 4; // modding: 4 drivers
 
-
-// loop through models
-		piVar15 = &data.driverModelExtras[0];
-		for (iVar9 = 0; iVar9 < NUM_CHECK; iVar9++, piVar15++)
+		
+		// loop through models
+		ptrToModelOrMPK = &data.driverModelExtras[0];
+		
+		//add 4 bytes to all model pointers because the game leave it off for some reason
+		if (gGT->levelID == MAIN_MENU_LEVEL)
 		{
+			ptrToModelOrMPK = &ptrCharacterModels[0];
+			NUM_CHECK = 16;
+		}
+			
+		for (iVar9 = 0; iVar9 < NUM_CHECK; iVar9++, ptrToModelOrMPK++)
+		{
+
 			// increment pointer by 4,
 			// change pointer to file (starting at pointer map)
 			// into a pointer to the model itself
-			if (*piVar15 != 0) *piVar15 += 4;
+			if (ptrToModelOrMPK[0] != 0) ptrToModelOrMPK[0] += 4;
+			
+			
+			
 		};
 
 		// If the world you're in is made of multiple LEV files
@@ -673,24 +685,24 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 		// if linked list of icons exists
 		if (gGT->mpkIcons != 0)
 		{
-			piVar15 = (int*)(*(u_int*)((u_int)gGT->mpkIcons + 4));
+			ptrToModelOrMPK = (int*)(*(u_int*)((u_int)gGT->mpkIcons + 4));
 
 
 			// search for icon by string
 			//what even are these first arguments? --Super
-			uVar16 = (u_int)DecalGlobal_FindInMPK(piVar15, rdata.s_lightredoff);
+			uVar16 = (u_int)DecalGlobal_FindInMPK(ptrToModelOrMPK, rdata.s_lightredoff);
 			gGT->trafficLightIcon[0] = (struct Icon*)uVar16;
 
 			// search for icon by string
-			uVar16 = (u_int)DecalGlobal_FindInMPK(piVar15, rdata.s_lightredon);
+			uVar16 = (u_int)DecalGlobal_FindInMPK(ptrToModelOrMPK, rdata.s_lightredon);
 			gGT->trafficLightIcon[1] = (struct Icon*)uVar16;
 
 			// search for icon by string
-			uVar16 = (u_int)DecalGlobal_FindInMPK(piVar15, rdata.s_lightgreenoff);
+			uVar16 = (u_int)DecalGlobal_FindInMPK(ptrToModelOrMPK, rdata.s_lightgreenoff);
 			gGT->trafficLightIcon[2] = (struct Icon*)uVar16;
 
 			// search for icon by string
-			uVar16 = (u_int)DecalGlobal_FindInMPK(piVar15, rdata.s_lightgreenon);
+			uVar16 = (u_int)DecalGlobal_FindInMPK(ptrToModelOrMPK, rdata.s_lightgreenon);
 			gGT->trafficLightIcon[3] = (struct Icon*)uVar16;
 
 		}
@@ -854,18 +866,18 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 					)
 				)
 		{
-			piVar15 = &data.podiumModel_firstPlace;
+			ptrToModelOrMPK = &data.podiumModel_firstPlace;
 
 			// for iVar9 = 0; iVar9 < 8; iVar9++
 			do
 			{
-				iVar12 = *piVar15;
+				iVar12 = ptrToModelOrMPK[0];
 				if (iVar12 != 0)
 				{
 					if (iVar9 < 7)
 					{
-						*piVar15 = iVar12 + 4;
-						iVar12 = *piVar15;
+						ptrToModelOrMPK[0] = iVar12 + 4;
+						iVar12 = *ptrToModelOrMPK;
 					}
 
 					m = (struct Model*)iVar12;
@@ -876,9 +888,9 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 				}
 
 				// increment loop counter
-				iVar9 = iVar9 + 1;
+				iVar9++;
 
-				piVar15 = piVar15 + 1;
+				ptrToModelOrMPK++;
 			} while (iVar9 < 8);
 
 			// change active allocation system

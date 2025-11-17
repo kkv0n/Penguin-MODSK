@@ -14,7 +14,12 @@ char reload_Ghosts(struct GameTracker* gGT)
 void get_ghostIDs(struct SpawnType1* ptrSpawnType1)
 {
 	         //if not ghosts on this level
-			if (ptrSpawnType1->count < ST1_NTROPY) return;
+			if (ptrSpawnType1->count < ST1_NTROPY)
+			{
+				//for some reason a random tiny tiger ghost spawns
+				sdata->ptrGhostTape[1] = NULL; 
+				return;
+			}
 			
 			//struct that stores data related to ghosts
 			void** pointers = ST1_GETPOINTERS(ptrSpawnType1);
@@ -25,11 +30,15 @@ void get_ghostIDs(struct SpawnType1* ptrSpawnType1)
 		
 			//get ntropy
 			if(ntropy != NULL)
-			data.characterIDs[2] = ntropy->characterID;
+				data.characterIDs[2] = ntropy->characterID;
+
 
 		
 			//get oxide
 			if (oxide != NULL)
-			data.characterIDs[3] = oxide->characterID;
+				data.characterIDs[3] = oxide->characterID;
+
+		
+			
 	
 }

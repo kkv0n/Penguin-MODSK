@@ -22,26 +22,38 @@ void MainInit_PrimMem(u_int* param_1)
 		
 		sdata->mempack[0].firstFreeByte =
 		(void*)((int)sdata->mempack[0].lastFreeByte
-		- 0xA000 // primMem needed
-		- (0x4400)); // ghost HighMem
+		- 0xE400); // primMem needed
 	}
 	else if (force == 0 && gGT->levelID <= CITADEL_CITY)
 	{
-		//dont use hardcoded address for mempack thanks.
-		
 		
 		//get free mempack bytes to store primMem
+		size =	MEMPACK_GetFreeBytes();
+		
+		//leave some padding
+		//dont use hardcoded address for mempack thanks.
+		if(size > 0x186a0)
+			sdata->PtrMempack->firstFreeByte += 0x186a0;
+		else
+			MEMPACK_AllocMem(0x900000); //crash the game with a red screen
+		
+		
 		//this variable is used 2 times to allocate mem
-		size = (MEMPACK_GetFreeBytes() / 2);
+		size = MEMPACK_GetFreeBytes() / 2;
 		
 		size &= ~31; //some trick to align number just in case
 		
+		
+		
 		//dont use the entire mempack space
-		if (size > 0x104400)
-			size -= 0x104400;
-		else //hopefully this else never happens
-			size -= 0x2400; //ghost required + some extra bytes
-			
+		size -= (size / 2);
+		
+		printf("PrimAllocated: %08x\n", (size * 2));
+		
+		if (size < 0x30d40) //crash the game with a red screen
+		{
+			MEMPACK_AllocMem(0x900000);
+		}
 		  
 	}
 
@@ -62,16 +74,13 @@ void MainInit_PrimMem(u_int* param_1)
 
 int GetOriginalSize(struct GameTracker* gGT)
 {
-	int levelID = gGT->levelID;
-	
 	// main menu
-	if(levelID == MAIN_MENU_LEVEL)
+	if(gGT->levelID == MAIN_MENU_LEVEL)
 		return 0x17c00;
 	
 
 
 	// all are 0x67 or 0x5F, adv hub was 0x5F too
-	return data.primMem_SizePerLEV_1P[levelID] << 10;
-
+	return data.primMem_SizePerLEV_1P[gGT->levelID] << 10;
 }
 

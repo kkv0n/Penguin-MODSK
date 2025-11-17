@@ -13,15 +13,15 @@ void MM_MenuProc_Main(struct RectMenu* mainMenu)
 
 
 
-  track_name = "MY TRACK";
-  CUSTOM_LEVEL_ID = CRASH_COVE; //level music
-  reserves_bar = TRUE; //change "FALSE" to -> "TRUE" to enable reserves bar
-  weather_type = CLEAR; // change "CLEAR" to -> "RAIN" for rain, or "SNOW" for snow "weather_type = RAIN;" "weather_type = SNOW;"
-  RETRO_FUELED = FALSE; //change "FALSE" to -> "TRUE" to enable retro fueled mechanics + blue fire texture
+	track_name = "MY TRACK";
+	CUSTOM_LEVEL_ID = CRASH_COVE; //level music
+	reserves_bar = TRUE; //change "FALSE" to -> "TRUE" to enable reserves bar
+	weather_type = CLEAR; // change "CLEAR" to -> "RAIN" for rain, or "SNOW" for snow "weather_type = RAIN;" "weather_type = SNOW;"
+	RETRO_FUELED = FALSE; //change "FALSE" to -> "TRUE" to enable retro fueled mechanics + blue fire texture
   
-  DecalFont_DrawLine("COVE ROM MOD", 5, 197, FONT_SMALL, CORTEX_RED);
-  DecalFont_DrawLine(__DATE__, 	5, 206, FONT_SMALL, ORANGE);
-  DecalFont_DrawLine(__TIME__, 	170, 206, FONT_SMALL, ORANGE);
+	DecalFont_DrawLine("COVE ROM MOD", 5, 197, FONT_SMALL, CORTEX_RED);
+	DecalFont_DrawLine(__DATE__, 	5, 206, FONT_SMALL, ORANGE);
+	DecalFont_DrawLine(__TIME__, 	170, 206, FONT_SMALL, ORANGE);
 
 
 	// If you are at the highest hierarchy level of main menu
@@ -72,6 +72,8 @@ void MM_MenuProc_Main(struct RectMenu* mainMenu)
 
 	// get LNG index of row selected
 	choose = mainMenu->rows[mainMenu->rowSelected].stringIndex;
+	
+
 
 	// Time trial
 	if (choose == 379)
@@ -85,19 +87,13 @@ void MM_MenuProc_Main(struct RectMenu* mainMenu)
         //unlock 16 characters
         sdata->gameProgress.unlocks[0] |= UNLOCK_CHARACTERS;
 		
-		//reset some time trial flag?
-        data.metaDataLEV[CUSTOM_LEVEL_ID].timeTrial = 0x7FFFFFFF;
+		//time to unlock ghosts
+        data.metaDataLEV[CUSTOM_LEVEL_ID].timeTrial = HOURS(1);
         
         // Leave main menu hierarchy
 		D230.MM_State = 2;
 		D230.desiredMenuIndex = 2;
-        
-		//allocate memory for ghosts
-        sdata->ptrGhostTapePlaying = MEMPACK_AllocHighMem(0x3e00);
-		
-		//reset ghost data
-        memset(sdata->ptrGhostTapePlaying, 0, sizeof(struct GhostHeader));
-        sdata->boolReplayHumanGhost = 0;
+
 
 
 	}

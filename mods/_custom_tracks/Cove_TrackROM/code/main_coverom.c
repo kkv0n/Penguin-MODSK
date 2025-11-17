@@ -5,6 +5,9 @@
 
 unsigned char CUSTOM_LEVEL_ID;
 
+//only valid on main menu (custom character fix)
+unsigned int ptrCharacterModels[16];
+
 struct MenuRow MainMenuOptions[2] =
 {
 	[0] =
@@ -28,10 +31,11 @@ struct MenuRow MainMenuOptions[2] =
 void Cove_Main()
 {
 	struct GameTracker* gGT = sdata->gGT;
-	    	
 	
+			
 	if (gGT->levelID < GEM_STONE_VALLEY && gGT->cameraDC->unk8E != 0)
 		gGT->cameraDC->unk8E = 0;
+	
 	
 	
 	bluefire();
@@ -40,6 +44,9 @@ void Cove_Main()
 	//reserves meter
 	if ((gGT->numPlyrCurrGame == 1) && ((gGT->gameMode1 & END_OF_RACE) == 0) && (RaceFlag_IsFullyOffScreen()))
 	{
+		//restart this once racing
+		oxide = false;
+		
 		DrawReservesMeter(data.hud_1P_P1[0x8].x, data.hud_1P_P1[0x8].y + 5,
 		(struct Driver*)sdata->gGT->threadBuckets[0].thread->object); // ??? this can easily be gGT->drivers, why looking on threads
 	}

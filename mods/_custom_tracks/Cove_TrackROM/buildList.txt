@@ -2,12 +2,12 @@
 common, bigfilelevelstracksisland11Pdatalev, 0x0, 0x0, customtrack.lev
 common, bigfilelevelstracksisland11Pdatavrm, 0x0, 0x0, customtrack.vrm
 
-
 // custom track fixes
 common, exe, rdata_free, 0x0, code/main_coverom.c
 common, exe, LOAD_TenStages, 0x0, code/load_track.c
 common, exe, main, 0x0, code/mainmain_ctr.c
 common, exe, MainInit_PrimMem, 0x0, code/primem.c
+common, exe, MainInit_OTMem, 0x0, code/otmem.c
 common, 230, MM_TrackSelect_MenuProc, 0x0, code/trackmenu.c
 common, 230, MM_MenuProc_Main, 0x0, code/mainmenu_stuff.c
 
@@ -15,6 +15,7 @@ common, 230, MM_MenuProc_Main, 0x0, code/mainmenu_stuff.c
 //retro fueled
 common, exe, VehPhysProc_Driving_PhysLinear, 0x0, code/retrofueled/driving_physlinear.c
 common, exe, VehFire_Increment, 0x0, code/retrofueled/fire_increment.c
+
 
 
 //fix for custom character animation being stuck
@@ -25,11 +26,17 @@ common, exe, VehPhysProc_SlamWall_PhysLinear, 0x0, code/custom_mods/model_wallsp
 common, exe, VehPhysProc_SlamWall_PhysAngular, 0x0, code/custom_mods/model_wallsplat/wall_physangular.c
 
 
+//custom mods
+common, 230, MM_Characters_DrawWindows, 0x0, code/custom_mods/mmenu_models.c
+common, exe, CTR_Box_DrawSolidBox, 0x0, code/custom_mods/oxide/SolidBox.c
+common, exe, DecalFont_DrawLine, 0x0, code/custom_mods/oxide/1p_text.c
+
+
 //time trial fixes
 common, exe, SubmitName_DrawMenu, 0x0, code/tt/submitmenu.c
 //this file also stores high lod fix
 common, exe, MainFrame_RenderFrame, 0x0, code/tt/renderframe.c
-
+ntsc-u, 224, 0x8009f6fc, 0x0, code/tt/tt_endrace.c
 
 
 //rebalanced stats by penta3 (same purpose than niikasd ones but rewritten)
@@ -41,3 +48,4 @@ common, exe, LOAD_AppendQueue, 0x0, code/ghost_fixes/load_queue.c
 common, exe, MainDB_GetClipSize, 0x0, code/ghost_fixes/clipBuffer.c
 common, exe, VehBirth_GetModelByName, 0x0, code/ghost_fixes/getmodel.c
 common, exe, BOTS_Driver_Convert, 0x0, code/ghost_fixes/bot_driver_convert.c
+common, exe, LOAD_DriverMPK, 0x0, code/ghost_fixes/load_model_and_mpk.c

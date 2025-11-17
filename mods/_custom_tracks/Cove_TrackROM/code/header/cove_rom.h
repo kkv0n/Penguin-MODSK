@@ -4,6 +4,9 @@
 #define FALSE 0
 #define TRUE 1
 
+#define MM_RESTORE 0x0004802F
+
+
 enum WEATHER
 {
 	CLEAR,
@@ -17,10 +20,14 @@ extern u_char weather_type;
 extern u_char RETRO_FUELED;
 extern char* track_name;
 extern int force;
+extern unsigned int ptrCharacterModels[16];
+extern bool oxide;
 
 
 
 void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, void* callback);
+void Load_Oxide(struct Model* characterModel, char* ch);
+void FUN_80021894(RECT* r, Color* rgb, struct OTMem* otMem, struct PrimMem* primMem);
 void Cove_InitTrack();
 void Cove_Main();
 void TT_End(void);

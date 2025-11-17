@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../header/cove_rom.h"
 
 // this goes to footer
 static int str_number = 0x20; // " \0"
@@ -22,16 +23,6 @@ void TT_End(void)
 
     sdata->flags_timeTrialEndOfRace |= 1;
 	
-	
-
-    // If you just beat N Tropy && N Tropy was beaten on all tracks
-    if (
-			((gameModeEnd & NTROPY_JUST_BEAT) != 0) &&
-			((GAMEPROG_CheckGhostsBeaten(1) & 0xffff) != 0)
-		)
-    {
-        sdata->gameProgress.unlocks[0] |= 0x20; // Unlock N Tropy
-    }
 
     // copy the frame counter variable
     elapsedFrames = sdata->framesSinceRaceEnded;
@@ -91,7 +82,13 @@ void TT_End(void)
 
 	// between 91 and 900 frames (3-30)
 	// Return at bottom of IF block
-	if (elapsedFrames <= FPS_DOUBLE(900))
+	
+	if (elapsedFrames > FPS_DOUBLE(900))
+	{
+		elapsedFrames = 900;
+	}
+	
+	else
 	{
 		// first transition is race clock
 		elapsedFrames -= FPS_DOUBLE(90);
@@ -201,7 +198,7 @@ void TT_End(void)
 		DecalFont_DrawLine(lngStrings[201], 0x100, 0xbe, 1, 0xffff8000);
 
 		
-					// ==== Pause Timer until Press X =======
+			// ==== Pause Timer until Press X =======
 			// Cross or Circle, or if timer drags on too long
 			if (
 					((sdata->AnyPlayerTap & 0x50) != 0)
@@ -213,7 +210,8 @@ void TT_End(void)
 				// which then counts up to 1018 for transition-out
 				sdata->menuReadyToPass |= 0x10;
 			}
-			return;
+			
+			
 		}
 
 		
@@ -250,23 +248,11 @@ void TT_End_Time(int paramX, short paramY, u_int UI_DrawRaceClockFlags)
 	// "TOTAL"
 	textWidth =  DecalFont_GetLineWidth(sdata->lngStrings[0xc4], 1);
 
-	// === Naughty Dog Bug ===
-	// Start and End is the same
-	
-	#if 0
-	
-	 UI_Lerp2D_Linear(
-		&pos[0],
-		(paramX - (0x88 - textWidth) / 2), paramY,
-		(paramX - (0x88 - textWidth) / 2), paramY,
-		sdata->framesSinceRaceEnded, FPS_DOUBLE(0x14));
-	
-	#else
+
 	
 	pos[0] = (paramX - (0x88 - textWidth) / 2);
 	pos[1] = paramY;
-	
-	#endif
+
 
 	// "YOUR TIME"
 	DecalFont_DrawLine(sdata->lngStrings[197], paramX, ((u_int)pos[1] - 0x4c), FONT_BIG, (JUSTIFY_CENTER | ORANGE));

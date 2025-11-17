@@ -175,6 +175,19 @@ void MainFrame_RenderFrame(struct GameTracker* gGT, struct GamepadSystem* gGamep
 	}
 
 
+	//custom track main menu text 
+	if ((gGT->gameMode1 & MAIN_MENU) != 0)
+	{
+
+		data.font_charPixWidth[FONT_BIG] = WIDE_34(13); //make the font small in main menu
+
+	}
+	else
+	{
+		data.font_charPixWidth[FONT_BIG] = WIDE_34(17); //return the font to his original size
+	}
+	
+	
 	// If in main menu, or in adventure arena,
 	// or in End-Of-Race menu
 	if ((gGT->gameMode1 & (ADVENTURE_ARENA | END_OF_RACE | MAIN_MENU)) != 0) {

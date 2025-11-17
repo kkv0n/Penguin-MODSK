@@ -1,6 +1,6 @@
-#include "../ghost_fixes/load_model_and_mpk.c"
-#include "../tt/tt_endrace.c"
 #include "../init_track.c"
 #include "../custom_mods/custom_weather.c"
 #include "../custom_mods/reserves_meter.c"
+#include "../custom_mods/oxide/oxideMM.c"
+#include "../custom_mods/oxide/oxide_bluerect.c"
 #include "../retrofueled/retro.c"

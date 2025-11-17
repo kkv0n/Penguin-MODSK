@@ -1,5 +1,6 @@
 //load driver models in race tracks or adv hubs
 #include <common.h>
+#include "../header/cove_rom.h"
 
 void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, void* callback)
 {
@@ -7,11 +8,13 @@ void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, v
 	int gameMode1;
     short MODEL_QUALITY;
 	short MPK_QUALITY;
+	unsigned char charToLoad = 0;
+	unsigned int* modelPointers;
 	
     struct GameTracker* gGT = sdata->gGT;
 	
 	
-	unsigned char lastIndex = gGT->numPlyrCurrGame - 1; //number of human players
+	unsigned char lastIndex = 4; // 3 ghost, 1 player
 	
 	gameMode1 = gGT->gameMode1;
 	
@@ -42,71 +45,44 @@ void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, v
 		
 	}
 
-
-
-
-	if(
-			// If you are in Adventure cup
-			((gameMode1 & ADVENTURE_CUP) != 0) &&
-
-			// purple gem cup
-			(gGT->cup.cupID == 4)
-		)
-	{
-		data.characterIDs[1] = RIPPER_ROO;
-		data.characterIDs[2] = PAPU_PAPU;
-		data.characterIDs[3] = KOMODO_JOE;
-		data.characterIDs[4] = PINSTRIPE;
-		
-		lastIndex = 5; // 5 characters, bosses + player
-
-	}
-	else if ((gameMode1 & TIME_TRIAL) != 0) 
-	{
-		lastIndex = 4; // 3 ghosts + player ???
-	}
-	
-	
-	if((gameMode1 & ADVENTURE_BOSS) != 0)
-	{
-		lastIndex = 2;
-		data.characterIDs[1] = data.metaDataLEV[gGT->levelID].characterID_Champion;
-	}
-	
-	//if single player arcade mode
-	else if(((gameMode1 & (ADVENTURE_MODE | ARCADE_MODE)) != 0) && (gGT->numPlyrCurrGame == 1))
-	{
-		 LOAD_Robots1P(data.characterIDs[0]);
-		 
-		 lastIndex = 8; // 7 players
-	}
-	 
-	//if multiplayer arcade mode
-	else if(((gameMode1 & ARCADE_MODE) != 0) && (gGT->numPlyrCurrGame == 2))
-		lastIndex = 6; // 5 players
-
-
-            //loop throught all players + bots
+			
+			if (gGT->levelID == MAIN_MENU_LEVEL)
+			{
+				lastIndex = 16;		
+				MPK_QUALITY = BI_ADVENTUREPACK;
+			}
+			
+			
+            //loop throught all drivers
             for(i = 0; i < lastIndex; i++)
 		   {
-			// CTR model
-			 LOAD_AppendQueue(bigfile, 2,
-				MODEL_QUALITY + data.characterIDs[i],
-				&data.driverModelExtras[i],0xfffffffe);
+			   if (gGT->levelID != MAIN_MENU_LEVEL)
+			   {
+				   charToLoad = data.characterIDs[i];
+				   modelPointers = &data.driverModelExtras[i]; //normal driver model variable(racing)
+			   }
+			   else
+			   {
+				   charToLoad = i;
+				   modelPointers = &ptrCharacterModels[i]; //save ctr models ptr on our custom variables
+			   }
+			   
+				// CTR model
+				LOAD_AppendQueue(bigfile, 2,
+				MODEL_QUALITY + charToLoad,
+				modelPointers, 0xfffffffe);
 		   }
 		   
 
-		   	if(((gameMode1 & ARCADE_MODE) != 0) && (gGT->numPlyrCurrGame == 2))
-		   {
-			    //load bot IDs
-			   	LOAD_Robots2P(bigfile, data.characterIDs[0], data.characterIDs[1], callback);
-				return;
-		   }
+		if (gGT->levelID == MAIN_MENU_LEVEL)
+			charToLoad = data.characterIDs[0];
 			
-     //mpk
-	 LOAD_AppendQueue(
+		//mpk
+		LOAD_AppendQueue(
 		bigfile, 2,
-		MPK_QUALITY + data.characterIDs[i],
+		MPK_QUALITY + charToLoad,
 		NULL, callback);
+		
+		return;
 	
 }
