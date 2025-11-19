@@ -3,6 +3,9 @@
 common, bigfilelevelstracksisland11Pdatalev, 0x0, 0x0, track_file/track.lev
 common, bigfilelevelstracksisland11Pdatavrm, 0x0, 0x0, track_file/track.vrm
 
+
+//bot fixes
+//
 common, exe, UI_INSTANCE_BirthWithThread, 0x0, code/bots/bot_fixes/inst_birth.c
 
 common, exe, MainInit_Drivers, 0x0, code/bots/initdrivers.c
@@ -41,60 +44,45 @@ common, exe, MainFrame_GameLogic, 0x0, code/bots/bot_fixes/gamelogic.c
 
 common, exe, BOTS_Driver_Init, 0x0, code/bots/bot_fixes/bot_init.c
 
-common, exe, GAMEPAD_ProcessAnyoneVars, 0x0, code/gamepad/gp_anyone.c
-
-common, exe, GAMEPAD_ProcessTapRelease, 0x0, code/gamepad/gp_process.c
-
 common, exe, VehBirth_SetConsts, 0x0, code/rebalanced_stats.c
-
-
-ntsc-u, 222, 0x8009f6fc, 0x0, code/bots/bot_fixes/ArcadeOvr.c
 
 common, exe, UI_INSTANCE_InitAll, 0x0, code/bots/bot_fixes/ui_instances.c
 
+//
+//end of bot fixes
+
+
+//end race overlay
+ntsc-u, 222, 0x8009f6fc, 0x0, code/bots/bot_fixes/ArcadeOvr.c
+
+
+//gamepad mod for bot compatibility
+common, exe, GAMEPAD_ProcessAnyoneVars, 0x0, code/gamepad/gp_anyone.c
+common, exe, GAMEPAD_ProcessTapRelease, 0x0, code/gamepad/gp_process.c
+
+
+//ui fixes
 common, exe, UI_DrawRaceClock, 0x0, code/raceclock.c
 
-//required for multiplayer
+
+
+//mod
 common, exe, MainInit_PrimMem, 0x0, code/primem.c
 common, exe, MainInit_OTMem, 0x0, code/otmem.c
-
 common, exe, MainFrame_RenderFrame, 0x0, code/renderframe.c
-
-
-
 common, exe, PlayLevel_UpdateLapStats, 0x0, code/laps.c
-
-
-
-// the main file of the mod stored in rdata
 common, exe, rdata_free, 0x0, code/bot_main.c
-
-
-
-
 common, 230, MM_MenuProc_Main, 0x0, code/main_menu.c
-
-
 common, 230, MM_TrackSelect_MenuProc, 0x0, code/trackmenu.c
-
-// this loads the lev and vram
 common, exe, LOAD_TenStages, 0x0, code/load_track.c
-
-
-// literally the ctr main file, the heart of ctr code
 common, exe, main, 0x0, code/mainmain_ctr.c
-
-
-//set a custom itemset
 common, exe, VehPhysGeneral_SetHeldItem, 0x0, code/items.c
+
 
 //custom bot code
 common, iso, 0x80700000, 0x0, code/load_ctr_models.c, lod.bin
-
 common, iso, 0x80700fd8, 0x0, code/bots/Bot_Funcs.c, funcs.bin
-
 common, iso, 0x80703720, 0x0, botPaths/customghost.c, cghost.bin
-
 common, iso, 0x80703720, 0x0, botPaths/custombot.c, cbot.bin
 
 

@@ -230,10 +230,10 @@ void Item_Crate(struct GameTracker* gGT)
 	unsigned int trackLength = gGT->level1->ptr_restart_points[0].distToFinish * 10;
 	unsigned int progress = player->distanceToFinish_curr;
 	
-	for (unsigned char i = 2; i < 18; i++)
+	for (unsigned char i = 1; i < 10; i++)
 	{
 		
-		if (progress >= (trackLength / i) && progress <= (trackLength / i) + 125)
+		if (progress >= ((trackLength / 10) * i) && progress <= ((trackLength / 10) * i) + 125)
 		{
 			weapon_roulette((unsigned char)player->driverID);
 			break;
@@ -283,7 +283,7 @@ void BotMod_Main()
 
 
 
-if (!ghostMode && gGT->drivers[0] != NULL)
+if (!ghostMode && RaceFlag_IsFullyOffScreen())
 {
       // Item modifiers
 	if (gGT->levelID < INTRO_RACE_TODAY)
@@ -294,7 +294,6 @@ if (!ghostMode && gGT->drivers[0] != NULL)
 
 	}
 }
-
 
 
 

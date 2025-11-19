@@ -2,8 +2,8 @@
 #include "../header/bot.h"
 
 int itemTimer;
-int itemChaosDifficulty = 2; // 0=off, 1=easy, 2=medium, 3=hard
-int maxWarpOrbs = 5;
+int itemChaosDifficulty; // 0=off, 1=easy, 2=medium, 3=hard
+int maxWarpOrbs;
 
 
 struct GameTracker* gGT;
@@ -37,15 +37,11 @@ bool CanThrowItems(struct Driver* driver) {
 
     // Check if the driver is in a valid state to throw items
     bool isAI = (driver->driverID > 0);
-    if (isAI && (driver->botData.botFlags & 2) != 0) return false; // Bot is spinning or blasted
+    if (isAI && PAUSE_BOT_PATH(driver->kartState)) return false; // Bot is spinning or blasted
 
     bool isHuman = !isAI;
-    if (isHuman && (driver->kartState != KS_NORMAL && driver->kartState != KS_DRIFTING)) return false;
 
-
-    if (isHuman) return false;
-
-    return true;
+    return !isHuman;
 }
 
 void ItemChaos_Init(bool enabled) {
@@ -55,7 +51,10 @@ void ItemChaos_Init(bool enabled) {
     // Initialize item timer, wait 5 seconds to start throwing items
     itemTimer = FPS_DOUBLE(160);
 
-        maxWarpOrbs = 3;
+        itemChaosDifficulty = bot_Itemdifficulty;
+        maxWarpOrbs = itemChaosDifficulty + 1;
+        
+        
 
 }
 
@@ -81,55 +80,6 @@ int CountActiveWarpOrbs() {
     return count;
 }
 
-int lastCheckpointForWeaponRoulette[8] = {-1, -1, -1, -1, -1, -1, -1, -1}; // Store last checkpoint for each driver
-
-// Check if we need to give a weapon based on checkpoint progress
-void HandleWeaponRoulette(bool enabled) {
-    if (!enabled) return;
-
-    // Only run if there are no bots and more than one player
-    if (gGT->numBotsNextGame > 0 || gGT->numPlyrCurrGame <= 1) {
-        return;
-    }
-    
-    int totalCheckpoints = gGT->level1->cnt_restart_points;
-    if (totalCheckpoints <= 0) return;
-    
-    // Calculate checkpoint intervals (20% increments)
-    int interval = totalCheckpoints / 5;
-    if (interval <= 0) interval = 1; // Ensure minimum interval
-    
-    // Check each player to see if they crossed an interval boundary
-    for (unsigned char i = 0; i < gGT->numPlyrCurrGame; i++) {
-        struct Driver* driver = gGT->drivers[i];
-        if (driver == NULL || driver->underDriver == NULL) continue;
-        
-        int currentCheckpoint = driver->underDriver->checkpointIndex;
-
-        // skip if checkpoint is last checkpoint
-        if (currentCheckpoint == totalCheckpoints - 1) continue;
-        
-        // Skip if the checkpoint hasn't changed
-        if (currentCheckpoint == lastCheckpointForWeaponRoulette[i]) continue;
-        
-        // Check if player crossed an interval boundary
-        for (int j = 1; j <= 4; j++) { // 20%, 40%, 60%, 80%
-            int checkpointThreshold = j * interval;
-            
-            // If the previous checkpoint was before the threshold and 
-            // the current checkpoint is at or past the threshold
-            if (lastCheckpointForWeaponRoulette[i] < checkpointThreshold && 
-                currentCheckpoint >= checkpointThreshold) {
-                // Give player a weapon
-                WeaponRoulette(driver);
-                break;
-            }
-        }
-        
-        // Update the last checkpoint
-        lastCheckpointForWeaponRoulette[i] = currentCheckpoint;
-    }
-}
 
 
 // Give a weapon to a driver at checkpoint intervals
@@ -188,9 +138,12 @@ void WeaponRoulette(struct Driver* driver) {
 // All players on last lap will have 99 wumpas
 void HandleItemChaos(bool enabled) {
     if (!enabled) return;
+    
 
-    // Give all players that are in last lap 99 wumpas
-    for (unsigned char i = 0; i < gGT->numPlyrCurrGame + gGT->numBotsNextGame; i++) {
+    unsigned char* curr_botItemset = &botItemList[0];
+
+    // Give human players that are in last lap 99 wumpas
+    for (unsigned char i = 0; i < gGT->numPlyrCurrGame; i++) {
         struct Driver* driver = gGT->drivers[i];
         if (driver != NULL && driver->lapIndex == gGT->numLaps - 1) {
             driver->numWumpas = 99;
@@ -242,20 +195,43 @@ void HandleItemChaos(bool enabled) {
                 // Check if a human player is in first
                 bool humanInFirst = false;
 
-                if (((firstPlaceDriver->actionsFlagSet & 0x100000) == 0)) {
+                if (firstPlaceDriver->driverID == 0) {
                     humanInFirst = true;
                 }
                 
+                
+                
                 // Check if the random driver is in first place
-                bool isDriverInFirst = randomDriver->driverRank == 0;
+                bool isDriverInFirst = (randomDriver->driverRank == 0);
+                
+                char orb_clock_missile_indexes[3] = {-1, -1 , -1};
+                
+                
+                for (unsigned char it = 0; it < 6; it++)
+                {
+                    
+                    unsigned char curr_item = curr_botItemset[it];
+                    
+                    if (curr_item == ITEM_WARP_ORB)
+                        orb_clock_missile_indexes[0] = it;
+                    else if (curr_item == ITEM_N_TROPY_CLOCK)
+                        orb_clock_missile_indexes[1] = it;
+                    else if (curr_item == ITEM_TRACKING_MISSILE)
+                        orb_clock_missile_indexes[2] = it;
+
+                }
+                
                 
                 // Define item weights
                 int bombWeight = 15;
                 int missileWeight = 30;
                 int crateWeight = 60;
                 int beakerWeight = 35;
-                int clockWeight = humanInFirst ? 4 : 2;
-                int orbWeight = humanInFirst ? 14 : 7;
+                int clockWeight = (humanInFirst) ? 4 : 2;
+                int orbWeight = (humanInFirst) ? 14 : 7;
+                
+
+                    
 
                 // Players in first place can't shoot orb, clock or missile
                 if (isDriverInFirst) {
@@ -263,34 +239,49 @@ void HandleItemChaos(bool enabled) {
                     clockWeight = 0;
                     orbWeight = 0;
                 }
+                
+                //if the itemset doesnt have any of these then discard weight reset
+                if (orb_clock_missile_indexes[0] == -1)
+                    orbWeight = 14;
+                
+                if (orb_clock_missile_indexes[1] == -1)
+                    clockWeight = 4;
+                
+                if (orb_clock_missile_indexes[2] == -1)
+                    missileWeight = 30;
 
                 // Calculate total weight
                 int totalWeight = bombWeight + missileWeight + crateWeight + beakerWeight + clockWeight + orbWeight;
-                if (totalWeight == 0) {
+                
+                
+                if (isDriverInFirst) {
                     // If all weights are 0, use bomb, crate and beaker only
-                    bombWeight = 10;
-                    crateWeight = 60;
-                    beakerWeight = 35;
+                    bombWeight = 35;
+                    crateWeight = 10;
+                    beakerWeight = 60;
                     totalWeight = bombWeight + crateWeight + beakerWeight;
                 }
+                
                 
                 // Generate a random number in the range [0, totalWeight)
                 int randWeight = rand() % totalWeight;
                 
-                // Select item based on weights
                 int item;
+                
+                // Select item based on weights
+                
                 if (randWeight < bombWeight) {
-                    item = ITEM_BOWLING_BOMB;
+                    item = curr_botItemset[0];
                 } else if (randWeight < bombWeight + missileWeight) {
-                    item = ITEM_TRACKING_MISSILE;
+                    item = curr_botItemset[1];
                 } else if (randWeight < bombWeight + missileWeight + crateWeight) {
-                    item = ITEM_EXPLOSIVE_CRATE;
+                    item = curr_botItemset[2];
                 } else if (randWeight < bombWeight + missileWeight + crateWeight + beakerWeight) {
-                    item = ITEM_N_BRIO_BEAKER;
+                    item = curr_botItemset[3];
                 } else if (randWeight < bombWeight + missileWeight + crateWeight + beakerWeight + clockWeight) {
-                    item = ITEM_N_TROPY_CLOCK;
+                    item = curr_botItemset[4];
                 } else {
-                    item = ITEM_WARP_ORB;
+                    item = curr_botItemset[5];
                 }
 
                 // Check if there are already 5 or more warp orbs active
@@ -312,16 +303,64 @@ void HandleItemChaos(bool enabled) {
                         item = ITEM_TURBO_BOOST;
                     }
                 }
-
+                
+                bool double_item = false;
+                
                 //if item is a crate or a breaker give a probability of 25% to trow in the air
-                if (item == ITEM_EXPLOSIVE_CRATE || item == ITEM_N_BRIO_BEAKER) {
-                    if (rand() % 4 == 0) {
-                        flag = 4;
+                if (isDriverInFirst)
+                {
+                    if (item == ITEM_BOWLING_BOMB)
+                    {
+                        bossflag:
+                        
+                        flag = 2;
+                        
+                        if (rand() % 3 == 0)
+                            double_item = true;
+                        
+                    }
+                    else if (item == ITEM_EXPLOSIVE_CRATE  || item == ITEM_N_BRIO_BEAKER)
+                    {
+                        if (rand() % 4 == 0)
+                        {
+                            goto bossflag;
+                        }
+                    }
+                    
+                }
+                else
+                {
+                    if (item == ITEM_N_BRIO_BEAKER) {
+                        if (rand() % 4 == 0)
+                            flag = 4;
+                        
                     }
                 }
+
+                //BOMB AND MISSILES SHARES CODE AND CHECKS HELDITEMID
+                if (
+                    item == ITEM_BOWLING_BOMB_X3 || item == ITEM_BOWLING_BOMB || 
+                    item == ITEM_TRACKING_MISSILE || item == ITEM_TRACKING_MISSILE_X3
+                   )
+                   {
+                       randomDriver->heldItemID = item;
+                       item = ITEM_TRACKING_MISSILE;
+                   }
+                
+                //probability to get juiced items
+                randomDriver->numWumpas = (rand() % 4 == 0) ? 10 : 0;
                 
                 // Fire the selected item
                 VehPickupItem_ShootNow(randomDriver, item, flag);
+                
+                if (double_item)
+                    VehPickupItem_ShootNow(randomDriver, item, flag);
+                
+                //reset wumpas after shooting item
+                if (randomDriver->numWumpas != 0) randomDriver->numWumpas = 0;
+                
+                //remove after shooting a bomb or missile
+                if (randomDriver->heldItemID != 0xF) randomDriver->heldItemID = 0xF;
             }
         } else {
             itemTimer--;

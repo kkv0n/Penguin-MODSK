@@ -25,8 +25,32 @@
        int buttonsHeldCurrFrame; //gamepad[1].buttonsHeldCurrFrame
 			 
  };
+ 
+
+enum BotDiff
+{
+    BOT_EASY = 1,
+    BOT_NORMAL = 2,
+    BOT_HARD = 3
+};
+
+enum BotWeaponID
+{
+	I_TURBO,
+	I_BOMB,
+	I_MISSILE,
+	I_TNTNITRO,
+	I_POTION,
+	I_SPRING,
+	I_PSHIELD,
+	I_MASK,
+	I_CLOCK,
+	I_WARPBALL
+};
 
 extern int force;
+extern unsigned char botItemList[6];
+extern unsigned char bot_Itemdifficulty;
 extern unsigned char numCustomBots;
 extern unsigned char CUSTOM_TRACK_ID;
 extern bool ghostMode;

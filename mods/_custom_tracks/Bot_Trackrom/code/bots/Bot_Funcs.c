@@ -308,7 +308,16 @@ void RunPath()
 	
 	if (!ghostMode && ((bot->actionsFlagSet & ACTION_TOUCH_GROUND) != 0))
 	{
-
+		if (curr_frame == 0)
+		{
+			Voiceline_RequestPlay(0, data.characterIDs[bot->driverID], 0x10);
+			
+			if (kAngleplusfire[1] > 0)
+				VehFire_Increment(bot, 0x2d0, 1, 0x180);
+		}
+		
+		
+		
 		void HandleItemChaos(bool enabled);
 		HandleItemChaos(true);
 		
