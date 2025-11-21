@@ -6,9 +6,11 @@
  
 struct custom_bots* curr_path;
 
+static struct curr_PosButtons curr_inputs;
+
 bool botPaused;
 
-void BotPos(Vec3* pos, SVec4* rot, short* kAngleplusfire, char kartState, struct Driver* bot)
+void BotPos(Vec3* pos, short* kAngleplusfire, char kartState, struct Driver* bot)
 {
    
    short angle = kAngleplusfire[0];
@@ -23,11 +25,6 @@ void BotPos(Vec3* pos, SVec4* rot, short* kAngleplusfire, char kartState, struct
 	bot->posCurr.y = pos->y;
 	bot->posCurr.z = pos->z;
     
-    //current rotation
-	bot->rotCurr.x = rot->x;
-	bot->rotCurr.y = rot->y;
-	bot->rotCurr.z = rot->z;
-	bot->rotCurr.w = rot->w;
 	
 	
     
@@ -44,13 +41,7 @@ void BotPos(Vec3* pos, SVec4* rot, short* kAngleplusfire, char kartState, struct
     bot->posPrev.x = pos->x;
 	bot->posPrev.y = pos->y;
 	bot->posPrev.z = pos->z;
-    
-    //prev frame rotation
-	bot->rotPrev.x = rot->x;
-	bot->rotPrev.y = rot->y;
-	bot->rotPrev.z = rot->z;
-	bot->rotPrev.w = rot->w;  
-    
+     
 
     bot->angle = angle;
     bot->reserves = reserves;
@@ -77,8 +68,15 @@ void ShowBotPathInfo(struct Driver* bot)
 	if (bot == NULL || !RaceFlag_IsFullyOffScreen())
 	{
 		show_info = false;
-		return;
+
+		goto resetCamera;
 	}
+	
+	if ((sdata->gGamepads->gamepad[0].buttonsTapped & BTN_SELECT) != 0)
+	{
+		show_info ^= true;
+	}
+			
 	
 	if (show_info)
 	{
@@ -95,11 +93,71 @@ void ShowBotPathInfo(struct Driver* bot)
 	}
 	else
 	{
-		if (gGT->drivers[0] == NULL) return;
+		resetCamera:
 		
 		if (gGT->cameraDC[0].driverToFollow != gGT->drivers[0])
 			gGT->cameraDC[0].driverToFollow = gGT->drivers[0];
 	}
+}
+
+
+int Decompress_Pos(short value)
+{
+	int pos = value << 8;
+	
+	return pos;
+};
+
+int Decompress_Btn(unsigned char buttonsHeld)
+{
+	int currButtons;
+	unsigned char i;
+	
+	int buttonFlags[8] = {
+		BTN_UP,
+		BTN_DOWN,
+		BTN_LEFT,
+		BTN_RIGHT,
+		BTN_CROSS,
+		BTN_SQUARE,
+		BTN_L1,
+		BTN_R1};
+				
+				
+		for (i = 0; i < 8; i++)
+		{
+			if ((buttonsHeld & (1 << i)) != 0)
+				currButtons |= buttonFlags[i];
+		}
+		
+	return currButtons;
+}
+
+
+
+void UpdateCurrInputs()
+{
+	//Decompress
+	curr_inputs.pos.x = Decompress_Pos(curr_path[curr_frame].pos.x);
+	curr_inputs.pos.y = Decompress_Pos(curr_path[curr_frame].pos.y);
+	curr_inputs.pos.z = Decompress_Pos(curr_path[curr_frame].pos.z);		
+	curr_inputs.buttonsHeldCurrFrame = Decompress_Btn(curr_path[curr_frame].buttonsHeldCurrFrame);
+}
+
+void ExplodeMines()
+{
+	struct Thread* thread = gGT->threadBuckets[MINE].thread;
+	
+	if (thread == NULL) return;
+
+	for (
+			struct Thread* mines = thread->siblingThread;
+			mines != NULL; mines = mines->siblingThread
+		)
+	{
+		RB_GenericMine_ThDestroy(mines, mines->inst, (struct MineWeapon*)mines->object);
+	}
+
 }
 
 void RunPath()
@@ -116,6 +174,8 @@ void RunPath()
     static short lastValidFrame;
     
     static int prevElapsed;
+	
+	static char prevLap;
 	
 	static bool Fall;
 	
@@ -134,7 +194,7 @@ void RunPath()
 
 
 	
-	Vec3 currentPos;
+	
     
     //reset everything
 	if (trafficLights > 0)
@@ -143,13 +203,19 @@ void RunPath()
 		prevElapsed = 0;
         lastValidFrame = 0;
         prevElapsed = 0;
+		prevLap = 0;
 		Fall = false;
 		
 		if (!ghostMode)
 			ItemChaos_Init(true);
+		
+		//decompress
+		UpdateCurrInputs();
 	}
 	
 
+	
+	
 
          
        //quit if conditions dont meet
@@ -183,8 +249,8 @@ void RunPath()
 			
 			if (kartState == KS_BLASTED)
 			{	
-				bot->posCurr.x = curr_path[curr_frame].pos.x;
-				bot->posCurr.z = curr_path[curr_frame].pos.z;
+				bot->posCurr.x = curr_inputs.pos.x;
+				bot->posCurr.z = curr_inputs.pos.z;
 				CleanBotInputs(bot->driverID);
 				return;
 			}
@@ -211,6 +277,7 @@ void RunPath()
         curr_frame = lastValidFrame;
 		bot->invincibleTimer = SECONDS(2);
 		botPaused = true;
+		UpdateCurrInputs();
 		CleanBotInputs(bot->driverID);
         return;
     }
@@ -271,8 +338,8 @@ void RunPath()
 		if (Fall)
 		{
 
-			bot->posCurr.x = curr_path[curr_frame].pos.x;
-			bot->posCurr.z = curr_path[curr_frame].pos.z;	
+			bot->posCurr.x = curr_inputs.pos.x;
+			bot->posCurr.z = curr_inputs.pos.z;	
 			CleanBotInputs(bot->driverID);
 			return;
 		}
@@ -284,7 +351,7 @@ void RunPath()
 	
 	
     
-	//32 fps per second
+	//30 fps per second
 	int ElapsedFrame = (gGT->timer / FPS_COUNT);
 	
 	if (prevElapsed != ElapsedFrame && curr_frame > 0)
@@ -294,29 +361,40 @@ void RunPath()
 		
 
 		curr_frame = (FPS_DOUBLE(curr_frame + FPS_SUM)) % NUM_FRAMES; //custom timer count
+		
+		
+		//decompress
+		UpdateCurrInputs();
 	}
 	    
     short kAngleplusfire[3] = {curr_path[curr_frame].angle, curr_path[curr_frame].reserves, curr_path[curr_frame].fireSpeedCap};
 	
 	
-	
-	currentPos = curr_path[curr_frame].pos;
+
 
     //run bot path
-    BotPos(&currentPos, &curr_path[curr_frame].rot, &kAngleplusfire, curr_path[curr_frame].kartState, bot);
+    BotPos(&curr_inputs.pos, &kAngleplusfire, curr_path[curr_frame].kartState, bot);
+	
+
+	
+	if (curr_frame == 0)
+	{
+		if (kAngleplusfire[1] > 0)
+			VehFire_Increment(bot, 0x2d0, 1, 0x180);
+	}
+	
+	
 	
 	
 	if (!ghostMode && ((bot->actionsFlagSet & ACTION_TOUCH_GROUND) != 0))
 	{
-		if (curr_frame == 0)
+
+		//explode all mine weapons from last lap
+		if (prevLap != bot->lapIndex)
 		{
-			Voiceline_RequestPlay(0, data.characterIDs[bot->driverID], 0x10);
-			
-			if (kAngleplusfire[1] > 0)
-				VehFire_Increment(bot, 0x2d0, 1, 0x180);
+			ExplodeMines();
+			prevLap = bot->lapIndex;
 		}
-		
-		
 		
 		void HandleItemChaos(bool enabled);
 		HandleItemChaos(true);
@@ -326,7 +404,10 @@ void RunPath()
 	
     //0 counts as a frame
     if (curr_frame == 0 && prevElapsed != ElapsedFrame)
+	{
         curr_frame++;
+		UpdateCurrInputs();
+	}
 
 
 }
@@ -339,6 +420,7 @@ void GAMEPAD_CUSTOM_INPUT(struct GamepadBuffer *pad, bool isBot) //this one is u
     short trafficLights;
     unsigned char levelID;
     int gameMode = gGT->gameMode1;
+	unsigned char i;
     
     levelID = gGT->levelID;
     trafficLights = gGT->trafficLightsTimer;
@@ -357,10 +439,6 @@ void GAMEPAD_CUSTOM_INPUT(struct GamepadBuffer *pad, bool isBot) //this one is u
 			// value pressed
 			currButton = pad->buttonsHeldCurrFrame;
 			
-			if (((pad->buttonsTapped & BTN_SELECT) != 0) && (levelID < INTRO_RACE_TODAY))
-			{
-				show_info ^= true;
-			}
 			
 			if (pad->ptrControllerPacket == NULL)
 			{
@@ -387,10 +465,8 @@ void GAMEPAD_CUSTOM_INPUT(struct GamepadBuffer *pad, bool isBot) //this one is u
                 
             
 				// button Pressed by the bot
-				currButton = curr_path[curr_frame].buttonsHeldCurrFrame;
+				currButton = curr_inputs.buttonsHeldCurrFrame;
             
-				//these are not needed for the bot behavior
-				currButton &= ~(BTN_L2 | BTN_R2 | BTN_START | BTN_TRIANGLE | BTN_CIRCLE);
 		
 
 				pad->buttonsHeldCurrFrame = currButton;
@@ -419,7 +495,11 @@ void BOT_TIME_TRIAL(struct Driver* bot)
 {
     struct Icon** transparentTires;
     struct Instance* botInst = bot->instSelf;
+	
+	//disable collision for this driver
+	bot->instSelf->thread->flags |= 0x1000;
     
+	//set transparent tires
 	if (sdata->gGT->iconGroup[0xC] != NULL)
 	{
 		transparentTires = ICONGROUP_GETICONS(sdata->gGT->iconGroup[0xC]);
@@ -428,9 +508,11 @@ void BOT_TIME_TRIAL(struct Driver* bot)
         bot->wheelSprites = transparentTires;
 	}
     
+	//set ghost transparency flag
 	if ((botInst->flags & GHOST_DRAW_TRANSPARENT) == 0)
 		botInst->flags |= GHOST_DRAW_TRANSPARENT;
 	
+	//change instance alpha
 	if (botInst->alphaScale != 0xA00)
 		botInst->alphaScale = 0xA00;
 }
@@ -462,47 +544,40 @@ void SET_BOT_SETTINGS(bool ghost, struct GameTracker* gGT)
     struct Data* CTR = &data;
 	
 	
+	//set AI exhaust and skip noises from this kart
+	bot->instSelf->thread->modelIndex = (ghost) ? DYNAMIC_GHOST : DYNAMIC_ROBOT_CAR;
+	
+	if (sdata->Loading.stage == -1 && gGT->levelID < GEM_STONE_VALLEY)
+	{
+		DrawOverheadNames(CTR);
+				
+		if (ghost)
+		{
+			if (bot != NULL)
+				BOT_TIME_TRIAL(bot);
+		}
+		
+		return;
+	}
+	
 
-    
 	gGT->numPlyrCurrGame = 1;
 	gGT->numPlyrNextGame = 1;
 	gGT->bossID = 1;
 	
-	//set AI exhaust and skip noises from this kart
-	bot->instSelf->thread->modelIndex = DYNAMIC_ROBOT_CAR;
+	CTR->characterIDs[bot->driverID] = *(short*)((0x703720 + 4) ADD_PSX_ADDRESS) % 16;
 	
-	CTR->characterIDs[bot->driverID] = *(short*)((0x703720 + 4) ADD_PSX_ADDRESS);
+	if (CTR->characterIDs[bot->driverID] < 0)
+		CTR->characterIDs[bot->driverID] = 0;
 
+	curr_path = (struct custom_bots*)((0x703720 + 8) ADD_PSX_ADDRESS);
 
-	if (gGT->levelID < INTRO_RACE_TODAY)
-	{
-		curr_path = (struct custom_bots*)((0x703720 + 8) ADD_PSX_ADDRESS);
-		
-
-		DrawOverheadNames(CTR);
-	}
 	
-	if (ghost)
-    {
-		if (bot != NULL)
-			BOT_TIME_TRIAL(bot);
-    }
+
 
 }
 
-void PLAYER_COLLISION(struct Thread* th, short* vec3_pos)
-{
-    if (ghostMode)
-        return;
-    
-	while(th != 0)
-	{
-		PROC_CollidePointWithSelf(th, (struct BucketSearchParams*)vec3_pos);
-		
-		// next
-		th = th->siblingThread;
-	}
-}
+
 
 struct WorldPos
 {

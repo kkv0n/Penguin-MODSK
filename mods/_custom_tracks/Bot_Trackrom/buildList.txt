@@ -16,8 +16,6 @@ common, exe, BOTS_Driver_Convert, 0x0, code/bots/bot_fixes/bot_driver_convert.c
 
 common, exe, OtherFX_Play_Echo, 0x0, code/bots/bot_fixes/otherfx_echo.c
 
-common, exe, PROC_CollidePointWithBucket, 0x0, code/bots/bot_fixes/collision.c
-
 common, exe, VehStuckProc_RevEngine_Init, 0x0, code/bots/bot_fixes/revengineinit.c
 
 common, exe, VehStuckProc_RevEngine_Animate, 0x0, code/bots/bot_fixes/revengineanim.c
@@ -47,6 +45,16 @@ common, exe, BOTS_Driver_Init, 0x0, code/bots/bot_fixes/bot_init.c
 common, exe, VehBirth_SetConsts, 0x0, code/rebalanced_stats.c
 
 common, exe, UI_INSTANCE_InitAll, 0x0, code/bots/bot_fixes/ui_instances.c
+
+//patch MinePool list to use 30 always
+//decomp or ghidra code crashes on vanilla game
+common, 231, 0x800ac040, 0x0, code/unlimited/numMines.bin
+common, 231, 0x800ac060, 0x0, code/unlimited/numMines.bin
+common, 231, 0x800ac078, 0x0, code/unlimited/numMines.bin
+common, 231, 0x800ac08c, 0x0, code/unlimited/numMines.bin
+
+
+
 
 //
 //end of bot fixes

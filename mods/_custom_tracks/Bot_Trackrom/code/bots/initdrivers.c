@@ -16,7 +16,7 @@ void MainInit_Drivers(struct GameTracker *gGT)
 
     gGT->numBotsNextGame = 0;
 
-    if ( LOAD_IsOpen_RacingOrBattle())
+    if (LOAD_IsOpen_RacingOrBattle())
     {
          RB_MinePool_Init();
     }

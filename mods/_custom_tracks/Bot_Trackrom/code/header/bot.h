@@ -4,7 +4,7 @@
 
 
 #define HUMAN_PLAYER 0
-#define SKIP_BOT_INPUT(lights, level) (lights > 0 || level >= INTRO_RACE_TODAY)
+#define SKIP_BOT_INPUT(lights, level) (lights > 0 || level >= GEM_STONE_VALLEY)
 #define SKIP_BOT_PATH(tf, lvl, gm, act) (SKIP_BOT_INPUT(tf, lvl) || ((gm & END_OF_RACE) != 0) || ((gm & PAUSE_1) != 0) || BOT_FINISHED_RACE(act))
 #define BOT_BLASTED(k) (k == KS_BLASTED)
 #define BOT_FINISHED_RACE(x) ((x & ACTION_RACE_FINISHED) != 0)
@@ -15,17 +15,26 @@
 
  struct custom_bots
  {
-	   Vec3 pos; //pos[3] xyz
-       SVec4 rot; //rot[4] xyzw
+	   //compressed
+	   SVec3 pos; //pos[3] xyz
+	   
        short angle; //driver->angle
        short reserves; //driver->reserves
        short fireSpeedCap; //driver->fireSpeedCap
        char kartState; //driver->kartState
-
-       int buttonsHeldCurrFrame; //gamepad[1].buttonsHeldCurrFrame
+	   
+	   //compressed
+       unsigned char buttonsHeldCurrFrame; 
 			 
  };
  
+ //decompressed
+ struct curr_PosButtons
+{
+	Vec3 pos; //bot->pos from curr frame
+	int buttonsHeldCurrFrame; //gamepad[curr_frame].buttonsHeldCurrFrame
+};
+
 
 enum BotDiff
 {

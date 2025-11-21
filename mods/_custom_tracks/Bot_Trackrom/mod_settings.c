@@ -22,6 +22,7 @@ void Lines_OnMainMenu()
 }
 
 
+
 unsigned char botItemList[6] = {
 	I_BOMB, I_MISSILE, I_TNTNITRO,
 	I_POTION, I_CLOCK, I_WARPBALL

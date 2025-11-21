@@ -250,12 +250,13 @@ void BotMod_Main()
 	
 	struct GameTracker* gGT = sdata->gGT;
 	
+	
 		if (gGT->levelID < GEM_STONE_VALLEY)
 		{
 			if (gGT->cameraDC->unk8E != 0)
 				gGT->cameraDC->unk8E = 0;
 				
-			if ((gGT->gameMode1 & PAUSE_ALL) == 0)
+			if (((gGT->gameMode1 & PAUSE_ALL) == 0) && gGT->trafficLightsTimer < 1)
 				ShowBotPathInfo(gGT->drivers[1]);
 			
 			
@@ -286,7 +287,7 @@ void BotMod_Main()
 if (!ghostMode && RaceFlag_IsFullyOffScreen())
 {
       // Item modifiers
-	if (gGT->levelID < INTRO_RACE_TODAY)
+	if (gGT->levelID < GEM_STONE_VALLEY)
 	{
 		  
 	  if (gGT->trafficLightsTimer < 1)
