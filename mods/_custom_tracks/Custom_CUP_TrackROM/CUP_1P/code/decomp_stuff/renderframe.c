@@ -992,6 +992,10 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 				(char)numPlyrCurrGame);
 
 		// 226-229
+	//high lod fix for custom tracks
+	//DrawLevelOvr1P
+	*(unsigned int*)0x800AB460 = 0x800A6F40;
+	
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
@@ -999,6 +1003,10 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			&gGT->backBuffer->primMem,
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
+			
+	//high lod fix for custom tracks
+	//DrawLevelOvr1P
+	*(unsigned int*)0x800AB460 = 0x800A6F40;
 
 		DrawSky_Full(
 			level1->ptr_skybox,
@@ -1132,6 +1140,10 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			numPlyrCurrGame);
 
 		// 226-229
+		
+	//high lod fix for custom tracks
+	//DrawLevelOvr1P
+	*(unsigned int*)0x800AB460 = 0x800A6F40;
 		DrawLevelOvr1P(
 			&gGT->LevRenderLists[0],
 			pushBuffer,
@@ -1139,6 +1151,10 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			&gGT->backBuffer->primMem,
 			gGT->visMem1->visFaceList[0],
 			level1->ptr_tex_waterEnvMap); // waterEnvMap?
+			
+	//high lod fix for custom tracks
+	//DrawLevelOvr1P
+	*(unsigned int*)0x800AB460 = 0x800A6F40;
 
 		DrawSky_Full(
 			level1->ptr_skybox,
