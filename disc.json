@@ -612,6 +612,17 @@
 	"common":
 	[
 		{
+
+			"SOUNDS/KART.HWL":
+			[
+			    {
+					"name": "soundskarthwl",
+					"address": "0x0",
+					"offset": "0x0"
+			    }
+			
+			],
+
 			"bigfile/levels/tracks/proto8/1P/data.vrm":
 			[
 				{

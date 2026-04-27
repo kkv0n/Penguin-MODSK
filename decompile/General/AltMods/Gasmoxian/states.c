@@ -18,11 +18,11 @@ void menu_tittle() {
 	else
 	{
 
-	char* textEN[7] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SELECT CHARACTER", "TURNING STYLE", "GOOD LUCK EVERYONE!" };
+	char* textEN[8] = { "GASMOXIAN", "SELECT TRACK", "GAME MODE", "LAPS", "SELECT CHARACTER", "TURNING STYLE", "GOOD LUCK EVERYONE!", "SELECT ROOM TYPE" };
 
-	char* textES[7] = { "GASMOXIAN", "ELIGE PISTA", "ELIGE MODO", "VUELTAS", "ELIG PERSONAJE", "GIRO DE MOTOR", "SUERTE A TODOS!" };
+	char* textES[8] = { "GASMOXIAN", "ELIGE PISTA", "ELIGE MODO", "VUELTAS", "ELIG PERSONAJE", "GIRO DE MOTOR", "SUERTE A TODOS!", "ELIGE TIPO DE SALA" };
 
-	char* textPT[7] = { "GASMOXIAN", "SELEC pista", "SELEC MODO", "VOLTAS", "SEL PERSONAGEM", "CURVA DE MOTOR", "boa sorte a todos!" };
+	char* textPT[8] = { "GASMOXIAN", "SELEC pista", "SELEC MODO", "VOLTAS", "SEL PERSONAGEM", "CURVA DE MOTOR", "boa sorte a todos!" , "SELEC O TIPO DE SALA"};
 
 	
 	char** curr_language[] = {textEN, textES, textPT};
@@ -202,7 +202,7 @@ void StatePS1_Launch_PickRoom()
 int serverTotal = 0;
 for (int i = 0; i < 16; i++) {
     int curr = octr->clientCount[i];
-    if (curr > 8) curr -= 8;
+    if (curr > 4) curr -= 4;
     serverTotal += curr;
 }
 		
@@ -249,21 +249,42 @@ char* updateText[3] = {
 	sdata->ptrActiveMenu = 0;
 }
 
+void StatePS1_Launch_EnterPassword()
+{
+    SetPassword();
+}
+
 void StatePS1_Lobby_AssignRole()
 {
-	afk = 80;
-	menu.posX_curr = 0x70; // X position
-	menu.posY_curr = 0x84;  // Y position
+    afk = 80;
+    menu.posX_curr = 0x70;
+    menu.posY_curr = 0x84;
 
-	if(octr->DriverID == 0)
-	{
-		octr->CurrState = LOBBY_HOST_TRACK_PICK;
-	}
+    if (octr->DriverID > 0)
+    {
+        octr->CurrState = LOBBY_GUEST_TRACK_WAIT;
+        return;
+    }
 
-	else if (octr->DriverID > 0)
-	{
-		octr->CurrState = LOBBY_GUEST_TRACK_WAIT;
-	}
+    extern void MenuWrites_Roomtype();
+    MenuWrites_Roomtype();
+
+    if (MenuFinished() == 0)
+    {
+        UpdateMenu();
+        extern void NewPage_Roomtype();
+        NewPage_Roomtype();
+        return;
+    }
+
+
+    if (octr->roomType == 2 && octr->passwordCharEntered[7] == 0)
+    {
+        SetPassword();
+        return;
+    }
+
+    octr->CurrState = LOBBY_HOST_TRACK_PICK;
 }
 
 
@@ -489,6 +510,8 @@ void StatePS1_Lobby_StartLoading()
 
 	// instant load
 	//sdata->Loading.stage = 0;
+	
+	VanillaRNG(USE_VANILLA_ITEMS);
 
 	// load with flag animation
 	DECOMP_MainRaceTrack_RequestLoad(octr->levelID);

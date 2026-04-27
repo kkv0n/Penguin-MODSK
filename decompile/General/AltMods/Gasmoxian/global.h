@@ -44,7 +44,9 @@
 #define DISCONNECT_AT_UNSYNCED_FRAMES   60
 #endif
 
-#define LOBBY_LEVEL_ID 38
+
+#define LOBBY_LEVEL_ID 38 // INTRO_OXIDE
+
 
 enum ClientState
 {
@@ -52,6 +54,7 @@ enum ClientState
 	LAUNCH_PICK_SERVER,
 	LAUNCH_PICK_ROOM,
 	LAUNCH_ERROR,
+	LAUNCH_ENTER_PASSWORD,
 	LOBBY_ASSIGN_ROLE,
 	LOBBY_HOST_TRACK_PICK,
 	LOBBY_SPECIALPICK,
@@ -67,7 +70,9 @@ enum ClientState
 };
 
 #define NAME_LEN 11
-#define MAX_NUM_PLAYERS 8
+#define MAX_NUM_PLYR_NORMAL 8
+#define MAX_NUM_PLYR_TOURNAMENT 4
+#define MAX_NUM_PLAYERS MAX_NUM_PLYR_NORMAL
 
 typedef struct raceStats
 {
@@ -166,7 +171,16 @@ struct OnlineCTR
 
 	// Replace the single special value with an array of booleans
 	// old: unsigned char special;
-	bool gamemodes[16]; // Array of booleans for each gamemode
+	bool gamemodes[18]; // Array of booleans for each gamemode
+
+	unsigned char roomType;
+
+	unsigned char rTypelocked;
+
+
+	unsigned char roomPasswordSeq[8];
+
+	unsigned char passwordCharEntered[8];
 };
 
 STATIC_ASSERT2(sizeof(struct OnlineCTR) <= 0x400, "Size of OnlineCTR must be lte 1kb");
@@ -211,6 +225,11 @@ enum ServerGiveMessageType
 	// connection
 	SG_ROOMS,
 
+	SG_ROOMTYPE,
+
+
+	SG_ROOMTYPE_REJECTED,
+
 	// assign to room
 	SG_NEWCLIENT,
 
@@ -230,8 +249,25 @@ enum ServerGiveMessageType
 	SG_ENDRACE,
 
 	SG_SERVERCLOSED,
+	SG_PASSWORD_REJECTED,
 
 	SG_COUNT
+};
+
+
+struct SG_RoomTypeRejected
+{
+	unsigned char type : 4;
+	unsigned char padding : 4;
+	unsigned char roomType;
+};
+
+// ya existe SG_RoomTypeRejected, pero falta la de notificación normal
+struct SG_MessageRoomType {
+	unsigned char type : 4;
+	unsigned char padding : 4;
+	unsigned char roomType;  // 0 = normal, 1 = torneo
+	unsigned char rTypeLocked;
 };
 
 // variety of opcodes (start load / start race)
@@ -290,6 +326,12 @@ struct SG_MessageClientStatus
 
 };
 
+struct SG_MessagePasswordRejected
+{
+	unsigned char type : 4;
+	unsigned char padding : 4;
+};
+
 // get name from any client
 struct SG_MessageName
 {
@@ -304,6 +346,7 @@ struct SG_MessageName
 	unsigned char name[NAME_LEN + 1];
 
 };
+
 
 // get track, assigned by host
 struct SG_MessageTrack
@@ -322,7 +365,7 @@ struct SG_MessageSpecial
 	unsigned char type : 4;
 	unsigned char padding : 4;
 	// Remove old: unsigned char special;
-	bool gamemodes[16];
+	bool gamemodes[18];
 };
 
 // assign character,
@@ -429,7 +472,7 @@ STATIC_ASSERT2(sizeof(struct SG_MessageName) == 14, "Size of SG_MessageName must
 STATIC_ASSERT2(sizeof(struct SG_MessageCharacter) == 2, "Size of SG_MessageCharacter must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageEngine) == 3, "Size of SG_MessageEngine must be 3 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageTrack) == 3, "Size of SG_MessageTrack must be 3 bytes");
-STATIC_ASSERT2(sizeof(struct SG_MessageSpecial) == (1 + sizeof(bool[16])), "Size of SG_MessageSpecial includes 16 gamemodes");
+STATIC_ASSERT2(sizeof(struct SG_MessageSpecial) == (1 + sizeof(bool[18])), "Size of SG_MessageSpecial includes 16 gamemodes");
 STATIC_ASSERT2(sizeof(struct SG_EverythingKart) == 10, "Size of SG_EverythingKart must be 10 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageWeapon) == 2, "Size of SG_MessageWeapon must be 2 bytes");
 STATIC_ASSERT2(sizeof(struct SG_MessageEndRace) == 12, "Size of SG_MessageEndRace must be 12 bytes");
@@ -437,6 +480,8 @@ STATIC_ASSERT2(sizeof(struct SG_MessageEndRace) == 12, "Size of SG_MessageEndRac
 enum ClientGiveMessageType
 {
 	CG_JOINROOM,
+
+	CG_ROOMTYPE,
 
 	// lobby
 	CG_NAME,
@@ -452,7 +497,39 @@ enum ClientGiveMessageType
 	CG_FINISHTIMER,
 	CG_ENDRACE,
 
+	CG_PASSWORD,
+
 	CG_COUNT
+};
+
+
+struct CG_MessageRoomType {
+    unsigned char type : 4;
+    unsigned char padding : 4;
+    unsigned char roomType;  // 0 = normal, 1 = torneo
+	unsigned char rTypeLocked;
+};
+
+struct CG_MessageRoomTypePassword
+{
+	unsigned char type : 4;
+	unsigned char padding : 4;
+	unsigned char roomType;      // siempre 2
+	unsigned char rTypeLocked;
+	unsigned char seq[8];        // contraseña del host
+};
+
+// Guest → Servidor: intento de contraseña
+struct CG_MessagePassword
+{
+	unsigned char type : 4;
+	unsigned char padding : 4;
+	unsigned char seq[8];        // secuencia ingresada por el guest
+};
+
+struct CG_RoomTypeRejected
+{
+	unsigned char roomType;
 };
 
 // sent to each user when someone connects
@@ -499,7 +576,7 @@ struct CG_MessageSpecial
 	// 15 types, 15 bytes max
 	unsigned char type : 4;
 	unsigned char padding : 4;
-	unsigned char special : 4;
+	unsigned char special;
 };
 
 // character message
@@ -658,6 +735,7 @@ void StatePS1_Lobby_StartLoading();
 void StatePS1_Game_WaitForRace();
 void StatePS1_Game_StartRace();
 void StatePS1_Game_EndRace();
+void StatePS1_Launch_EnterPassword();
 #endif
 
 #endif

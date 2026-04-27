@@ -8,6 +8,7 @@ void (*funcs[NUM_STATES]) () =
 	StatePS1_Launch_PickServer,
 	StatePS1_Launch_PickRoom,
 	StatePS1_Launch_Error,
+	StatePS1_Launch_EnterPassword,
 	StatePS1_Lobby_AssignRole,
 	StatePS1_Lobby_HostTrackPick,
 	StatePS1_Lobby_SpecialPick,
@@ -160,15 +161,11 @@ void ThreadFunc(struct Thread* t)
 	// not gameplay, must draw LAST
 	if (octr->CurrState <= LOBBY_WAIT_FOR_LOADING)
 	{
-		//for now mute sounds in lobby to avoid sound bugs
-		//in the future move this to (HOST_TRACK_PICK - WAIT_FOR_LOADING) to allow lobby music
-		//tbh idk how to play lobby music
-		//update: actually i know how to play lobby music now but only faking the levelID lol 
-		
-		Music_Stop();
-	
-		howl_StopAudio(1,1,0);
-		sdata->unkAudioState = 0;
+
+			DECOMP_Music_Stop();	
+			howl_StopAudio(1,1,0);
+			sdata->unkAudioState = 0;
+
 		
 		
 	    //if not in race then erase driving function

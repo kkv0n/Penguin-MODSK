@@ -1,6 +1,7 @@
 // Gasmox(part 1)
 #include <common.h>
 #include "utils.h"
+#include "RNG.c"
 
 #ifdef USE_GASMOXIAN
 
@@ -107,6 +108,98 @@ void spec_text() {
 
     
 }
+
+void ConvertQB_ToGround(struct Level* level1)
+{
+	
+	
+	for (short i = 0; i < level1->ptr_mesh_info->numQuadBlock; i++)
+	{
+		
+		struct QuadBlock* qb = &level1->ptr_mesh_info->ptrQuadBlockArray[i];
+
+		qb->quadFlags |= Q_GROUND;
+		
+		qb->quadFlags &= ~(Q_OOF_BOUNDS | Q_MASK_GRAB | Q_WALL);
+		
+		qb->draw_order_low |= 0x80000000;
+		
+	}
+	
+}
+
+void Load_Gasmox(struct GameTracker* gt, struct Level* lev)
+{
+					////////////////////////
+
+			extern void ReverseTrack(struct Level *level);
+			extern void RemoveOffRoadCHK(struct Level *level);
+
+			extern int NightFilterBrightness;
+			extern int NightFilterBlueTint;
+			extern void HandleDynamicLighting(struct Level *level);
+
+			extern bool CaptureSkybox(struct Level* level);
+			extern bool GreenSkybox(struct Level* level);
+			if(gt->levelID == LOBBY_LEVEL_ID){
+				CaptureSkybox(lev);
+				GreenSkybox(lev);
+			}
+
+			// if(USE_ITEMLESS){
+			// 	sdata->gt->gameMode2 |= DISABLE_LEV_INSTANCE;
+			// }else{
+			// 	sdata->gt->gameMode2 &= ~DISABLE_LEV_INSTANCE;
+			// }
+			
+			if (USE_WALL_DRIVE && gt->levelID < GEM_STONE_VALLEY)
+			{
+				ConvertQB_ToGround(gt->level1);
+			}
+
+			if (USE_N_VERTED){
+				ReverseTrack(gt->level1);
+			}
+
+			if (USE_SHORTCUTLESS){
+				RemoveOffRoadCHK(gt->level1);
+			}
+
+			if (
+				USE_NIGHT_FILTER
+				&& gt->levelID <= TURBO_TRACK
+				#if 0
+				extern bool NightFilterApplied(struct Level *level);
+				&& !NightFilterApplied(lev)
+				# endif
+			){
+				NightFilter(gt->level1, NightFilterBrightness, NightFilterBlueTint);
+				
+			}
+
+			if(USE_SURVIVAL){
+				// Set laps amount based on num drivers
+				extern int GetActiveDriversCount();
+				int player_count = GetActiveDriversCount();
+
+				gt->numLaps = player_count < 2 ? 1 : player_count - 1;
+			}
+
+			if(USE_SURVIVAL_TIMER){
+				gt->numLaps = 127;
+			}
+
+			extern void AddWeather(struct Level* level, unsigned char levID);
+
+			if(gt->levelID != LOBBY_LEVEL_ID){
+
+				AddWeather(gt->level1, gt->levelID);
+
+			}
+
+			////////////////////////
+}
+
 
 void DisableL2(bool disabled){       
 	// if forced camera mode change L2 to R2 else use L2 as L2
@@ -249,6 +342,99 @@ void queuetojoin(){
 	}	
 }
 
+void VanillaRNG(bool restore)
+{
+	static unsigned char bk1[0x14];
+	static unsigned char bk2[0x34];
+	static unsigned char bk3[0x14];
+	static unsigned char bk4[0x14];
+	static unsigned char bk5[0x14];
+	static unsigned char bk6[0x14];
+	
+	const unsigned char v1[0x14] = {
+		4, 4, 4, 4, 4, 4, 4, 4,
+		3, 3, 3, 3, 3, 3, 3, 3,
+		1, 1,
+		0,
+		6,
+		};
+	const unsigned char v2[0x34] = {
+		
+		4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+		3, 3, 3, 3, 3, 3, 3, 3,
+		1, 1, 1, 1, 1,
+		10, 10, 10,
+		0, 0, 0, 0, 0,
+		6, 6, 6,
+		2, 2, 2,
+		11, 11,
+		9, 9, 9, 9, 9,
+		7, 7, 7, 7, 7, 7, 7,
+		8,
+	};
+	const unsigned char v3[0x14] = {
+		
+		4, 3, 1, 10, 10, 0, 0, 6, 2, 2, 11, 9, 9, 9, 7, 7, 7, 7, 7, 8,
+	};
+	const unsigned char v4[0x14] = {
+		
+		0, 6, 2, 11, 9, 9, 9, 9, 9, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 0,
+	};
+	const unsigned char v5[0x14] = {
+		4, 3, 1, 10, 10, 0, 0, 6, 2, 11, 9, 9, 9, 7, 7, 7, 7, 7, 8, 8,
+	};
+	const unsigned char v6[0x14] = {
+		4, 3, 1, 1, 1, 10, 10, 6, 6, 2, 2, 2, 2, 2, 7, 7, 7, 13, 13, 12,
+	};
+	
+	static bool saved = false;
+	
+	if (!saved)
+	{
+		memcpy(&bk2, &data.RNG_itemSetRace2, 0x34);
+	
+		memcpy(&bk1, &data.RNG_itemSetRace1, 0x14);
+	
+		memcpy(&bk3, &data.RNG_itemSetRace3, 0x14);
+	
+		memcpy(&bk4, &data.RNG_itemSetRace4, 0x14);
+	
+		memcpy(&bk5, &data.RNG_itemSetBossrace, 0x14);
+	
+		memcpy(&bk6, &data.RNG_itemSetBattleDefault, 0x14);
+		saved = true;
+	}
+	
+	if (restore)
+	{
+		memcpy(&data.RNG_itemSetRace2, &v2, 0x34);
+	
+		memcpy(&data.RNG_itemSetRace1, &v1, 0x14);
+	
+		memcpy(&data.RNG_itemSetRace3, &v3, 0x14);
+	
+		memcpy(&data.RNG_itemSetRace4, &v4, 0x14);
+	
+		memcpy(&data.RNG_itemSetBossrace, &v5, 0x14);
+	
+		memcpy(&data.RNG_itemSetBattleDefault, &v6, 0x14);
+	}
+	else
+	{
+		memcpy(&data.RNG_itemSetRace2, &bk2, 0x34);
+	
+		memcpy(&data.RNG_itemSetRace1, &bk1, 0x14);
+	
+		memcpy(&data.RNG_itemSetRace3, &bk3, 0x14);
+	
+		memcpy(&data.RNG_itemSetRace4, &bk4, 0x14);
+	
+		memcpy(&data.RNG_itemSetBossrace, &bk5, 0x14);
+	
+		memcpy(&data.RNG_itemSetBattleDefault, &bk6, 0x14);
+	}
+	
+}
 
 void Online_CollidePointWithBucket(struct Thread* th, short* vec3_pos)
 {
@@ -525,6 +711,9 @@ bool USE_NIGHT_FILTER;
 bool USE_ITEM_CHAOS;
 bool USE_SURVIVAL;
 bool USE_SURVIVAL_TIMER;
+bool USE_VANILLA_ITEMS;
+bool USE_WALL_DRIVE;
+
 
 bool air_throw;
 int activeDriversCount = 0;
@@ -555,6 +744,9 @@ void SetGamemodes() {
 	USE_ITEM_CHAOS = octr->gamemodes[ITEM_CHAOS];
 	USE_SURVIVAL = octr->gamemodes[SURVIVAL];
 	USE_SURVIVAL_TIMER = octr->gamemodes[SURVIVAL_TIMER];
+	USE_VANILLA_ITEMS = octr->gamemodes[VANILLA_ITEMS];
+	USE_WALL_DRIVE = octr->gamemodes[WALL_DRIVE];
+	
 }
 
 bool ItsOnlyNormalEnabled(){

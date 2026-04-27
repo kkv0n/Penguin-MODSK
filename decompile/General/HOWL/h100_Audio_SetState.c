@@ -42,8 +42,12 @@ void DECOMP_Audio_SetState(u_int state)
         // Level ID on Adventure Arena
         if (level - 0x19U < 5)
         {
+            #ifndef USE_GASMOXIAN
             // convert levelID to a bitshifted flag
             DECOMP_Music_Adjust(0, 0, &sdata->advHubSongSet, 1 << (level - 0x19U));
+            #else
+                 DECOMP_Music_Adjust(0, 0, 0, N_SANITY_BEACH);
+             #endif
         }
         break;
     case 9:

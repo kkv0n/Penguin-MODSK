@@ -37,7 +37,10 @@ enum GAME_MODES {
 	DARKNESS = 12,
 	ITEM_CHAOS = 13,
 	SURVIVAL = 14,
-	SURVIVAL_TIMER = 15
+	SURVIVAL_TIMER = 15,
+	VANILLA_ITEMS = 16,
+	WALL_DRIVE = 17
+	
 };
 
 const char* special_name[] = {
@@ -56,12 +59,16 @@ const char* special_name[] = {
     "Darkness Mode",
     "Item Chaos",
     "Survival",
-    "Survival Timer"
+    "Survival Timer",
+	"Vanilla Items",
+	"Wall Drive"
 };
 
 double timeStart;
 double warpclockdelay;
 clock_t  squaredelay [MAX_NUM_PLAYERS];
+
+static bool passwordSent = false;
 
 char* pBuf;
 OnlineCTR* octr;
@@ -150,6 +157,9 @@ void ProcessReceiveEvent(ENetPacket* packet)
 				return;
 			}
 
+			if (octr->CurrState == LAUNCH_ENTER_PASSWORD ||
+				octr->CurrState >= LOBBY_ASSIGN_ROLE)
+				break;
 
 			// reopen the room menu,
 			// either first time getting rooms,
@@ -176,13 +186,46 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			octr->clientCount[0xf] = r->numClients16;
 			break;
 		}
+		case SG_ROOMTYPE:
+		{
+			SG_MessageRoomType* r = reinterpret_cast<SG_MessageRoomType*>(recvBuf);
+			octr->roomType = r->roomType;
 
+			// Solo entrar al estado de contraseña si venimos del menú de salas.
+			// Si ya mandamos la contraseña (passwordSent=true) o estamos
+			// en otro estado, este SG_ROOMTYPE es solo informativo (de WelcomeNewClient).
+			if (r->roomType == 2 && octr->rTypelocked == 0
+				&& octr->CurrState == LAUNCH_PICK_ROOM)
+			{
+				passwordSent = false;
+				octr->CurrState = LAUNCH_ENTER_PASSWORD;
+			}
+			break;
+		}
+
+		case SG_PASSWORD_REJECTED:
+		{
+			StopAnimation();
+			printf("\nClient: Wrong password. Returning to room list.\n");
+			enet_peer_disconnect_now(serverPeer, 0);
+			serverPeer = 0;
+			octr->roomType = 0;
+			octr->rTypelocked = 0;
+			lockengineandcharacter = false;
+			octr->autoRetryJoinRoomIndex = -1;
+			memset(&octr->passwordCharEntered, 0, sizeof(octr->passwordCharEntered));
+			memset(&octr->roomPasswordSeq, 0, sizeof(octr->roomPasswordSeq));
+			passwordSent = false;
+			octr->CurrState = LAUNCH_PICK_ROOM; // ← no -1, sino LAUNCH_PICK_ROOM
+			// para que el PS1 vuelva al menú de salas
+			break;
+		}
 		// Assigned to room
 		case SG_NEWCLIENT:
 		{
 			SG_MessageClientStatus* r = reinterpret_cast<SG_MessageClientStatus*>(recvBuf);
 
-
+			passwordSent = false;
 			octr->DriverID = r->clientID;
 			octr->NumDrivers = r->numClientsTotal;
 
@@ -218,6 +261,8 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			memset(&octr->boolLockedInEnginee[0], 0, sizeof(octr->boolLockedInEnginee));
 			memset(&octr->nameBuffer[0], 0, sizeof(octr->nameBuffer));
 			memset(&octr->raceStats[0], 0, sizeof(octr->raceStats));
+			memset(&octr->passwordCharEntered, 0, sizeof(octr->passwordCharEntered));
+			memset(&octr->roomPasswordSeq, 0, sizeof(octr->roomPasswordSeq));
 
 			// reply to server with your name
 			memcpy(&octr->nameBuffer[0], &name, NAME_LEN);
@@ -230,6 +275,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 
 			// choose to get host menu or guest menu
 			octr->CurrState = LOBBY_ASSIGN_ROLE;
+
 			break;
 		}
 
@@ -306,7 +352,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 
 			// Set prev_special for backward compatibility
 			prev_special = 0;
-			for (int i = 0; i < 16; i++) {
+			for (int i = 0; i < 18; i++) {
 				if (octr->gamemodes[i]) {
 					prev_special |= (1 << i);
 				}
@@ -333,7 +379,7 @@ void ProcessReceiveEvent(ENetPacket* packet)
 			}
 
             // Print all enabled modes
-            for (int i = 0; i < 16; i++) {
+            for (int i = 0; i < 18; i++) {
                 if (octr->gamemodes[i] && i != ICY_TRACKS && i != RETRO_FUELED) {
                     printf("\n MODE: %s ENABLED\n", special_name[i]);
                 }
@@ -612,18 +658,26 @@ void ProcessNewMessages()
 		switch (event.type)
 		{
 		case ENET_EVENT_TYPE_RECEIVE:
+		{
 			ProcessReceiveEvent(event.packet);
 			break;
+		}
 
 		case ENET_EVENT_TYPE_DISCONNECT:
-			// command prompt reset
+		{
+			// Si serverPeer ya es 0, el disconnect fue intencional
+			// (SG_PASSWORD_REJECTED o SG_ROOMTYPE_REJECTED ya lo manejaron)
+			if (serverPeer == 0)
+				break;
+
 			system("cls");
 			PrintBanner(SHOW_NAME);
 			printf("\nClient: Connection Dropped (Server Full or Server Offline)...  ");
-
-			// to go the lobby browser
+			passwordSent = false;
+			serverPeer = 0;
 			octr->CurrState = -1;
 			break;
+		}
 
 		default:
 			break;
@@ -690,6 +744,9 @@ void DisconSELECT()
 		octr->CurrState = -1;
 		lockengineandcharacter = false;
 
+		octr->roomType = 0;
+		octr->rTypelocked = 0;
+
 		return;
 	}
 }
@@ -704,6 +761,8 @@ void DisconAFK()
 	// to go the lobby browser
 	octr->CurrState = -1;
 	lockengineandcharacter = false;
+	octr->roomType = 0;
+	octr->rTypelocked = 0;
 	return;
 }
 void ClearInputBuffer()
@@ -1070,12 +1129,65 @@ void StatePC_Launch_PickRoom()
 	sendToHostReliable(&mr, sizeof(CG_MessageRoom));
 }
 
+void StatePC_Launch_EnterPassword()
+{
+	if (passwordSent)
+		return;
+
+	// Keep-alive via ENet ping para que el servidor no haga timeout
+	countFrame++;
+	if (countFrame >= 60)
+	{
+		countFrame = 0;
+		enet_peer_ping(serverPeer);
+	}
+
+	if (octr->passwordCharEntered[7] == 0)
+		return;
+
+	CG_MessagePassword msg;
+	msg.type = CG_PASSWORD;
+	msg.padding = 0;
+	memcpy(msg.seq, octr->roomPasswordSeq, 8);
+	sendToHostReliable(&msg, sizeof(CG_MessagePassword));
+
+	passwordSent = true;
+}
+
+
 void StatePC_Lobby_AssignRole()
 {
 	connAttempt = 0;
 	countFrame = 0;
-}
 
+	if (octr->DriverID > 0)
+		return; // guest: no hace nada, PS1 maneja el avance
+
+	if (octr->rTypelocked == 0) return;
+
+	StopAnimation();
+	printf("Client: Sending room type (%s)...  ",
+		octr->roomType == 1 ? "TOURNAMENT" : (octr->roomType == 2) ? "PASSWORD" : "NORMAL");
+
+	if (octr->roomType == 2)
+	{
+		CG_MessageRoomTypePassword msg;
+		msg.type = CG_ROOMTYPE;
+		msg.padding = 0;
+		msg.roomType = 2;
+		msg.rTypeLocked = octr->rTypelocked;
+		memcpy(msg.seq, octr->roomPasswordSeq, 8);
+		sendToHostReliable(&msg, sizeof(CG_MessageRoomTypePassword));
+	}
+	else
+	{
+		CG_MessageRoomType msg = { 0 };
+		msg.type = CG_ROOMTYPE;
+		msg.roomType = octr->roomType;
+		msg.rTypeLocked = octr->rTypelocked;
+		sendToHostReliable(&msg, sizeof(CG_MessageRoomType));
+	}
+}
 void StatePC_Lobby_HostTrackPick()
 {
 	// boolLockedInLap gets set after
@@ -1122,7 +1234,7 @@ void StatePC_Lobby_SpecialPick() {
     struct {
         unsigned char type : 4;
         unsigned char padding : 4;
-        bool gamemodes[16];
+        bool gamemodes[18];
     } customMsg;
     
     customMsg.type = CG_SPECIAL;
@@ -1551,6 +1663,7 @@ void (*ClientState[]) () = {
 	StatePC_Launch_PickServer,		// 1
 	StatePC_Launch_PickRoom,		// 2
 	StatePC_Launch_Error,			// 3
+	StatePC_Launch_EnterPassword,
 	StatePC_Lobby_AssignRole,		// 4
 	StatePC_Lobby_HostTrackPick,	// 5
 	StatePC_Lobby_SpecialPick,	// 6

@@ -16,8 +16,9 @@
 
 #pragma comment (lib, "Ws2_32.lib")
 
-
-#define MAX_CLIENTS 8
+#define MAX_CLIENTS_NORMAL      8   /* cap sala normal       */
+#define MAX_CLIENTS_TOURNAMENT  4   /* cap sala torneo       */
+#define MAX_CLIENTS MAX_CLIENTS_NORMAL
 
 
 #ifdef __WINDOWS__
@@ -42,7 +43,10 @@ enum GAME_MODES {
 	DARKNESS = 12,
 	ITEM_CHAOS = 13,
 	SURVIVAL = 14,
-	SURVIVAL_TIMER = 15
+	SURVIVAL_TIMER = 15,
+	VANILLA_ITEMS = 16,
+	WALL_DRIVE = 17
+
 };
 
 
@@ -81,13 +85,21 @@ typedef struct
 	char timer;                     //bool to tell the client if the timer should be active or not (just for avoid server crashing)
 	char allplayersfinished;      //bool that gets activated when all players finished
 	int timeLimit;               //desired seconds
-    int endTime;              //timer
+	int endTime;              //timer
 	double currentTime; // timer
 	double elapsedTime; // timer
 	char requiredPlayersToFinish; //required players to finish
 	char finishedCount; //players finished
 	char activePlayers; // players who are not disconnected
 	char extralaps;
+	char roomConfigured;  //bool
+	char roomType;         // 0 = normal (8p)  | 1 = tournament (4p)
+
+	//password
+	unsigned char seq[8];
+
+	ENetPeer* pendingPassword[MAX_CLIENTS];
+	int       pendingPasswordCount;
 
 } RoomInfo;
 
@@ -97,13 +109,19 @@ ENetHost* server;
 RoomInfo roomInfos[16] = { NULL };
 
 
+static inline int RoomMaxClients(const RoomInfo* ri)
+{
+	return (ri->roomType == 1) ? MAX_CLIENTS_TOURNAMENT : MAX_CLIENTS_NORMAL;
+}
+
 void PrintPrefix(const int roomId)
 {
 	printf("[");
 	PrintTime();
 	if (roomId != -1) {
 		printf(" | Room %d] ", roomId);
-	} else {
+	}
+	else {
 		printf(" | General] ");
 	}
 }
@@ -114,14 +132,14 @@ double finishclock() {
 #ifdef __WINDOWS__
 	LARGE_INTEGER frequency;
 	LARGE_INTEGER currentTime;
-	QueryPerformanceFrequency(&frequency);    
-	QueryPerformanceCounter(&currentTime);    
-	return (double)currentTime.QuadPart / frequency.QuadPart; 
-//linux	
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&currentTime);
+	return (double)currentTime.QuadPart / frequency.QuadPart;
+	//linux	
 #else
 	struct timeval tv;
-	gettimeofday(&tv, NULL);  
-	return tv.tv_sec + tv.tv_usec / 1e6;  
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec + tv.tv_usec / 1e6;
 #endif
 }
 // similar to enet_host_broadcast
@@ -129,7 +147,7 @@ void broadcastToPeersUnreliable(RoomInfo* ri, const void* data, size_t size)
 {
 	ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_UNSEQUENCED);
 
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for (int i = 0; i < RoomMaxClients(ri); i++)
 	{
 		ENetPeer* currentPeer = ri->peerInfos[i].peer;
 
@@ -151,7 +169,7 @@ void broadcastToPeersReliable(RoomInfo* ri, const void* data, size_t size)
 {
 	ENetPacket* packet = enet_packet_create(data, size, ENET_PACKET_FLAG_RELIABLE);
 
-	for (int i = 0; i < MAX_CLIENTS; i++)
+	for (int i = 0; i < RoomMaxClients(ri); i++)
 	{
 		ENetPeer* currentPeer = ri->peerInfos[i].peer;
 
@@ -186,12 +204,15 @@ void SendRoomData(ENetPeer* peer)
 	mr.version = GASMOXIAN_VER;
 
 
-// Turn 1-7 inro 9-15
+	// Turn 1-7 inro 9-15
+	// SendRoomData — extender el macro SETUP para marcar salas con contraseña:
 #define SETUP(x, index) \
-	x = roomCount[index]; \
-	if (roomInfos[index].boolRoomLocked) \
-		if(x < 8) \
-			x += 8;
+    x = roomCount[index]; \
+    if (roomInfos[index].boolRoomLocked) \
+        if(x < MAX_CLIENTS) \
+            x += MAX_CLIENTS; \
+    if (roomInfos[index].roomType == 2) \
+        x += 16;
 
 	// Do NOT use roomInfos[index].clientCount,
 	// cause that doesnt account for empty holes
@@ -199,28 +220,28 @@ void SendRoomData(ENetPeer* peer)
 	int roomCount[16];
 	memset(&roomCount[0], 0, sizeof(roomCount));
 
-	for(int i = 0; i < 16; i++)
-		for(int j = 0; j < 8; j++)
+	for (int i = 0; i < 16; i++)
+		for (int j = 0; j < 8; j++)
 			if (roomInfos[i].peerInfos[j].peer != 0)
 				roomCount[i]++;
 
 
-SETUP(mr.numClients01, 0x0);
-SETUP(mr.numClients02, 0x1);
-SETUP(mr.numClients03, 0x2);
-SETUP(mr.numClients04, 0x3);
-SETUP(mr.numClients05, 0x4);
-SETUP(mr.numClients06, 0x5);
-SETUP(mr.numClients07, 0x6);
-SETUP(mr.numClients08, 0x7);
-SETUP(mr.numClients09, 0x8);
-SETUP(mr.numClients10, 0x9);
-SETUP(mr.numClients11, 0xa);
-SETUP(mr.numClients12, 0xb);
-SETUP(mr.numClients13, 0xc);
-SETUP(mr.numClients14, 0xd);
-SETUP(mr.numClients15, 0xe);
-SETUP(mr.numClients16, 0xf);
+	SETUP(mr.numClients01, 0x0);
+	SETUP(mr.numClients02, 0x1);
+	SETUP(mr.numClients03, 0x2);
+	SETUP(mr.numClients04, 0x3);
+	SETUP(mr.numClients05, 0x4);
+	SETUP(mr.numClients06, 0x5);
+	SETUP(mr.numClients07, 0x6);
+	SETUP(mr.numClients08, 0x7);
+	SETUP(mr.numClients09, 0x8);
+	SETUP(mr.numClients10, 0x9);
+	SETUP(mr.numClients11, 0xa);
+	SETUP(mr.numClients12, 0xb);
+	SETUP(mr.numClients13, 0xc);
+	SETUP(mr.numClients14, 0xd);
+	SETUP(mr.numClients15, 0xe);
+	SETUP(mr.numClients16, 0xf);
 
 	sendToPeerReliable(peer, &mr, sizeof(struct SG_MessageRooms));
 }
@@ -268,6 +289,23 @@ void ProcessDisconnectEvent(ENetPeer* peer)
 	// driver is not in a room, just quit
 	if (peerID == -1)
 	{
+		// Puede ser un peer pendiente de contraseña — buscarlo y limpiar
+		for (int r = 0; r < 16; r++)
+		{
+			for (int i = 0; i < roomInfos[r].pendingPasswordCount; i++)
+			{
+				if (roomInfos[r].pendingPassword[i] == peer)
+				{
+					roomInfos[r].pendingPassword[i] =
+						roomInfos[r].pendingPassword[--roomInfos[r].pendingPasswordCount];
+					PrintPrefix(r + 1);
+					printf("Pending password peer disconnected from room %d\n", r + 1);
+					RemovePeerLPL(peer);
+					enet_peer_disconnect_now(peer, 0);
+					return;
+				}
+			}
+		}
 		enet_peer_disconnect_now(peer, 0);
 		//printf("Disconnection from Room Selection\n");
 		return;
@@ -288,6 +326,24 @@ void ProcessDisconnectEvent(ENetPeer* peer)
 		printf("Player %s (%d) disconnected from room\n",
 			&ri->peerInfos[peerID].name[0],
 			peerID);
+
+	// Cuando alguien con slot se desconecta, expulsar también a todos
+	// los peers que estaban esperando contraseña para esa sala,
+	// porque el estado de la sala puede haber cambiado (ej: host se fue)
+	if (ri->pendingPasswordCount > 0)
+	{
+		for (int i = 0; i < ri->pendingPasswordCount; i++)
+		{
+			struct SG_MessagePasswordRejected rej;
+			rej.type = SG_PASSWORD_REJECTED;
+			rej.padding = 0;
+			sendToPeerReliable(ri->pendingPassword[i], &rej, sizeof(rej));
+			enet_peer_disconnect_now(ri->pendingPassword[i], 0);
+			RemovePeerLPL(ri->pendingPassword[i]);
+		}
+		ri->pendingPasswordCount = 0;
+	}
+
 	// no players are left
 	int noneAlive = numAlive == 0;
 	//race is in session and (1 or less players AND non-race map)
@@ -303,12 +359,22 @@ void ProcessDisconnectEvent(ENetPeer* peer)
 			printf("Room has been killed as 1 or less players or non-race map\n");
 		else
 			printf("Room has been killed\n");
-
 		for (int i = 0; i < MAX_CLIENTS; i++)
 		{
 			if (ri->peerInfos[i].peer == 0)
 				continue;
 			enet_peer_disconnect_now(ri->peerInfos[i].peer, 0);
+		}
+		ri->roomConfigured = 0;
+		ri->roomType = 0;
+		if (ri->peerInfos[0].peer != NULL
+			&& ri->peerInfos[0].peer != peer)
+		{
+			struct SG_RoomTypeRejected rejected;
+			rejected.type = SG_ROOMTYPE_REJECTED;
+			sendToPeerReliable(ri->peerInfos[0].peer, &rejected, sizeof(rejected));
+			enet_peer_disconnect_now(ri->peerInfos[0].peer, 0);
+			RemovePeerLPL(ri->peerInfos[0].peer);
 		}
 		memset(ri, 0, sizeof(RoomInfo));
 	}
@@ -338,14 +404,6 @@ void ProcessDisconnectEvent(ENetPeer* peer)
 		{
 			//TODO
 			//printf("Host (player 0) just disconnected, promoting player %d to host.", 69);
-			//I think we can just call WelcomeNewClient???
-			//also need to manually change state from LOBBY_GUEST_TRACK_WAIT to LOBBY_HOST_TRACK_PICK in client (acutally no this is automatic I think)
-			//find a player to replace them. We need to update the data when we move the slot:
-			//ri->peerInfos[].peer
-			//memset(&ri->peerInfos[id], 0, sizeof(PeerInfo));??
-			//if chosen client was the last in the list, then decrement count.
-			//if (id == ri->clientCount)
-			//    ri->clientCount--;
 		}
 	}
 	ForeachPeerLPL(SendRoomData); //someone left a room, notify everyone else.
@@ -353,19 +411,27 @@ void ProcessDisconnectEvent(ENetPeer* peer)
 
 void WelcomeNewClient(RoomInfo* ri, int id)
 {
-	// Send acceptance to client
+
+	if (ri->roomConfigured)
+	{
+		struct SG_MessageRoomType sg;
+		sg.type = SG_ROOMTYPE;
+		sg.padding = 0;
+		sg.roomType = ri->roomType;
+		sg.rTypeLocked = 0;
+		sendToPeerReliable(ri->peerInfos[id].peer, &sg, sizeof(struct SG_MessageRoomType));
+	}
+
+	// DESPUÉS: SG_NEWCLIENT
 	struct SG_MessageClientStatus mw;
 	mw.type = SG_NEWCLIENT;
 	mw.clientID = id;
 	mw.numClientsTotal = ri->clientCount;
-
-
 #if 0
 	if (GetWeekDay() == 1) mw.special = 1; // Monday
 	if (GetWeekDay() == 3) mw.special = 2; // Wednesday
 	if (GetWeekDay() == 5) mw.special = 3; // Friday
 #endif
-
 	sendToPeerReliable(ri->peerInfos[id].peer, &mw, sizeof(struct SG_MessageClientStatus));
 }
 
@@ -382,7 +448,8 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 	char sgBuffer[16];
 	memset(sgBuffer, 0, sizeof(sgBuffer));
 
-	if (((struct CG_Header*)recvBuf)->type != CG_JOINROOM)
+	if (((struct CG_Header*)recvBuf)->type != CG_JOINROOM
+		&& ((struct CG_Header*)recvBuf)->type != CG_PASSWORD)
 	{
 		if (peerID == -1)
 			return;
@@ -395,87 +462,162 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 	{
 		struct CG_MessageRoom* r = recvBuf;
 
-		// kick if room is invalid
 		if (r->room > 16)
 		{
-			// update data, reject player
 			SendRoomData(peer);
 			return;
 		}
 
 		ri = &roomInfos[r->room];
 
-		// kick if room is locked
 		if (ri->boolRoomLocked)
 		{
-			// update data, reject player
 			SendRoomData(peer);
 			return;
 		}
 
-		// look for empty slot
-		int id = -1;
+		if (!ri->roomConfigured)
+		{
+			if (ri->peerInfos[0].peer != 0)
+			{
+				ENetPeer* oldLimboPeer = ri->peerInfos[0].peer;
+				struct SG_RoomTypeRejected rejected;
+				rejected.type = SG_ROOMTYPE_REJECTED;
+				sendToPeerReliable(oldLimboPeer, &rejected, sizeof(rejected));
+				memset(&ri->peerInfos[0], 0, sizeof(PeerInfo));
+				RemovePeerLPL(oldLimboPeer);
+				enet_peer_disconnect_now(oldLimboPeer, 0);
+			}
+		}
+
+		// Evitar conexión duplicada
 		for (int i = 0; i < MAX_CLIENTS; i++)
+		{
+			if (ri->peerInfos[i].peer != 0)
+				if (ri->peerInfos[i].peer->address.host == peer->address.host)
+					if (ri->peerInfos[i].peer->address.port == peer->address.port)
+						return;
+		}
+
+		// ── SALA CON CONTRASEÑA: guest queda en pending SIN slot ──────────
+		if (ri->roomConfigured && ri->roomType == 2)
+		{
+			// Verificar que no esté ya en pendientes
+			for (int i = 0; i < ri->pendingPasswordCount; i++)
+				if (ri->pendingPassword[i] == peer)
+					return;
+
+			// Sala llena (contando pendientes)
+			if (ri->clientCount + ri->pendingPasswordCount >= RoomMaxClients(ri))
+			{
+				SendRoomData(peer);
+				return;
+			}
+
+			ri->pendingPassword[ri->pendingPasswordCount++] = peer;
+			enet_peer_timeout(peer, 1000000, 1000000, 5000);
+
+			// Decirle al guest que mande su contraseña
+			// Mandamos SG_ROOMTYPE con roomType=2 como señal
+			struct SG_MessageRoomType sg;
+			sg.type = SG_ROOMTYPE;
+			sg.padding = 0;
+			sg.roomType = 2;
+			sg.rTypeLocked = 0;
+			sendToPeerReliable(peer, &sg, sizeof(sg));
+			break; // NO asignamos slot, NO mandamos SG_NEWCLIENT todavía
+		}
+
+		// ── SALA NORMAL: flujo existente ──────────────────────────────────
+		int id = -1;
+		int cap = ri->roomConfigured ? RoomMaxClients(ri) : 1;
+		for (int i = 0; i < cap; i++)
 			if (ri->peerInfos[i].peer == 0)
 			{
 				id = i;
 				break;
 			}
 
-		// Full room
 		if (id == -1)
 		{
-			// update data, reject player
 			SendRoomData(peer);
 			return;
 		}
 
-		// Avoid duplicate connection (from multiple CG_Room messages)
-		for (int i = 0; i < MAX_CLIENTS; i++)
-		{
-			// Peer is valid
-			if (ri->peerInfos[i].peer != 0)
-			{
-				// Peer matches IP of another in the room
-				if (ri->peerInfos[i].peer->address.host == peer->address.host)
-				{
-					// === This is NOT 64001 port ===
-					// This is a special port that determines which "local IP"
-					// to connect to, after the message goes to the router IP,
-					// even 2x clients + 2x duckstation will have different ports
+		if (ri->roomConfigured)
+			if (id == ri->clientCount)
+				ri->clientCount++;
 
-					// Peer matches port of another in the room
-					if (ri->peerInfos[i].peer->address.port == peer->address.port)
-					{
-						// cancel duplicate connection
-						return;
-					}
-				}
-			}
-		}
-
-
-		// === Connection Accepted ===
-
-		// if added to end, then increase count
-		if (id == ri->clientCount)
-			ri->clientCount++;
-
-		// If a client disconnects, bools are set to 1,
-		// so now if you leave and rejoin, this resets to 0
 		memset(&ri->peerInfos[id], 0, sizeof(PeerInfo));
-
 		ri->peerInfos[id].peer = peer;
 
-		ForeachPeerLPL(SendRoomData); //someone chose a room, notify everyone else.
+		if (ri->roomConfigured)
+			ForeachPeerLPL(SendRoomData);
 
-		// 5 seconds
 		enet_peer_timeout(peer, 1000000, 1000000, 5000);
-
 		WelcomeNewClient(ri, id);
-
 		break;
 	}
+
+case CG_ROOMTYPE:
+{
+	struct CG_MessageRoomType* r = recvBuf;
+
+	if (ri->roomConfigured)
+		break;
+
+	if (ri->peerInfos[0].peer != peer)
+		break;
+
+	int roomId = (((unsigned int)ri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1;
+
+	if (r->roomType == 2)
+	{
+		struct CG_MessageRoomTypePassword* rp = (struct CG_MessageRoomTypePassword*)recvBuf;
+		ri->roomType = 2;
+		memcpy(ri->seq, rp->seq, 8);
+		PrintPrefix(roomId);
+		printf("Room configured as PASSWORD-PROTECTED (cap %d) by host in slot 0\n",
+			RoomMaxClients(ri));
+	}
+	else
+	{
+		ri->roomType = (r->roomType >= 1) ? 1 : 0;
+		PrintPrefix(roomId);
+		printf("Room configured as %s (cap %d) by host in slot 0\n",
+			ri->roomType == 1 ? "TOURNAMENT" : "NORMAL",
+			RoomMaxClients(ri));
+	}
+
+	ri->roomConfigured = 1;
+	ri->clientCount = 1;
+
+	// Re-enviar SG_NEWCLIENT al host con clientCount correcto
+	WelcomeNewClient(ri, 0);
+
+	// Rebroadcastear nombre del host
+	struct SG_MessageName sn;
+	sn.type = SG_NAME;
+	sn.padding = 0;
+	sn.clientID = 0;
+	sn.numClientsTotal = ri->clientCount;
+	memcpy(&sn.name[0], &ri->peerInfos[0].name[0], NAME_LEN);
+	sn.name[NAME_LEN] = '\0';
+	broadcastToPeersReliable(ri, &sn, sizeof(struct SG_MessageName));
+
+	// Notificar tipo de sala
+	struct SG_MessageRoomType sg;
+	sg.type = SG_ROOMTYPE;
+	sg.padding = 0;
+	sg.roomType = ri->roomType;
+	sg.rTypeLocked = 0;
+	broadcastToPeersReliable(ri, &sg, sizeof(struct SG_MessageRoomType));
+
+	ForeachPeerLPL(SendRoomData);
+
+
+	break;
+}
 
 	case CG_NAME:
 	{
@@ -523,7 +665,7 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 	case CG_TRACK:
 	{
-	
+
 		ri->boolRoomLocked = 1;
 
 
@@ -555,24 +697,24 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 		struct {
 			unsigned char type : 4;
 			unsigned char padding : 4;
-			bool gamemodes[16];
+			bool gamemodes[18];
 		} *r = (void*)recvBuf;
-		
+
 		// Create the server's outgoing message
 		struct SG_MessageSpecial ms;
 		ms.type = SG_SPECIAL;
-		
+
 		// Copy all gamemode toggles from the client message
 		memcpy(ms.gamemodes, r->gamemodes, sizeof(ms.gamemodes));
-		
+
 		// Ensure NORMAL is always enabled
 		ms.gamemodes[NORMAL] = true;
-		
+
 		// Broadcast the gamemodes to all peers
 		broadcastToPeersReliable(ri, &ms, sizeof(struct SG_MessageSpecial));
 		break;
 	}
-	
+
 	case CG_CHARACTER:
 	{
 		struct SG_MessageCharacter* s = &sgBuffer[0];
@@ -593,17 +735,17 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 	case CG_ENGINE:
 	{
 
-		struct SG_MessageEngine* s = &sgBuffer[0];  
-		struct CG_MessageEngine* r = recvBuf;         
+		struct SG_MessageEngine* s = &sgBuffer[0];
+		struct CG_MessageEngine* r = recvBuf;
 
 
 
 
 
-		s->type = SG_ENGINE; 
-		s->clientID = peerID;           
-		s->enginetype = r->enginetype;   
-		s->boolLockedIn = r->boolLockedIn; 
+		s->type = SG_ENGINE;
+		s->clientID = peerID;
+		s->enginetype = r->enginetype;
+		s->boolLockedIn = r->boolLockedIn;
 
 
 		//idk if this is needed but i dont want more headaches.
@@ -613,7 +755,7 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 		ri->peerInfos[peerID].boolLoadSelf = s->boolLockedIn;
 
 
-	
+
 		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageEngine));
 
 		break;
@@ -625,7 +767,7 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 #if 0
 		printf("Ready to Race: %d\n", peerID);
 #endif
-	
+
 
 		ri->peerInfos[peerID].boolRaceSelf = 1;
 
@@ -665,11 +807,11 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 		s->weapon = r->weapon;
 		s->juiced = r->juiced;
 		s->flags = r->flags;
-		
 
 
 
-		
+
+
 
 		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageWeapon)); //comment this if using the above cheat mitigation
 
@@ -683,7 +825,7 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 		s->type = SG_WARPCLOCK;
 		s->warpclock = r->warpclock;
-		
+
 		printf("ban orb/clock %d\n", s->warpclock);
 		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageWarpclock));
 
@@ -696,9 +838,9 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 		s->type = SG_FINISHTIMER;
 
-		s ->finishracetimer = r->finishracetimer;
+		s->finishracetimer = r->finishracetimer;
 
-		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageFinishTimer)); 
+		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageFinishTimer));
 
 		break;
 	}
@@ -733,9 +875,101 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 
 
 
-			broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageEndRace));
+		broadcastToPeersReliable(ri, s, sizeof(struct SG_MessageEndRace));
+		break;
+	}
+
+	case CG_PASSWORD:
+	{
+		// Buscar en TODAS las salas porque peerID == -1 para peers pendientes
+		RoomInfo* pri = NULL;
+		int found = -1;
+		for (int r = 0; r < 16; r++)
+		{
+			for (int i = 0; i < roomInfos[r].pendingPasswordCount; i++)
+			{
+				if (roomInfos[r].pendingPassword[i] == peer)
+				{
+					pri = &roomInfos[r];
+					found = i;
+					break;
+				}
+			}
+			if (found != -1) break;
+		}
+
+		if (found == -1)
+			break; // no estaba esperando contraseña
+
+		// Sacar de pendientes
+		pri->pendingPassword[found] = pri->pendingPassword[--pri->pendingPasswordCount];
+
+		struct CG_MessagePassword* r = (struct CG_MessagePassword*)recvBuf;
+
+		// Verificar que la sala sigue abierta
+		if (pri->boolRoomLocked || pri->clientCount >= RoomMaxClients(pri))
+		{
+			// Sala cerrada mientras esperaba
+			struct SG_MessagePasswordRejected rej;
+			rej.type = SG_PASSWORD_REJECTED;
+			rej.padding = 0;
+			sendToPeerReliable(peer, &rej, sizeof(rej));
+			enet_peer_disconnect(peer, 0);  // ← no _now
+			RemovePeerLPL(peer);
 			break;
 		}
+
+		if (memcmp(r->seq, pri->seq, 8) != 0)
+		{
+			int roomId = (((unsigned int)pri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1;
+			PrintPrefix(roomId);
+			printf("Guest failed password check, kicking\n");
+
+			// Contraseña incorrecta
+			struct SG_MessagePasswordRejected rej;
+			rej.type = SG_PASSWORD_REJECTED;
+			rej.padding = 0;
+			sendToPeerReliable(peer, &rej, sizeof(rej));
+			enet_peer_disconnect(peer, 0);  // ← no _now
+			RemovePeerLPL(peer);
+			break;
+		}
+
+		// Contraseña correcta: asignar slot ahora
+		int id = -1;
+		for (int i = 0; i < RoomMaxClients(pri); i++)
+			if (pri->peerInfos[i].peer == 0)
+			{
+				id = i;
+				break;
+			}
+
+		if (id == -1)
+		{
+			// Sin slot disponible
+			struct SG_MessagePasswordRejected rej;
+			rej.type = SG_PASSWORD_REJECTED;
+			rej.padding = 0;
+			sendToPeerReliable(peer, &rej, sizeof(rej));
+			enet_peer_disconnect(peer, 0);  // ← no _now
+			RemovePeerLPL(peer);
+			break;
+		}
+
+		if (id == pri->clientCount)
+			pri->clientCount++;
+
+		memset(&pri->peerInfos[id], 0, sizeof(PeerInfo));
+		pri->peerInfos[id].peer = peer;
+
+		int roomId = (((unsigned int)pri - (unsigned int)&roomInfos[0]) / sizeof(RoomInfo)) + 1;
+		PrintPrefix(roomId);
+		printf("Guest passed password check, assigned slot %d\n", id);
+
+		ForeachPeerLPL(SendRoomData);
+		WelcomeNewClient(pri, id); // recién aquí manda SG_NEWCLIENT
+		break;
+	}
 
 	default:
 	{
@@ -744,333 +978,333 @@ void ProcessReceiveEvent(ENetPeer* peer, ENetPacket* packet) {
 	}
 	}
 
-void ProcessNewMessages() {
-	ENetEvent event;
-	while (enet_host_service(server, &event, 0) > 0)
-	{
-		switch (event.type)
+	void ProcessNewMessages() {
+		ENetEvent event;
+		while (enet_host_service(server, &event, 0) > 0)
 		{
-		case ENET_EVENT_TYPE_RECEIVE:
-			ProcessReceiveEvent(event.peer, event.packet);
-			break;
+			switch (event.type)
+			{
+			case ENET_EVENT_TYPE_RECEIVE:
+				ProcessReceiveEvent(event.peer, event.packet);
+				break;
 
-		case ENET_EVENT_TYPE_CONNECT:
-			ProcessConnectEvent(event.peer);
-			break;
+			case ENET_EVENT_TYPE_CONNECT:
+				ProcessConnectEvent(event.peer);
+				break;
 
-		case ENET_EVENT_TYPE_DISCONNECT:
+			case ENET_EVENT_TYPE_DISCONNECT:
 
-			ProcessDisconnectEvent(event.peer);
-			break;
+				ProcessDisconnectEvent(event.peer);
+				break;
+			}
+
+			enet_packet_destroy(event.packet);
+		}
 	}
 
-		enet_packet_destroy(event.packet);
-	}
-}
-
-int ServerState_FirstBoot(int argc, char** argv)
-{
+	int ServerState_FirstBoot(int argc, char** argv)
+	{
 
 
-	// ASCII art banner
- // Set text color to green
-	printf("  ____ ____  _____ ______     _______ ____  \n");
-	printf(" / ___/ ___|| ____|  _ \\ \\   / / ____|  _ \\ \n");
-	printf("| |  _\\___ \\|  _| | |_) \\ \\ / /|  _| | |_) |\n");
-	printf("| |_| |___) | |___|  _ < \\ V / | |___|  _ < \n");
-	printf(" \\____|____/|_____|_| \\_\\ \\_/  |_____|_| \\_\\\n");
-	printf("                                            \n");
-	printf("=================================================\n");
+		// ASCII art banner
+	 // Set text color to green
+		printf("  ____ ____  _____ ______     _______ ____  \n");
+		printf(" / ___/ ___|| ____|  _ \\ \\   / / ____|  _ \\ \n");
+		printf("| |  _\\___ \\|  _| | |_) \\ \\ / /|  _| | |_) |\n");
+		printf("| |_| |___) | |___|  _ < \\ V / | |___|  _ < \n");
+		printf(" \\____|____/|_____|_| \\_\\ \\_/  |_____|_| \\_\\\n");
+		printf("                                            \n");
+		printf("=================================================\n");
 
 
-	printf(__DATE__);
-	printf("\n");
-	printf(__TIME__);
-	printf("\n\n");
+		printf(__DATE__);
+		printf("\n");
+		printf(__TIME__);
+		printf("\n\n");
 
 #ifdef __WINDOWS__
-	HWND console = GetConsoleWindow();
-	RECT r;
-	GetWindowRect(console, &r); //stores the console's current dimensions
-	MoveWindow(console, r.left, r.top, 480, 240 + 35, TRUE);
+		HWND console = GetConsoleWindow();
+		RECT r;
+		GetWindowRect(console, &r); //stores the console's current dimensions
+		MoveWindow(console, r.left, r.top, 480, 240 + 35, TRUE);
 #endif
 
-	//initialize enet
-	if (enet_initialize() != 0)
-	{
-		printf(stderr, "Failed to initialize ENet!\n");
-		return 1;
-	}
-	atexit(enet_deinitialize);
-
-	int port;
-	int boolIsPortArgument = 0;
-
-	// port argument reading
-	for (int i = 1; i < argc; i++)
-	{
-		if (strcmp(argv[i], "--port") == 0 || strcmp(argv[i], "-p") == 0)
+		//initialize enet
+		if (enet_initialize() != 0)
 		{
-			boolIsPortArgument = 1;
+			printf(stderr, "Failed to initialize ENet!\n");
+			return 1;
+		}
+		atexit(enet_deinitialize);
 
-			if (i + 1 < argc)
+		int port;
+		int boolIsPortArgument = 0;
+
+		// port argument reading
+		for (int i = 1; i < argc; i++)
+		{
+			if (strcmp(argv[i], "--port") == 0 || strcmp(argv[i], "-p") == 0)
 			{
-				port = atoi(argv[i + 1]);
-				i++; // next is the port number
+				boolIsPortArgument = 1;
+
+				if (i + 1 < argc)
+				{
+					port = atoi(argv[i + 1]);
+					i++; // next is the port number
+				}
+				else
+				{
+					fprintf(stderr, "Error: --port or -p requires a value!\n");
+					return 1;
+				}
+			}
+		}
+
+		if (!boolIsPortArgument)
+		{
+		enter_port:
+			printf("Enter Port (0-65535): ");
+			int result = scanf("%d", &port);
+
+			if (result == 1) printf("Client: Using port %d UDP\n", port);
+			else if (result == 0)
+			{
+				printf("Error: Input format mismatch. Please enter a valid integer!\n");
+				goto enter_port;
 			}
 			else
 			{
-				fprintf(stderr, "Error: --port or -p requires a value!\n");
-				return 1;
+				printf("Error: Failed to read the input or end of input reached!\n");
+				goto enter_port;
 			}
-		}
-	}
 
-	if (!boolIsPortArgument)
-	{
-	enter_port:
-		printf("Enter Port (0-65535): ");
-		int result = scanf("%d", &port);
-
-		if (result == 1) printf("Client: Using port %d UDP\n", port);
-		else if (result == 0)
-		{
-			printf("Error: Input format mismatch. Please enter a valid integer!\n");
-			goto enter_port;
-		}
-		else
-		{
-			printf("Error: Failed to read the input or end of input reached!\n");
-			goto enter_port;
+			printf("\n");
 		}
 
-		printf("\n");
-	}
+		ENetAddress address;
+		address.host = ENET_HOST_ANY;
+		address.port = port;
+		server = enet_host_create(&address,
+			256	/* 8 clients in 16 rooms (128) plus more people in lobby */,
+			2	/* allow up to 2 channels to be used, 0 and 1 */,
+			0	/* assume any amount of incoming bandwidth */,
+			0	/* assume any amount of outgoing bandwidth */);
 
-	ENetAddress address;
-	address.host = ENET_HOST_ANY;
-	address.port = port;
-	server = enet_host_create(&address,
-		256	/* 8 clients in 16 rooms (128) plus more people in lobby */,
-		2	/* allow up to 2 channels to be used, 0 and 1 */,
-		0	/* assume any amount of incoming bandwidth */,
-		0	/* assume any amount of outgoing bandwidth */);
-
-	if (!server)
-	{
-		fprintf(stderr, "Error: Failed to create an ENet server host!\n");
-		exit(EXIT_FAILURE);
-	}
-
-	PrintPrefix(-1);
-	printf("Ready on port %d\n", port);
-}
-
-void ServerState_Tick()
-{
-	ProcessNewMessages();
-
-	for (int r = 0; r < 16; r++)
-	{
-		RoomInfo* ri = &roomInfos[r];
-
-		if (ri->clientCount == 0)
-			continue;
-
-		if (!ri->boolLoadAll)
+		if (!server)
 		{
-			ri->timeLimit = 0;
-			ri->boolLoadAll = 1;
-			for (int j = 0; j < ri->clientCount; j++)
-				if (ri->peerInfos[j].peer != 0)
-					if (ri->peerInfos[j].boolLoadSelf == 0)
-						ri->boolLoadAll = 0;
+			fprintf(stderr, "Error: Failed to create an ENet server host!\n");
+			exit(EXIT_FAILURE);
+		}
 
-			if (ri->boolLoadAll)
+		PrintPrefix(-1);
+		printf("Ready on port %d\n", port);
+	}
+
+	void ServerState_Tick()
+	{
+		ProcessNewMessages();
+
+		for (int r = 0; r < 16; r++)
+		{
+			RoomInfo* ri = &roomInfos[r];
+
+			if (ri->clientCount == 0)
+				continue;
+
+			if (!ri->boolLoadAll)
 			{
-				// send to all clients
-				struct SG_Header sg;
-				sg.type = SG_STARTLOADING;
-				broadcastToPeersReliable(ri, &sg, sizeof(struct SG_Header));
+				ri->timeLimit = 0;
+				ri->boolLoadAll = 1;
+				for (int j = 0; j < ri->clientCount; j++)
+					if (ri->peerInfos[j].peer != 0)
+						if (ri->peerInfos[j].boolLoadSelf == 0)
+							ri->boolLoadAll = 0;
+
+				if (ri->boolLoadAll)
+				{
+					// send to all clients
+					struct SG_Header sg;
+					sg.type = SG_STARTLOADING;
+					broadcastToPeersReliable(ri, &sg, sizeof(struct SG_Header));
+				}
 			}
-		}
 
-		if (!ri->boolRaceAll)
-		{
-			ri->boolRaceAll = 1;
-			for (int j = 0; j < ri->clientCount; j++)
-				if (ri->peerInfos[j].peer != 0)
-					if (ri->peerInfos[j].boolRaceSelf == 0)
-						ri->boolRaceAll = 0;
-
-			if (ri->boolRaceAll)
+			if (!ri->boolRaceAll)
 			{
-				// send to all clients
-				struct SG_Header sg;
-				sg.type = SG_STARTRACE;
-				broadcastToPeersReliable(ri, &sg, sizeof(struct SG_Header));
-			}
-		}
+				ri->boolRaceAll = 1;
+				for (int j = 0; j < ri->clientCount; j++)
+					if (ri->peerInfos[j].peer != 0)
+						if (ri->peerInfos[j].boolRaceSelf == 0)
+							ri->boolRaceAll = 0;
 
-
-		if (!ri->allplayersfinished)
-		{
-			ri->activePlayers = 0;
-			ri->finishedCount = 0;
-
-
-			//  racers playing counter
-			for (int j = 0; j < ri->clientCount; j++) {
-				if (ri->peerInfos[j].peer != 0) { // connected player
-					ri->activePlayers++; //modify active players number based on players connected
-					if (ri->peerInfos[j].boolEndSelf == 1) { // player has finished the race
-						ri->finishedCount++; //modify the number of players that finished the race based in boolendself counter
-					}
+				if (ri->boolRaceAll)
+				{
+					// send to all clients
+					struct SG_Header sg;
+					sg.type = SG_STARTRACE;
+					broadcastToPeersReliable(ri, &sg, sizeof(struct SG_Header));
 				}
 			}
 
 
-
-			if (ri->activePlayers >= 4 && ri->activePlayers <= 8 && ri->extralaps < 8) {
-				ri->requiredPlayersToFinish = 3; // 4-8 players race & no extra laps
-			}
-			if (ri->activePlayers >= 4 && ri->activePlayers <= 8 && ri->extralaps >= 8)
+			if (!ri->allplayersfinished)
 			{
-				ri->requiredPlayersToFinish = (ri->activePlayers == 5) ? 4: 3; // 4-8 players race with extra laps
+				ri->activePlayers = 0;
+				ri->finishedCount = 0;
+
+
+				//  racers playing counter
+				for (int j = 0; j < ri->clientCount; j++) {
+					if (ri->peerInfos[j].peer != 0) { // connected player
+						ri->activePlayers++; //modify active players number based on players connected
+						if (ri->peerInfos[j].boolEndSelf == 1) { // player has finished the race
+							ri->finishedCount++; //modify the number of players that finished the race based in boolendself counter
+						}
+					}
+				}
+
+
+
+				if (ri->activePlayers >= 4 && ri->activePlayers <= 8 && ri->extralaps < 8) {
+					ri->requiredPlayersToFinish = 3; // 4-8 players race & no extra laps
+				}
+				if (ri->activePlayers >= 4 && ri->activePlayers <= 8 && ri->extralaps >= 8)
+				{
+					ri->requiredPlayersToFinish = (ri->activePlayers == 5) ? 4 : 3; // 4-8 players race with extra laps
+				}
+
+
+				if (ri->activePlayers == 3) {
+					ri->requiredPlayersToFinish = 2; // 3 players race
+				}
+
+
+				if (ri->activePlayers == 2) {
+					ri->requiredPlayersToFinish = 1; // 1-2 players race
+				}
+
+				if (ri->activePlayers == 1) {
+					ri->requiredPlayersToFinish = 0;  //avoid using 30 seconds timer in 1 player races
+				}
+
+				if (ri->finishedCount == ri->activePlayers && ri->finishedCount != 0) {  //only use this if all players finished the race
+
+					ri->allplayersfinished = 1;
+				}
+
+
+				if (ri->allplayersfinished)
+				{
+
+					printf("All players finished\n");
+					ri->timeLimit = (ri->activePlayers == 1) ? 6 : 3; // All players finished the race
+					printf("Restarting in %d seconds\n", ri->timeLimit);
+					ri->endTime = finishclock();
+
+				}
 			}
 
-
-			if (ri->activePlayers == 3) {
-				ri->requiredPlayersToFinish = 2; // 3 players race
-			}
-
-
-			if (ri->activePlayers == 2) {
-				ri->requiredPlayersToFinish = 1; // 1-2 players race
-			}
-
-			if (ri->activePlayers == 1) {    
-			ri->requiredPlayersToFinish = 0;  //avoid using 30 seconds timer in 1 player races
-			}
-
-			if (ri->finishedCount == ri->activePlayers && ri->finishedCount != 0) {  //only use this if all players finished the race
-
-				ri->allplayersfinished = 1;
-			}
-
-
-			if (ri->allplayersfinished)
+			if (!ri->boolEndAll)
 			{
-				
-				printf("All players finished\n");
-				ri->timeLimit = (ri->activePlayers == 1) ? 6 : 3; // All players finished the race
-				printf("Restarting in %d seconds\n", ri->timeLimit);
-				ri->endTime = finishclock();
-				
-			}
-		}
 
-		if (!ri->boolEndAll)
-		{
+				if (ri->finishedCount == 1 && ri->activePlayers == 1)
+				{
+					printf("1 player race detected, finishing\n");
+					ri->boolEndAll = 1;
+				}
 
-			if (ri->finishedCount == 1 && ri->activePlayers == 1)
-			{
-				printf("1 player race detected, finishing\n");
-				ri->boolEndAll = 1;
-			}
-
-			//if required players to finish already ended the race
-			if (ri->finishedCount == ri->requiredPlayersToFinish && ri->requiredPlayersToFinish != 0) { 
-				printf("Required players finished!\n");
+				//if required players to finish already ended the race
+				if (ri->finishedCount == ri->requiredPlayersToFinish && ri->requiredPlayersToFinish != 0) {
+					printf("Required players finished!\n");
 
 
 
-				ri->timeLimit = (ri->extralaps >= 8) ? 60 : 30;
-				printf("Race ends in %d seconds\n", ri->timeLimit);
-				ri->endTime = finishclock();           // start timer
-				ri->boolEndAll = 1;               // end the race for all
-			}
+					ri->timeLimit = (ri->extralaps >= 8) ? 60 : 30;
+					printf("Race ends in %d seconds\n", ri->timeLimit);
+					ri->endTime = finishclock();           // start timer
+					ri->boolEndAll = 1;               // end the race for all
+				}
 
 
 				if (ri->boolEndAll) {
 					PrintPrefix(r + 1);
 					printf("Countdown to finish started, resetting room soon\n");
-					
+
 				}
 			}
 
 
-		else
-		{
-			if (!ri->timer && ri->boolEndAll)
+			else
 			{
-
-				ri->currentTime = finishclock();
-
-				//probably ri->elapsedtime is not efficient bc only using ri->currenttime/ri->endtime should be enough
-				//but i leave it like this just in case
-
-				ri->elapsedTime = ri->currentTime - ri->endTime;
-
-				if (ri->elapsedTime >= ri->timeLimit) {
-					ri->timer = 1;
-
-				}
-				if (ri->timer)
+				if (!ri->timer && ri->boolEndAll)
 				{
 
-					PrintPrefix(r + 1);
-					printf("Room has been reset\n");
+					ri->currentTime = finishclock();
 
-					for (int i = 0; i < MAX_CLIENTS; i++)
+					//probably ri->elapsedtime is not efficient bc only using ri->currenttime/ri->endtime should be enough
+					//but i leave it like this just in case
+
+					ri->elapsedTime = ri->currentTime - ri->endTime;
+
+					if (ri->elapsedTime >= ri->timeLimit) {
+						ri->timer = 1;
+
+					}
+					if (ri->timer)
 					{
-						if (ri->peerInfos[i].peer == 0)
-							continue;
 
-						ri->peerInfos[i].boolLoadSelf = 0;
-						ri->peerInfos[i].boolRaceSelf = 0;
-						ri->peerInfos[i].boolEndSelf = 0;
+						PrintPrefix(r + 1);
+						printf("Room has been reset\n");
 
-						// tell all clients to reset
-						WelcomeNewClient(ri, i);
+						for (int i = 0; i < MAX_CLIENTS; i++)
+						{
+							if (ri->peerInfos[i].peer == 0)
+								continue;
+
+							ri->peerInfos[i].boolLoadSelf = 0;
+							ri->peerInfos[i].boolRaceSelf = 0;
+							ri->peerInfos[i].boolEndSelf = 0;
+
+							// tell all clients to reset
+							WelcomeNewClient(ri, i);
+						}
+
+						ri->levelPlayed = 0;
+						ri->boolRoomLocked = 0;
+						ri->boolLoadAll = 0;
+						ri->boolRaceAll = 0;
+						ri->boolEndAll = 0;
+						ri->endTime = 0;
+						ri->requiredPlayersToFinish = 0;
+						ri->finishedCount = 0;
+						ri->activePlayers = 0;
+						ri->allplayersfinished = 0;
+						ri->timeLimit = 0;
+						ri->timer = 0;
+						ri->currentTime = 0;
+						ri->elapsedTime = 0;
+						ri->extralaps = 0;
+
+						ForeachPeerLPL(SendRoomData); //race over, re-notify all clients
+
 					}
 
-					ri->levelPlayed = 0;
-					ri->boolRoomLocked = 0;
-					ri->boolLoadAll = 0;
-					ri->boolRaceAll = 0;
-					ri->boolEndAll = 0;
-					ri->endTime = 0;
-					ri->requiredPlayersToFinish = 0;
-					ri->finishedCount = 0;
-					ri->activePlayers = 0;
-					ri->allplayersfinished = 0;
-					ri->timeLimit = 0;
-					ri->timer = 0;
-					ri->currentTime = 0;
-					ri->elapsedTime = 0;
-					ri->extralaps = 0;
-
-					ForeachPeerLPL(SendRoomData); //race over, re-notify all clients
-
 				}
-
 			}
 		}
 	}
-}
 
-int main(int argc, char** argv)
-{
-	ServerState_FirstBoot(argc, argv);
-
-	while (1)
+	int main(int argc, char** argv)
 	{
-		#ifdef __WINDOWS__
-		void usleep(__int64 usec);
-		#endif
+		ServerState_FirstBoot(argc, argv);
 
-		usleep(1);
-		ServerState_Tick();
+		while (1)
+		{
+#ifdef __WINDOWS__
+			void usleep(__int64 usec);
+#endif
+
+			usleep(1);
+			ServerState_Tick();
+		}
 	}
-}

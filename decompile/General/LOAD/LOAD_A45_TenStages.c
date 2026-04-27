@@ -56,7 +56,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			{
 				sdata->boolFirstBoot = 0;
 
-				#ifndef REBUILD_PC
+				#if !defined(REBUILD_PC) && !defined(USE_GASMOXIAN)
 				// Load Intro TIM for Copyright Page from VRAM file
 				DECOMP_LOAD_VramFile(bigfile, 0x1fe, 0, &vramSize, 0xffffffff);
 				DECOMP_MainInit_VRAMDisplay();
@@ -161,7 +161,8 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 				// lev swap will be needed
 				gGT->gameMode2 |= LEV_SWAP;
 			}
-
+			
+			#ifndef USE_GASMOXIAN
 			// if you are loading into adventure map:
 			// any of the hubs: "hub1", "hub2", etc
 			else if(levelID >= GEM_STONE_VALLEY)
@@ -181,6 +182,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 				}
 				#endif
 			}
+			#endif
 			
 			// driving track
 			else
@@ -454,6 +456,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 			if ((levelID != ADVENTURE_CHARACTER_SELECT) && (levelID != NAUGHTY_DOG_CRATE))
 			{
 				iVar9 = DECOMP_Music_AsyncParseBanks();
+				
 
 				if (iVar9 == 0)
 				{
@@ -463,7 +466,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 #ifndef REBUILD_PS1
 				Cutscene_VolumeRestore();
-#endif
+#endif			
 			}
 			
 			// == banks are done parsing ===
@@ -566,6 +569,7 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 			// game is now loading
 			sdata->load_inProgress = 1;
+		
 
 			// add VRAM to loading queue
 			uVar16 = DECOMP_LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD, LVI_VRAM);
@@ -585,8 +589,10 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 				// add PTR file to loading queue
 				uVar6 = DECOMP_LOAD_GetBigfileIndex(gGT->levelID, sdata->levelLOD, LVI_PTR);
 				DECOMP_LOAD_AppendQueue(bigfile, LT_RAW, uVar6, sdata->PatchMem_Ptr, &DECOMP_LOAD_Callback_LEV_Adv);
-			}			
+			}
+			
 			break;
+			
 		}
 		case 7:
 		{
@@ -595,74 +601,11 @@ int DECOMP_LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigH
 
 			// Set LEV pointer
 			gGT->level1 = lev;
-
-			////////////////////////
-
-			extern void ReverseTrack(struct Level *level);
-			extern void RemoveOffRoadCHK(struct Level *level);
-
-			extern int NightFilterBrightness;
-			extern int NightFilterBlueTint;
-			extern void HandleDynamicLighting(struct Level *level);
-
-			extern bool CaptureSkybox(struct Level* level);
-			extern bool GreenSkybox(struct Level* level);
-			if(gGT->levelID == LOBBY_LEVEL_ID){
-				CaptureSkybox(lev);
-				GreenSkybox(lev);
-			}
-
-			// if(USE_ITEMLESS){
-			// 	sdata->gGT->gameMode2 |= DISABLE_LEV_INSTANCE;
-			// }else{
-			// 	sdata->gGT->gameMode2 &= ~DISABLE_LEV_INSTANCE;
-			// }
-
-			if (USE_N_VERTED){
-				ReverseTrack(gGT->level1);
-			}
-
-			if (USE_SHORTCUTLESS){
-				RemoveOffRoadCHK(gGT->level1);
-			}
-
-			if (
-				USE_NIGHT_FILTER
-				&& gGT->levelID <= TURBO_TRACK
-				#if 0
-				extern bool NightFilterApplied(struct Level *level);
-				&& !NightFilterApplied(lev)
-				# endif
-			){
-				NightFilter(gGT->level1, NightFilterBrightness, NightFilterBlueTint);
-				
-			}
-
-			if(USE_SURVIVAL){
-				// Set laps amount based on num drivers
-				extern int GetActiveDriversCount();
-				int player_count = GetActiveDriversCount();
-
-				gGT->numLaps = player_count < 2 ? 1 : player_count - 1;
-			}
-
-			if(USE_SURVIVAL_TIMER){
-				gGT->numLaps = 127;
-			}
-
-			extern void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type);
-
-			//Randomly select a WEATHER_TYPE (WEATHER_RAIN 2%, WEATHER_SNOW 1%)
-			if(gGT->levelID != LOBBY_LEVEL_ID){
-				int randVal = rand() % 100;
-				if (randVal < 2) {
-					AddWeather(gGT->level1, WEATHER_RAIN);
-				} else if (randVal < 3) {
-					AddWeather(gGT->level1, WEATHER_SNOW);
-				}
-			}
-
-			////////////////////////
+			
+			#ifdef USE_GASMOXIAN
+			void Load_Gasmox(struct GameTracker* gGT, struct Level* lev);
+			Load_Gasmox(gGT, lev);
+			#endif
 			
 			// iVar9 is set to sdata->ptrLEV_DuringLoading at the top of the function
 			gGT->visMem1 = lev->visMem;

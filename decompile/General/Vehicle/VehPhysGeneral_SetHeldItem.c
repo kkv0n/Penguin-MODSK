@@ -1,15 +1,6 @@
 #include <common.h>
-
-#ifdef USE_GASMOXIAN
-#include "../AltMods/Gasmoxian/global.h"
 #include "../AltMods/Gasmoxian/utils.h"
-
-extern bool ItsOnlyNormalEnabled();
-
-//for air throw
-int bossflag;
-	
-#endif
+#include "../AltMods/Gasmoxian/global.h"
 
 enum ItemSet
 {
@@ -27,18 +18,44 @@ enum ItemSet
 };
 
 // all except CrystalChallenge
-extern char* charPtr[7];
-extern char numWeapons[7];
+static char* charPtr[7] =
+{
+	&data.RNG_itemSetRace1[0],
+	&data.RNG_itemSetRace2[0],
+	&data.RNG_itemSetRace3[0],
+	&data.RNG_itemSetRace4[0],
+	&data.RNG_itemSetBattleDefault[0],
+	(char *)&sdata_static.gameTracker.battleSetup.RNG_itemSetCustom[0],
+	&data.RNG_itemSetBossrace[0]
+};
 
-// Itemset infographic (outdated):
-// https://discord.com/channels/330945093416779787/550106151887568906/734368526294450267
-void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
+static char numWeapons[7] =
+{
+	0x14,
+	0x34,
+	0x14,
+	0x13,
+	0x14,
+	-1,
+	0x14
+};
+
+
+void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver)
+{
+	if (!USE_VANILLA_ITEMS)
+	{
+	void SetHeldItem(struct Driver* driver);
+	SetHeldItem(driver);
+	return;
+	}
+	
 	u_int rng;
 	int itemSet;
 	char item;
 	char bossFails;
 	struct GameTracker* gGT;
-
+	
 	gGT = sdata->gGT;
 
 	// 6th Itemset (Battle Mode Custom Itemset)
@@ -48,73 +65,7 @@ void DECOMP_VehPhysGeneral_SetHeldItem(struct Driver* driver) {
 	if (gGT->battleSetup.enabledWeapons == 0x34de)
 		itemSet = ITEMSET_BattleDefault;
 	
-#ifdef USE_GASMOXIAN
-bool itsNormalMode = ItsOnlyNormalEnabled();
 
-if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
-{
-	//start of itemset assignation
-	
-	int lastplaceRank = activeDriversCount - 1;
-	if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
-		extern int survivalActiveDriversCount;
-		lastplaceRank = survivalActiveDriversCount - 1;
-	}
-	
-	//just in case something breaks then assign itemset1 to this player
-	itemSet = ITEMSET_Race1; //Rank 0
-
-	const enum ItemSet itemSets[] = {
-		ITEMSET_Race2, // Rank 1
-		ITEMSET_Race2, // Rank 2
-		ITEMSET_Race3, // Rank 3
-		ITEMSET_Race3, // Rank 4
-		ITEMSET_Race4, // Rank 5
-		ITEMSET_Race4  // Rank 6
-	};
-
-	// Change charPtr RNG weights if ITEM_CHAOS is enabled
-	extern void ItemChaosItemSets();
-	ItemChaosItemSets();
-
-	extern void BossRaceItemSets();
-	BossRaceItemSets();
-		
-	if (driver->driverRank == 0)
-	{
-		itemSet = ITEMSET_Race1;
-	}
-	//assign itemsets based on the driverrank, last place always get battledefault, if more than 5 players
-	if (driver->driverRank >= 1 && driver->driverRank <= 7) {
-
-		int driversCount = activeDriversCount;
-		if(USE_SURVIVAL || USE_SURVIVAL_TIMER){
-			extern int survivalActiveDriversCount;
-			driversCount = survivalActiveDriversCount;
-		}
-
-		if(itsNormalMode){
-			itemSet = (driver->driverRank == lastplaceRank) 
-					? ITEMSET_Race3
-					: itemSets[driver->driverRank - 1];
-		}
-		else if(driversCount > 5){
-			itemSet = (driver->driverRank == lastplaceRank) 
-					? ITEMSET_BattleDefault 
-					: itemSets[driver->driverRank - 1];
-		} else{
-			itemSet = (driver->driverRank == lastplaceRank) 
-				? ITEMSET_Race4
-				: itemSets[driver->driverRank - 1];
-		}
-	}
-
-	//end of itemset assignation
-}
-#else
-	// Not in Battle Mode
-	if ((gGT->gameMode1 & BATTLE_MODE) == 0)
-	{
 		// 7th Itemset (Crystal Challenge)
 		itemSet = ITEMSET_CrystalChallenge;
 
@@ -125,6 +76,9 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 			int mode = gGT->numPlyrCurrGame + gGT->numBotsNextGame;
 
 
+			mode = octr->NumDrivers;
+			if (octr->NumDrivers == 1) mode = 2; //why does this matter?
+			if (octr->NumDrivers == 7) mode = 8; //default 1p arcade
 
 
 			switch(mode)
@@ -213,8 +167,7 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 		// then override to 3rd place
 		if (itemSet == ITEMSET_Race4 && driver->lapIndex == 0)
 			itemSet = ITEMSET_Race3;
-	}
-#endif
+	
 
 	// Decide item for Driver
 	rng = (DECOMP_MixRNG_Scramble() >> 0x3) % 0xc8;
@@ -239,15 +192,13 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 			driver->heldItemID = ((int*)charPtr[itemSet])[(rng * numWeapons[itemSet]) / 0xc8];
 			break;
 
-#ifndef USE_GASMOXIAN
 		case ITEMSET_CrystalChallenge:
 			// Item is bomb at Rocky Road, Nitro Court
 			// Item is turbo at Skull Rock and Rampage Ruins
-			item = ITEM_BOWLING_BOMB;
+			item = 0x1;
 			if (gGT->levelID != SKULL_ROCK && gGT->levelID != RAMPAGE_RUINS) goto SetItem;
-			driver->heldItemID = ITEM_TURBO_BOOST;
+			driver->heldItemID = 0x0;
 			break;
-#endif
 
 		// "-1st place": Undecided rank
 		default:
@@ -257,170 +208,20 @@ if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
 			driver->heldItemID = item;
 	}
 
-#ifdef USE_GASMOXIAN
-if (gGT->gameMode1 & ARCADE_MODE || gGT->gameMode1 & ADVENTURE_BOSS)
-{
-	// ITEM CHAOS
-	if(USE_ITEM_CHAOS){
-		extern void ItemChaosSetHeldItem(struct Driver * driver);
-		ItemChaosSetHeldItem(driver);
-	}
-
-	// In BOSS RACE allow air throw
-	if(USE_BOSS_RACE && driver->driverRank == 0){
-		if(driver->heldItemID == ITEM_EXPLOSIVE_CRATE || driver->heldItemID == ITEM_N_BRIO_BEAKER){
-			extern bool air_throw;
-			if (rand() % 2 == 0) {
-				air_throw = true;
-			} else {
-				air_throw = false;
-			}
-		}
-	}
-
-	// Avoid Ghost BUG on mirror mode
-	if (USE_MIRROR && driver->heldItemID == ITEM_INVISIBILITY) {
-		driver->heldItemID = ITEM_TURBO_BOOST;		
-	}
-
-	// If only NORMAL its enabled, ban invisibility, nothing and super engine
-	if(itsNormalMode)
-	{
-		if (driver->heldItemID == ITEM_INVISIBILITY || driver->heldItemID == ITEM_NONE || driver->heldItemID == ITEM_SUPER_ENGINE)
-		{
-			driver->heldItemID = ITEM_TURBO_BOOST;
-		}
-	}
-
-	// If shortcutless ban nothing
-	if (USE_SHORTCUTLESS && driver->heldItemID == ITEM_NOTHING) {
-		driver->heldItemID = ITEM_TURBO_BOOST;
-	}
-
-
-	if (octr->warpclock == 0) 
-	{
-		// if retrofueled, ngin labs or oxide station then replace warpball with an clock
-
-		// if (USE_RETRO_FUELED || octr->levelID == N_GIN_LABS || octr->levelID == OXIDE_STATION) {
-		// 	if (driver->heldItemID == ITEM_WARP_ORB){
-		// 		driver->heldItemID = ITEM_N_TROPY_CLOCK;
-		// 	}
-		// }
-	}
-
-	//if someone drop an orb or clock
-	if (octr->warpclock == 1) {
-		if (!USE_ITEM_CHAOS){
-			//give super engine to players when the warpball/clock are in cooldown
-			if (driver->heldItemID == ITEM_WARP_ORB || driver->heldItemID == ITEM_N_TROPY_CLOCK) {
-				driver->heldItemID = ITEM_SUPER_ENGINE;
-			}
-		}
-	}
-
-	// allow super engine for the last 3 players
-	if (
-		driver->heldItemID == ITEM_SUPER_ENGINE
-		&& driver->driverRank < octr->NumDrivers - 3
-		&& (gGT->gameMode1 & ARCADE_MODE) != 0
-	) {
-		driver->heldItemID = ITEM_POWER_SHIELD; //if not last 2 players then replace super engine with shield
-	}
-
-	//ban orbs,clocks and super engine on lap 1, replace with mask
-	if (
-		(driver->heldItemID == ITEM_N_TROPY_CLOCK
-		|| driver->heldItemID == ITEM_WARP_ORB
-		|| driver->heldItemID == ITEM_SUPER_ENGINE
-		) && driver->lapIndex == 0
-		&& !USE_ITEM_CHAOS
-	) {
-		driver->heldItemID = ITEM_MASK;
-	}
-}
-
-// if boss race special
-if (USE_BOSS_RACE){
-	// if first place
-	if (driver->driverRank == 0){ 
-			// driver->numHeldItems = 7;
-			// driver->numWumpas = 0;
-			
-			// if (driver->heldItemID == ITEM_POWER_SHIELD || driver->heldItemID == ITEM_TURBO_BOOST) {
-			// 	driver->heldItemID = ITEM_BOWLING_BOMB;
-			// }
-	}
-
-	if (driver->driverRank > 0) {	
-		if (driver->heldItemID == ITEM_N_BRIO_BEAKER || driver->heldItemID == ITEM_BOWLING_BOMB || driver->heldItemID == ITEM_EXPLOSIVE_CRATE) {
-			driver->heldItemID = ITEM_TRACKING_MISSILE;		
-		}
-		// else if (driver->heldItemID == ITEM_INVISIBILITY) {
-		// 	driver->heldItemID = ITEM_POWER_SHIELD;
-		// }
-		// else if (driver->heldItemID == ITEM_TURBO_BOOST) {
-		// driver->heldItemID = ITEM_TRACKING_MISSILE_X3;
-		// }
-		// else if (driver->heldItemID == ITEM_N_TROPY_CLOCK || driver->heldItemID == ITEM_WARP_ORB) {
-		// driver->heldItemID = ITEM_SUPER_ENGINE;
-		// }
-	}
-}
-
-#else
-	// In Boss race
-	if (gGT->gameMode1 & ADVENTURE_BOSS)
-	{
-		bossFails = sdata->advProgress.timesLostBossRace[gGT->bossID];
-
-		if (bossFails < 3)
-		{
-			// Replace Clock, Mask,  with 3 Missiles
-			if ((u_int)driver->heldItemID - 0x7 < 0x3)
-				driver->heldItemID = ITEM_TRACKING_MISSILE_X3;
-		}
-
-		else if (bossFails < 4)
-		{
-			// Replace Clock, Mask with 3 Missiles
-			if ((u_int)driver->heldItemID - 0x7 < 0x2)
-				driver->heldItemID = ITEM_TRACKING_MISSILE_X3;
-		}
-
-		else if (bossFails < 5 && driver->heldItemID == ITEM_N_TROPY_CLOCK)
-		{
-			// Replace Clock with 3 Missiles
-			driver->heldItemID = ITEM_TRACKING_MISSILE_X3;
-		}
-
-		// Replace 3 Missiles with 1 Missile if racing Komodo Joe
-		if (gGT->levelID == DRAGON_MINES && driver->heldItemID == ITEM_TRACKING_MISSILE_X3)
-			driver->heldItemID = ITEM_TRACKING_MISSILE;
-
-#if 0
-	// === Removed ND Code ===
-	// Spring is not in the RNG anyway
-
-	// Replace unused Spring item with Turbo
-	if (driver->heldItemID == 0x5)
-		driver->heldItemID = 0x0;
-#endif
-
 	// Make sure only 1 Warpball is instanced at once
-	if (driver->heldItemID == ITEM_WARP_ORB)
+	if (driver->heldItemID == 0x9)
 	{
 		// if nobody has warpball, then set flag that somebody has it
 		if ((gGT->gameMode1 & WARPBALL_HELD) == 0)
 			gGT->gameMode1 |= WARPBALL_HELD;
 
 		// if somebody has warpball already, then give 3 missiles
-		else driver->heldItemID = ITEM_TRACKING_MISSILE_X3;
+		else driver->heldItemID = 0xb;
 	}
 
 	if (
 			// if you got 3 missiles
-			driver->heldItemID == ITEM_TRACKING_MISSILE_X3 &&
+			driver->heldItemID == 0xb &&
 
 			// if more than 2 players
 			gGT->numPlyrCurrGame > 2 &&
@@ -434,34 +235,15 @@ if (USE_BOSS_RACE){
 			gGT->numPlayersWith3Missiles++;
 
 		// if 2 drivers already have 3 missiles, now you have 1 missile
-		else driver->heldItemID = ITEM_TRACKING_MISSILE;
+		else driver->heldItemID = 0x2;
 	}
-#endif
+
 	// Set number of held items
 	if ((u_int)driver->heldItemID - 0xA < 0x2)
-		driver->numHeldItems = 3;
+		driver->numHeldItems = 0x3;
 
 	return;
 }
 
-char* charPtr[7] =
-{
-	&data.RNG_itemSetRace1[0], // Rank 0
-	&data.RNG_itemSetRace2[0], // Rank 1,2
-	&data.RNG_itemSetRace3[0], // Rank 3,4
-	&data.RNG_itemSetRace4[0], // Rank 5,6
-	&data.RNG_itemSetBattleDefault[0], // Rank 7
-	(char *)&sdata_static.gameTracker.battleSetup.RNG_itemSetCustom[0],
-	&data.RNG_itemSetBossrace[0]
-};
 
-char numWeapons[7] =
-{
-	0x14,
-	0x34,
-	0x14,
-	0x13,
-	0x14,
-	-1,
-	0x14
-};
+

@@ -1335,7 +1335,36 @@ void RenderAllLevelGeometry(struct GameTracker* gGT)
 			if(*(int*)0x1f800028 < 0) *(int*)0x1f800028 = *(int*)0x1f800028 + 0xff;
 			*(int*)0x1f800028 = *(int*)0x1f800028 >> 8; // 0x627
 		}
+		
+		if(USE_WALL_DRIVE){
+			int numLeaf = (gGT->level1->ptr_mesh_info->numBspNodes + 31) / 32;
+			int numFace = (gGT->level1->ptr_mesh_info->numQuadBlock + 31) / 32;
 
+			for (unsigned char i = 0; i < 4; i++)
+			{
+				int* leaf = level1->visMem->visLeafList[i];
+				int* face = gGT->visMem1->visFaceList[i];
+
+
+				if (leaf != NULL)
+				{
+					for (int j = 0; j < numLeaf; j++)
+					{
+						leaf[j] = 0xFFFFFFFF;
+					}
+				}
+
+				if (face != NULL)
+				{
+					for (int j = 0; j < numFace; j++)
+					{
+						face[j] = 0xFFFFFFFF;
+					}
+				}
+				
+			}
+		}
+		
 		RenderLists_PreInit();
 		gGT->bspLeafsDrawn = 0;
 
@@ -1842,6 +1871,7 @@ if (gGT->drivers[0] != NULL && gGT->drivers[0]->heldItemID != ITEM_NONE && gGT->
 //different menu tittles
 void menu_tittle();
 menu_tittle();
+
 
 // mirror mode
 extern void HandleMirrorMode(u_long* ot, bool enabled);

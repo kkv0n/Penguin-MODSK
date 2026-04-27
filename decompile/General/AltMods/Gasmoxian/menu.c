@@ -8,26 +8,32 @@ extern int label;
 char gamemode_buffers[8][64];
 
 //special menu text, probably will move it later
-// OCTR SPECIAL MENU BY PENTA3
+
 char* special_nameEN[] = {
 
-    "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETRO FUELED", "FIRST PERSON", "BOSS RACE", "DEMO CAMERA", "N-VERTED", "SHORTCUTLESS", "NIGHT MODE", "DARKNESS", "ITEM CHAOS", "SURVIVAL", "TIMED SURVIVAL",
+    "NORMAL", "MIRROR MODE", "ICY TRACK", "TIME TRIAL", "MOON MODE", "RETRO FUELED",
+	"FIRST PERSON", "BOSS RACE", "DEMO CAMERA", "N-VERTED", "SHORTCUTLESS", "NIGHT MODE",
+	"DARKNESS", "ITEM CHAOS", "SURVIVAL", "TIMED SURVIVAL", "VANILLA ITEMS", "WALL DRIVE"
 };
 char* special_nameES[] = {
-    "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETRO FUELED", "PRIMERA PERSONA", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE", "OSCURIDAD", "CAOS DE ITEMS", "SUPERVIVENCIA", "SUPERVIVENCIA-T",
+    "NORMAL", "MODO ESPEJO", "PISO DE HIELO", "SIN ITEMS", "MODO LUNAR", "RETRO FUELED",
+	"PRIMERA PERSONA", "MODO JEFE", "CAMARA DEMO", "N-VERTED", "SIN ATAJOS", "MODO NOCHE",
+	"OSCURIDAD", "CAOS DE ITEMS", "SUPERVIVENCIA", "SUPERVIVENCIA-T", "VANILLA ITEMS", "ESCALA PAREDES"
 };
 char* special_namePT[] = {
-    "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETRO FUELED", "PRIMEIRA PESSOA", "CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO", "CAOS DE ITENS", "SUPERVIVÊNCIA", "SUPERVIVÊNCIA-T",
+    "NORMAL", "ESPELHADO", "PISTA GELO", "SEM ITENS", "MODO LUNAR", "RETRO FUELED", "PRIMEIRA PESSOA",
+	"CONTRA CHEFE", "DEMO CAMERA", "N-VERTED", "SEM ATAJOS", "MODO NOITE", "ESCURIDÃO", "CAOS DE ITENS",
+	"SUPERVIVÊNCIA", "SUPERVIVÊNCIA-T", "VANILLA ITEMS", "WALL DRIVE"
 };
 
 char* special_abbrEN[] = {
-    "NRM", "MIRR", "ICY", "TT", "MOON", "RETRO", "FP", "BOSS", "DEMO", "N-VER", "NOSC", "NIGHT", "DARK", "CHAOS", "SURV", "TMSRV",
+    "NRM", "MIRR", "ICY", "TT", "MOON", "RETRO", "FP", "BOSS", "DEMO", "N-VER", "NOSC", "NIGHT", "DARK", "CHAOS", "SURV", "TMSRV", "VNLT", "WDRV" 
 };
 char* special_abbrES[] = {
-    "NRM", "ESPJ", "HIELO", "NOITM", "LUNA", "RETRO", "PP", "JEFE", "DEMO", "N-VER", "NOATJ", "NOCHE", "OSCUR", "CAOS", "SUPER", "STIEM",
+    "NRM", "ESPJ", "HIELO", "NOITM", "LUNA", "RETRO", "PP", "JEFE", "DEMO", "N-VER", "NOATJ", "NOCHE", "OSCUR", "CAOS", "SUPER", "STIEM", "VNLT", "WDRV"
 };
 char* special_abbrPT[] = {
-    "NRM", "ESPEL", "GELO", "NOITM", "LUNAR", "RETRO", "PP", "CHEFE", "DEMO", "N-VER", "NOATJ", "NOITE", "ESCUR", "CAOS", "SUPER", "STIEM",
+    "NRM", "ESPEL", "GELO", "NOITM", "LUNAR", "RETRO", "PP", "CHEFE", "DEMO", "N-VER", "NOATJ", "NOITE", "ESCUR", "CAOS", "SUPER", "STIEM", "VNLT", "WDRV"
 };
 
 char** abbrLangs[] = {special_abbrEN, special_abbrES, special_abbrPT};
@@ -142,8 +148,6 @@ void NewPage_ServerCountry()
 {
 	//fix server menu row
 	menuRows[5].rowOnPressDown = 5;
-	
-	//fix if someone leave the room after engine menu was shown
 	menuRows[3].rowOnPressDown = 4;
 	
 	if (!sv_menuopen)
@@ -166,6 +170,7 @@ menu.posY_curr = 0x84;  // Y position
 		{
 		 menuRows[i].stringIndex = 0x9a+i;
 		 sdata->lngStrings[0x9a+i] = countryNames[i];
+		 
 		}
 		else
 		{
@@ -233,25 +238,25 @@ void NewPage_ServerRoom()
 	//room names, the names can be translated or rewrite
 	if (gmoxLngIndex == 0)
 	{
-	sdata->lngStrings[0x9a] = "ROOM 1 - x/8";
-	sdata->lngStrings[0x9b] = "ROOM 2 - x/8";
-	sdata->lngStrings[0x9c] = "ROOM 3 - x/8";
-	sdata->lngStrings[0x9d] = "ROOM 4 - x/8";
-	sdata->lngStrings[0x9e] = "ROOM 5 - x/8";
-	sdata->lngStrings[0x9f] = "ROOM 6 - x/8";
-	sdata->lngStrings[0xa0] = "ROOM 7 - x/8";
-	sdata->lngStrings[0xa1] = "ROOM 8 - x/8";
+	sdata->lngStrings[0x9a] = "ROOM 1 - x";
+	sdata->lngStrings[0x9b] = "ROOM 2 - x";
+	sdata->lngStrings[0x9c] = "ROOM 3 - x";
+	sdata->lngStrings[0x9d] = "ROOM 4 - x";
+	sdata->lngStrings[0x9e] = "ROOM 5 - x";
+	sdata->lngStrings[0x9f] = "ROOM 6 - x";
+	sdata->lngStrings[0xa0] = "ROOM 7 - x";
+	sdata->lngStrings[0xa1] = "ROOM 8 - x";
 	}
 	else
 	{
-	sdata->lngStrings[0x9a] = "SALA 1 - x/8";
-	sdata->lngStrings[0x9b] = "SALA 2 - x/8";
-	sdata->lngStrings[0x9c] = "SALA 3 - x/8";
-	sdata->lngStrings[0x9d] = "SALA 4 - x/8";
-	sdata->lngStrings[0x9e] = "SALA 5 - x/8";
-	sdata->lngStrings[0x9f] = "SALA 6 - x/8";
-	sdata->lngStrings[0xa0] = "SALA 7 - x/8";
-	sdata->lngStrings[0xa1] = "SALA 8 - x/8";	
+	sdata->lngStrings[0x9a] = "SALA 1 - x";
+	sdata->lngStrings[0x9b] = "SALA 2 - x";
+	sdata->lngStrings[0x9c] = "SALA 3 - x";
+	sdata->lngStrings[0x9d] = "SALA 4 - x";
+	sdata->lngStrings[0x9e] = "SALA 5 - x";
+	sdata->lngStrings[0x9f] = "SALA 6 - x";
+	sdata->lngStrings[0xa0] = "SALA 7 - x";
+	sdata->lngStrings[0xa1] = "SALA 8 - x";	
 	}
 
 	int pn = octr->PageNumber;
@@ -307,11 +312,137 @@ void MenuWrites_ServerRoom()
 	OnPressX_SetLock = &octr->serverLockIn2;
 }
 
+void NewPage_Roomtype()
+{
+	label = 7;
+	int i;
+    
+	char* rnames[] = {"8 PLAYERS", "4 PLAYERS", "-", "-",
+	"-", "-", "-", "-"};
+
+	
+	for (int i = 0; i < 8; i++)
+	{
+		
+		
+		int id = 8 * octr->PageNumber + i;
+		
+		sdata->lngStrings[0x9a + i] = rnames[i];
+		
+		menuRows[i].stringIndex = 0x9a + i;
+		
+		if (id > 1)			
+			menuRows[i].stringIndex |= 0x8000;
+		   
+	}
+}
+
+//start of functions not implemented but that need help from claude to implement
+//
+bool SetPassword()
+{
+	unsigned char count = 0;
+	
+	char* display[12] = {	
+	"UP",
+	"DOWN",
+	"LEFT",
+	"RIGHT",
+	"^",//triangle
+	"@",//circle
+	"[",//square
+	"*",//cross
+	"L1",
+	"L2",
+	"R1",
+	"R2"};
+	
+	
+	DECOMP_DecalFont_DrawLine("Set a Password for the Room", 180, 100, FONT_SMALL, JUSTIFY_CENTER | PAPU_YELLOW);
+	DECOMP_DecalFont_DrawLine("Use a combination of 8 buttons", 180, 110, FONT_SMALL, JUSTIFY_CENTER | PAPU_YELLOW);
+	
+	for (unsigned char i = 0; i < 8; i++)
+	{
+
+		
+		if (octr->passwordCharEntered[i] == 1)
+		{
+			
+		int y = 130;
+			
+		if (i > 3)
+			y += 10;
+		
+		int x = (i > 3) ? (180 + (15 * (i - 3))) :  (180 + (i * 15));  
+			
+			
+			DECOMP_DecalFont_DrawLine(display[octr->roomPasswordSeq[i]], x, y, FONT_SMALL, JUSTIFY_CENTER | ORANGE);
+			
+			count++;
+			continue;
+		}
+		
+		char value = (char)GetPassword();
+		
+		if (value == -1)
+			break;
+		
+		octr->roomPasswordSeq[count] = (unsigned char)value;
+		
+		octr->passwordCharEntered[count] = 1;
+		
+		count++;
+		
+		break;		
+	}
+	
+	if (octr->passwordCharEntered[7] != 0) return true;
+	
+	
+	return false;
+}
+
+
+int GetPassword()
+{
+	int buttons[12] = {BTN_UP, BTN_DOWN, BTN_LEFT, BTN_RIGHT, BTN_TRIANGLE, BTN_CIRCLE, BTN_SQUARE, BTN_CROSS, BTN_L1, BTN_L2, BTN_R1, BTN_R2};
+	
+	struct GamepadBuffer* pad = &sdata->gGamepads->gamepad[0];
+	
+	
+	for (int i = 0; i < 12; i++)
+	{
+		if ((pad->buttonsTapped & buttons[i]) != 0)
+		{
+			return i;
+		}
+	}
+	
+	return -1;
+	
+}
+
+//end of functions not implemented but that need help from claude to implement
+//
+
+void MenuWrites_Roomtype()
+{
+	pageMax = 0;
+	OnPressX_SetPtr = &octr->roomType;
+	OnPressX_SetLock = &octr->rTypelocked;
+}
+
+
+unsigned char prevLockedEngine[8];
+
 void NewPage_Tracks()
 {
 	label = 1;
-	int i, id;
+	int i;
     
+	
+	memset(&prevLockedEngine[0], 0, 8);
+	
 	//restore menu if not in engine menu
     menuRows[3].rowOnPressDown = 4;
 	
@@ -327,12 +458,9 @@ void NewPage_Tracks()
 		{
 			sdata->lngStrings[0x9a + i] = "-";
 			menuRows[i].stringIndex |= 0x8000;
-		}
-
-		
-		
-		   
+		}	   
 	}
+	
 }
 
 void MenuWrites_Tracks()
@@ -362,13 +490,16 @@ bool IsGamemodeIncompatible(int modeToCheck) {
         return true;
         
     if (octr->gamemodes[SHORTCUTLESS] && 
-        (modeToCheck == N_VERTED || modeToCheck == MOON_MODE))
+        (modeToCheck == N_VERTED || modeToCheck == MOON_MODE || modeToCheck == WALL_DRIVE))
         return true;
         
     if (octr->gamemodes[NIGHT] && modeToCheck == DARKNESS)
         return true;
         
     if (octr->gamemodes[DARKNESS] && modeToCheck == NIGHT)
+        return true;
+	
+	 if (octr->gamemodes[DARKNESS] && (modeToCheck == NIGHT || modeToCheck == WALL_DRIVE))
         return true;
         
     if (octr->gamemodes[ITEM_CHAOS] && modeToCheck == ITEMLESS)
@@ -382,13 +513,24 @@ bool IsGamemodeIncompatible(int modeToCheck) {
 	
 	if (octr->gamemodes[N_VERTED] && modeToCheck == DEMO_CAMERA)
 		return true;
-	if (octr->gamemodes[DEMO_CAMERA] && modeToCheck == N_VERTED)
+	
+	if (octr->gamemodes[DEMO_CAMERA] && (modeToCheck == N_VERTED || modeToCheck == WALL_DRIVE))
 		return true;
 
 	if(octr->gamemodes[FIRST_PERSON] && (modeToCheck == DEMO_CAMERA))
 		return true;
 	if(octr->gamemodes[DEMO_CAMERA] && (modeToCheck == FIRST_PERSON))
 		return true;
+	
+	if (octr->gamemodes[VANILLA_ITEMS] && (modeToCheck == ITEM_CHAOS))
+		return true;
+	
+	if (octr->gamemodes[ITEM_CHAOS] && (modeToCheck == VANILLA_ITEMS))
+		return true;
+	
+	if (octr->gamemodes[WALL_DRIVE] && (modeToCheck == SHORTCUTLESS || modeToCheck == DEMO_CAMERA || modeToCheck == DARKNESS))
+		return true;
+	
 		        
     return false;
 }
@@ -498,6 +640,7 @@ void ToggleGamemode(int index) {
             case ITEMLESS:
                 octr->gamemodes[ITEM_CHAOS] = false;
                 octr->gamemodes[BOSS_RACE] = false;
+				octr->gamemodes[VANILLA_ITEMS] = false;
                 break;
                 
             case MOON_MODE:
@@ -515,18 +658,27 @@ void ToggleGamemode(int index) {
             case SHORTCUTLESS:
                 octr->gamemodes[N_VERTED] = false;
                 octr->gamemodes[MOON_MODE] = false;
+				octr->gamemodes[WALL_DRIVE] = false;
                 break;
-                
+				
+			case DEMO_CAMERA:
+				octr->gamemodes[WALL_DRIVE] = false;
+				octr->gamemodes[N_VERTED] = false;
+				octr->gamemodes[FIRST_PERSON] = false;
+                break;
+				
             case NIGHT:
                 octr->gamemodes[DARKNESS] = false;
                 break;
                 
             case DARKNESS:
                 octr->gamemodes[NIGHT] = false;
+				octr->gamemodes[WALL_DRIVE] = false;
                 break;
                 
             case ITEM_CHAOS:
                 octr->gamemodes[ITEMLESS] = false;
+				octr->gamemodes[VANILLA_ITEMS] = false;
                 break;
                 
             case SURVIVAL:
@@ -536,6 +688,18 @@ void ToggleGamemode(int index) {
             case SURVIVAL_TIMER:
                 octr->gamemodes[SURVIVAL] = false;
                 break;
+			case VANILLA_ITEMS:
+				octr->gamemodes[ITEM_CHAOS] = false;
+				octr->gamemodes[ITEMLESS] = false;
+				break;
+				
+			case WALL_DRIVE:
+				octr->gamemodes[DARKNESS] = false;
+				octr->gamemodes[DEMO_CAMERA] = false;
+				octr->gamemodes[SHORTCUTLESS] = false;
+				break;
+				
+			
         }
     }
     
@@ -546,7 +710,7 @@ void ToggleGamemode(int index) {
 void MenuWrites_Events()
 {
     // Allow up to 2 pages of gamemodes
-    pageMax = 1;
+    pageMax = 2;
     
     OnPressX_SetLock = &octr->boolLockedInSpecial;
     
@@ -785,6 +949,10 @@ void PrintTimeStamp()
 	DECOMP_DecalFont_DrawLine(__DATE__, posX, posY+8, FONT_SMALL, PAPU_YELLOW);
 }
 
+
+
+
+
 void PrintCharacterStats()
 {
 	char message[32];
@@ -865,9 +1033,18 @@ char* playersText[3] =
 	for(i = 0; i < octr->NumDrivers; i++)
 		if(octr->nameBuffer[i][0] == 0)
 			numDead++;
-
+	
 	posX = 0x110;
-	sprintf(message, "%s%d/8", playersText[gmoxLngIndex],(octr->NumDrivers-numDead));
+	
+	if (octr->roomType == 1)
+	{
+		sprintf(message, "%s%d/4", playersText[gmoxLngIndex],(octr->NumDrivers-numDead));
+	}
+	else
+	{
+		sprintf(message, "%s%d/8", playersText[gmoxLngIndex],(octr->NumDrivers-numDead));
+	}
+	
 	DecalFont_DrawLine(message,posX,0x58,FONT_SMALL,0);
 
 	int h = 0;
@@ -877,6 +1054,7 @@ char* playersText[3] =
 
 	// UI-test
 	// octr->NumDrivers = 8;
+	
 
 	for(i = 0; i < octr->NumDrivers; i++)
 	{
@@ -891,10 +1069,13 @@ char* playersText[3] =
 		// str[0] = 'A';
 
 		if(str[0] == 0) continue;
-
+		
+		
 		// 0x19 - red
 		// 0x1A - green
 		int color = octr->boolLockedInEnginee[i] ? PURA_VIOLET : PAPU_YELLOW;
+		
+
 
 		posY = 0x60+h;
 		h += 8;
@@ -903,8 +1084,18 @@ char* playersText[3] =
 		sprintf(message, "%s:", str);
 		DecalFont_DrawLine(message,posX,posY,FONT_SMALL,color);
 		
+		
+		
 		if(octr->CurrState < LOBBY_CHARACTER_PICK)
 			continue;
+		
+		
+		if (octr->boolLockedInEnginee[i] && !prevLockedEngine[i] && slot != 0)
+		{
+			OtherFX_Play(fx_letter_del ,0);
+		}
+		
+		prevLockedEngine[i] = octr->boolLockedInEnginee[i];
 		
 		DECOMP_DecalHUD_DrawWeapon(
 		// pointer to icon, from array of icon pointers

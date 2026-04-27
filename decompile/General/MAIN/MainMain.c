@@ -812,7 +812,7 @@ void StateZero()
 	PutDrawEnv(&gGT->db[1].drawEnv);
 	DrawSync(0);
 
-	#ifndef FastBoot
+	#if !defined(FastBoot) && !defined(USE_GASMOXIAN)
 	#ifndef REBUILD_PC
 	// Load Intro TIM for "SCEA Presents" from VRAM file
 	DECOMP_LOAD_VramFile(sdata->ptrBigfile1, 0x1fd, 0, &vramSize, 0xffffffff);

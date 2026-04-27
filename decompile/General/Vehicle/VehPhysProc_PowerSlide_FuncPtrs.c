@@ -1,4 +1,5 @@
 #include <common.h>
+#include "../AltMods/Gasmoxian/utils.h"
 
 #ifdef USE_GASMOXIAN
 void AssignMeterGrade(struct Driver * driver, int meterLeft);
@@ -207,6 +208,12 @@ LAB_80063244:
 		// Interpolate by 1 unit, until zero
 		driver->KartStates.Drifting.numFramesDrifting =
 			DECOMP_VehCalc_InterpBySpeed((int)driver->KartStates.Drifting.numFramesDrifting, 1, 0);
+		
+		#ifdef USE_GASMOXIAN
+		//avoid spining
+		if (USE_WALL_DRIVE && driver->KartStates.Drifting.numFramesDrifting >= 60)
+			goto skip_spin;
+		#endif
 	}
 
 	// if holding a drift
@@ -237,6 +244,17 @@ LAB_80063244:
 			if(driver->KartStates.Drifting.numFramesDrifting < 0)
 				driver->KartStates.Drifting.numFramesDrifting = 0;
 		}
+		
+		#ifdef USE_GASMOXIAN
+		//dont spin when drifting, it is annoying in wall ride
+		if (USE_WALL_DRIVE && driver->KartStates.Drifting.numFramesDrifting >= 60)
+		{
+			skip_spin:
+			
+			driver->KartStates.Drifting.numFramesDrifting = 60;
+		}
+		#endif
+		
 	}
 	if (bVar3)
 	{

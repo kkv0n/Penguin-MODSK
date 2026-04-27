@@ -6,6 +6,8 @@ extern int SquaredDistanceDrivers(struct Driver* d1, struct Driver* d2);
 extern void CrossDotProductsDriversPos(struct Driver* d1, struct Driver* d2, int* crossProduct, int* dotProduct);
 
 void HandleMaskWarning(){
+	if (USE_VANILLA_ITEMS)
+		return;
 	struct Driver* localDriver = sdata->gGT->drivers[0];
 
 	//If local player is last place, skip

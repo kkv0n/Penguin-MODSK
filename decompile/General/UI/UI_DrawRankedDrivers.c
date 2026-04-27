@@ -275,7 +275,7 @@ void DECOMP_UI_DrawRankedDrivers(void)
 					FP(0.5)
 				);
 			}
-			else if(usingMask){
+			else if(usingMask && !USE_VANILLA_ITEMS){
 				iconIndex = DECOMP_VehPickupItem_MaskBoolGoodGuy(d) ? AKUAKU_ICON : UKAUKA_ICON;
 				DECOMP_DecalHUD_DrawWeapon(
 					// pointer to icon, from array of icon pointers

@@ -331,39 +331,114 @@ bool NightFilterApplied(struct Level* level) {
 // 14: Toggle? weather visible on 0, weather disappears on any other value  (unknown)
 // 15: Toggle? weather visible on 0, weather disappears on any other value (Again?)
 
-void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
+unsigned char LEV_SNOW_ALLOWED[3] = {
+POLAR_PASS, MYSTERY_CAVES, DINGO_CANYON
+};
+
+unsigned char LEV_RAIN_BANNED[9] = {
+  OXIDE_STATION, N_GIN_LABS, TIGER_TEMPLE, CORTEX_CASTLE, ROO_TUBES, MYSTERY_CAVES, POLAR_PASS, MYSTERY_CAVES, DINGO_CANYON
+};
+
+unsigned char GET_WeatherType(unsigned char levID)
+{
+    unsigned char type = 0;
+    
+    for (unsigned char i = 0; i < 9; i++)
+    {   
+        if (i < 3 && levID == LEV_SNOW_ALLOWED[i])
+        {
+            type = 2;
+            break;
+        }
+                
+        else if (levID != LEV_RAIN_BANNED[i])
+        {
+            type = 1;
+ 
+        }
+    }
+    
+    return type;
+};
+
+unsigned int GetWeatherColor(unsigned char levID)
+{
+    if (levID == SEWER_SPEEDWAY)
+    {
+        return 0x0000ff00;
+    }
+    else if (levID == MYSTERY_CAVES)
+    {
+        return 0x000328fc;
+    }
+    else if (levID == TINY_ARENA)
+    {
+        return 0x00151a3b;
+    }
+    else if (levID == DINGO_CANYON)
+    {
+        return 0x005cd0fa;
+    }
+    else
+    {
+        return 0x00ffffff;
+    }
+};
+
+void AddWeather(struct Level* level, unsigned char levID){
     int fillMode;
     int color_top, color_bottom; //ARGB
     char fallingAngle, fallingSpeed, unk_verticalSpeed;
-    char weather_intensity, weather_vanishRate;
+    char weather_intensity, weather_vanishRate, fallZ;
+    
+   unsigned char weather_type = 0;
+   unsigned int color = GetWeatherColor(levID);
+   
+
+				int randVal = rand() % 100;
+				if (randVal < 5) {
+					weather_type = GET_WeatherType(levID);
+				}
+
 
     switch(weather_type){
         case WEATHER_RAIN:
+        {
             fillMode = 0xe1000a60;
-            color_top = 0x00404040;
-            color_bottom = 0x00ffffff;
+            color_top = (color == 0x00ffffff) ? 0x00404040 : color;
+            color_bottom = color;
             fallingAngle = 20;
             fallingSpeed = -120;
             unk_verticalSpeed = -1;
             weather_intensity = 90;
             weather_vanishRate = 9;
+            
         break;
+        }
 
         case WEATHER_SNOW:
+        {
             fillMode = 0xe1000a20;
-            color_top = 0x00ffffff;
-            color_bottom = 0x00ffffff;
+            color_top = color;
+            color_bottom = color;
             fallingAngle = 0;
             fallingSpeed = -8;
             unk_verticalSpeed = -1;
             weather_intensity = 60;
             weather_vanishRate = 1;
+            
+            if (levID == DINGO_CANYON)
+                fallZ = 128;
+            else if (levID != POLAR_PASS)
+                fallingSpeed = 30;
+            
             break;
+        }
 
-        case WEATHER_NONE:
-            return;
         default:
+        {
             return;
+        }
     }
     //Rain buffer settings
     struct RainBuffer* rainBuffer = &level->rainBuffer;
@@ -379,6 +454,9 @@ void AddWeather(struct Level* level, enum WEATHER_TYPE weather_type){
     rainBuffer->fallAngleX = fallingAngle;
     rainBuffer->fallingSpeed = fallingSpeed;
     rainBuffer->speedY = unk_verticalSpeed;
+    
+    if (fallZ > 0)
+        rainBuffer->fallAngleZ = fallZ;
 
 	rainBuffer->unk_22 = 0;
 

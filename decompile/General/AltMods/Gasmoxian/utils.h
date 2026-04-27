@@ -21,6 +21,8 @@ extern bool USE_NIGHT_FILTER;
 extern bool USE_ITEM_CHAOS;
 extern bool USE_SURVIVAL;
 extern bool USE_SURVIVAL_TIMER;
+extern bool USE_VANILLA_ITEMS;
+extern bool USE_WALL_DRIVE;
 
 extern bool air_throw;
 extern int activeDriversCount; //updates every frame after the race starts
@@ -47,7 +49,9 @@ enum GAME_MODES {
 	DARKNESS = 12,
 	ITEM_CHAOS = 13,
 	SURVIVAL = 14,
-	SURVIVAL_TIMER = 15
+	SURVIVAL_TIMER = 15,
+	VANILLA_ITEMS = 16,
+	WALL_DRIVE = 17
 };
 
 enum WEATHER_TYPE {
@@ -126,6 +130,9 @@ enum QUADBLOCKFLAGS {
 	Q_ALL = -1
 
 };
+
+
+void VanillaRNG(bool restore);
 
 enum SOUNDFX
 {

@@ -27,7 +27,7 @@ struct Particle* DECOMP_VehEmitter_Exhaust(struct Driver *d, VECTOR *param_2, VE
 	
 	#ifdef USE_GASMOXIAN
 	if (USE_ITEMLESS && d->driverID != 0) //Skip kart smoke from ghosts in time trial
-		return;
+		return 0;
 	#endif
 
 	// low LOD exhaust (4p or ai car)
