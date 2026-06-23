@@ -28,9 +28,80 @@ unsigned char raceflag_dark_color = RED; //dark tiles
 unsigned char raceflag_light_color = CORTEX_RED; //light tiles
 
 
+//=============================================================================
+//  HUB / TRACK LAYOUT  (NUM_HUBS and the hard limits live in code/adventure.h)
+//=============================================================================
+//Tracks per hub. The LAST track of each hub is its boss: white text in the pause
+//map, and the door to the next hub opens once that boss is beaten. The sum must
+//be equally or minor than MAX_TRACKS (27). With NUM_HUBS=6 and {5,2,5,5,5,5} you get 21 normal
+//tracks (CUSTOM_1..CUSTOM_21) plus 6 bosses (CUSTOM_BOSS_0..CUSTOM_BOSS5).
+//To shrink the mod just lower NUM_HUBS, the
+//code caps itself to TOTAL_TRACKS and won't read unused tracks/hubs/doors.
+//Hubs actually used this build must be equally or minor than 6. Lower it to shrink the mod
+//the unused hubs/tracks/doors are simply ignored. THIS is where you set the hub count.
+const unsigned char NUM_HUBS = 6;
+
+//Only fill NUM_HUBS entries; the array is sized to MAX_HUBS so lowering NUM_HUBS
+//leaves the rest simply unused (no need to delete them).
+const unsigned char hub_track_count[MAX_HUBS] = {5, 2, 5, 5, 5, 5};
+
+
+/*
+ALL WARP PADS:
+
+
+	WARPPAD_1,
+	WARPPAD_2,
+	WARPPAD_3,
+	WARPPAD_4,
+	WARPPAD_5,
+	WARPPAD_6,
+	WARPPAD_7,
+	WARPPAD_8,
+	WARPPAD_9,
+	WARPPAD_10,
+	WARPPAD_11,
+	WARPPAD_12,
+	WARPPAD_13,
+	WARPPAD_14,
+	WARPPAD_15,
+	WARPPAD_16,
+	WARPPAD_17,
+	WARPPAD_18,
+	WARPPAD_19,
+	WARPPAD_20,
+	WARPPAD_21,
+	WARPPAD_22,
+	WARPPAD_23,
+	WARPPAD_24,
+	WARPPAD_25,
+	WARPPAD_26,
+	WARPPAD_27
+*/
+
+
+//Up to 8 hub spawn points (physical spawns placed in custom_hub.lev). The player
+//appears at the FIRST spawn whose WARPPAD slot has NOT been completed yet; list them
+//from earliest to latest progress
+//WARPPAD slots are in PROGRESSION order: 1 = first track, and each hub's boss is the
+//slot right after its normal tracks (so they count 0,1,2,3,4,5,) bosses included.
+//Use SPAWN_FINAL for the spawn shown once every gate below is cleared.
+const unsigned char spawn_until[MAX_SPAWNS] =
+{
+	WARPPAD_1,   // spawn 0 (start): until warppad 1 (hub 1's first track) is finished
+	WARPPAD_6,   // spawn 1: until warppad 6 (hub 2's first track)
+	WARPPAD_8,   // spawn 2: until warppad 8 (hub 3's first track)
+	WARPPAD_13,  // spawn 3: until warppad 13 (hub 4's first track)
+	WARPPAD_18,  // spawn 4: until warppad 18 (hub 5's first track)
+	WARPPAD_23,  // spawn 5: until warppad 23 (hub 6's first track)
+	WARPPAD_26,  // spawn 6: until warppad 26 (hub 6's last normal track)
+	SPAWN_FINAL  // spawn 7: used when all of the above are complete
+};
+
+
   /*
   COLOR GUIDE:
-  
+
   	ORANGE
 	PERIWINKLE
 	ORANGE_DARKENED
@@ -65,9 +136,9 @@ unsigned char raceflag_light_color = CORTEX_RED; //light tiles
 	FOREST_GREEN
 	CREDITS_FADE
   */
-  
-  
-  
+
+
+
 //CHARACTER NAMES IN ADV GARAGE
 const char* character_names[NUM_CHARACTERS] = { 	//lng backup
 	"CRASH BANDICOOT",
@@ -88,38 +159,38 @@ const char* character_names[NUM_CHARACTERS] = { 	//lng backup
 	"N. OXIDE" };
 
 
-//5 tracks per zone + 1 boss per zone = 6.
+
 const char* track_names[MAX_TRACKS] = {
-"TRACK1", // ZONE 1-1
-"TRACK2", // ZONE 1-2
-"TRACK3", //ZONE 1-3
-"TRACK4", //ZONE 1-4
-"TRACK5", //ZONE 2-1
-"TRACK6", //ZONE 3-1
-"TRACK7", //ZONE 3-2
-"TRACK8", //ZONE 3-3
-"TRACK9", //ZONE 3-4
-"TRACK10", //ZONE 4-1
-"TRACK11", //ZONE 4-2
-"TRACK12", //ZONE 4-3
-"TRACK13", //ZONE 4-4
-"TRACK14", //ZONE 5-1
-"TRACK15", //ZONE 5-2
-"TRACK16", //ZONE 5-3
-"TRACK17", //ZONE 5-4
-"TRACK18", //ZONE 6-1
-"TRACK19", //ZONE 6-2
-"TRACK20", //ZONE 6-3
-"TRACK21", //ZONE 6-4
-"TRACK22", //BOSS 1, ZONE 1-5
-"TRACK23", //BOSS 2, ZONE 2-2
-"TRACK24", //BOSS 3, ZONE 3-5
-"TRACK25", //BOSS 4, ZONE 4-5
-"TRACK26", //BOSS 5, ZONE 5-5
-"TRACK27", //BOSS 6, ZONE 6-5
+"TRACK1",
+"TRACK2",
+"TRACK3",
+"TRACK4",
+"TRACK5",
+"TRACK6",
+"TRACK7",
+"TRACK8",
+"TRACK9",
+"TRACK10",
+"TRACK11",
+"TRACK12",
+"TRACK13",
+"TRACK14",
+"TRACK15",
+"TRACK16",
+"TRACK17",
+"TRACK18",
+"TRACK19",
+"TRACK20",
+"TRACK21",
+"BOSS1", //BOSS 1
+"BOSS2", //BOSS 2
+"BOSS3", //BOSS 3
+"BOSS4", //BOSS 4
+"BOSS5", //BOSS 5
+"BOSS6", //BOSS 6
 };
 
-const char* HUB_NAMES[7] =
+const char* HUB_NAMES[MAX_HUBS + 1] = //one per hub + the final BOSS page
 {
 	"ZONE 1",
 	"ZONE 2",
@@ -127,8 +198,8 @@ const char* HUB_NAMES[7] =
 	"ZONE 4",
 	"ZONE 5",
 	"ZONE 6",
-	"FINAL BOSS"
-	
+	"FINAL CHALLENGE"
+
 };
 
 
@@ -151,7 +222,7 @@ unsigned short locked_warppad_texture_blockID = 158;
 
 
 
-//hub zone 1
+
 unsigned short warp_pad1_blockID = 41;
 unsigned short warp_pad2_blockID =	40;
 unsigned short warp_pad3_blockID =	22;
@@ -169,10 +240,10 @@ unsigned short door_1 = 405;
 
 //
 
-//hub zone 2
+
 unsigned short warp_pad5_blockID =	368;
 unsigned short boss2_blockID =	367;
-	
+
 unsigned short door_2 = 469;
 //
 
@@ -182,10 +253,10 @@ unsigned short door_2 = 469;
 
 
 
-//hub zone 3
+
 unsigned short warp_pad6_blockID =	524;
 unsigned short warp_pad7_blockID =	523;
-unsigned short warp_pad8_blockID =	491;	
+unsigned short warp_pad8_blockID =	491;
 unsigned short warp_pad9_blockID =	502;
 unsigned short boss3_blockID =	453;
 
@@ -197,7 +268,7 @@ unsigned short door_3 = 553;
 
 
 
-//hub zone 4
+
 unsigned short warp_pad10_blockID =	631;
 unsigned short warp_pad11_blockID =	630;
 unsigned short warp_pad12_blockID =	654;
@@ -211,10 +282,10 @@ unsigned short door_4 = 348;
 
 
 
-//hub zone 5
-unsigned short warp_pad14_blockID =	265;	
+
+unsigned short warp_pad14_blockID =	265;
 unsigned short warp_pad15_blockID =	308;
-unsigned short warp_pad16_blockID =	307;		
+unsigned short warp_pad16_blockID =	307;
 unsigned short warp_pad17_blockID =	335;
 unsigned short boss5_blockID =	334;
 
@@ -225,15 +296,15 @@ unsigned short door_5 = 229;
 
 
 
-//hub final zone
+
 
 unsigned short warp_pad18_blockID =	115;
-unsigned short warp_pad19_blockID =	164;	
-unsigned short warp_pad20_blockID =	218;	
+unsigned short warp_pad19_blockID =	164;
+unsigned short warp_pad20_blockID =	218;
 unsigned short warp_pad21_blockID =	205;
 unsigned short boss6_blockID = 246;
 //
-	
+
 
 
 //GUIDES
@@ -275,39 +346,39 @@ TERRAINS GUIDE: //FLOOR TYPE
     TERRAIN_OCEANASPHALT
     TERRAIN_SLOWGRASS
     TERRAIN_SLOWDIRT
-	
+
 */
 
 
 /*
 QUADFLAGS GUIDE:
 
-    "Q_NONE"                   
-    "Q_INVISIBLE"      
-    "Q_GRAVITY"    
-    "Q_REFLECTION"      
-    "Q_KICKERS"       
+    "Q_NONE"
+    "Q_INVISIBLE"
+    "Q_GRAVITY"
+    "Q_REFLECTION"
+    "Q_KICKERS"
     "Q_OOF_BOUNDS"
-    "Q_NV_USED" 
-    "Q_TRIGGER_SCRIPT" 
-    "Q_REVERB"          
-    "Q_KICKERS2"     
-    "Q_MASK_GRAB"      
+    "Q_NV_USED"
+    "Q_TRIGGER_SCRIPT"
+    "Q_REVERB"
+    "Q_KICKERS2"
+    "Q_MASK_GRAB"
     "Q_TEMPLE_DOOR"
     "Q_UNKNOWN_TRIGGER"  // COLLISION TRIGGER IN LEV EDITOR(?)
-    "Q_GROUND"      
-    "Q_WALL"           
-    "Q_NO_COLL"    
+    "Q_GROUND"
+    "Q_WALL"
+    "Q_NO_COLL"
     "Q_INV_TRIGGERS"
 
 */
 
 
-/*	
+/*
 HAZARD GUIDE:
 
 	NO_FX_SOUND //only to skip sounds, can only be assigned to hazard_fx
-	
+
 	//hazards
 	"K_SPIN"
 	"K_BLASTED"
@@ -320,22 +391,25 @@ HAZARD GUIDE:
 
 //END OF GUIDES
 
+
+//from CUSTOM_1 TO CUSTOM_21 they're all race tracks, bosses are from CUSTOM_BOSS_0 to CUSTOM_BOSS5
 void adventure_options()
 {
  switch(current_track)
  {
-	 case CUSTOM_1: //ZONE 1-1
+	 case CUSTOM_1:
 	 {
 		load_track = CRASH_COVE;
 		timeToWin = "99:99:99";
 		laps = 3;
 		show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -345,7 +419,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -355,7 +429,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -365,7 +439,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -375,26 +449,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_2: //ZONE 1-2
+	 	 case CUSTOM_2:
 	 {
 		 load_track = ROO_TUBES;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -404,7 +479,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -414,7 +489,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -424,7 +499,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -434,27 +509,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_3: //ZONE 1-3
+	 	 case CUSTOM_3:
 	 {
 		 load_track = MYSTERY_CAVES;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -464,7 +539,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -474,7 +549,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -484,7 +559,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -494,27 +569,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_4: //ZONE 1-4
+	 	 case CUSTOM_4:
 	 {
 		 load_track = SKULL_ROCK;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -524,7 +599,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -534,7 +609,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -544,7 +619,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -554,27 +629,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_5: //ZONE 2-1
+	 	 case CUSTOM_5:
 	 {
 		 load_track = SEWER_SPEEDWAY;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = true; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -584,7 +659,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -594,7 +669,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -604,7 +679,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -614,27 +689,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_6: //ZONE 3-1
+	 	 case CUSTOM_6:
 	 {
 		 load_track = SLIDE_COLISEUM;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -644,7 +719,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -654,7 +729,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -664,7 +739,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -674,27 +749,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_7: //ZONE 3-2
+	 	 case CUSTOM_7:
 	 {
 		 load_track = TIGER_TEMPLE;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -704,7 +779,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -714,7 +789,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -724,7 +799,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -734,27 +809,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_8: //ZONE 3-3
+	 	 case CUSTOM_8:
 	 {
 		 load_track = COCO_PARK;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -764,7 +839,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -774,7 +849,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -784,7 +859,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -794,27 +869,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_9: ////ZONE 3-4
+	 	 case CUSTOM_9:
 	 {
 		 load_track = PAPU_PYRAMID;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -824,7 +899,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -834,7 +909,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -844,7 +919,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -854,27 +929,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_10: ////ZONE 4-1
+	 	 case CUSTOM_10:
 	 {
 		 load_track = RAMPAGE_RUINS;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -884,7 +959,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -894,7 +969,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -904,7 +979,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -914,27 +989,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_11: //ZONE 4-2
+	 	 case CUSTOM_11:
 	 {
 		 load_track = DINGO_CANYON;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -944,7 +1019,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -954,7 +1029,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -964,7 +1039,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -974,27 +1049,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_12: //ZONE 4-3
+	 	 case CUSTOM_12:
 	 {
 		 load_track = BLIZZARD_BLUFF;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1004,7 +1079,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1014,7 +1089,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1024,7 +1099,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1034,27 +1109,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_13: //ZONE 4-4
+	 	 case CUSTOM_13:
 	 {
 		 load_track = DRAGON_MINES;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1064,7 +1139,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1074,7 +1149,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1084,7 +1159,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1094,27 +1169,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_14: //ZONE 5-1
+	 	 case CUSTOM_14:
 	 {
 		 load_track = POLAR_PASS;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1124,7 +1199,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1134,7 +1209,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1144,7 +1219,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1154,27 +1229,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_15: //ZONE 5-2
+	 	 case CUSTOM_15:
 	 {
 		 load_track = ROCKY_ROAD;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1184,7 +1259,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1194,7 +1269,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1204,7 +1279,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1214,27 +1289,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_16: ////ZONE 5-3
+	 	 case CUSTOM_16:
 	 {
 		 load_track = TINY_ARENA;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1244,7 +1319,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1254,7 +1329,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1264,7 +1339,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1274,27 +1349,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_17: ////ZONE 5-4
+	 	 case CUSTOM_17:
 	 {
 		 load_track = N_GIN_LABS;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1304,7 +1379,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1314,7 +1389,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1324,7 +1399,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1334,27 +1409,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_18: ////ZONE 6-1
+	 	 case CUSTOM_18:
 	 {
 		 load_track = CORTEX_CASTLE;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1364,7 +1439,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1374,7 +1449,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1384,7 +1459,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1394,27 +1469,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_19: ////ZONE 6-2
+	 	 case CUSTOM_19:
 	 {
 		 load_track = HOT_AIR_SKYWAY;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1424,7 +1499,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1434,7 +1509,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1444,7 +1519,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1454,27 +1529,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_20: ////ZONE 6-3
+	 	 case CUSTOM_20:
 	 {
 		 load_track = NITRO_COURT;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1484,7 +1559,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1494,7 +1569,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1504,7 +1579,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1514,27 +1589,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_21: //ZONE 6-4
+	 	 case CUSTOM_21:
 	 {
 		 load_track = OXIDE_STATION;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1544,7 +1619,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1554,7 +1629,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1564,7 +1639,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1574,27 +1649,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_BOSS_0: //ZONE 1-5
+	 	 case CUSTOM_BOSS_0:
 	 {
 		 load_track = ROO_TUBES;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1604,7 +1679,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1614,7 +1689,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1624,7 +1699,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1634,29 +1709,29 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
 
-		
-	 	 case CUSTOM_BOSS1: //ZONE 2-2
+
+	 	 case CUSTOM_BOSS1:
 	 {
 		 load_track = TURBO_TRACK;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = true; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1666,7 +1741,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1676,7 +1751,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1686,7 +1761,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1696,27 +1771,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_BOSS2: //ZONE 3-5
+	 	 case CUSTOM_BOSS2:
 	 {
 		 load_track = PAPU_PYRAMID;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1726,7 +1801,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1736,7 +1811,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1746,7 +1821,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1756,27 +1831,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_BOSS3: //ZONE 4-5
+	 	 case CUSTOM_BOSS3:
 	 {
 		 load_track = DRAGON_MINES;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1786,7 +1861,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1796,7 +1871,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1806,7 +1881,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1816,28 +1891,28 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
 
-	 	 case CUSTOM_BOSS4: //ZONE 5-5
+	 	 case CUSTOM_BOSS4:
 	 {
 		 load_track = HOT_AIR_SKYWAY;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1847,7 +1922,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1857,7 +1932,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1867,7 +1942,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1877,27 +1952,27 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 	 case CUSTOM_BOSS5: //ZONE 6-5
+	 	 case CUSTOM_BOSS5:
 	 {
 		 load_track = OXIDE_STATION;
 		 timeToWin = "99:99:99";
 		 laps = 3;
 		 show_stars = false;
         LAP_COUNT_TIMER = 60;
-		
-		
-		
-		
-		//quadblock options	
+		isRelic = false; // change to "true" if you want to skip bots and use a time based race
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1907,7 +1982,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1917,7 +1992,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1927,7 +2002,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1937,25 +2012,24 @@ void adventure_options()
 		quad_effect[3] = NO_EFFECT;
 		ELEVATOR_TIMER[3] = 3; //seconds 1 2 3 etc
 		single_item[3] = TNTNITRO;
-		
-		
-		
-		
-		
-		
 
-		break; 
+
+
+
+
+
+
+		break;
 	 }
-	 
+
 	 case CUSTOM_HUB: //CUSTOM HUB
 	 {
 		load_track = N_SANITY_BEACH;
 		show_stars = false;
-		
-		
-		
-		
-		//quadblock options	
+
+
+
+		//quadblock options
 		//1
 		d_terrain[0] = TERRAIN_WATER;
 		hazard_id[0] = K_SPIN;
@@ -1965,7 +2039,7 @@ void adventure_options()
 		quad_effect[0] = NO_EFFECT;
 		ELEVATOR_TIMER[0] = 3; //seconds 1 2 3 etc
 		single_item[0] = TNTNITRO;
-		
+
 		//2
 		d_terrain[1] = TERRAIN_FASTWATER;
 		hazard_id[1] = K_SPIN;
@@ -1975,7 +2049,7 @@ void adventure_options()
 		quad_effect[1] = NO_EFFECT;
 		ELEVATOR_TIMER[1] = 3; //seconds 1 2 3 etc
 		single_item[1] = TNTNITRO;
-		
+
 		//3
 		d_terrain[2] = TERRAIN_METAL;
 		hazard_id[2] = K_SPIN;
@@ -1985,7 +2059,7 @@ void adventure_options()
 		quad_effect[2] = NO_EFFECT;
 		ELEVATOR_TIMER[2] = 3; //seconds 1 2 3 etc
 		single_item[2] = TNTNITRO;
-		
+
 		//4
 		d_terrain[3] = TERRAIN_MUD;
 		hazard_id[3] = K_SPIN;
@@ -1997,46 +2071,14 @@ void adventure_options()
 		single_item[3] = TNTNITRO;
 		 break;
 	 }
-	 
-	 
-	 
+
+
+
  }
-	
+
 }
 
 
-
-
-//itemset available if you enable items in your track, if you want to change it then only replace them, dont add more
-//PD: THIS IS ONLY FOR ROULETTE! IF YOU WANT A SINGLE ITEM YOU CAN USE SINGLE_ITEM EFFECT!
-unsigned char item_set[] = {
-    IMASK, IMASK, IMASK, IMASK, IMASK, IMASK, IMASK, IMASK,
-    TNTNITRO, TNTNITRO, TNTNITRO, TNTNITRO, TNTNITRO, TNTNITRO, TNTNITRO, TNTNITRO,
-    ITURBO, ITURBO,
-    ITURBO,
-    ITURBO,
-};
-
-/*
-WEAPONS GUIDE:
-
-    ITURBO
-    BOMBX1
-    MISSILEX1
-    TNTNITRO
-    I_POTION
-    I_SPRING
-    PSHIELD
-    IMASK
-    ICLOCK
-    IWARPBALL
-    BOMBX3
-    MISSILEX3
-    I_INVISIBILITY
-    I_SUPER_ENGINE
-    NOTHING_WEAPON
-    NOTHING_NO_WEAPON
-*/
 
 
 /*

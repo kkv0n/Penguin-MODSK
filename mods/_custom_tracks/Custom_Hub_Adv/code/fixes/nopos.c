@@ -34,13 +34,14 @@ void UI_INSTANCE_InitAll(void)
 
        relicptr = UI_INSTANCE_BirthWithThread(STATIC_RELIC, (int) UI_ThTick_Reward,0xe,1,0,/*sdata->s_relic1*/0);
 	   relicptr->colorRGBA = instanceColor(BGR_TO_RGB(CTR_FontColor(relic_color)));
-	   relicptr->matrix.t[0] = 147;
-	   
+
+	   //trophy instance in custom hub (ordered like : trophy + relic + key)
+	   UI_INSTANCE_BirthWithThread(STATIC_TROPHY, (int) UI_ThTick_Reward,0x10,0,0,/*sdata->s_trophy1*/0);
+
 	   //key instance in custom hub
 	   keyptr = 0;
 
        keyptr = UI_INSTANCE_BirthWithThread(STATIC_KEY,	(int) UI_ThTick_Reward,0xf,1,0,/*sdata->s_key1*/0);
-	   keyptr->matrix.t[0] = -416;
 
 
       //GAMEPROG_AdvPercent(&sdata->advProgress);

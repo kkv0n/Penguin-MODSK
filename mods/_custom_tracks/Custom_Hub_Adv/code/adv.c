@@ -13,6 +13,8 @@ struct Instance* keyptr;
 
 unsigned char numTrophys;
 unsigned char numKeys;
+unsigned char numRelics;
+bool track_is_relic[MAX_TRACKS]; //per-track mode derived from isRelic (see build_relic_table)
 unsigned char current_track;
 bool adv_progress[MAX_TRACKS];
 unsigned char hazard_id[4];
@@ -43,8 +45,57 @@ unsigned char task = 0;
 	CUSTOM_BOSS1, CUSTOM_6, CUSTOM_7, CUSTOM_8, CUSTOM_9, CUSTOM_BOSS2, CUSTOM_10, CUSTOM_11, CUSTOM_12, CUSTOM_13,
 	CUSTOM_BOSS3, CUSTOM_14, CUSTOM_15, CUSTOM_16, CUSTOM_17, CUSTOM_BOSS4, CUSTOM_18, CUSTOM_19, CUSTOM_20, CUSTOM_21, CUSTOM_BOSS5};
 
+	//layout tables derived from hub_track_count[] by build_layout(). The adv_order
+	//initializer above is just a fallback that build_layout() overwrites from config.
+	unsigned char adv_position[MAX_TRACKS];
+	unsigned char hub_start[MAX_HUBS];
+	unsigned char track_hub[MAX_TRACKS];
+	unsigned char TOTAL_TRACKS = MAX_TRACKS;
+
+	//one boss character per hub, indexed by (current_track - CUSTOM_BOSS_0): hub1..hub6
+	unsigned char BOSSES_IDS[6] = {RIPPER_ROO, PAPU_PAPU, KOMODO_JOE, PINSTRIPE, NITROS_OXIDE, PENTA_PENGUIN};
+
 
 	
+//build adv_order / adv_position / hub_start / track_hub / TOTAL_TRACKS from the
+//hub_track_count[] config in adventure_settings.c. Idempotent (runs once). Bosses
+//are always CUSTOM_BOSS_0 + hubIndex and sit as the LAST track of each hub.
+void build_layout()
+{
+	static bool done = false;
+	if (done) return;
+	done = true;
+
+	unsigned char pos = 0;
+	unsigned char normal = CUSTOM_1;
+
+	for (unsigned char h = 0; h < NUM_HUBS; h++)
+	{
+		hub_start[h] = pos;
+
+		unsigned char count = hub_track_count[h];
+
+		//normal tracks of this hub (all but the last)
+		for (unsigned char j = 0; j + 1 < count; j++)
+		{
+			adv_order[pos] = normal;
+			adv_position[normal] = pos;
+			track_hub[normal] = h;
+			normal++;
+			pos++;
+		}
+
+		//boss = last track of the hub
+		unsigned char boss = CUSTOM_BOSS_0 + h;
+		adv_order[pos] = boss;
+		adv_position[boss] = pos;
+		track_hub[boss] = h;
+		pos++;
+	}
+
+	TOTAL_TRACKS = pos;
+}
+
 void CUSTOM_ADV_HUB(struct GameTracker* gGT)
 {
 		
@@ -75,12 +126,15 @@ void CUSTOM_ADV_HUB(struct GameTracker* gGT)
 	  sprintf(num, "%u", numTrophys);
 	  DecalFont_DrawLine(num, 435, 14, FONT_BIG, ORANGE);
 
-	 
+	  //relic counter
 	  DecalFont_DrawLine(&sdata->s_x[0], 66, 18, FONT_SMALL, ORANGE);
-	  
-
-	   sprintf(num, "%u", numKeys);
+	  sprintf(num, "%u", numRelics);
 	  DecalFont_DrawLine(num, 79, 14, FONT_BIG, ORANGE);
+
+	  //key counter
+	  DecalFont_DrawLine(&sdata->s_x[0], 272, 18, FONT_SMALL, ORANGE);
+	  sprintf(num, "%u", numKeys);
+	  DecalFont_DrawLine(num, 285, 14, FONT_BIG, ORANGE);
 
 		
 	}
@@ -92,59 +146,31 @@ unsigned short warppad_blockIndex[MAX_TRACKS];
 
 void set_spawns()
 {
-	    
-		//spawn if first track is not completed
-		if (!adv_progress[adv_order[HUB_1 + 0]])
+	//Pick the first spawn whose "until" track (spawn_until[s], from adventure_settings.c)
+	//has NOT been completed yet. SPAWN_FINAL is the spawn used once all gates are cleared.
+	for (unsigned char s = 0; s < MAX_SPAWNS; s++)
+	{
+		unsigned char gate = spawn_until[s];
+
+		if (gate == SPAWN_FINAL)
 		{
-			sdata->kartSpawnOrderArray[0] = 0;
-			curr_page = 0;
-		}
-		//spawn while first track from 2nd hub is not completed
-		else if (!adv_progress[adv_order[HUB_2 + 0]])
-		{
-			sdata->kartSpawnOrderArray[0] = 1;
-			curr_page = 0;
-		}
-		//spawn while first track from 3rd hub is not completed
-		else if (!adv_progress[adv_order[HUB_3]])
-		{
-			sdata->kartSpawnOrderArray[0] = 2;
-			curr_page = 1;
-		}
-		//spawn while first track from 4th hub is not completed
-		else if (!adv_progress[adv_order[HUB_4]])
-		{
-			sdata->kartSpawnOrderArray[0] = 3;
-			curr_page = 2;	
-		}
-		//spawn while first track from 5th hub is not completed
-		else if (!adv_progress[adv_order[HUB_5]])
-		{
-			sdata->kartSpawnOrderArray[0] = 4;
-			curr_page = 3;
-		}
-	    
-		//spawn while first track from 6th hub is not completed
-		else if (!adv_progress[adv_order[HUB_FINAL]])
-		{
-			sdata->kartSpawnOrderArray[0] = 5;
-			curr_page = 4;
-		}
-	    
-		//spawn while final hub is not completed (hub 6)
-		else if (!adv_progress[adv_order[HUB_FINAL + 3]])
-		{
-			sdata->kartSpawnOrderArray[0] = 6;
-			curr_page = 5;
-		}
-		
-		//spawn after all tracks are finished and only final boss remains
-		else
-		{
-			sdata->kartSpawnOrderArray[0] = 7;
-			curr_page = 6;
+			sdata->kartSpawnOrderArray[0] = s;
+			curr_page = NUM_HUBS; //final / gemstone page
+			return;
 		}
 
+		//gate is a warppad slot (progression order); map it to a real track via adv_order
+		if (!adv_progress[adv_order[gate]])
+		{
+			sdata->kartSpawnOrderArray[0] = s;
+			curr_page = (s == 0) ? 0 : s - 1;
+			return;
+		}
+	}
+
+	//fallback if no SPAWN_FINAL was configured
+	sdata->kartSpawnOrderArray[0] = 0;
+	curr_page = 0;
 }
 
 bool set_door_state(unsigned char curr_door, unsigned short door_index, unsigned short invi_qindex)
@@ -168,9 +194,9 @@ void set_warppad_color(unsigned char progress, unsigned short locked_texture_blo
 {
 
 	
-	for (unsigned char i = 0; i < MAX_TRACKS; i++)
-	{	
-		
+	for (unsigned char i = 0; i < TOTAL_TRACKS; i++)
+	{
+
 		if (i >= CUSTOM_2 && !adv_progress[adv_order[i]] && adv_progress[adv_order[i - 1]] || i == CUSTOM_1 && !adv_progress[CUSTOM_1])
 		{
 			printf("warppad_unlocked: %u\n", i);
@@ -194,18 +220,11 @@ void set_warppad_color(unsigned char progress, unsigned short locked_texture_blo
 
 void get_warppadIndex(unsigned short quadblockIndex)
 {
-	 //this is just blockIDs, dont touch it, its from adventure_settings.c
-	 unsigned short organized_ids[MAX_TRACKS] = { warppad_id[0], warppad_id[1], warppad_id[2], warppad_id[3], warppad_id[21],
-		warppad_id[4], warppad_id[22], warppad_id[5], warppad_id[6], warppad_id[7], warppad_id[8],
-		warppad_id[23], warppad_id[9], warppad_id[10], warppad_id[11], warppad_id[12], warppad_id[24],
-		warppad_id[13], warppad_id[14], warppad_id[15], warppad_id[16], warppad_id[25],
-		warppad_id[17], warppad_id[18], warppad_id[19], warppad_id[20], warppad_id[26]};
-	
-
-	for (unsigned char i = 0; i < MAX_TRACKS; i++)
+	 //the warppad of the i-th track in progression order is warppad_id[adv_order[i]]
+	 //(derived from the layout instead of the old hardcoded permutation)
+	for (unsigned char i = 0; i < TOTAL_TRACKS; i++)
 	{
-		
-	  if (sdata->gGT->level1->ptr_mesh_info->ptrQuadBlockArray[quadblockIndex].blockID == organized_ids[i])
+	  if (sdata->gGT->level1->ptr_mesh_info->ptrQuadBlockArray[quadblockIndex].blockID == warppad_id[adv_order[i]])
 	  {
 		  
 		  warppad_blockIndex[i] = quadblockIndex;
@@ -217,13 +236,20 @@ void get_warppadIndex(unsigned short quadblockIndex)
 }
 
 //this happens when a custom track is being loaded
+void build_layout();
+
 void Custom_TrackLoading(struct GameTracker* gGT)
 {
+		//make sure the derived layout tables exist before we touch warppads/doors
+		build_layout();
+
 		if (current_track == CUSTOM_HUB)
 		{
-			
+
 		unsigned short invi_quadblock;
-		unsigned short doors_array[NUM_DOORS];
+		//sized to the max possible doors (5) so lowering NUM_HUBS can't overflow it;
+		//only the first NUM_DOORS entries are actually used below
+		unsigned short doors_array[5];
 		unsigned short locked_texture;
 		
 		for (unsigned short i = 0; i < gGT->level1->ptr_mesh_info->numQuadBlock; i++)
@@ -511,7 +537,6 @@ void check_effect(unsigned char run_this)
 	unsigned char desired_hazard;
 	unsigned char desired_elevator;
 	unsigned char desired_timer;
-	unsigned char desired_item;
 
 
 	//not working
@@ -526,7 +551,6 @@ void check_effect(unsigned char run_this)
 			(quadblock[desired_driver]->quadFlags & q_flag[i]) != 0) {
 			desired_hazard = i; //checks which hazard should be called
 			desired_elevator = i; //checks which elevator timer should be used
-			desired_item = i;
 			break;
 		}
 	}
@@ -535,19 +559,7 @@ void check_effect(unsigned char run_this)
 
 	switch (run_this)
 	{
-	case ITEMS:
-	{
-		desired_timer = (desired_driver == 0) ? 0 : desired_driver * 4;
-
-		if (delaytimer[desired_timer] == 0)
-		{
-			weapon_roulette();
-			OtherFX_Play(fx_crate_smash, 0);
-			delaytimer[desired_timer] = 3;
-		}
-
-		break;
-	}
+	//(ITEMS quad trigger removed: weapon_roulette is no longer driven by quads)
 
 	case HAZARD_:
 	{
@@ -637,19 +649,7 @@ void check_effect(unsigned char run_this)
 
 		break;
 	}
-	case SINGLE_ITEM:
-	{
-		desired_timer = (desired_driver == 0) ? 0 : desired_driver * 4;
-
-		if (delaytimer[desired_timer] == 0)
-		{
-			OtherFX_Play(fx_crate_smash, 0);
-			delaytimer[desired_timer] = 3;
-		}
-
-		driver[desired_driver]->heldItemID = single_item[desired_item];
-		break;
-	}
+	//(SINGLE_ITEM quad trigger removed)
 	}
 
 
@@ -730,83 +730,52 @@ void quad_main()
 
 
 
-void weapon_roulette()
+void weapon_roulette(unsigned char index)
 {
-
+	struct Driver* d = sdata->gGT->drivers[index];
 
 	// if driver already has a weapon, quit
-	if (
-		(driver[desired_driver]->heldItemID != 0xf) &&
-		(driver[desired_driver]->noItemTimer == 0)
-		)
-	{
+	if ((d->heldItemID != 0xf) && (d->noItemTimer == 0))
 		return;
-	}
 
 	// held item count
-	if (driver[desired_driver]->numHeldItems != 0)
-	{
+	if (d->numHeldItems != 0)
 		return;
-	}
 
 	// if driver is firing weapon, quit
-	if ((driver[desired_driver]->actionsFlagSet & 0x8000) != 0)
-	{
+	if ((d->actionsFlagSet & 0x8000) != 0)
 		return;
-	}
 
 	// if driver has raincloud and weapon is shuffling, quit
-	if (driver[desired_driver]->thCloud != 0)
+	if (d->thCloud != 0)
 	{
-		if (
-			(
-				(struct RainCloud*)driver[desired_driver]->thCloud->object
-				)->boolScrollItem == 1
-			)
-		{
+		if (((struct RainCloud*)d->thCloud->object)->boolScrollItem == 1)
 			return;
-		}
 	}
-
 
 	// if driver is influenced by clock weapon, quit
-	if (driver[desired_driver]->clockReceive != 0)
-	{
+	if (d->clockReceive != 0)
 		return;
-	}
-
 
 	// set weapon to roulette
-	driver[desired_driver]->heldItemID = 0x10;
+	d->heldItemID = 0x10;
+	d->numTimesHitWeaponBox++;
+	d->itemRollTimer = FPS_DOUBLE(90);
 
-
-	// incrememt
-	driver[desired_driver]->numTimesHitWeaponBox++;
-
-	// timer for weapon roulette
-	driver[desired_driver]->itemRollTimer = FPS_DOUBLE(90);
-
-	// if no roulette
+	// if no roulette running yet, start the shuffle loop
 	if ((sdata->gGT->gameMode1 & ROLLING_ITEM) == 0)
 	{
-		// start loop
 		OtherFX_Play(0x5d, 0);
-
 		sdata->gGT->gameMode1 |= ROLLING_ITEM;
 	}
 
-	//driver[desired_driver]->PickupTimeboxHUD.cooldown = FPS_DOUBLE(5);
-	driver[desired_driver]->noItemTimer = 0;
+	d->noItemTimer = 0;
 
-	if (driver[desired_driver]->heldItemID == 0x10)
+	if (d->heldItemID == 0x10)
 	{
-
-		if (driver[desired_driver]->itemRollTimer == 0)
-		{
-			VehPhysGeneral_SetHeldItem(driver[desired_driver]);
-		}
-		//if Item roll is not done
-		else driver[desired_driver]->itemRollTimer--;
+		if (d->itemRollTimer == 0)
+			VehPhysGeneral_SetHeldItem(d);
+		else d->itemRollTimer--; // item roll not done yet
 	}
 }
 
@@ -892,97 +861,169 @@ void call_hazards(unsigned char s_hazard)
 
 //load driver models in race tracks or adv hubs
 
-void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, void* callback)
+//PSX trampoline helper: returns to the caller's caller (mimics the hooked tail)
+static inline s32 get_ret(void) {
+    s32 r;
+    asm volatile("lw %0, 284($gp)" : "=r"(r));
+    return r;
+}
+void LOAD_Custom_LOD_Driver(struct BigHeader* bigfile, unsigned char levelLOD, void* arg2)
 {
-	unsigned char i;
-	int gameMode1;
-    short MODEL_QUALITY;
-	short MPK_QUALITY;
-	
-    struct GameTracker* gGT = sdata->gGT;
-	
-	unsigned char drivers = (gGT->numPlyrCurrGame > 2) ?
-	gGT->numPlyrCurrGame - 1 : gGT->numPlyrCurrGame + gGT->numBotsCurrGame - 1; 
-	
-	unsigned char lastIndex = (drivers == 0) ? 1 : drivers;
-	
-	gameMode1 = gGT->gameMode1;
-	
-	
-	//Decides which model quality should be used
-	switch(levelLOD)
+	struct GameTracker* gGT = sdata->gGT;
+	s32 gameMode1 = gGT->gameMode1;
+	s32 i;
+	unsigned char LT_DRAM = 2;
+
+	//boss race (1v1): load the player + this hub's boss character.
+	//ADVENTURE_BOSS is only set for BOSS_RACE && !isRelic (see adventure_main.c),
+	//so an isRelic boss track falls through to a normal/relic load instead.
+	if ((gameMode1 & ADVENTURE_BOSS) != 0)
 	{
-		default:
-		case 1:
-		{
-            MODEL_QUALITY = BI_RACERMODELHI;
-	        MPK_QUALITY = BI_TIMETRIALPACK;
-			break;
-		}
-		case 2:
-		{
-			MODEL_QUALITY = BI_RACERMODELMED;
-	        MPK_QUALITY = BI_2PARCADEPACK;
-			break;
-		}
-		case 3:
-		case 4:
-		{
-			MODEL_QUALITY = BI_RACERMODELLOW;
-	        MPK_QUALITY = BI_4PARCADEPACK;
-			break;
-		}
-		
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[0] + BI_RACERMODELHI,
+			&data.driverModelExtras[0], -2);
+
+		data.characterIDs[1] = BOSSES_IDS[current_track - CUSTOM_BOSS_0];
+
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[1] + BI_RACERMODELHI,
+			&data.driverModelExtras[1], -2);
+
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[1] + BI_TIMETRIALPACK,
+			NULL, arg2);
+
+		return get_ret();
 	}
 
-
-
-
-	if(
-			// If you are in Adventure cup
-			((gameMode1 & ADVENTURE_CUP) != 0) &&
-
-			// purple gem cup
-			(gGT->cup.cupID == 4)
-		)
+	//preserve Custom_Hub purple gem cup roster
+	if (((gameMode1 & ADVENTURE_CUP) != 0) && (gGT->cup.cupID == 4))
 	{
 		data.characterIDs[1] = 0xA;
 		data.characterIDs[2] = 0x9;
 		data.characterIDs[3] = 0xB;
 		data.characterIDs[4] = 0x8;
-		lastIndex = 4;
 
+		for (i = 0; i < 5; i++)
+		{
+			LOAD_AppendQueue(bigfile, LT_DRAM,
+				data.characterIDs[i] + BI_RACERMODELHI,
+				&data.driverModelExtras[i], -2);
+		}
+
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[7] + BI_TIMETRIALPACK,
+			NULL, arg2);
+
+		return get_ret();
 	}
-	else if ((gameMode1 & TIME_TRIAL) != 0) 
+
+	//main menu (not time trial): just the 1P arcade pack
+	if (((gameMode1 & MAIN_MENU) != 0) && ((gameMode1 & TIME_TRIAL) == 0))
 	{
-		lastIndex = 1; //just in case
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[0] + BI_1PARCADEPACK,
+			NULL, arg2);
+
+		return get_ret();
 	}
 
+	//cutscene / credits / garage: adventure pack
+	if (
+			((gameMode1 & GAME_CUTSCENE) != 0) ||
+			((gGT->gameMode2 & CREDITS) != 0) ||
+			(gGT->levelID == ADVENTURE_GARAGE))
+	{
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[0] + BI_ADVENTUREPACK,
+			NULL, arg2);
 
-	if(((gameMode1 & (ADVENTURE_MODE | ARCADE_MODE)) != 0) && (levelLOD == 1))
-		 LOAD_Robots1P(data.characterIDs[0]);
+		return get_ret();
+	}
 
+	//adventure arena: player model + time trial pack
+	if ((gameMode1 & ADVENTURE_ARENA) != 0)
+	{
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[0] + BI_RACERMODELHI,
+			&data.driverModelExtras[0], -2);
 
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[7] + BI_TIMETRIALPACK,
+			NULL, arg2);
 
-            for(i = 0; i < lastIndex; i++)
-		   {
-			// CTR model
-			 LOAD_AppendQueue(bigfile, 2,
-				MODEL_QUALITY + data.characterIDs[i],
-				&data.driverModelExtras[i],0xfffffffe);
-		   }
-		   
+		return get_ret();
+	}
 
-		   	if(((gameMode1 & ARCADE_MODE) != 0) && (levelLOD == 2))
-		   {
-			   	LOAD_Robots2P(bigfile, data.characterIDs[0], data.characterIDs[1], callback);
-				return;
-		   }
-			
-     //mpk
-	 LOAD_AppendQueue(
-		bigfile, 2,
-		MPK_QUALITY + data.characterIDs[i],
-		NULL, callback);
-	
+	//default: load all 8 racers so the AI grid has its models
+	for (i = 0; i < 8; i++)
+	{
+		if (i > 0)
+			data.characterIDs[i] = (data.characterIDs[0] + i) % 8;
+
+		LOAD_AppendQueue(bigfile, LT_DRAM,
+			data.characterIDs[i] + BI_RACERMODELHI,
+			&data.driverModelExtras[i], -2);
+	}
+
+	LOAD_AppendQueue(bigfile, LT_DRAM,
+		data.characterIDs[7] + BI_TIMETRIALPACK,
+		NULL, arg2);
+
+	return get_ret();
+}
+
+//used by VehBirth_GetModelByName (getmodel.c) to locate a loaded character model
+struct Model* gtm(char *searchName)
+{
+	struct Model *m;
+	struct Model **models;
+	int i;
+
+	// array of character models loaded (up to 8)
+	models = (struct Model **)&data.driverModelExtras[0];
+
+	for (i = 0; i < 8; i++)
+	{
+		m = models[i];
+
+		// 16 bytes is enough to match the name
+		if (
+				(m != NULL) &&
+				(*(u_int *)&m->name[0] == *(u_int *)&searchName[0]) &&
+				(*(u_int *)&m->name[4] == *(u_int *)&searchName[4]) &&
+				(*(u_int *)&m->name[8] == *(u_int *)&searchName[8]) &&
+				(*(u_int *)&m->name[12] == *(u_int *)&searchName[12])
+			)
+		{
+			return m;
+		}
+	}
+
+	models = (struct Model**)sdata->PLYROBJECTLIST;
+
+	if (
+			(models != NULL) &&
+			(models[0] != NULL)
+		)
+	{
+		for (
+				i = 0,	m = models[i];
+				m != NULL;
+				i++,	m = models[i]
+			)
+		{
+			if (
+					(*(u_int *)&m->name[0] == *(u_int *)&searchName[0]) &&
+					(*(u_int *)&m->name[4] == *(u_int *)&searchName[4]) &&
+					(*(u_int *)&m->name[8] == *(u_int *)&searchName[8]) &&
+					(*(u_int *)&m->name[12] == *(u_int *)&searchName[12])
+				)
+			{
+				return m;
+			}
+		}
+	}
+
+	return NULL;
 }

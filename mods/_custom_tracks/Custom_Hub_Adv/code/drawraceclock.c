@@ -96,8 +96,9 @@ void time_helper(u_char showthis, bool win)
 	posxy[1] = (showthis == 1) ? 0x4C + 20 : 0x18; // y
 	
 	
-	    //if times condition to win is enabled
-	    if (hardcore)
+	    //relic race: show the target time (flashing yellow) during the race, and
+	    //YOU WIN! / YOU FAILED! at the end
+	    if (isRelic)
 		{
 			unsigned short coordY = (showthis == 1) ? posxy[1] - 36 : 206;
 			unsigned short coordX = (showthis == 1) ? 0x100 : 60;

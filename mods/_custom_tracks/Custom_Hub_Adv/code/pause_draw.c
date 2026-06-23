@@ -10,10 +10,10 @@ void AH_Pause_Draw(int pageID, int posX)
 	int buttonTap = sdata->gGamepads->gamepad[0].buttonsTapped;
 	
 	if (buttonTap & BTN_LEFT)
-		curr_page = (curr_page == 0) ? 6 : curr_page - 1;
+		curr_page = (curr_page == 0) ? NUM_HUBS : curr_page - 1;
 	
 	if (buttonTap & BTN_RIGHT)
-		curr_page = (curr_page == 6) ? 0 : curr_page + 1;
+		curr_page = (curr_page == NUM_HUBS) ? 0 : curr_page + 1;
 
 
 
@@ -96,11 +96,11 @@ void AH_Pause_Draw(int pageID, int posX)
 
 
 		// gemstone
-		if(curr_page == 6)
+		if(curr_page == NUM_HUBS)
 		{
 
 			 DecalFont_DrawLine(
-				track_names[CUSTOM_BOSS5],
+				track_names[CUSTOM_BOSS_0 + NUM_HUBS - 1],
 				posX + 0x6e, 2*0x10 + 4 + 0x26,
 				FONT_BIG, 4);
 
@@ -110,7 +110,7 @@ void AH_Pause_Draw(int pageID, int posX)
 			int color = 0x15;
 
 			// set to grey (if beaten oxide at least once)
-			if(adv_progress[CUSTOM_BOSS5])
+			if(adv_progress[CUSTOM_BOSS_0 + NUM_HUBS - 1])
 				color = 1;
 
 			u_int *starColor;
@@ -142,8 +142,7 @@ void AH_Pause_Draw(int pageID, int posX)
 		else
 		{
 				 
-			    unsigned char menuIndex[6] = {adv_order[HUB_1 + 0], adv_order[HUB_2 + 0],
-				adv_order[HUB_3 + 0], adv_order[HUB_4 + 0], adv_order[HUB_5 + 0], adv_order[HUB_FINAL + 0]};
+			    unsigned char count = hub_track_count[curr_page]; //tracks in this hub (last one is the boss)
 				
 				
 				unsigned char bossID = CUSTOM_BOSS_0 + curr_page;
@@ -158,22 +157,20 @@ void AH_Pause_Draw(int pageID, int posX)
 
 
 			// 6 custom tracks per hub
-			for(int i = 0; i < 5; i++)
+			for(int i = 0; i < count; i++)
 			{
-				//dont show more tracks in page 2 or last page
-				if ((curr_page == 1) &&
-					(i > 1) || (curr_page == 5 && i > 3))
-					{break;}
+				//track count for this hub comes from hub_track_count[]
 					
 				
 				//BOSSES
-				if ((i == 4) || (curr_page == 1 && i == 1))
+				if (i == count - 1)
 				{
 					
 
 
                      instanceIndex = 12;
-					 advPauseInst = 5;
+					 //key by default; a boss flagged isRelic shows the relic instead
+					 advPauseInst = track_is_relic[bossID] ? 6 : 5;
 					 textColor = WHITE;
 					 
 					 
@@ -191,13 +188,13 @@ void AH_Pause_Draw(int pageID, int posX)
 
 				else
 				{
-					level_LNG = track_names[menuIndex[curr_page] + i];
-					prize_index = menuIndex[curr_page] + i;
+					prize_index = adv_order[hub_start[curr_page] + i];
+					level_LNG = track_names[prize_index];
 												
 					
 
 					instanceIndex = i;
-					advPauseInst = 6;
+					advPauseInst = track_is_relic[prize_index] ? 6 : 14; //trophy default, relic if isRelic
 					textColor = ORANGE;
 					NewCoords[0] = posX + 0x50; 
 					NewCoords[1] = i*0x10 + 0 + 0x26;
@@ -307,7 +304,8 @@ void AH_Pause_Draw(int pageID, int posX)
 				
 				inst->alphaScale = 0;
 							
-				if (i != 12)
+				//only the relic model is tinted with relic_color; trophy and key keep their own
+				if (index == 6)
 				{
 					inst->colorRGBA = instanceColor(BGR_TO_RGB(CTR_FontColor(relic_color)));
 				}

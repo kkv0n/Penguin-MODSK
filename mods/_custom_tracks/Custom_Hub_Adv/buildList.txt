@@ -3,19 +3,19 @@
 
 
 //zone 1
-common, bigfilelevelstracksisland1relicdatavrm, 0x0, 0x0, custom_tracks/hub1/track1.vrm
-common, bigfilelevelstracksisland1relicdatalev, 0x0, 0x0, custom_tracks/hub1/track1.lev
-common, bigfilelevelstrackstube1relicdatavrm, 0x0, 0x0, custom_tracks/hub1/track2.vrm
-common, bigfilelevelstrackstube1relicdatalev, 0x0, 0x0, custom_tracks/hub1/track2.lev
-common, bigfilelevelstrackscave1relicdatavrm, 0x0, 0x0, custom_tracks/hub1/track3.vrm
-common, bigfilelevelstrackscave1relicdatalev, 0x0, 0x0, custom_tracks/hub1/track3.lev
-common, bigfilelevelsbattleskull_rock1datavrm, 0x0, 0x0, custom_tracks/hub1/track4.vrm
-common, bigfilelevelsbattleskull_rock1datalev, 0x0, 0x0, custom_tracks/hub1/track4.lev
+common, bigfilelevelstracksisland1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad1.vrm
+common, bigfilelevelstracksisland1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad1.lev
+common, bigfilelevelstrackstube1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad2.vrm
+common, bigfilelevelstrackstube1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad2.lev
+common, bigfilelevelstrackscave1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad3.vrm
+common, bigfilelevelstrackscave1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad3.lev
+common, bigfilelevelsbattleskull_rock1datavrm, 0x0, 0x0, custom_tracks/warppads/warppad4.vrm
+common, bigfilelevelsbattleskull_rock1datalev, 0x0, 0x0, custom_tracks/warppads/warppad4.lev
 
 
 //zone 2
-common, bigfilelevelstrackssewer1relicdatavrm, 0x0, 0x0, custom_tracks/hub2/track1.vrm
-common, bigfilelevelstrackssewer1relicdatalev, 0x0, 0x0, custom_tracks/hub2/track1.lev
+common, bigfilelevelstrackssewer1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad5.vrm
+common, bigfilelevelstrackssewer1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad5.lev
 
 
 
@@ -24,27 +24,27 @@ common, bigfilelevelstrackssewer1relicdatalev, 0x0, 0x0, custom_tracks/hub2/trac
 
 
 //zone 3
-common, bigfilelevelstrackssecret1relicdatavrm, 0x0, 0x0, custom_tracks/hub3/track1.vrm
-common, bigfilelevelstrackssecret1relicdatalev, 0x0, 0x0, custom_tracks/hub3/track1.lev
-common, bigfilelevelstrackstemple1relicdatavrm, 0x0, 0x0, custom_tracks/hub3/track2.vrm
-common, bigfilelevelstrackstemple1relicdatalev, 0x0, 0x0, custom_tracks/hub3/track2.lev
-common, bigfilelevelstrackscoco1relicdatavrm, 0x0, 0x0, custom_tracks/hub3/track3.vrm
-common, bigfilelevelstrackscoco1relicdatalev, 0x0, 0x0, custom_tracks/hub3/track3.lev
-common, bigfilelevelstrackstemple2relicdatavrm, 0x0, 0x0, custom_tracks/hub3/track4.vrm
-common, bigfilelevelstrackstemple2relicdatalev, 0x0, 0x0, custom_tracks/hub3/track4.lev
+common, bigfilelevelstrackssecret1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad6.vrm
+common, bigfilelevelstrackssecret1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad6.lev
+common, bigfilelevelstrackstemple1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad7.vrm
+common, bigfilelevelstrackstemple1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad7.lev
+common, bigfilelevelstrackscoco1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad8.vrm
+common, bigfilelevelstrackscoco1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad8.lev
+common, bigfilelevelstrackstemple2relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad9.vrm
+common, bigfilelevelstrackstemple2relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad9.lev
 
 
 
 
 //zone 4
-common, bigfilelevelsbattlerampage_ruins1datavrm, 0x0, 0x0, custom_tracks/hub4/track1.vrm
-common, bigfilelevelsbattlerampage_ruins1datalev, 0x0, 0x0, custom_tracks/hub4/track1.lev
-common, bigfilelevelstracksproto8relicdatavrm, 0x0, 0x0, custom_tracks/hub4/track2.vrm
-common, bigfilelevelstracksproto8relicdatalev, 0x0, 0x0, custom_tracks/hub4/track2.lev
-common, bigfilelevelstracksdesert2relicdatavrm, 0x0, 0x0, custom_tracks/hub4/track3.vrm
-common, bigfilelevelstracksdesert2relicdatalev, 0x0, 0x0, custom_tracks/hub4/track3.lev
-common, bigfilelevelstracksproto9relicdatavrm, 0x0, 0x0, custom_tracks/hub4/track4.vrm
-common, bigfilelevelstracksproto9relicdatalev, 0x0, 0x0, custom_tracks/hub4/track4.lev
+common, bigfilelevelsbattlerampage_ruins1datavrm, 0x0, 0x0, custom_tracks/warppads/warppad10.vrm
+common, bigfilelevelsbattlerampage_ruins1datalev, 0x0, 0x0, custom_tracks/warppads/warppad10.lev
+common, bigfilelevelstracksproto8relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad11.vrm
+common, bigfilelevelstracksproto8relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad11.lev
+common, bigfilelevelstracksdesert2relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad12.vrm
+common, bigfilelevelstracksdesert2relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad12.lev
+common, bigfilelevelstracksproto9relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad13.vrm
+common, bigfilelevelstracksproto9relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad13.lev
 
 
 
@@ -53,45 +53,45 @@ common, bigfilelevelstracksproto9relicdatalev, 0x0, 0x0, custom_tracks/hub4/trac
 
 //zone 5
 
-common, bigfilelevelstracksice1relicdatavrm, 0x0, 0x0, custom_tracks/hub5/track1.vrm
-common, bigfilelevelstracksice1relicdatalev, 0x0, 0x0, custom_tracks/hub5/track1.lev
-common, bigfilelevelsbattlerocky_road1datavrm, 0x0, 0x0, custom_tracks/hub5/track2.vrm
-common, bigfilelevelsbattlerocky_road1datalev, 0x0, 0x0, custom_tracks/hub5/track2.lev
-common, bigfilelevelstracksarena2relicdatavrm, 0x0, 0x0, custom_tracks/hub5/track3.vrm
-common, bigfilelevelstracksarena2relicdatalev, 0x0, 0x0, custom_tracks/hub5/track3.lev
-common, bigfilelevelstrackslabs1relicdatavrm, 0x0, 0x0, custom_tracks/hub5/track4.vrm
-common, bigfilelevelstrackslabs1relicdatalev, 0x0, 0x0, custom_tracks/hub5/track4.lev
+common, bigfilelevelstracksice1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad14.vrm
+common, bigfilelevelstracksice1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad14.lev
+common, bigfilelevelsbattlerocky_road1datavrm, 0x0, 0x0, custom_tracks/warppads/warppad15.vrm
+common, bigfilelevelsbattlerocky_road1datalev, 0x0, 0x0, custom_tracks/warppads/warppad15.lev
+common, bigfilelevelstracksarena2relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad16.vrm
+common, bigfilelevelstracksarena2relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad16.lev
+common, bigfilelevelstrackslabs1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad17.vrm
+common, bigfilelevelstrackslabs1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad17.lev
 
 
 
 
 
 //zone 6
-common, bigfilelevelstrackscastle1relicdatavrm, 0x0, 0x0, custom_tracks/hub6/track1.vrm
-common, bigfilelevelstrackscastle1relicdatalev, 0x0, 0x0, custom_tracks/hub6/track1.lev
-common, bigfilelevelstracksblimp1relicdatavrm, 0x0, 0x0, custom_tracks/hub6/track2.vrm
-common, bigfilelevelstracksblimp1relicdatalev, 0x0, 0x0, custom_tracks/hub6/track2.lev
-common, bigfilelevelsbattlenitro_court1datavrm, 0x0, 0x0, custom_tracks/hub6/track3.vrm
-common, bigfilelevelsbattlenitro_court1datalev, 0x0, 0x0, custom_tracks/hub6/track3.lev
-common, bigfilelevelstracksspacerelicdatavrm, 0x0, 0x0, custom_tracks/hub6/track4.vrm
-common, bigfilelevelstracksspacerelicdatalev, 0x0, 0x0, custom_tracks/hub6/track4.lev
+common, bigfilelevelstrackscastle1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad18.vrm
+common, bigfilelevelstrackscastle1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad18.lev
+common, bigfilelevelstracksblimp1relicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad19.vrm
+common, bigfilelevelstracksblimp1relicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad19.lev
+common, bigfilelevelsbattlenitro_court1datavrm, 0x0, 0x0, custom_tracks/warppads/warppad20.vrm
+common, bigfilelevelsbattlenitro_court1datalev, 0x0, 0x0, custom_tracks/warppads/warppad20.lev
+common, bigfilelevelstracksspacerelicdatavrm, 0x0, 0x0, custom_tracks/warppads/warppad21.vrm
+common, bigfilelevelstracksspacerelicdatalev, 0x0, 0x0, custom_tracks/warppads/warppad21.lev
 
 
 
 
 //bosses
-common, bigfilelevelstrackstube11Pdatavrm, 0x0, 0x0, custom_tracks/hub1/boss.vrm
-common, bigfilelevelstrackstube11Pdatalev, 0x0, 0x0, custom_tracks/hub1/boss.lev
-common, bigfilelevelstrackssecret2relicdatavrm, 0x0, 0x0, custom_tracks/hub2/boss.vrm
-common, bigfilelevelstrackssecret2relicdatalev, 0x0, 0x0, custom_tracks/hub2/boss.lev
-common, bigfilelevelstrackstemple21Pdatavrm, 0x0, 0x0, custom_tracks/hub3/boss.vrm
-common, bigfilelevelstrackstemple21Pdatalev, 0x0, 0x0, custom_tracks/hub3/boss.lev
-common, bigfilelevelstracksproto91Pdatavrm, 0x0, 0x0, custom_tracks/hub4/boss.vrm
-common, bigfilelevelstracksproto91Pdatalev, 0x0, 0x0, custom_tracks/hub4/boss.lev
-common, bigfilelevelstracksblimp11Pdatavrm, 0x0, 0x0, custom_tracks/hub5/boss.vrm
-common, bigfilelevelstracksblimp11Pdatalev, 0x0, 0x0, custom_tracks/hub5/boss.lev
-common, bigfilelevelstracksspace1Pdatavrm, 0x0, 0x0, custom_tracks/hub6/boss.vrm
-common, bigfilelevelstracksspace1Pdatalev, 0x0, 0x0, custom_tracks/hub6/boss.lev
+common, bigfilelevelstrackstube11Pdatavrm, 0x0, 0x0, custom_tracks/bosses/boss1.vrm
+common, bigfilelevelstrackstube11Pdatalev, 0x0, 0x0, custom_tracks/bosses/boss1.lev
+common, bigfilelevelstrackssecret2relicdatavrm, 0x0, 0x0, custom_tracks/bosses/boss2.vrm
+common, bigfilelevelstrackssecret2relicdatalev, 0x0, 0x0, custom_tracks/bosses/boss2.lev
+common, bigfilelevelstrackstemple21Pdatavrm, 0x0, 0x0, custom_tracks/bosses/boss3.vrm
+common, bigfilelevelstrackstemple21Pdatalev, 0x0, 0x0, custom_tracks/bosses/boss3.lev
+common, bigfilelevelstracksproto91Pdatavrm, 0x0, 0x0, custom_tracks/bosses/boss4.vrm
+common, bigfilelevelstracksproto91Pdatalev, 0x0, 0x0, custom_tracks/bosses/boss4.lev
+common, bigfilelevelstracksblimp11Pdatavrm, 0x0, 0x0, custom_tracks/bosses/boss5.vrm
+common, bigfilelevelstracksblimp11Pdatalev, 0x0, 0x0, custom_tracks/bosses/boss5.lev
+common, bigfilelevelstracksspace1Pdatavrm, 0x0, 0x0, custom_tracks/bosses/boss6.vrm
+common, bigfilelevelstracksspace1Pdatalev, 0x0, 0x0, custom_tracks/bosses/boss6.lev
 
 //Custom hub
 common, bigfilelevelsadventurensanity_beachdatavrm, 0x0, 0x0, custom_tracks/custom_hub.vrm
@@ -112,14 +112,10 @@ common, bigfilelevelsadventurensanity_beachdatalev, 0x0, 0x0, custom_tracks/cust
 //fixes
 common, exe, MainFrame_RenderFrame, 0x0, code/renderframe.c
 common, exe, UI_DrawRaceClock, 0x0, code/drawraceclock.c
-common, exe, BOTS_Driver_Init, 0x0, code/fixes/bots_init
 common, exe, PlayLevel_UpdateLapStats, 0x0, code/laps.c
-common, exe, CTR_CycleTex_LEV, 0x0, code/fixes/cicle.c
 common, exe, UI_INSTANCE_InitAll, 0x0, code/fixes/nopos.c
-common, exe, UI_DrawPosSuffix, 0x0, code/fixes/uifix1.c
 common, exe, MainInit_OTMem, 0x0, code/fixes/otmem.c
 common, exe, MainInit_PrimMem, 0x0, code/fixes/primem.c
-common, exe, UI_DrawRankedDrivers, 0x0, code/fixes/ui_driver.c
 common, exe, main, 0x0, code/mainmain_ctr.c
 common, 230, MM_MenuProc_Main, 0x0, code/ctr_main_menu.c
 common, exe, Audio_Update1, 0x0, code/fixes/audio.c
@@ -152,10 +148,6 @@ common, exe, MainFreeze_SafeAdvDestroy, 0x0, code/fixes/clean_pause.c
 
 
 
-
-//custom itemset
-common, exe, VehPhysGeneral_SetHeldItem, 0x0, code/items.c
-
 //credits cutscene
 common, 233, CS_Credits_End, 0x0, code/credits_end.c
 
@@ -166,3 +158,8 @@ common, custom_adventure, 0x807F1000, 0x0, code/adv.c
 
 
 //--end of code files--//
+
+//added ports: bot loading helpers + relic-race UI skip
+common, exe, LOAD_AppendQueue, 0x0, code/fixes/appendqueue.c
+common, exe, VehBirth_GetModelByName, 0x0, code/fixes/getmodel.c
+common, exe, UI_RenderFrame_Racing, 0x0, code/raceframe.c

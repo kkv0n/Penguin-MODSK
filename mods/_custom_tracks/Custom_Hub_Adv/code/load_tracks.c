@@ -468,7 +468,9 @@ int LOAD_TenStages(struct GameTracker* gGT, int loadingStage, struct BigHeader* 
 		// == banks are done parsing ===
 
 
-#define NUM_CHECK 1 // modding: 8 drivers
+#define NUM_CHECK 8 // 8 drivers: LOAD_Custom_LOD_Driver loads 8 racer models, so all
+                    // 8 driverModelExtras pointers must be converted here (unconverted
+                    // bot models = raw file pointers = crash). Zero entries are skipped.
 
 
 // loop through models

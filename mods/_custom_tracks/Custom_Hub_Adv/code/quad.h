@@ -15,7 +15,9 @@ extern uint16_t q_flag[4];
 extern unsigned char single_item[4];
 extern unsigned char g_language;
 extern unsigned char LAP_COUNT_TIMER;
-extern unsigned char item_set[];
+extern struct Driver* driver[4];
+extern unsigned char desired_driver;
+void weapon_roulette(unsigned char index); //index into sdata->gGT->drivers[]
 
 
 

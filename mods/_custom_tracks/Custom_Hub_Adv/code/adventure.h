@@ -2,20 +2,47 @@
 #define ADVENTURE_H
 #include <common.h>
 
-#define WARPPAD_TRACKS 22 //not bosses
-#define MAX_TRACKS 27 //max custom track number in this mod
+//=============================================================================
+//  ADVENTURE LAYOUT CONFIG
+//  - Set NUM_HUBS below.
+//  - Set hub_track_count[] and spawn_until[] in adventure_settings.c.
+//  Hard limits: 6 hubs, 27 tracks, 8 spawn points. We always spawn in hub 1, so
+//  NUM_DOORS = NUM_HUBS - 1. The LAST track of every hub is its boss.
+//=============================================================================
+// ---- HARD CAPS (not user-editable; just the maximum array sizes) ----
+#define MAX_HUBS 6                 // never exceed 6 hubs
+#define MAX_TRACKS 27              // never exceed 27 tracks
+#define MAX_SPAWNS 8               // never exceed 8 hub spawn points
+#define MAX_DOORS (MAX_HUBS - 1)   // never exceed 5 doors
+#define SPAWN_FINAL 0xFF           // spawn_until[] marker: spawn used once everything is done
+
+// NUM_HUBS, hub_track_count[] and spawn_until[] are USER-EDITABLE in adventure_settings.c.
+#define NUM_DOORS (NUM_HUBS - 1)   // doors actually used = one between consecutive used hubs
+
+#define WARPPAD_TRACKS 22 //not bosses (legacy)
 #define NUM_CHARACTERS 16
-#define NUM_DOORS 5
 #define BOSS_RACE (current_track > CUSTOM_21 && current_track < CUSTOM_HUB)
 
+//---- layout tables, built once at runtime from the config (build_layout in adv.c) ----
+extern unsigned char TOTAL_TRACKS;              //sum of hub_track_count[]
+extern unsigned char hub_start[MAX_HUBS];       //adv_order index where each hub starts
+extern unsigned char adv_position[MAX_TRACKS];  //inverse of adv_order (track -> progression slot)
+extern unsigned char track_hub[MAX_TRACKS];     //hub index each track belongs to
+extern const unsigned char NUM_HUBS;   //USER-EDITABLE in adventure_settings.c (hubs used, <= MAX_HUBS)
+extern const unsigned char hub_track_count[MAX_HUBS];
+extern const unsigned char spawn_until[MAX_SPAWNS];
 
-//indexes for adv_order array
-#define HUB_1 0
-#define HUB_2 5 
-#define HUB_3 7 
-#define HUB_4 12 
-#define HUB_5 17 
-#define HUB_FINAL 22
+//warppad slots in PROGRESSION order, for spawn_until[]. WARPPAD_1 = the very first track;
+//each hub's boss is the slot right AFTER that hub's normal tracks, so the names keep
+//counting (1,2,3,4,5,...) instead of jumping to the boss enum. Names are 1-based but the
+//underlying value is 0-based (WARPPAD_1 == 0). Mapped to a real track via adv_order[].
+enum WARPPAD_SLOT
+{
+	WARPPAD_1 = 0, WARPPAD_2, WARPPAD_3, WARPPAD_4, WARPPAD_5, WARPPAD_6, WARPPAD_7,
+	WARPPAD_8, WARPPAD_9, WARPPAD_10, WARPPAD_11, WARPPAD_12, WARPPAD_13, WARPPAD_14,
+	WARPPAD_15, WARPPAD_16, WARPPAD_17, WARPPAD_18, WARPPAD_19, WARPPAD_20, WARPPAD_21,
+	WARPPAD_22, WARPPAD_23, WARPPAD_24, WARPPAD_25, WARPPAD_26, WARPPAD_27
+};
 
 
 extern const char* character_names[NUM_CHARACTERS];
@@ -23,10 +50,12 @@ extern struct Instance* relicptr;
 extern struct Instance* keyptr;
 
 void adventure_options();
+void build_layout();
 void CTR_Box_DrawWireBox(RECT* r, int* unk, u_long* ot, struct PrimMem* primMem);
 extern unsigned char curr_page;
 
 extern unsigned char load_track;
+extern bool isRelic;
 extern unsigned char current_track;
 extern bool show_stars;
 extern char* timeToWin;
@@ -34,6 +63,9 @@ extern bool hardcore;
 extern unsigned char relic_color;
 extern unsigned char numTrophys;
 extern unsigned char numKeys;
+extern unsigned char numRelics;
+extern unsigned char BOSSES_IDS[6];
+extern bool track_is_relic[MAX_TRACKS];
 
 extern bool adv_progress[MAX_TRACKS];
 extern unsigned short warppad_id[MAX_TRACKS];
@@ -44,7 +76,7 @@ extern unsigned short warppad_blockIndex[MAX_TRACKS];
 extern unsigned short invisible_texture_blockID;
 extern unsigned short locked_warppad_texture_blockID;
 extern void* unlocked_warppad_texture[4];
-extern const char* HUB_NAMES[7];
+extern const char* HUB_NAMES[MAX_HUBS + 1]; //one per hub + the final/gemstone page
 
 extern unsigned short warp_pad1_blockID;
 extern unsigned short warp_pad2_blockID;
