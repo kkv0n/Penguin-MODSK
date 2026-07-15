@@ -23,3 +23,6 @@
 	path = externals/cpp-httplib
 	url = https://github.com/yhirose/cpp-httplib
 
+[submodule "GLauncher"]
+	path = GLauncher
+	url = https://github.com/kkv0n/Gasmox-Launcher.git
