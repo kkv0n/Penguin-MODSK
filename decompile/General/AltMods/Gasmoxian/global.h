@@ -19,7 +19,11 @@
 #include <unistd.h> // for the 'usleep()' function
 #endif
 
+#ifdef __cplusplus
+#define STATIC_ASSERT2 static_assert
+#else
 #define STATIC_ASSERT2(test_for_true, message) _Static_assert((test_for_true), message)
+#endif
 
 #else // MSVC (Visual Studio)
 
@@ -74,12 +78,12 @@ enum ClientState
 #define MAX_NUM_PLYR_TOURNAMENT 4
 #define MAX_NUM_PLAYERS MAX_NUM_PLYR_NORMAL
 
-typedef struct raceStats
+typedef struct RaceStats
 {
 	int slot;
 	int finalTime;
 	int bestLap;
-} raceStats;
+} RaceStats;
 
 // This can be 0x400 (1024) bytes max:
 // 0x8000C000 to 0x8000C400
@@ -139,7 +143,7 @@ struct OnlineCTR
 	// 0x38
 	unsigned char nameBuffer[MAX_NUM_PLAYERS][NAME_LEN + 1]; //+1 for nullterm
 
-	raceStats raceStats[MAX_NUM_PLAYERS];
+	RaceStats raceStats[MAX_NUM_PLAYERS];
 
 	int ver_psx;
 	int ver_pc;

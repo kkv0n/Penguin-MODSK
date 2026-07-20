@@ -1,3 +1,4 @@
+#ifdef __WINDOWS__
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -5,17 +6,28 @@
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <Psapi.h>
-#include <time.h>
-#include <atomic>
-//#include <chrono>
-//#include <thread>
+#include <psapi.h>
 #pragma comment (lib, "Ws2_32.lib")
 #pragma comment (lib, "Mswsock.lib")
 #pragma comment (lib, "AdvApi32.lib")
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <ctype.h>
+#include <atomic>
+//#include <chrono>
+//#include <thread>
+
+#ifndef __WINDOWS__
+#include <unistd.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#endif
 
 #define WINDOWS_INCLUDE
 #include "../../../../../decompile/General/AltMods/Gasmoxian/global.h"
@@ -79,12 +91,13 @@ unsigned char name[100];
 ENetHost* clientHost;
 ENetPeer* serverPeer;
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) && !defined(__GNUC__)
 void usleep(__int64 usec);
 #endif
 
 double timers[2];
 
+#ifdef __WINDOWS__
 double getTimeInSeconds() {
 	LARGE_INTEGER frequency;
 	LARGE_INTEGER currentTime;
@@ -92,6 +105,13 @@ double getTimeInSeconds() {
 	QueryPerformanceCounter(&currentTime);   
 	return static_cast<double>(currentTime.QuadPart) / frequency.QuadPart;
 }
+#else
+double getTimeInSeconds() {
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return ts.tv_sec + ts.tv_nsec / 1e9;
+}
+#endif
 
 std::atomic<bool> lockengineandcharacter(false);
 int prev_warpclock = -1;
@@ -670,7 +690,11 @@ void ProcessNewMessages()
 			if (serverPeer == 0)
 				break;
 
-			system("cls");
+	#ifdef __WINDOWS__
+		system("cls");
+#else
+		printf("\033[H\033[J");
+#endif
 			PrintBanner(SHOW_NAME);
 			printf("\nClient: Connection Dropped (Server Full or Server Offline)...  ");
 			passwordSent = false;
@@ -850,7 +874,7 @@ void StatePC_Launch_PickServer()
 		// MEDNAFEN PERU
 		case 0:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "mednafen-peru2.ddns.net"); 
+			snprintf(dns_string, sizeof(dns_string), "%s", "mednafen-peru2.ddns.net"); 
 			enet_address_set_host(&addr, dns_string);
 			addr.port = 54321; 
 
@@ -859,7 +883,7 @@ void StatePC_Launch_PickServer()
 		// MEDNAFEN USA)
 		case 1:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "mednafen-us.ddns.net"); 
+			snprintf(dns_string, sizeof(dns_string), "%s", "mednafen-us.ddns.net"); 
 			enet_address_set_host(&addr, dns_string);
 			addr.port = 54321;
 
@@ -868,7 +892,7 @@ void StatePC_Launch_PickServer()
 		//GASMOX CHILE
 		case 2:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "ctr.ryu7w7.xyz");
+			snprintf(dns_string, sizeof(dns_string), "%s", "ctr.ryu7w7.xyz");
 			enet_address_set_host(&addr, dns_string);
 			addr.port = 5727;
 			break;
@@ -876,7 +900,7 @@ void StatePC_Launch_PickServer()
 		//GASMOX BRASIL
 		case 3:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "gasmoxbr.duckdns.org");
+			snprintf(dns_string, sizeof(dns_string), "%s", "gasmoxbr.duckdns.org");
 			enet_address_set_host(&addr, dns_string);
 			addr.port = 5029;
 			break;
@@ -884,7 +908,7 @@ void StatePC_Launch_PickServer()
 		//GASMOX ASIA
 		case 4:
 		{
-			strcpy_s(dns_string, sizeof(dns_string), "38.47.191.253");
+			snprintf(dns_string, sizeof(dns_string), "%s", "38.47.191.253");
 			enet_address_set_host(&addr, dns_string);
 			addr.port = 7777;
 			break;
@@ -900,7 +924,7 @@ void StatePC_Launch_PickServer()
 			//PORT is the 2nd line
 			const char* filePath = ".\\data\\host\\host.txt";
 			FILE* file;
-			errno_t err = fopen_s(&file, filePath, "r");
+			int err = ((file = fopen(filePath, "r")) == NULL);
 
 
 			if (err != 0)
@@ -922,7 +946,7 @@ void StatePC_Launch_PickServer()
 				ip[strcspn(ip, "\n")] = '\0';
 
 		
-				if (strlen(ip) == 0) strcpy_s(ip, IP_ADDRESS_SIZE, DEFAULT_IP);
+				if (strlen(ip) == 0) snprintf(ip, IP_ADDRESS_SIZE, "%s", DEFAULT_IP);
 
 			private_server_port:
 
@@ -1701,15 +1725,15 @@ int containsProhibitedNames(const unsigned char* str) {
 	unsigned char lowerStr[NAME_LEN + 1];
 
 	
-	strncpy_s((char*)lowerStr, sizeof(lowerStr), (const char*)str, NAME_LEN);
-	lowerStr[NAME_LEN] = '\0'; 
+	strncpy((char*)lowerStr, (const char*)str, NAME_LEN);
+	lowerStr[NAME_LEN] = '\0';
 	toLowerCase(lowerStr);
 
 	for (int i = 0; i < NUM_PROHIBITED_NAMES; i++) {
 		unsigned char lowerProhibited[NAME_LEN + 1];
 
 		
-		strncpy_s((char*)lowerProhibited, sizeof(lowerProhibited), (const char*)prohibitedNames[i], NAME_LEN);
+		strncpy((char*)lowerProhibited, (const char*)prohibitedNames[i], NAME_LEN);
 		lowerProhibited[NAME_LEN] = '\0'; 
 		toLowerCase(lowerProhibited);
 
@@ -1755,18 +1779,22 @@ void afktimer() {
 	}
 }
 // for EnumProcessModules
+#ifdef __WINDOWS__
 #pragma comment(lib, "psapi.lib")
+#endif
 
 char* progName;
 
 int main(int argc, char* argv[])
 {
 	progName = argv[0];
+#ifdef __WINDOWS__
 	HWND console = GetConsoleWindow();
 	RECT r;
 	GetWindowRect(console, &r); // stores the console's current dimensions
 	MoveWindow(console, r.left, r.top, 800, 480 + 35, TRUE);
 	SetConsoleOutputCP(CP_UTF8); // force the output to be unicode (UTF-8)
+#endif
 
 	if (argc == 2)
 	{
@@ -1777,18 +1805,31 @@ int main(int argc, char* argv[])
 		PrintBanner(DONT_SHOW_NAME);
 		// ask for the users online identification
 		printf("Enter Your Username (11) = ");
+#ifdef __WINDOWS__
 		scanf_s("%s", name, (int)sizeof(name));
+#else
+		fgets((char*)name, sizeof(name), stdin);
+		{
+			size_t len = strlen((char*)name);
+			if (len > 0 && name[len - 1] == '\n')
+				name[len - 1] = '\0';
+		}
+#endif
 	}
 
 	if (containsProhibitedNames(name)) {
 		printf("\nyour username contains banned words, using default instead: \"gasmoxian\"\n");
-		strcpy_s((char*)name, NAME_LEN, "gasmoxian");
+		snprintf((char*)name, NAME_LEN, "%s", "gasmoxian");
 	}
 
 	name[NAME_LEN] = 0; // truncate the name (0 based)
 
 	// show a welcome message
+#ifdef __WINDOWS__
 	system("cls");
+#else
+	printf("\033[H\033[J");
+#endif
 	PrintBanner(SHOW_NAME);
 	printf("\n");
 
@@ -1816,6 +1857,7 @@ int main(int argc, char* argv[])
 	//int sleepCount = 5000;
 	//int enableDeferredGPU = 1;
 
+#ifdef __WINDOWS__
 	int numDuckInstances = 0;
 	const char* duckTemplate = "duckstation";
 	int duckPID = -1;
@@ -1913,6 +1955,57 @@ int main(int argc, char* argv[])
 		//execv(argv[0], newargv);
 		exit(EXIT_FAILURE);
 	}
+#else
+	int duckPID = -1;
+
+	{
+		DIR* shm = opendir("/dev/shm");
+		if (shm)
+		{
+			struct dirent* entry;
+			while ((entry = readdir(shm)) != NULL)
+			{
+				int pid;
+				if (sscanf(entry->d_name, "duckstation_%d", &pid) == 1)
+				{
+					duckPID = pid;
+				}
+			}
+			closedir(shm);
+		}
+	}
+
+	if (duckPID == -1)
+	{
+		printf("Error: DuckStation is not running!\n\n");
+		printf("Press enter to exit...\n");
+		getchar();
+		exit(0);
+	}
+	else printf("Client: DuckStation detected (PID %d)\n", duckPID);
+
+	char duckName[64];
+	snprintf(duckName, sizeof(duckName), "duckstation_%d", duckPID);
+
+	// 8 MB RAM
+	int fd = shm_open(duckName, O_RDWR, 0600);
+	if (fd < 0)
+	{
+		printf("Error: Failed to open DuckStation!\n\n");
+		printf("Press enter to exit...\n");
+		getchar();
+		exit(EXIT_FAILURE);
+	}
+	pBuf = (char*)mmap(NULL, 0x800000, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	close(fd);
+	if (pBuf == MAP_FAILED)
+	{
+		printf("Error: Failed to open DuckStation!\n\n");
+		printf("Press enter to exit...\n");
+		getchar();
+		exit(EXIT_FAILURE);
+	}
+#endif
 
 	octr = (OnlineCTR*)&pBuf[0x8000C000 & 0xffffff];
 	octr->autoRetryJoinRoomIndex = -1;
@@ -1962,10 +2055,15 @@ int main(int argc, char* argv[])
 	}
 
 	printf("\n");
+#ifdef __WINDOWS__
 	system("pause");
+#else
+	printf("Press enter to exit...\n");
+	getchar();
+#endif
 }
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) && !defined(__GNUC__)
 void usleep(__int64 usec)
 {
 	HANDLE timer;
